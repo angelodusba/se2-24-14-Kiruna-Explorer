@@ -140,6 +140,3 @@ dist
 *.sln
 *.sw?
 .directory
-
-# Env files
-.env

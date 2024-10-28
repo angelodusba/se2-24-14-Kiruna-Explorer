@@ -2,7 +2,7 @@ services:
   db:
     image: postgis/postgis:17-3.5 # PostGIS with PostgreSQL 17
     restart: always
-    container_name: postgis
+    container_name: kiruna_postgis
     env_file:
       - .env
     environment:
@@ -16,7 +16,7 @@ services:
 
   db_gui:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: kiruna_pgadmin
     env_file:
       - .env
     environment:
