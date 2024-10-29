@@ -13,7 +13,7 @@ import { Document } from './dataModels/Document'
 import DynamicColumnForm from './components/AddDocumentForm'
 
 function App() {
-  return <DynamicColumnForm />;
+  
   const [count, setCount] = useState(0)
 
 
