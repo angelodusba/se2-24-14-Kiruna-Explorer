@@ -1,0 +1,7 @@
+# PostGIS with PostgreSQL 17
+FROM postgis/postgis:17-3.5
+
+# Copy and create initial db schema if needed
+COPY initial_schema.sql /docker-entrypoint-initdb.d/initial_00schema.sql
+# Copy and insert some initial data
+COPY initial_data.sql /docker-entrypoint-initdb.d/initial_01data.sql
