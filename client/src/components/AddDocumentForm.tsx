@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Container, TextField, Button, Typography, Box, InputAdornment } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { useEffect } from 'react';
 import { Document } from '../dataModels/Document';
 
 export function DynamicColumnForm(props: any) {
