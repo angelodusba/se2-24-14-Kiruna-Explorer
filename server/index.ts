@@ -13,7 +13,9 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+
 initRoutes(app);
+
 if (!module.parent) {
   app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);

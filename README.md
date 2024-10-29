@@ -21,4 +21,6 @@ PGADMIN_PASSWORD=kiruna
 
 3. Connect to pgAdmin web interface at the `localhost:5050` address.
 
-4. Add a new connection to the DB. Inside the **hostname** field insert the ip address of the db container (you can get it using `docker container inspect postgis`).
+4. Add a new connection to the DB.
+5. Inside the **hostname** field insert `db` (the name of the database service inside the docker compose file).
+6. To stop the containers, run `docker compose down`; if you also want to delete the local database data, execute `docker compose down -v`.

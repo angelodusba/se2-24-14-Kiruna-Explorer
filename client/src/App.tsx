@@ -1,3 +1,5 @@
+import "./App.css";
+import DynamicColumnForm from "./components/AddDocumentForm";
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -12,6 +14,7 @@ import { Document } from './dataModels/Document'
 import DynamicColumnForm from './components/AddDocumentForm'
 
 function App() {
+  return <DynamicColumnForm />;
   const [count, setCount] = useState(0)
 
 
@@ -20,4 +23,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
