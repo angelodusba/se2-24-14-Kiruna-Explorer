@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Container, Grid, TextField, Button, Typography, Box } from '@mui/material';
+import { useEffect } from 'react';
+import { Document } from '../dataModels/Document';
 
-const DynamicColumnForm = () => {
+export function DynamicColumnForm(props: any) {
+
     const [columns, setColumns] = useState([{ id: 1, value: '' }]);
+    const [document, setDocument] = useState<Document>(new Document('', '', [], '', '', { lat: 0, long: 0 }));
 
     // Add a new column
     const addColumn = () => {
@@ -14,7 +18,31 @@ const DynamicColumnForm = () => {
         const newColumns = [...columns];
         newColumns[index].value = event.target.value;
         setColumns(newColumns);
+        let temp = {...document};
+        temp.stakeholder = newColumns.map((column) => column.value);
+        setDocument(temp);
+
     };
+    //Handle file upload (Convert to base64).
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => {
+            setDocument({...document, paper: reader.result});
+          };
+          reader.onerror = (error) => {
+            console.error("Error converting file to base64:", error);
+          };
+        }
+      };
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        props.sendDocument(document);
+    }
+    
 
     return (
         <Container maxWidth="lg">
@@ -22,7 +50,7 @@ const DynamicColumnForm = () => {
                 <Typography variant="h4" gutterBottom>
                     Add a document
                 </Typography>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
                         {/*Document Title Field*/}
                         <Grid item xs={12}>
@@ -30,6 +58,7 @@ const DynamicColumnForm = () => {
                             fullWidth
                             label="Title"
                             variant="outlined"
+                            onChange={(event) => setDocument({...document, title: event.target.value})}
                             required
                         />
                         </Grid>
@@ -39,6 +68,7 @@ const DynamicColumnForm = () => {
                             fullWidth
                             label="Description"
                             variant="outlined"
+                            onChange={(event) => setDocument({...document, description: event.target.value})}
                             required
                         />
                         </Grid>
@@ -70,6 +100,7 @@ const DynamicColumnForm = () => {
                                 fullWidth
                                 label="Type"
                                 variant="outlined"
+                                onChange={(event) => setDocument({...document, type: event.target.value})}
                                 required
                             />
                         </Grid>
@@ -81,27 +112,35 @@ const DynamicColumnForm = () => {
                                 variant="outlined"
                                 type="file"
                                 InputLabelProps={{ shrink: true }}
+                                /*convert file to base64 and set it to document.paper*/
+                                onChange={(event) => handleFileChange(event)}
+                                
                             />
                         </Grid>
                         {/*Coordinates Field*/}
                         <Grid item xs={6}>
                             <TextField
                                 fullWidth
+                                type='float'
                                 label="Latitude"
                                 variant="outlined"
+                                onChange={(event) => setDocument({...document, coordinates: { lat: parseFloat(event.target.value), long: document.coordinates.long }})}
                             />
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
                                 fullWidth
+                                type='float'
                                 label="Longitude"
                                 variant="outlined"
+                                onChange={(event) => setDocument({...document, coordinates: { lat: document.coordinates.lat, long: parseFloat(event.target.value) }})}
                             />
                         </Grid>
                         {/*Save Button*/}
                         <Grid item xs={12}>
                             <Button 
                                 type="submit" 
+
                                 variant="contained" 
                                 color="primary"
                             >
