@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - kiruna_postgis_data:/var/lib/postgresql/data # Persistent storage for db data
     profiles: [dev]
@@ -30,7 +30,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT_TEST}:5432"
     volumes:
       - kiruna_postgis_data:/var/lib/postgresql/data # Persistent storage for db data
     profiles: [test]
