@@ -120,7 +120,7 @@ Retrieves all the stakeholders in the database.
 
 - Request Parameters: None
 - Request Body Content: None
-- Response Body Content: An array of **Stakeholder** objects, each representing a service:
+- Response Body Content: An array of **Stakeholder** objects, each representing a stakeholder:
   - Example:
 ``` JSON
 [
