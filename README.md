@@ -22,9 +22,13 @@ PGADMIN_EMAIL=kiruna@explorer.com
 PGADMIN_PASSWORD=kiruna
 ```
 
-2. Start the containers with `docker compose --profile dev up -d`.
+2. Start the containers with `docker compose up -d`.
 
 3. Connect to pgAdmin web interface at the `localhost:5050` address.
 
 4. Add a new connection to the DB (inside the **hostname** field insert `db`).
-5. To stop the containers, run `docker compose --profile dev down`; if you also want to delete the local database data, execute `docker compose --profile dev down -v`.
+5. To stop the containers, run `docker composedown`; if you also want to delete the local database data, execute `docker compose down -v`.
+
+### Run test db
+
+In order to start the test database, execute `docker compose -f docker-compose.test.yml up -d`.
