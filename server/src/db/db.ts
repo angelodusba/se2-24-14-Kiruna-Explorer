@@ -21,17 +21,17 @@ const pool = new Pool({
 });
 
 // Test the connection
-const init = () => {
-  pool
-    .connect()
-    .then((client) => {
-      console.log("Connected to PostGIS database");
-      client.release();
-    })
-    .catch((err) => console.error("Error connecting to PostGIS database", err.stack));
+const init = async () => {
+  try {
+    const client = await pool.connect();
+    console.log("Connected to PostGIS database");
+    client.release();
+  } catch (err: any) {
+    console.error("Error connecting to PostGIS database", err.stack);
+  }
 };
 
-const query = (text: string, params: any, callback: any) => {
+const query = async (text: string, params: any, callback: any) => {
   return pool.query(text, params, callback);
 };
 
