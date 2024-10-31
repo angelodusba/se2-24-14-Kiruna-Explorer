@@ -51,8 +51,8 @@ class UserDAO {
     role: string
   ): Promise<boolean> {
     try {
-      const salt = crypto.randomBytes(16);
-      const hashedPassword = crypto.scryptSync(password, salt, 16);
+      const salt = crypto.randomBytes(16).toString("hex");
+      const hashedPassword = crypto.scryptSync(password, salt, 16).toString("hex");
       const sql =
         "INSERT INTO users (username, email, role, password, salt) VALUES ($1, $2, $3, $4, $5)";
       await db.query(sql, [username, email, role, hashedPassword, salt]);

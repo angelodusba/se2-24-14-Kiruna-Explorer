@@ -37,6 +37,9 @@ class ErrorHandler {
    */
   static registerErrorHandler(router: express.Application) {
     router.use((err: any, req: any, res: any, next: any) => {
+      if (err instanceof SyntaxError) {
+        return res.status(400).json({ error: "Malformed JSON" });
+      }
       return res.status(err.customCode || 503).json({
         error: err.customMessage || "Internal Server Error",
         status: err.customCode || 503,
