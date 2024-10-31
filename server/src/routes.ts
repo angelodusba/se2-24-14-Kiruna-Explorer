@@ -1,7 +1,7 @@
 import express from "express";
 import ErrorHandler from "./helper";
-//import Authenticator from "./auth";
-//import { UserRoutes, AuthRoutes } from "./routers/userRoutes";
+import Authenticator from "./routers/auth";
+import { AuthRoutes, UserRoutes } from "./routers/userRoutes";
 
 const prefix = "/kirunaexplorer";
 
@@ -20,18 +20,17 @@ function initRoutes(app: express.Application) {
    * It is used to protect the routes by requiring users to be logged in.
    * All routes must have the authenticator object in order to work properly.
    */
-
-  //const authenticator = new Authenticator(app);
-  //const userRoutes = new UserRoutes(authenticator);
-  //const authRoutes = new AuthRoutes(authenticator);
+  const authenticator = new Authenticator(app);
+  const userRoutes = new UserRoutes(authenticator);
+  const authRoutes = new AuthRoutes(authenticator);
 
   /**
    * The routes for the user and authentication are defined here.
    */
+  app.use(`${prefix}/users`, userRoutes.getRouter());
+  app.use(`${prefix}/sessions`, authRoutes.getRouter());
 
-  //app.use(`${prefix}/users`, userRoutes.getRouter());
-  //app.use(`${prefix}/sessions`, authRoutes.getRouter());
-
+  // Register global error handler
   ErrorHandler.registerErrorHandler(app);
 }
 
