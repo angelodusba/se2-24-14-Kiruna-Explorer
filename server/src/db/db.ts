@@ -1,4 +1,4 @@
-import pg from "pg";
+import pg, { QueryResult } from "pg";
 
 // The environment variable is used to determine which database to use.
 // If the environment variable is not set, the development database is used.
@@ -28,11 +28,12 @@ const init = async () => {
     client.release();
   } catch (err: any) {
     console.error("Error connecting to PostGIS database", err.stack);
+    throw new Error(err);
   }
 };
 
-const query = async (text: string, params: any, callback: any) => {
-  return pool.query(text, params, callback);
+const query = async (text: string, params: any): Promise<QueryResult<any>> => {
+  return pool.query(text, params);
 };
 
 export { init, query };
