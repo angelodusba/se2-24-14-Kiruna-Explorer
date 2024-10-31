@@ -1,11 +1,13 @@
 class Document {
-    id: number;
+    id?: number;
     title: string;
     description: string;
     type_id: number;
     issue_date: Date;
-    scale: number;
+    scale: string;
     location: string;
+    language?: string;
+    pages?: string;
 
     constructor(
         id: number,
@@ -13,8 +15,10 @@ class Document {
         description: string,
         type_id: number,
         issue_date: Date,
-        scale: number,
-        location: string
+        scale: string,
+        location: string,
+        language: string,
+        pages: string
     ) {
         this.id = id;
         this.title = title;
@@ -23,6 +27,8 @@ class Document {
         this.issue_date = issue_date;
         this.scale = scale;
         this.location = location;
+        this.language = language;
+        this.pages = pages;
     }
 }
 
