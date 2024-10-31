@@ -1,21 +1,22 @@
-import cors from "cors";
-import express from "express";
-import initRoutes from "./src/routes";
 import dotenv from "dotenv";
-import morgan from "morgan";
 
 const env = dotenv.config({ path: "../.env" });
 if (env.error) {
   throw new Error("File `.env` not found. Please create it.");
 }
-import * as db from "./src/db/db"; // It must be imported after initializing the env configuration
+import cors from "cors";
+import express from "express";
+import initRoutes from "./src/routes";
+import morgan from "morgan";
+import * as db from "./src/db/db";
 
 const app: express.Application = express();
 const port: number = Number(process.env.EXPRESS_PORT) || 3001;
 
 /* MIDDLEWARES */
 const corsOptions = {
-  origin: `http://localhost:${port}`,
+  origin: `http://localhost:5173`,
+  optionsSuccessStatus: 200,
   credentials: true,
 };
 app.use(cors(corsOptions));
