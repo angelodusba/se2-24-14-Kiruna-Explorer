@@ -10,6 +10,7 @@ Repository for the main project of the Software Engineering 2 (2024) course at P
 
 ```
 EXPRESS_PORT=3001
+SECRET=kirunasecret
 
 POSTGRES_USER=kiruna
 POSTGRES_PASSWORD=explorer
