@@ -2,6 +2,7 @@ import express from "express";
 import ErrorHandler from "./helper";
 //import Authenticator from "./auth";
 //import { UserRoutes, AuthRoutes } from "./routers/userRoutes";
+import {DocumentRoutes} from "./routers/DocumentRoutes";
 
 const morgan = require("morgan");
 const prefix = "/kirunaexplorer";
@@ -20,6 +21,7 @@ function initRoutes(app: express.Application) {
   app.use(express.json({ limit: "25mb" }));
   app.use(express.urlencoded({ limit: "25mb", extended: true }));
 
+  const documentRoutes = new DocumentRoutes();
   /**
    * The authenticator object is used to authenticate users.
    * It is used to protect the routes by requiring users to be logged in.
@@ -36,7 +38,7 @@ function initRoutes(app: express.Application) {
 
   //app.use(`${prefix}/users`, userRoutes.getRouter());
   //app.use(`${prefix}/sessions`, authRoutes.getRouter());
-
+  app.use(`${prefix}/documents`, documentRoutes.getRouter());
   ErrorHandler.registerErrorHandler(app);
 }
 

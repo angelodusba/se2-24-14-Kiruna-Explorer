@@ -1,17 +1,27 @@
 import express from 'express';
 import { DocumentController } from '../controllers/DocumentController';
+import { Document } from '../models/Document';
 import { body } from 'express-validator';
-import { ErrorHandler } from '../helper'; // Assuming you have a helper function for request validation
 import { DocumentError } from '../errors/DocumentError';
 
-function DocumentRoutes(authenticator) {
-    this.router = express.Router();
-    this.documentController = new DocumentController();
-    this.authenticator = authenticator;
+export class DocumentRoutes {
+    static getRouter(): import("express-serve-static-core").RequestHandler<{}, any, any, import("qs").ParsedQs, Record<string, any>> {
+      throw new Error("Method not implemented.");
+    }
+    private router: express.Router;
+    private documentController: DocumentController;
 
-    this.getRouter = () => this.router;
+    constructor() {
+        this.router = express.Router();
+        this.documentController = new DocumentController();
+        this.initRoutes();
+    }
 
-    this.initRoutes = function () {
+    getRouter() {
+        return this.router;
+    }
+
+    private initRoutes() {
         // Create a new document
         this.router.post(
             '/',
@@ -29,18 +39,28 @@ function DocumentRoutes(authenticator) {
             body('language').optional().isString(),
             body('pages').optional().isObject().withMessage('Pages must be an object.'),
             body('stakeholders').isArray({ min: 1 }).withMessage('Stakeholders must be an array of integers with at least one ID.'),
-            validateRequest, // Custom validation middleware
-            (req, res, next) => {
-                const { title, description, type_id, issue_date, scale, location, language, pages, stakeholders } = req.body;
+            // Error handling
+            (req: any, res: any, next: any) => {
+                const { title, description, type_id, issue_date, scale, location, language, pages } = req.body;
 
                 // Create the document instance
-                const document = new Document(title, description, type_id, issue_date, scale, location, language, pages);
+                const document = new Document(
+                    0,
+                    title,
+                    description,
+                    type_id,
+                    new Date(issue_date),
+                    scale,
+                    location,
+                    language,
+                    String(pages),
+                );
 
-                this.documentController.createDocument({ ...req, body: document })
-                    .then(documentId => {
+                this.documentController.createDocument({ ...req, body: document }, res)
+                    .then((documentId: any) => {
                         res.status(201).json({ message: 'Document created successfully', documentId });
                     })
-                    .catch(error => {
+                    .catch((error: { code: string; }) => {
                         if (error.code === '23505') { // Assuming PostgreSQL error code for duplicate title
                             res.status(409).json({ error: 'A document with this title already exists.' });
                         } else {
@@ -50,17 +70,17 @@ function DocumentRoutes(authenticator) {
             }
         );
 
+        
         // Get all documents
-        this.router.get('/', (req, res, next) => {
+        /*
+        this.router.get('/', (req: any, res: any, next: any) => {
             this.documentController.getAllDocuments()
-                .then(result => {
+                .then((result: any) => {
                     res.status(200).send(result);
                 })
-                .catch(err => next(err));
+                .catch((err: any) => next(err));
         });
-    };
+        */
+    }
 
-    this.initRoutes();
 }
-
-export default DocumentRoutes;

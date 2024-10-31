@@ -1,4 +1,4 @@
-const baseURL = "http://localhost:3000/kirunaexplorer/";
+const baseURL = "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Access APIs ------------------------ */
 
