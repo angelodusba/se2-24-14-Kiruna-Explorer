@@ -1,7 +1,7 @@
 -----------------
 -- Users table --
 -----------------
-INSERT INTO "Users" (email, password, role, salt) VALUES ('urban@planner.com', 'password', 'UrbanPlanner', 'salt');
+INSERT INTO "Users" (email, username, password, role, salt) VALUES ('urban@planner.com', 'urban', 'planner', 'UrbanPlanner', 'salt');
 
 -----------------
 -- Types table --
@@ -9,7 +9,7 @@ INSERT INTO "Users" (email, password, role, salt) VALUES ('urban@planner.com', '
 INSERT INTO "Types" (name) VALUES ('Design');
 INSERT INTO "Types" (name) VALUES ('Informative');
 INSERT INTO "Types" (name) VALUES ('Prescriptive');
-INSERT INTO "Types" (name) VALUES ('Techincal');
+INSERT INTO "Types" (name) VALUES ('Technical');
 INSERT INTO "Types" (name) VALUES ('Agreement');
 INSERT INTO "Types" (name) VALUES ('Conflict');
 INSERT INTO "Types" (name) VALUES ('Consultation');
