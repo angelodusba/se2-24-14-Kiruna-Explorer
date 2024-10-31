@@ -5,7 +5,7 @@ import { Document } from '../dataModels/Document';
 export function DynamicColumnForm(props: any) {
 
     const [columns, setColumns] = useState([{ id: 1, value: '' }]);
-    const [document, setDocument] = useState<Document>(new Document('', '', [], '', '', { lat: 0, long: 0 }));
+    const [document, setDocument] = useState<Document>(new Document('', '', [], '', '', { lat: 0, long: 0 }, ''));
 
     // Add a new column
     const addColumn = () => {
@@ -22,20 +22,6 @@ export function DynamicColumnForm(props: any) {
         setDocument(temp);
 
     };
-    //Handle file upload (Convert to base64).
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => {
-            setDocument({...document, paper: reader.result});
-          };
-          reader.onerror = (error) => {
-            console.error("Error converting file to base64:", error);
-          };
-        }
-      };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -100,20 +86,20 @@ export function DynamicColumnForm(props: any) {
                                 fullWidth
                                 label="Type"
                                 variant="outlined"
-                                onChange={(event) => setDocument({...document, type: event.target.value})}
+                                onChange={(event: { target: { value: any; }; }) => setDocument({...document, type: event.target.value})}
                                 required
                             />
                         </Grid>
-                        {/*Papers Field*/}
+                        {/*Pages Field*/}
                         <Grid item xs={12} container justifyContent="flex-end">
                             <TextField
                                 fullWidth
                                 label="Papers"
                                 variant="outlined"
-                                type="file"
+                                type= "number"
                                 InputLabelProps={{ shrink: true }}
                                 /*convert file to base64 and set it to document.paper*/
-                                onChange={(event) => handleFileChange(event)}
+                                onChange={(event) => setDocument({...document, type: event.target.value})}
                                 
                             />
                         </Grid>
@@ -134,6 +120,16 @@ export function DynamicColumnForm(props: any) {
                                 label="Longitude"
                                 variant="outlined"
                                 onChange={(event) => setDocument({...document, coordinates: { lat: document.coordinates.lat, long: parseFloat(event.target.value) }})}
+                            />
+                        </Grid>
+                        {/* Issue Date YYYY/MM/DD OR YYYY/MM OR YYYY*/}
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="Issue Date"
+                                variant="outlined"
+                                placeholder="YYYY/MM/DD or YYYY/MM or YYYY"
+                                onChange={(event) => setDocument({...document, issueDate: event.target.value})}
                             />
                         </Grid>
                         {/*Save Button*/}
