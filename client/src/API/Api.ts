@@ -1,4 +1,4 @@
-const baseURL = "http://localhost:3001/kirunaexplorer/";
+const baseURL = "http://localhost:3000/kirunaexplorer/";
 
 /** ------------------- Access APIs ------------------------ */
 
@@ -67,5 +67,5 @@ async function sendDocument(document: Document) {
     }
 }
 
-const API = { login, logOut, getUserInfo, sendDocument };
+const API = { baseURL, login, logOut, getUserInfo, sendDocument };
 export default API;

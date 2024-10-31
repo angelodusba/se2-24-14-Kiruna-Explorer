@@ -5,7 +5,7 @@ import { Document } from '../dataModels/Document';
 export function DynamicColumnForm(props: any) {
 
     const [columns, setColumns] = useState([{ id: 1, value: '' }]);
-    const [document, setDocument] = useState<Document>(new Document('', '', [], '', '', { lat: 0, long: 0 }, ''));
+    const [document, setDocument] = useState<Document>(new Document('', '', [], 0, 0, { lat: 0, long: 0 }, '', '', ''));
 
     // Add a new column
     const addColumn = () => {
@@ -99,7 +99,7 @@ export function DynamicColumnForm(props: any) {
                                 type= "number"
                                 InputLabelProps={{ shrink: true }}
                                 /*convert file to base64 and set it to document.paper*/
-                                onChange={(event) => setDocument({...document, type: event.target.value})}
+                                onChange={(event) => setDocument({...document, type: Number(event.target.value)})}
                                 
                             />
                         </Grid>

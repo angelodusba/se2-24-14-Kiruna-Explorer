@@ -2,22 +2,26 @@ export class Document {
     title: string;
     description: string;
     stakeholder: string[];
-    type: string;
-    pages: string;
+    type: number;
+    pages: number;
     coordinates: {
         lat: number;
         long: number;
     };
-    issueDate: string
+    issueDate: string;
+    scale: string;
+    language:string;
 
     constructor(
         title: string,
         description: string,
         stakeholder: string[],
-        type: string,
-        pages: string,
+        type: number,
+        pages: number,
         coordinates: { lat: number; long: number },
-        issueDate: string
+        issueDate: string,
+        scale: string,
+        language: string,
     ) {
         this.title = title;
         this.description = description;
@@ -25,6 +29,8 @@ export class Document {
         this.type = type;
         this.pages = pages;
         this.coordinates = coordinates;
-        this.issueDate = issueDate
+        this.issueDate = issueDate;
+        this.scale = scale;
+        this.language = language;
     }
 }
