@@ -2,7 +2,7 @@ import express from "express";
 import ErrorHandler from "./helper";
 import Authenticator from "./routers/auth";
 import { AuthRoutes, UserRoutes } from "./routers/userRoutes";
-import {DocumentRoutes} from "./routers/DocumentRoutes";
+import DocumentRoutes from "./routers/DocumentRoutes";
 
 const prefix = "/kirunaexplorer";
 
@@ -24,13 +24,14 @@ function initRoutes(app: express.Application) {
   const authenticator = new Authenticator(app);
   const userRoutes = new UserRoutes(authenticator);
   const authRoutes = new AuthRoutes(authenticator);
+  const documentRoutes = new DocumentRoutes(authenticator);
 
   /**
    * The routes for the user and authentication are defined here.
    */
   app.use(`${prefix}/users`, userRoutes.getRouter());
   app.use(`${prefix}/sessions`, authRoutes.getRouter());
-  app.use(`${prefix}/documents`, DocumentRoutes.getRouter());
+  app.use(`${prefix}/documents`, documentRoutes.getRouter());
 
   // Register global error handler
   ErrorHandler.registerErrorHandler(app);

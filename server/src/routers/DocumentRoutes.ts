@@ -1,27 +1,36 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { DocumentController } from '../controllers/DocumentController';
 import { Document } from '../models/Document';
 import { body } from 'express-validator';
 import { DocumentError } from '../errors/DocumentError';
+import ErrorHandler from '../helper';
+import Authenticator from './auth';
 
-export class DocumentRoutes {
-    static getRouter(): import("express-serve-static-core").RequestHandler<{}, any, any, import("qs").ParsedQs, Record<string, any>> {
-      throw new Error("Method not implemented.");
-    }
-    private router: express.Router;
-    private documentController: DocumentController;
+class DocumentRoutes {
 
-    constructor() {
+    private router: Router;
+    private controller: DocumentController;
+    private authService: Authenticator;
+    private errorHandler: ErrorHandler;
+    
+    constructor(authenticator: Authenticator) {
+        this.authService = authenticator;
         this.router = express.Router();
-        this.documentController = new DocumentController();
+        this.errorHandler = new ErrorHandler();
+        this.controller = new DocumentController();
         this.initRoutes();
     }
 
-    getRouter() {
+        /**
+     * Get the router instance.
+     * @returns The router instance.
+     */
+    getRouter(): Router {
         return this.router;
     }
 
-    private initRoutes() {
+
+    initRoutes() {
         // Create a new document
         this.router.post(
             '/',
@@ -56,7 +65,7 @@ export class DocumentRoutes {
                     String(pages),
                 );
 
-                this.documentController.createDocument({ ...req, body: document }, res)
+                this.controller.createDocument({ ...req, body: document }, res)
                     .then((documentId: any) => {
                         res.status(201).json({ message: 'Document created successfully', documentId });
                     })
@@ -82,5 +91,6 @@ export class DocumentRoutes {
         });
         */
     }
-
 }
+
+export default DocumentRoutes;
