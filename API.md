@@ -90,6 +90,7 @@ Adds a new document to the database.
   - `language`: a string that can be empty
   - `pages`: TODO: optional attachment will be here
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
+  - `connections`: an array of objects that must not be empty, representing the connections of the document
   - Example:
 ``` JSON
 {
@@ -103,14 +104,49 @@ Adds a new document to the database.
     ],
     "language": "",
     "pages": {},
-    "stakeholders": [1, 2]
+    "stakeholders": [1, 2],
+    "connections": [
+        {
+            "connected_document_id": 1,
+            "connection_name": "direct_conn"
+        },
+        {
+            "connected_document_id": 2,
+            "connection_name": "prevision_conn"
+        }
+    ]
 }
 ```
 - Response Body Content: None
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:
   - It should return a `409` error if a document with the same title already exists in the database
+  - It should return a `404` error if the type of the document does not exist in the database
+  - It should return a `404` error if at least one of the stakeholder does not exist in the database
+  - It should return a `404` error if the scale does not exist in the database
+  - It should return a `404` error if at least one of the connected documents does not exist in the database
 
+#### GET `kirunaexplorer/documents/names`
+
+Retrieves all the names and ids of the documents in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of objects, each representing a document:
+  - Example:
+``` JSON
+[
+    {
+        "id": 1,
+        "title": "Document 1"
+    },
+    {
+        "id": 2, 
+        "title": "Document 2"
+    }
+]
+```
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
 ### Stakeholder APIs
 
@@ -126,12 +162,104 @@ Retrieves all the stakeholders in the database.
 [
     {
         "id": 1,
-        "name": "Name 1"
+        "name": "Stakeholder 1"
     },
     {
         "id": 2, 
-        "name": "Name 2"
+        "name": "Stakeholder 2"
     }
 ]
 ```
 
+### Type APIs
+
+#### GET `kirunaexplorer/types`
+
+Retrieves all the node types in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **Type** objects, each representing a node type:
+  - Example:
+``` JSON
+[
+    {
+        "id": 1,
+        "name": "Node type 1"
+    },
+    {
+        "id": 2, 
+        "name": "Node type 2"
+    }
+]
+```
+
+### Scale APIs
+
+#### GET `kirunaexplorer/scales`
+
+Retrieves all the scales in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **Scale** objects, each representing a node type:
+  - Example:
+``` JSON
+[
+    {
+        "id": 1,
+        "name": "Scale 1"
+    },
+    {
+        "id": 2, 
+        "name": "Scale 2"
+    }
+]
+```
+
+### Connection APIs
+
+#### GET `kirunaexplorer/connections/names`
+
+Retrieves all the names of the connections in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of strings, each representing a connection:
+  - Example:
+``` JSON
+[
+    "Connection 1",
+    "Connection 2"
+]
+```
+
+#### POST `kirunaexplorer/connections`
+
+Creates a new connection between the selected existing document and one or more other documents in the database.
+
+- Request Parameters: None
+- Request Body Content: An object that represents the connection to be added. The object must have the following attributes:
+  - `starting_document_id`: an integer that must not be empty
+  - `connections`: an array of objects that must not be empty, representing the connections of the selected document
+  - Example:
+``` JSON
+{
+    "starting_document_id": 1,
+    "connections": [
+        {
+            "connected_document_id": 1,
+            "connection_name": "direct_conn"
+        },
+        {
+            "connected_document_id": 2,
+            "connection_name": "prevision_conn"
+        }
+    ]
+}
+```
+- Response Body Content: None
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `404` error if the starting document does not exist in the database
+  - It should return a `404` error if at least one of the connected documents does not exist in the database
