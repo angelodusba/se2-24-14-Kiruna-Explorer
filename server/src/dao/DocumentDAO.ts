@@ -27,16 +27,16 @@ export class DocumentDAO {
 
 
     ): Promise<boolean> {
-        const query = `
-            INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        `;
         try {
-            await db.query(query, [title, description, type_id, issue_date, scale, location, language, pages]);
+            const sql = "INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
+            await db.query(sql, [title, description, type_id, issue_date, scale, location, language, pages]);
             return true;
         } catch (err: any) {
-            throw new Error(err);
-          }
+            throw new DocumentError(err);
+        }
     }
+        
     
 }
+
+export default DocumentDAO;
