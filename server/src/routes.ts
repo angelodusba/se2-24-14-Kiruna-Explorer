@@ -2,7 +2,7 @@ import express from "express";
 import ErrorHandler from "./helper";
 import Authenticator from "./routers/auth";
 import { AuthRoutes, UserRoutes } from "./routers/userRoutes";
-import DocumentRoutes from "./routers/DocumentRoutes";
+import DocumentRoutes from "./routers/documentRoutes";
 
 const prefix = "/kirunaexplorer";
 

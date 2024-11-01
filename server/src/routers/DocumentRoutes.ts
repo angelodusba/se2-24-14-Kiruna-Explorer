@@ -1,8 +1,8 @@
 import express, { Router } from 'express';
-import { DocumentController } from '../controllers/DocumentController';
+import { DocumentController } from '../controllers/documentController';
 import { Document } from '../models/Document';
 import { body } from 'express-validator';
-import { DocumentError } from '../errors/DocumentError';
+import { DocumentError } from '../errors/documentError';
 import ErrorHandler from '../helper';
 import Authenticator from './auth';
 

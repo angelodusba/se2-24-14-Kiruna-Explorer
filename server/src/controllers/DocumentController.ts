@@ -1,5 +1,5 @@
-import { DocumentDAO } from '../dao/DocumentDAO';
-import { DocumentError } from '../errors/DocumentError';
+import { DocumentDAO } from '../dao/documentDAO';
+import { DocumentError } from '../errors/documentError';
 import { Document } from '../models/Document';
 
 /**

@@ -1,6 +1,6 @@
 import * as db from "../db/db";
 import { Document } from '../models/Document';
-import { DocumentError } from '../errors/DocumentError';
+import { DocumentError } from '../errors/documentError';
 
 export class DocumentDAO {
     /**
