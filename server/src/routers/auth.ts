@@ -1,5 +1,5 @@
 import express from "express";
-import { User } from "../models/user";
+import { Role, User } from "../models/user";
 import UserDAO from "../dao/userDAO";
 const session = require("express-session");
 const passport = require("passport");
@@ -143,6 +143,45 @@ class Authenticator {
   isLoggedIn(req: any, res: any, next: any) {
     if (req.isAuthenticated()) return next();
     return res.status(401).json({ error: "Unauthenticated user", status: 401 });
+  }
+
+  /**
+   * Middleware function to check if the user is a urban planner.
+   *
+   * @param req - The request object.
+   * @param res - The response object.
+   * @param next - The next middleware function.
+   * If the user is authenticated and is a customer, it calls the next middleware function. Otherwise, it returns a 401 error response.
+   */
+  isUrbanPlanner(req: any, res: any, next: any) {
+    if (req.isAuthenticated() && req.user.role === Role.UrbanPlanner) return next();
+    return res.status(401).json({ error: "User is not a urban planner", status: 401 });
+  }
+
+  /**
+   * Middleware function to check if the user is a urban developer.
+   *
+   * @param req - The request object.
+   * @param res - The response object.
+   * @param next - The next middleware function.
+   * If the user is authenticated and is a customer, it calls the next middleware function. Otherwise, it returns a 401 error response.
+   */
+  isUrbanDeveloper(req: any, res: any, next: any) {
+    if (req.isAuthenticated() && req.user.role === Role.UrbanDeveloper) return next();
+    return res.status(401).json({ error: "User is not a urban developer", status: 401 });
+  }
+
+  /**
+   * Middleware function to check if the user is a resident.
+   *
+   * @param req - The request object.
+   * @param res - The response object.
+   * @param next - The next middleware function.
+   * If the user is authenticated and is a customer, it calls the next middleware function. Otherwise, it returns a 401 error response.
+   */
+  isResident(req: any, res: any, next: any) {
+    if (req.isAuthenticated() && req.user.role === Role.Resident) return next();
+    return res.status(401).json({ error: "User is not a resident", status: 401 });
   }
 }
 
