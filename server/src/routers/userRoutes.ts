@@ -61,13 +61,15 @@ class UserRoutes {
       //.isIn(["Manager", "Customer", "Admin"]) TODO: Set roles
       //.withMessage("Field 'role' possible values: 'Customer', 'Manager', 'Admin'"),
       this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) =>
+      (req: any, res: any, next: any) => {
+        console.log("qui");
         this.controller
           .createUser(req.body.username, req.body.email, req.body.password, req.body.role)
           .then(() => res.status(200).end())
           .catch((err) => {
             next(err);
-          })
+          });
+      }
     );
 
     /**
