@@ -1,7 +1,7 @@
 export class Document {
     title: string;
     description: string;
-    stakeholder: string[];
+    stakeholder: number[];
     type: number;
     pages: number;
     coordinates: {
@@ -15,7 +15,7 @@ export class Document {
     constructor(
         title: string,
         description: string,
-        stakeholder: string[],
+        stakeholder: number[],
         type: number,
         pages: number,
         coordinates: { lat: number; long: number },
