@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import Authenticator from "./auth";
 import { body, param } from "express-validator";
-import { User } from "../components/user";
+import { User } from "../models/user";
 import ErrorHandler from "../helper";
 import UserController from "../controllers/userController";
 import { UserAlreadyExistsError } from "../errors/userErrors";

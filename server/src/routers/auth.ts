@@ -1,5 +1,5 @@
 import express from "express";
-import { User } from "../components/user";
+import { User } from "../models/user";
 import UserDAO from "../dao/userDAO";
 const session = require("express-session");
 const passport = require("passport");

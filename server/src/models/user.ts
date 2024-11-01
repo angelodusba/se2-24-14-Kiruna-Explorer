@@ -24,7 +24,9 @@ class User {
  * The values present in this enum are the only valid values for the role of a user.
  */
 enum Role {
-  URBAN_PLANNER = "UrbanPlanner",
+  Resident = "Resident",
+  UrbanPlanner = "Urban Planner",
+  UrbanDeveloper = "Urban Developer",
 }
 
 export { User, Role };

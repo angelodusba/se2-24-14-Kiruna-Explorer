@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import * as db from "../db/db";
-import { Role, User } from "../components/user";
+import { Role, User } from "../models/user";
 import { UserAlreadyExistsError, UserNotFoundError } from "../errors/userErrors";
 
 /**
