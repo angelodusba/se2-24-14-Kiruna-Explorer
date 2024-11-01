@@ -1,21 +1,20 @@
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Popup, Marker } from "react-leaflet";
+import "projektpro-leaflet-smoothwheelzoom";
 
 function Map() {
   return (
     <MapContainer
-      center={[67.8558, 20.2253]} // Coordinates for Kiruna, Sweden
+      className="map"
+      center={[67.8558, 20.2253]}
+      minZoom={12}
       zoom={13}
       attributionControl={false}
       zoomControl={false}
-      zoomSnap={0}
-      zoomDelta={0}
-      wheelPxPerZoomLevel={20}
-      zoomAnimationThreshold={4}
-      wheelDebounceTime={40}
+      scrollWheelZoom={false} //Needed to enable smooth zoom
       style={{ height: "100vh" }}>
       <TileLayer
-        keepBuffer={250}
+        keepBuffer={100}
         attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
       />
