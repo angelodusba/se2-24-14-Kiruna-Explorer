@@ -4,7 +4,6 @@ This document lists all the expected behaviors for the APIs that compose the Kir
 
 TODO: More complete description to be added here eventually.
 
-
 ## API List
 
 For all constraints on request parameters and request body content, always assume a `422` error in case one constraint is not satisfied.
@@ -23,26 +22,30 @@ Allows login for a user with the provided credentials.
   - `email`: a string that must not be empty, and must be a valid email
   - `password`: a string that must not be empty
   - Example:
-``` JSON
+
+```JSON
 {
-    "email": "mario.rossi@email.com", 
+    "email": "mario.rossi@email.com",
     "password": "MarioRossi"
 }
 ```
+
 - Response Body Content: A **User** object that represents the logged in user
-  - Example: 
-``` JSON
+  - Example:
+
+```JSON
 {
     "email": "mario.rossi@email.com",
     "role": "resident"
 }
 ```
+
 - Access Constraints: None
 - Additional Constraints:
   - Returns a 401 error if the username does not exist
   - Returns a 401 error if the password provided does not match the one in the database
 
-#### DELETE `kirunaexplorer/sessions/current`
+#### DELETE `kirunaexplorer/sessions`
 
 Performs logout for the currently logged in user.
 
@@ -51,27 +54,27 @@ Performs logout for the currently logged in user.
 - Response Body Content: None
 - Access Constraints: Can only be called by a logged in User
 
-#### GET `kirunaexplorer/sessions/current`
+#### GET `kirunaexplorer/sessions`
 
 Retrieves information about the currently logged in user.
 
 - Request Parameters: None
 - Request Body Content: None
 - Response Body Content: A **User** object that represents the logged in user
-  - Example: 
-``` JSON
+  - Example:
+
+```JSON
 {
     "email": "mario.rossi@email.com",
     "role": "resident"
 }
 ```
-- Access Constraints: Can only be called by a logged in User
 
+- Access Constraints: Can only be called by a logged in User
 
 ### User APIs
 
 TODO: Add here the user APIs.
-
 
 ### Document APIs
 
@@ -92,7 +95,8 @@ Adds a new document to the database.
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
   - `connections`: an array of objects that must not be empty, representing the connections of the document
   - Example:
-``` JSON
+
+```JSON
 {
     "title": "This is a title",
     "description": "This is a description",
@@ -117,6 +121,7 @@ Adds a new document to the database.
     ]
 }
 ```
+
 - Response Body Content: None
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:
@@ -134,18 +139,20 @@ Retrieves all the names and ids of the documents in the database.
 - Request Body Content: None
 - Response Body Content: An array of objects, each representing a document:
   - Example:
-``` JSON
+
+```JSON
 [
     {
         "id": 1,
         "title": "Document 1"
     },
     {
-        "id": 2, 
+        "id": 2,
         "title": "Document 2"
     }
 ]
 ```
+
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
 ### Stakeholder APIs
@@ -158,14 +165,15 @@ Retrieves all the stakeholders in the database.
 - Request Body Content: None
 - Response Body Content: An array of **Stakeholder** objects, each representing a stakeholder:
   - Example:
-``` JSON
+
+```JSON
 [
     {
         "id": 1,
         "name": "Stakeholder 1"
     },
     {
-        "id": 2, 
+        "id": 2,
         "name": "Stakeholder 2"
     }
 ]
@@ -181,14 +189,15 @@ Retrieves all the node types in the database.
 - Request Body Content: None
 - Response Body Content: An array of **Type** objects, each representing a node type:
   - Example:
-``` JSON
+
+```JSON
 [
     {
         "id": 1,
         "name": "Node type 1"
     },
     {
-        "id": 2, 
+        "id": 2,
         "name": "Node type 2"
     }
 ]
@@ -204,14 +213,15 @@ Retrieves all the scales in the database.
 - Request Body Content: None
 - Response Body Content: An array of **Scale** objects, each representing a node type:
   - Example:
-``` JSON
+
+```JSON
 [
     {
         "id": 1,
         "name": "Scale 1"
     },
     {
-        "id": 2, 
+        "id": 2,
         "name": "Scale 2"
     }
 ]
@@ -227,7 +237,8 @@ Retrieves all the names of the connections in the database.
 - Request Body Content: None
 - Response Body Content: An array of strings, each representing a connection:
   - Example:
-``` JSON
+
+```JSON
 [
     "Connection 1",
     "Connection 2"
@@ -243,7 +254,8 @@ Creates a new connection between the selected existing document and one or more 
   - `starting_document_id`: an integer that must not be empty
   - `connections`: an array of objects that must not be empty, representing the connections of the selected document
   - Example:
-``` JSON
+
+```JSON
 {
     "starting_document_id": 1,
     "connections": [
@@ -258,6 +270,7 @@ Creates a new connection between the selected existing document and one or more 
     ]
 }
 ```
+
 - Response Body Content: None
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:

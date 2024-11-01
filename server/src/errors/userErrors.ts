@@ -1,5 +1,5 @@
 const USER_NOT_FOUND = "The user does not exist";
-const USER_ALREADY_EXISTS = "The username already exists";
+const USER_ALREADY_EXISTS = "A user with this email already exists";
 const UNAUTHORIZED_USER = "You cannot access the information of other users";
 
 /**

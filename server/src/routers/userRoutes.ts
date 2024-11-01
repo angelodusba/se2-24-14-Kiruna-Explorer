@@ -4,6 +4,7 @@ import { body, param } from "express-validator";
 import { User } from "../components/user";
 import ErrorHandler from "../helper";
 import UserController from "../controllers/userController";
+import { UserAlreadyExistsError } from "../errors/userErrors";
 
 /**
  * Represents a class that defines the routes for handling users.
@@ -55,18 +56,17 @@ class UserRoutes {
     this.router.post(
       "/",
       body("username").isString().notEmpty().withMessage("Field 'username' is required"),
-      body("email").isString().notEmpty().withMessage("Field 'email' is required"),
+      body("email").isEmail().notEmpty().withMessage("Field 'email' is required"),
       body("password").isString().notEmpty().withMessage("Field 'password' is required"),
       body("role").isString().notEmpty().withMessage("Field 'role' is required"),
       //.isIn(["Manager", "Customer", "Admin"]) TODO: Set roles
       //.withMessage("Field 'role' possible values: 'Customer', 'Manager', 'Admin'"),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
-        console.log("qui");
         this.controller
           .createUser(req.body.username, req.body.email, req.body.password, req.body.role)
           .then(() => res.status(200).end())
-          .catch((err) => {
+          .catch((err: any) => {
             next(err);
           });
       }
@@ -116,17 +116,17 @@ class UserRoutes {
      * It expects the email of the user in the request parameters: the email must represent an existing user.
      * It returns the user.
      */
-    this.router.get(
-      "/:email",
-      this.authService.isLoggedIn,
-      param("email").isString().notEmpty().withMessage("Param 'email' is required"),
-      this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) =>
-        this.controller
-          .getUserByEmail(req.user, req.params.email)
-          .then((user: User) => res.status(200).json(user))
-          .catch((err) => next(err))
-    );
+    // this.router.get(
+    //   "/:email",
+    //   this.authService.isLoggedIn,
+    //   param("email").isString().notEmpty().withMessage("Param 'email' is required"),
+    //   this.errorHandler.validateRequest,
+    //   (req: any, res: any, next: any) =>
+    //     this.controller
+    //       .getUserByEmail(req.user, req.params.email)
+    //       .then((user: User) => res.status(200).json(user))
+    //       .catch((err) => next(err))
+    // );
 
     /**
      * Route for deleting a user.
@@ -137,7 +137,7 @@ class UserRoutes {
     this.router.delete(
       "/:email",
       this.authService.isLoggedIn,
-      param("email").isString().notEmpty().withMessage("Param 'email' is required"),
+      param("email").isEmail().notEmpty().withMessage("Param 'email' is required"),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) =>
         this.controller
@@ -171,7 +171,7 @@ class UserRoutes {
      * - email: string. It cannot be empty.
      * It returns the updated user.
      */
-    this.router.patch(
+    this.router.put(
       "/:email",
       this.authService.isLoggedIn,
       param("email").isString().notEmpty().withMessage("Param 'email' is required"),
@@ -229,7 +229,7 @@ class AuthRoutes {
      */
     this.router.post(
       "/",
-      body("email").isString().notEmpty().withMessage("Field 'email' is required"),
+      body("email").isEmail().notEmpty().withMessage("Field 'email' is required"),
       body("password").isString().notEmpty().withMessage("Field 'password' is required"),
       this.errorHandler.validateRequest,
       (req, res, next) =>
@@ -246,7 +246,7 @@ class AuthRoutes {
      * It expects the user to be logged in.
      * It returns a 200 status code.
      */
-    this.router.delete("/current", this.authService.isLoggedIn, (req, res, next) =>
+    this.router.delete("/", this.authService.isLoggedIn, (req, res, next) =>
       this.authService
         .logout(req, res, next)
         .then(() => res.status(200).end())
@@ -258,7 +258,7 @@ class AuthRoutes {
      * It expects the user to be logged in.
      * It returns the logged in user.
      */
-    this.router.get("/current", this.authService.isLoggedIn, (req: any, res: any) =>
+    this.router.get("/", this.authService.isLoggedIn, (req: any, res: any) =>
       res.status(200).json(req.user)
     );
   }

@@ -29,7 +29,7 @@ class Authenticator {
   initAuth() {
     this.app.use(
       session({
-        secret: "secret",
+        secret: process.env.SECRET,
         resave: false,
         saveUninitialized: false,
         maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -47,19 +47,25 @@ class Authenticator {
      * If the user is authenticated, the user is returned, otherwise an error message is returned.
      */
     passport.use(
-      new LocalStrategy((username: string, password: string, done: any) => {
-        copyThis.dao.getIsUserAuthenticated(username, password).then((authenticated: boolean) => {
-          if (authenticated) {
-            copyThis.dao.getUserByEmail(username).then((user: User) => {
-              return done(null, user);
-            });
-          } else {
-            return done(null, false, {
-              message: "Incorrect username and/or password",
-            });
-          }
-        });
-      })
+      new LocalStrategy(
+        {
+          usernameField: "email",
+          passwordField: "password",
+        },
+        (username: string, password: string, done: any) => {
+          copyThis.dao.getIsUserAuthenticated(username, password).then((authenticated: boolean) => {
+            if (authenticated) {
+              copyThis.dao.getUserByEmail(username).then((user: User) => {
+                return done(null, user);
+              });
+            } else {
+              return done(null, false, {
+                message: "Incorrect username and/or password",
+              });
+            }
+          });
+        }
+      )
     );
 
     /**

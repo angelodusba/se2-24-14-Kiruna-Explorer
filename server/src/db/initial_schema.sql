@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS public."documents"
     scale VARCHAR(50) NOT NULL,
     language VARCHAR(50),
     pages VARCHAR(50),
-    location GEOMETRY(Geometry, 4326) NOT NULL  -- Geometry type for point or polygon
+    location GEOMETRY(Geometry, 4326)  -- Geometry type for point or polygon
 );
 
 -- Connections table

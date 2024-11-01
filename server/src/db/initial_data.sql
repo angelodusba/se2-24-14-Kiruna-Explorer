@@ -1,7 +1,8 @@
 -----------------
 -- Users table --
 -----------------
-INSERT INTO "users" (email, username, password, role, salt) VALUES ('urban@planner.com', 'urban', 'planner', 'UrbanPlanner', 'salt');
+INSERT INTO "users" (email, username, password, role, salt) VALUES ('john@kiruna.com', 'john', '1af1ee4c85bcbba4146ab20de52cde6b', 'UrbanPlanner', '70706c1bbff40ddcbee4f6de82fd450f');
+INSERT INTO "users" (email, username, password, role, salt) VALUES ('kevin@kiruna.com', 'kevin', '1af1ee4c85bcbba4146ab20de52cde6b', 'Resident', '70706c1bbff40ddcbee4f6de82fd450f');
 
 -----------------
 -- Types table --
@@ -32,7 +33,18 @@ INSERT INTO "documents" (title, description, type_id, issue_date, scale, languag
  -- ST_SetSRID(ST_MakePoint(30.0, -90.0), 4326)  -- Variant
 );
 
--- 2. Document with an area location
+-- 2. Document with a null location (all the Kiruna's area)
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages) VALUES (
+    'Document with no area', 
+    'This document has no specific location.', 
+    1, -- type_id
+    '2020', 
+    '1:8000', 
+    'English', 
+    '32'
+);
+
+-- 3. Document with an area location
 INSERT INTO "documents"  (title, description, type_id, issue_date, scale, location) VALUES (
     'Italy Outline', 
     'A polygon representing the outline of Italy.', 

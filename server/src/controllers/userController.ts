@@ -67,7 +67,7 @@ class UserController {
    * @returns A Promise that resolves to true if the user has been deleted.
    */
   async deleteUser(user: User, email: string): Promise<boolean> {
-    const existingUser = await this.dao.getUserByEmail(email);
+    await this.dao.getUserByEmail(email);
     if (user.email !== email) {
       throw new UnauthorizedUserError();
     }

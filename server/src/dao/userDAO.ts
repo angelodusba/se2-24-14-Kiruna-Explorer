@@ -58,7 +58,7 @@ class UserDAO {
       await db.query(sql, [username, email, role, hashedPassword, salt]);
       return true;
     } catch (err: any) {
-      if (err.message.includes("UNIQUE constraint failed")) {
+      if (err.message.includes("duplicate key value violates unique constraint")) {
         throw new UserAlreadyExistsError();
       }
       throw new Error(err);
@@ -123,7 +123,7 @@ class UserDAO {
    */
   async deleteUser(email: string): Promise<boolean> {
     try {
-      const sql = "DELETE FROM users WHERE username = $1";
+      const sql = "DELETE FROM users WHERE email = $1";
       const result = await db.query(sql, [email]);
       if (result.rowCount === 0) {
         throw new UserNotFoundError();
