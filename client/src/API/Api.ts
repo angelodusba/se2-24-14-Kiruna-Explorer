@@ -61,7 +61,7 @@ async function sendDocument(document: Document) {
               type_id: document.type as number,
               issue_date: document.issueDate,
               scale: document.scale,
-              location: [document.coordinates.lat, document.coordinates.long],
+              location: [document.coordinates],
               language: document.language,
               pages: document.pages,
               stakeholders: document.stakeholder,
@@ -69,8 +69,7 @@ async function sendDocument(document: Document) {
       ),
     });
     if (response.ok) {
-        const document = await response.json();
-        return document;
+        return null;
     } else {
         const errDetail = await response.json();
         if (errDetail.error) throw errDetail.error;

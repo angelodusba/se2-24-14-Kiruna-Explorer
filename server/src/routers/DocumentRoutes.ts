@@ -46,36 +46,15 @@ class DocumentRoutes {
             body('scale').notEmpty().withMessage('Scale must not be empty.'),
             body('location').isArray({ min: 1 }).withMessage('Location must be an array of objects with at least one coordinate.'),
             body('language').optional().isString(),
-            body('pages').optional().isObject().withMessage('Pages must be an object.'),
+            //body('pages').optional().isObject().withMessage('Pages must be an object.'),
             body('stakeholders').isArray({ min: 1 }).withMessage('Stakeholders must be an array of integers with at least one ID.'),
-            // Error handling
+            this.errorHandler.validateRequest,
             (req: any, res: any, next: any) => {
-                const { title, description, type_id, issue_date, scale, location, language, pages } = req.body;
-
-                // Create the document instance
-                const document = new Document(
-                    0,
-                    title,
-                    description,
-                    type_id,
-                    new Date(issue_date),
-                    scale,
-                    location,
-                    language,
-                    String(pages),
-                );
-
-                this.controller.createDocument({ ...req, body: document }, res)
-                    .then((documentId: any) => {
-                        res.status(201).json({ message: 'Document created successfully', documentId });
-                    })
-                    .catch((error: { code: string; }) => {
-                        if (error.code === '23505') { // Assuming PostgreSQL error code for duplicate title
-                            res.status(409).json({ error: 'A document with this title already exists.' });
-                        } else {
-                            next(new DocumentError('An unexpected error occurred')); // Use your DocumentError class
-                        }
-                    });
+                this.controller.createDocument(req.body.title, req.body.description, req.body.type_id, req.body.issue_date, req.body.scale, req.body.location, req.body.language, req.body.pages)
+                .then(() => res.status(200).end())
+                .catch((err) => {
+                  next(err);
+                });
             }
         );
 

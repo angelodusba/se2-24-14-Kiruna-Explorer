@@ -15,30 +15,19 @@ class DocumentController {
   }
 
     /**
-     * Creates a new document.
-     * @param title - The title of the new document. It must not be null.
-     * @param description - The description of the new document. It must not be null.
-     * @param type_id - The type of the new document. It must not be null.
-     * @param issue_date - The issue date of the new document. It must not be null.
-     * @param scale - The scale of the new document. It must not be null.
-     * @param location - The location of the document.
-     * @param language - The language of the document.
-     * @param pages - .
-     * @returns A Promise that resolves to true if the document has been created.
+     * Creates a new document by delegating to the DAO layer.
+     * @param title - The title of the document, must not be null.
+     * @param description - The description of the document, must not be null.
+     * @param type_id - The type ID of the document, must not be null.
+     * @param issue_date - The issue date of the document, in the format DD/MM/YYYY, MM/YYYY, or YYYY, must not be null.
+     * @param scale - The scale of the document, must not be null.
+     * @param location - An array of objects representing the coordinates of the document, can be a single point or a polygon.
+     * @param language - The language of the document, can be empty.
+     * @param pages - The number of pages of the document.
+     * @returns A Promise that resolves to true if the document has been successfully created.
      */
-
-    async createDocument(
-        title: string,
-        description: string,
-        type_id: number,
-        issue_date: Date,
-        scale: string,
-        location: string,
-        language: string,
-        pages: string
-
-    ): Promise<boolean> {
-        return this.dao.createDocument(title, description, type_id, issue_date, scale, location,language, pages);
+    async createDocument(title: string, description: string, type_id: number, issue_date: string, scale: string, location: {lat: number, long: number}[], language: string, pages: string): Promise<boolean> {
+        return this.dao.createDocument(title, description, type_id, issue_date, scale, location, language, pages);    
     }
 }
 

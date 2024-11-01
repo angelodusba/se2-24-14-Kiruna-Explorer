@@ -19,20 +19,24 @@ export class DocumentDAO {
         title: string,
         description: string,
         type_id: number,
-        issue_date: Date,
+        issue_date: string,
         scale: string,
-        location: string,
+        location: {lat: number, long: number}[],
         language: string,
         pages: string
-
-
     ): Promise<boolean> {
         try {
-            const sql = "INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
-            await db.query(sql, [title, description, type_id, issue_date, scale, location, language, pages]);
+            if (location.length > 1) {
+                //TODO Case of Polygon
+            } else {
+                //Case of Point
+                console.log(location[0].lat, location[0].long);
+                const sql = `INSERT INTO "documents" (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8, $9)`;
+                await db.query(sql, [title, description, type_id, issue_date, scale, location[0].lat, location[0].long, language, pages]);
+            }
             return true;
         } catch (err: any) {
-            throw new DocumentError(err);
+            throw new Error(err);
         }
     }
         
