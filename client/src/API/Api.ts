@@ -1,4 +1,5 @@
 const baseURL = "http://localhost:3001/kirunaexplorer/";
+import { Document } from "../dataModels/Document";
 
 /** ------------------- Access APIs ------------------------ */
 
@@ -53,7 +54,19 @@ async function sendDocument(document: Document) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(document),
+        body: JSON.stringify(
+          {
+              title: document.title,
+              description: document.description,
+              type_id: document.type as number,
+              issue_date: document.issueDate,
+              scale: document.scale,
+              location: [document.coordinates.lat, document.coordinates.long],
+              language: document.language,
+              pages: document.pages,
+              stakeholders: document.stakeholder,
+          }
+      ),
     });
     if (response.ok) {
         const document = await response.json();
