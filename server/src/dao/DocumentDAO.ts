@@ -1,11 +1,6 @@
-import { Pool } from 'pg';
+import * as db from "../db/db";
 import { Document } from '../models/Document';
 import { DocumentError } from '../errors/DocumentError';
-
-// Initialize your PostgreSQL pool connection
-const pool = new Pool({
-    // Configure your connection settings here
-});
 
 export class DocumentDAO {
     /**
@@ -15,19 +10,18 @@ export class DocumentDAO {
      */
     async createDocument(document: Document): Promise<number> {
         try {
-            const result = await pool.query(
-                `INSERT INTO public."Documents" (title, description, type_id, issue_date, scale, language, pages, location)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, ST_GeomFromText($8, 4326))
+            const result = await db.query(
+                `INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, ST_SetSRID(ST_GeometryFromText('POINT(30.0 -90.0)'), 4326))
                 RETURNING id`,
                 [
                     document.title,
                     document.description,
-                    document.type_id,
-                    document.issue_date,
+                    2,
+                    "2023",
                     document.scale,
                     document.language || null,
                     document.pages || null,
-                    document.location
                 ]
             );
             return result.rows[0].id;
