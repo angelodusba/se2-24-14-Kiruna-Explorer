@@ -132,6 +132,25 @@ export function DynamicColumnForm(props: any) {
                                 onChange={(event) => setDocument({...document, issueDate: event.target.value})}
                             />
                         </Grid>
+                        {/*Scale Field*/}
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="Scale"
+                                variant="outlined"
+                                onChange={(event) => setDocument({...document, scale: event.target.value})}
+                                required
+                            />
+                        </Grid>
+                        {/*Language Field*/}
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="Language"
+                                variant="outlined"
+                                onChange={(event) => setDocument({...document, language: event.target.value})}
+                            />
+                        </Grid>
                         {/*Save Button*/}
                         <Grid item xs={12}>
                             <Button 
