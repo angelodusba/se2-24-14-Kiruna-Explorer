@@ -1,26 +1,26 @@
 -----------------
 -- Users table --
 -----------------
-INSERT INTO "Users" (email, username, password, role, salt) VALUES ('urban@planner.com', 'urban', 'planner', 'UrbanPlanner', 'salt');
+INSERT INTO "users" (email, username, password, role, salt) VALUES ('urban@planner.com', 'urban', 'planner', 'UrbanPlanner', 'salt');
 
 -----------------
 -- Types table --
 -----------------
-INSERT INTO "Types" (name) VALUES ('Design');
-INSERT INTO "Types" (name) VALUES ('Informative');
-INSERT INTO "Types" (name) VALUES ('Prescriptive');
-INSERT INTO "Types" (name) VALUES ('Technical');
-INSERT INTO "Types" (name) VALUES ('Agreement');
-INSERT INTO "Types" (name) VALUES ('Conflict');
-INSERT INTO "Types" (name) VALUES ('Consultation');
-INSERT INTO "Types" (name) VALUES ('Action');
+INSERT INTO "types" (name) VALUES ('Design');
+INSERT INTO "types" (name) VALUES ('Informative');
+INSERT INTO "types" (name) VALUES ('Prescriptive');
+INSERT INTO "types" (name) VALUES ('Technical');
+INSERT INTO "types" (name) VALUES ('Agreement');
+INSERT INTO "types" (name) VALUES ('Conflict');
+INSERT INTO "types" (name) VALUES ('Consultation');
+INSERT INTO "types" (name) VALUES ('Action');
 
 ---------------------
 -- Documents table --
 ---------------------
 
 -- 1. Document with a single point location
-INSERT INTO "Documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
     'Sample Location Document', 
     'This document has a specific point location.', 
     1, -- type_id
@@ -33,7 +33,7 @@ INSERT INTO "Documents" (title, description, type_id, issue_date, scale, languag
 );
 
 -- 2. Document with an area location
-INSERT INTO "Documents"  (title, description, type_id, issue_date, scale, location) VALUES (
+INSERT INTO "documents"  (title, description, type_id, issue_date, scale, location) VALUES (
     'Italy Outline', 
     'A polygon representing the outline of Italy.', 
     1, -- type_id
@@ -56,20 +56,20 @@ INSERT INTO "Documents"  (title, description, type_id, issue_date, scale, locati
 -----------------------
 -- Connections table --
 -----------------------
-INSERT INTO "Connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 2, TRUE); -- at least one connection type must be TRUE
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 2, TRUE); -- at least one connection type must be TRUE
 
 ------------------------
 -- Stakeholders table --
 ------------------------
-INSERT INTO "Stakeholders" (name) VALUES ('LKAB');
-INSERT INTO "Stakeholders" (name) VALUES ('Municipality');
-INSERT INTO "Stakeholders" (name) VALUES ('Regional authority');
-INSERT INTO "Stakeholders" (name) VALUES ('Architecture firms');
-INSERT INTO "Stakeholders" (name) VALUES ('Citizens');
-INSERT INTO "Stakeholders" (name) VALUES ('Others');
+INSERT INTO "stakeholders" (name) VALUES ('LKAB');
+INSERT INTO "stakeholders" (name) VALUES ('Municipality');
+INSERT INTO "stakeholders" (name) VALUES ('Regional authority');
+INSERT INTO "stakeholders" (name) VALUES ('Architecture firms');
+INSERT INTO "stakeholders" (name) VALUES ('Citizens');
+INSERT INTO "stakeholders" (name) VALUES ('Others');
 
 ----------------------------------
 -- Documents_stakeholders table --
 ----------------------------------
-INSERT INTO "Documents_stakeholders" (document_id, stakeholder_id) VALUES (1, 1);
+INSERT INTO "documents_stakeholders" (document_id, stakeholder_id) VALUES (1, 1);
 
