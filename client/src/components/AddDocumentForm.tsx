@@ -7,8 +7,10 @@ import { useEffect } from 'react';
 import { StakeHolder } from '../dataModels/StakeHolders';
 import { Type } from '../dataModels/Type';
 
+import API from '../API/Api';
 
-export function DynamicColumnForm(props: any) {
+
+export function DynamicColumnForm() {
 
     const [columns, setColumns] = useState([{ id: 1, value: '' }]);
     const [document, setDocument] = useState<Document>(new Document('', '', [], 0, 0, { lat: 0, long: 0 }, '', '', ''));
@@ -53,24 +55,15 @@ export function DynamicColumnForm(props: any) {
         setColumns(newColumns);
         
         let temp = { ...document };
-        temp.stakeholder = newColumns.map((column) => {
-            const stakeholder = stakeholders.find(stakeholder => stakeholder.name === column.value);
-            return stakeholder ? stakeholder.id : 0;
-        });
+        temp.stakeholder = newColumns.map((column) => { return parseInt(column.value) });
         setDocument(temp);
 
     };
 
-    const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let temp = {...document};
-        const selectedType = types.find(type => type.name === event.target.value);
-        temp.type = selectedType ? selectedType.id : 0;
-        setDocument(temp);
-    }
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        props.sendDocument(document);
+        API.sendDocument(document);
         console.log(document);
     }
 
@@ -147,7 +140,7 @@ export function DynamicColumnForm(props: any) {
                                 >
                                     <option value=""></option>
                                     {stakeholders.map((stakeholder) => (
-                                        <option key={stakeholder.id} value={stakeholder.name}>
+                                        <option key={stakeholder.id} value={stakeholder.id}>
                                             {stakeholder.name}
                                         </option>
                                     ))}
@@ -171,8 +164,8 @@ export function DynamicColumnForm(props: any) {
                                 fullWidth
                                 label="Type"
                                 variant="outlined"
-                                
-                                onChange={handleTypeChange}
+                                value={document.type}
+                                onChange={(event) => setDocument({...document, type: Number(event.target.value)})}
                                 SelectProps={{
                                     native: true,
                                 }}
@@ -180,7 +173,7 @@ export function DynamicColumnForm(props: any) {
                             >
                                 <option value=""></option>
                                 {types.map((type) => (
-                                    <option key={type.id} value={type.name}>
+                                    <option key={type.id} value={type.id}>
                                         {type.name}
                                     </option>
                                 ))}

@@ -80,5 +80,20 @@ async function sendDocument(document: Document) {
     }
 }
 
-const API = { baseURL, login, logOut, getUserInfo, sendDocument };
+async function getAllDocuments() {
+    const response = await fetch(baseURL + "documents/names", {
+        credentials: "include",
+    });
+    if (response.ok) {
+        const documents = await response.json();
+        return documents;
+    } else {
+        const errDetail = await response.json();
+        if (errDetail.error) throw errDetail.error;
+        if (errDetail.message) throw errDetail.message;
+        throw new Error("Error. Please reload the page");
+    }
+}
+
+const API = { baseURL, login, logOut, getUserInfo, sendDocument, getAllDocuments };
 export default API;

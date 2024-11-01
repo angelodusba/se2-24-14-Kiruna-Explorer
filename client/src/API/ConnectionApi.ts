@@ -21,8 +21,28 @@ async function sendConnections(connectionsList: ConnectionList) {
     }
 }
 
+async function getTypeOfConnections() {
+    const baseurl = API.baseURL;
+    let response = await fetch(baseurl + "connections/names", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    if (response.ok) {
+        const connections = await response.json();
+        return connections;
+    } else {
+        const errDetail = await response.json();
+        if (errDetail.error) throw errDetail.error;
+        if (errDetail.message) throw errDetail.message;
+    }
+}
+
 const connectionApi = {
     sendConnections,
+    getTypeOfConnections
 };
 
 export default connectionApi;
