@@ -1,40 +1,45 @@
-import { Request, Response } from 'express';
 import { DocumentDAO } from '../dao/DocumentDAO';
 import { DocumentError } from '../errors/DocumentError';
 import { Document } from '../models/Document';
 
-const documentDAO = new DocumentDAO();
+/**
+ * Represents a controller for managing documents.
+ * All methods of this class must interact with the corresponding DAO class to retrieve or store data.
+ */
 
-export class DocumentController {
+class DocumentController {
+  private dao: DocumentDAO;
+
+  constructor() {
+    this.dao = new DocumentDAO();
+  }
+
     /**
-     * Handles the creation of a new document.
-     * @param req - Express request object.
-     * @param res - Express response object.
+     * Creates a new document.
+     * @param title - The title of the new document. It must not be null.
+     * @param description - The description of the new document. It must not be null.
+     * @param type_id - The type of the new document. It must not be null.
+     * @param issue_date - The issue date of the new document. It must not be null.
+     * @param scale - The scale of the new document. It must not be null.
+     * @param location - The location of the document.
+     * @param language - The language of the document.
+     * @param pages - .
+     * @returns A Promise that resolves to true if the document has been created.
      */
 
-    async createDocument(req: Request, res: Response) {
-        try {
-            const document = new Document(
-                0,
-                req.body.title,
-                req.body.description,
-                req.body.type_id,
-                new Date(req.body.issue_date),
-                req.body.scale,
-                req.body.location,
-                req.body.language,
-                req.body.pages
-            );
-            const documentId = await documentDAO.createDocument(document);
-            res.status(200).json({ id: documentId });
-        } catch (error) {
-            if (error instanceof DocumentError) {
-                res.status(401).json({ error: error.message });
-            } else {
-                res.status(422).json({ error: 'Internal Server Error' });
-            }
-        }
-    
-    }
+    async createDocument(
+        title: string,
+        description: string,
+        type_id: number,
+        issue_date: Date,
+        scale: string,
+        location: string,
+        language: string,
+        pages: string
 
+    ): Promise<boolean> {
+        return this.dao.createDocument(title, description, type_id, issue_date, scale, location,language, pages);
+    }
 }
+
+export { DocumentController };

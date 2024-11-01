@@ -4,29 +4,39 @@ import { DocumentError } from '../errors/DocumentError';
 
 export class DocumentDAO {
     /**
-     * Inserts a new document into the Documents table.
-     * @param document - An instance of the Document model.
-     * @returns Promise of the newly created document ID.
+     * Creates a new document.
+     * @param title - The title of the new document. It must not be null.
+     * @param description - The description of the new document. It must not be null.
+     * @param type_id - The type of the new document. It must not be null.
+     * @param issue_date - The issue date of the new document. It must not be null.
+     * @param scale - The scale of the new document. It must not be null.
+     * @param location - The location of the document.
+     * @param language - The language of the document.
+     * @param pages - .
+     * @returns A Promise that resolves to true if the document has been created.
      */
-    async createDocument(document: Document): Promise<number> {
+    async createDocument(
+        title: string,
+        description: string,
+        type_id: number,
+        issue_date: Date,
+        scale: string,
+        location: string,
+        language: string,
+        pages: string
+
+
+    ): Promise<boolean> {
+        const query = `
+            INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `;
         try {
-            const result = await db.query(
-                `INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, ST_SetSRID(ST_GeometryFromText('POINT(30.0 -90.0)'), 4326))
-                RETURNING id`,
-                [
-                    document.title,
-                    document.description,
-                    2,
-                    "2023",
-                    document.scale,
-                    document.language || null,
-                    document.pages || null,
-                ]
-            );
-            return result.rows[0].id;
-        } catch (error) {
-            throw new DocumentError('Error creating document', error);
-        }
+            await db.query(query, [title, description, type_id, issue_date, scale, location, language, pages]);
+            return true;
+        } catch (err: any) {
+            throw new Error(err);
+          }
     }
+    
 }
