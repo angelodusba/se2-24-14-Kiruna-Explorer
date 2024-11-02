@@ -19,9 +19,8 @@ export function DynamicColumnForm() {
 
     useEffect(() => {
         fetchStakeholders();
-        /*
         fetchTypes();
-        */
+        
        //Mockup fetchStakeholders
          let temp = [
               new StakeHolder(1, "Stakeholder 1"),
@@ -39,7 +38,7 @@ export function DynamicColumnForm() {
             new Type(4, "Type 4"),
             new Type(5, "Type 5"),
         ];
-        setTypes(temp2);
+        //setTypes(temp2);
 
     }, []);
 
