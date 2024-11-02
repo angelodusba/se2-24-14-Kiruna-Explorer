@@ -1,4 +1,4 @@
-import { DocumentDAO } from "../dao/documentDAO";
+import DocumentDAO from "../dao/documentDAO";
 
 /**
  * Represents a controller for managing documents.

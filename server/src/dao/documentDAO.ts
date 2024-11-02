@@ -1,6 +1,6 @@
 import * as db from "../db/db";
 
-export class DocumentDAO {
+class DocumentDAO {
   /**
    * Creates a new document.
    * @param title - The title of the new document. It must not be null.
@@ -29,7 +29,7 @@ export class DocumentDAO {
       } else {
         //Case of Point
         console.log(location[0].lat, location[0].long);
-        const sql = `INSERT INTO "documents" (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8, $9)`;
+        const sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8, $9)`;
         await db.query(sql, [
           title,
           description,

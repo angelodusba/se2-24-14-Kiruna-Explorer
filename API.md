@@ -179,6 +179,8 @@ Retrieves all the stakeholders in the database.
 ]
 ```
 
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+
 ### Type APIs
 
 #### GET `kirunaexplorer/types`
@@ -202,6 +204,8 @@ Retrieves all the node types in the database.
     }
 ]
 ```
+
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
 ### Scale APIs
 

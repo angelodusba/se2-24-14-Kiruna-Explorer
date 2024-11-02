@@ -51,6 +51,7 @@ class DocumentRoutes {
         .isArray({ min: 1 })
         .withMessage("Stakeholders must be an array of integers with at least one ID."),
       this.errorHandler.validateRequest,
+      //this.authService.isUrbanPlanner,
       (req: any, res: any, next: any) => {
         this.controller
           .createDocument(
