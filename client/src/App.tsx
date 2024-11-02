@@ -1,25 +1,58 @@
 import "./App.css";
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
-/*API*/
-import API from './API/Api'
-
-/*DATA MODELS*/
-import { Document } from './dataModels/Document'
-/*REACT COMPONENTS*/
-import DynamicColumnForm from './components/AddDocumentForm'
+import Map from "./components/Map/Map";
+import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import LoginPage from "./components/Login/LoginPage";
+import { useState } from "react";
+import User from "./models/User";
+import UserContext from "./contexts/UserContext";
+import API from "./API";
 
 function App() {
-  
-  const [count, setCount] = useState(0)
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const navigate = useNavigate();
 
+  const doLogin = async (username: string, password: string) => {
+    const user = await API.login(username, password);
+    setUser(user);
+    navigate("/map");
+  };
 
+  const doLogout = async () => {
+    await API.logOut();
+    setUser(undefined);
+    navigate("/");
+  };
   return (
-    <DynamicColumnForm sendDocument={API.sendDocument} />
-  )
+    <UserContext.Provider value={user}>
+      <Routes>
+        <Route
+          path="/"
+          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/auth"
+          element={<LoginPage login={doLogin}></LoginPage>}></Route>
+        <Route
+          path="/"
+          element={
+            <>
+              <Navbar logout={doLogout}></Navbar>
+              <Outlet />
+            </>
+          }>
+          <Route
+            path="/map"
+            element={
+              <>
+                <Map></Map>
+              </>
+            }
+          />
+        </Route>
+      </Routes>
+    </UserContext.Provider>
+  );
 }
 
 export default App;
