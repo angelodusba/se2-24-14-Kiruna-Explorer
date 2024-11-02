@@ -1,8 +1,58 @@
 import "./App.css";
-import DynamicColumnForm from "./components/AddDocumentForm";
+import Map from "./components/Map/Map";
+import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import LoginPage from "./components/Login/LoginPage";
+import { useState } from "react";
+import User from "./models/User";
+import UserContext from "./contexts/UserContext";
+import API from "./API";
 
 function App() {
-  return <DynamicColumnForm />;
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const navigate = useNavigate();
+
+  const doLogin = async (username: string, password: string) => {
+    const user = await API.login(username, password);
+    setUser(user);
+    navigate("/map");
+  };
+
+  const doLogout = async () => {
+    await API.logOut();
+    setUser(undefined);
+    navigate("/");
+  };
+  return (
+    <UserContext.Provider value={user}>
+      <Routes>
+        <Route
+          path="/"
+          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/auth"
+          element={<LoginPage login={doLogin}></LoginPage>}></Route>
+        <Route
+          path="/"
+          element={
+            <>
+              <Navbar logout={doLogout}></Navbar>
+              <Outlet />
+            </>
+          }>
+          <Route
+            path="/map"
+            element={
+              <>
+                <Map></Map>
+              </>
+            }
+          />
+        </Route>
+      </Routes>
+    </UserContext.Provider>
+  );
 }
 
 export default App;
