@@ -149,3 +149,5 @@ export function LinkDocumentForm(props: any) {
         </Container>
     );
 }
+
+export default LinkDocumentForm;

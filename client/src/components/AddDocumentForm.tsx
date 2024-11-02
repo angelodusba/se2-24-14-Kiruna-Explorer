@@ -7,7 +7,7 @@ import { StakeHolder } from '../dataModels/StakeHolders';
 import { Type } from '../dataModels/Type';
 import API from '../API/Api';
 
-export function DynamicColumnForm() {
+export function AddDocumentForm() {
     const [columns, setColumns] = useState([{ id: 1, value: '' }]);
     const [document, setDocument] = useState<Document>(new Document('', '', [], 0, 0, { lat: 0, long: 0 }, '', '', ''));
     const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
@@ -202,4 +202,4 @@ export function DynamicColumnForm() {
     );
 }
 
-export default DynamicColumnForm;
+export default AddDocumentForm;
