@@ -2,124 +2,148 @@ import * as React from "react";
 import {
   Box,
   Toolbar,
-  IconButton,
   Typography,
   MenuItem,
   Menu,
-  Chip,
   AppBar,
   Stack,
+  Divider,
+  MenuProps,
+  Fab,
+  Avatar,
+  ListItemIcon,
 } from "@mui/material";
-import MapOutlined from "@mui/icons-material/Map";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MoreIcon from "@mui/icons-material/MoreVert";
-import AutoGraphOutlinedIcon from "@mui/icons-material/AutoGraphOutlined";
+import { useNavigate } from "react-router-dom";
+import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
 import KirunaLogo from "../assets/KirunaLogo.svg";
-
 import Grid from "@mui/material/Grid2";
+import UserContext from "../contexts/UserContext";
+import { styled, alpha } from "@mui/material/styles";
+import { Logout, MailOutline } from "@mui/icons-material";
 
-/*
-This part is the search bar, not part of these stories
+function stringToColor(string: string) {
+  let hash = 0;
+  let i;
 
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
-    width: "auto",
-  },
-}));
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
 
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
+  let color = "#";
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+
+  return color;
+}
+
+function stringAvatar(name: string) {
+  const initials = name
+    .split(" ")
+    .map((word) => word[0])
+    .join("");
+
+  return {
+    sx: {
+      height: "100%",
+      width: "100%",
+      bgcolor: stringToColor(name),
     },
+    children: initials || name[0],
+  };
+}
+
+const AccountMenu = styled((props: MenuProps) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: "bottom",
+      horizontal: "right",
+    }}
+    transformOrigin={{
+      vertical: "top",
+      horizontal: "right",
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  "& .MuiPaper-root": {
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 180,
+    color: "rgb(55, 65, 81)",
+    boxShadow:
+      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    "& .MuiMenu-list": {
+      padding: "4px 0",
+    },
+    "& .MuiMenuItem-root": {
+      "& .MuiSvgIcon-root": {
+        fontSize: 18,
+        marginRight: theme.spacing(1.5),
+      },
+      "&:active": {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          theme.palette.action.selectedOpacity
+        ),
+      },
+    },
+    ...theme.applyStyles("dark", {
+      color: theme.palette.grey[300],
+    }),
   },
 }));
 
-<Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search>}*/
+function Navbar(props) {
+  const user = React.useContext(UserContext);
+  const navigate = useNavigate();
 
-function Navbar() {
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
+  const [accountAnchorEl, setAccountAnchorEl] =
     React.useState<null | HTMLElement>(null);
+  const accountOpen = Boolean(accountAnchorEl);
 
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
+  const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAccountAnchorEl(event.currentTarget);
+  };
+  const handleAccountMenuClose = () => {
+    setAccountAnchorEl(null);
   };
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-
-  const mobileMenuId = "mobile-menu";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
+  const renderAccountMenu = (
+    <AccountMenu
+      id="accountMenu"
+      MenuListProps={{
+        "aria-labelledby": "accountMenu",
       }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}>
-      <MenuItem>
-        <IconButton size="small" aria-label="Map" color="inherit">
-          <MapOutlined />
-        </IconButton>
-        <p>Map</p>
+      anchorEl={accountAnchorEl}
+      open={accountOpen}
+      onClose={handleAccountMenuClose}>
+      <Typography variant="h5" fontWeight="bold" align="center">
+        Hi Stocazzo
+      </Typography>
+      <MenuItem onClick={handleAccountMenuClose} disableRipple>
+        <ListItemIcon sx={{ color: "#003d8f" }}>
+          <MailOutline fontSize="small" color="inherit" />
+        </ListItemIcon>
+        MailStocazzo@gmail.com
       </MenuItem>
-      <MenuItem>
-        <IconButton size="small" aria-label="Diagram" color="inherit">
-          <AutoGraphOutlinedIcon />
-        </IconButton>
-        <p>Diagram</p>
+      <Divider sx={{ my: 0.5 }} />
+      <MenuItem
+        onClick={() => {
+          handleAccountMenuClose();
+          props.logout();
+        }}
+        disableRipple
+        sx={{ color: "error.main" }}>
+        <ListItemIcon>
+          <Logout fontSize="small" color="error" />
+        </ListItemIcon>
+        Logout
       </MenuItem>
-      <MenuItem>
-        <IconButton size="small" aria-label="Account" color="inherit">
-          <AccountCircle />
-        </IconButton>
-        <p>Account</p>
-      </MenuItem>
-    </Menu>
+    </AccountMenu>
   );
 
   return (
@@ -143,6 +167,7 @@ function Navbar() {
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "center",
+                  marginTop: "8px",
                 }}>
                 <img
                   src={KirunaLogo}
@@ -165,50 +190,48 @@ function Navbar() {
                   justifyContent: "center",
                   display: { xs: "none", sm: "flex" },
                 }}>
-                <Stack direction="row" spacing={1} sx={{ margin: "auto" }}>
-                  <Chip
-                    icon={<MapOutlined color="inherit" />}
-                    label="Map"
-                    clickable
-                    className="customChip"
-                  />
-                  <Chip
-                    icon={<AutoGraphOutlinedIcon color="inherit" />}
-                    label="Diagram"
-                    clickable
-                    className="customChip"
-                  />
-                </Stack>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ margin: "auto" }}></Stack>
               </Grid>
               <Grid
                 size="grow"
                 sx={{
                   justifyContent: "end",
-                  display: { xs: "none", sm: "flex" },
+                  alignItems: "center",
+                  display: { xs: "flex", sm: "flex" },
                 }}>
-                <Chip
-                  icon={<AccountCircle color="inherit" />}
-                  label="Login"
-                  clickable
-                  className="customChip"
-                />
+                {user ? (
+                  <Fab
+                    variant="extended"
+                    size="medium"
+                    className="customButton"
+                    onClick={() => navigate("/auth")}>
+                    <AccountCircleOutlined sx={{ mr: 1 }} />
+                    Login
+                  </Fab>
+                ) : (
+                  <Fab
+                    size="medium"
+                    id="accountMenu"
+                    aria-controls={accountOpen ? "accountMenu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={accountOpen ? "true" : undefined}
+                    onClick={
+                      accountOpen
+                        ? handleAccountMenuClose
+                        : handleAccountMenuOpen
+                    }>
+                    <Avatar {...stringAvatar("JedWatson")} />
+                  </Fab>
+                )}
               </Grid>
             </Grid>
           </Box>
-          <Box sx={{ display: { xs: "flex", sm: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit">
-              <MoreIcon />
-            </IconButton>
-          </Box>
         </Toolbar>
       </AppBar>
-      {renderMobileMenu}
+      {renderAccountMenu}
     </Box>
   );
 }

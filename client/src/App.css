@@ -3,10 +3,16 @@ body {
   overflow-y: hidden;
 }
 
-.customChip {
+.customButton {
   background-color: white !important;
   color: #003d8f !important;
 }
+
+.customButton:hover {
+  background-color: #003d8f !important;
+  color: white !important;
+}
+
 
 .map {
   overflow-y: auto;
