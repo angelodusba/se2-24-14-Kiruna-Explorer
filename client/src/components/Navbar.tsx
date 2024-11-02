@@ -178,7 +178,6 @@ function Navbar(props) {
                 />
                 <Typography
                   variant="h5"
-                  noWrap
                   component="div"
                   sx={{ display: { sm: "block", xs: "none" } }}>
                   Kiruna Explorer

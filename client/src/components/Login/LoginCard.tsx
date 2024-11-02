@@ -10,6 +10,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import MuiCard from "@mui/material/Card";
 
 //Card Style
@@ -31,7 +32,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-function LoginCard() {
+function LoginCard(props) {
   const [usernameError, setUsernameError] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
@@ -42,10 +43,9 @@ function LoginCard() {
     if (usernameError || passwordError) {
       return;
     }
-    //TODO LOGIN API
-    console.log({
-      username: username,
-      password: password,
+
+    props.login(username, password).catch(() => {
+      // TODO Set the error on the form or visualize general error in app (maybe preferred to centralize errors visualization)
     });
   };
 
@@ -133,7 +133,11 @@ function LoginCard() {
       <Divider>or</Divider>
       <Typography textAlign="center">
         <span>
-          <Link component="button" variant="body2" underline="hover">
+          <Link
+            component={RouterLink}
+            variant="body2"
+            underline="hover"
+            to="/map">
             Continue as a visitor
           </Link>
         </span>

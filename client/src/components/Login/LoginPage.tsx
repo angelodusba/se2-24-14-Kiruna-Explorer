@@ -4,7 +4,7 @@ import KirunaImage from "../../assets/Kiruna.webp";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import { Box, Typography } from "@mui/material";
 
-function LoginPage() {
+function LoginPage(props) {
   return (
     <Grid
       container
@@ -63,7 +63,7 @@ function LoginPage() {
               Kiruna Explorer
             </Typography>
           </Box>
-          <LoginCard />
+          <LoginCard login={props.login} />
         </Box>
       </Grid>
     </Grid>
