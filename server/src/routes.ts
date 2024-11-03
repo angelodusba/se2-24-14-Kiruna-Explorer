@@ -5,6 +5,7 @@ import { AuthRoutes, UserRoutes } from "./routers/userRoutes";
 import DocumentRoutes from "./routers/documentRoutes";
 import StakeHolderRoutes from "./routers/stakeHolderRoutes";
 import TypeRoutes from "./routers/typeRoutes";
+import ConnectionRoutes from "./routers/connectionRoutes";
 
 const prefix = "/kirunaexplorer";
 
@@ -29,6 +30,7 @@ function initRoutes(app: express.Application) {
   const documentRoutes = new DocumentRoutes(authenticator);
   const stakeHolderRoutes = new StakeHolderRoutes(authenticator);
   const typeRoutes = new TypeRoutes(authenticator);
+  const connectionRoutes = new ConnectionRoutes(authenticator);
 
   /**
    * The routes for the user and authentication are defined here.
@@ -38,6 +40,7 @@ function initRoutes(app: express.Application) {
   app.use(`${prefix}/documents`, documentRoutes.getRouter());
   app.use(`${prefix}/stakeholders`, stakeHolderRoutes.getRouter());
   app.use(`${prefix}/types`, typeRoutes.getRouter());
+  app.use(`${prefix}/connections`, connectionRoutes.getRouter());
 
   // Register global error handler
   ErrorHandler.registerErrorHandler(app);

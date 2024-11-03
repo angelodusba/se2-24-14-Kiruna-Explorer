@@ -12,7 +12,7 @@ export function LinkDocumentForm(props: any) {
 
     // Get the type of connections
     useEffect(() => {
-        /*
+        
         connectionApi.getTypeOfConnections().then((data) => {
             let temp: string[] = [];
             for (let i = 0; i < data.length; i++) {
@@ -20,7 +20,7 @@ export function LinkDocumentForm(props: any) {
             }
             setTypeOfConnection(temp);
         });
-
+        /*
         API.getDocuments().then((data) => {
             let temp: string[] = [];
             for (let i = 0; i < data.length; i++) {
@@ -30,7 +30,7 @@ export function LinkDocumentForm(props: any) {
         });
         */
         // Hardcoded for now
-        setTypeOfConnection(['Reference', 'Citation', 'Influence']);
+        //setTypeOfConnection(['Reference', 'Citation', 'Influence']);
         setDocumentList([{ id: '1', title: 'Document 1' }, { id: '2', title: 'Document 2' }, { id: '3', title: 'Document 3' }]);
     }, []);
 
