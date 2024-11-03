@@ -89,7 +89,7 @@ Adds a new document to the database.
   - `type_id`: an integer that must not be empty
   - `issue_date`: a string that must not be empty, in the format **DD/MM/YYYY** or **MM/YYYY** or **YYYY**
   - `scale`: a string that must not be empty
-  - `location`: an array of objects that must not be empty, representing the coordinates of the document, can be a single point or a polygon
+  - `location`: an array of strings that must not be empty, representing the coordinates (logitude, latitude) of the document, can be a single point or a polygon
   - `language`: a string that can be empty
   - `pages`: TODO: optional attachment will be here
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
@@ -104,7 +104,8 @@ Adds a new document to the database.
     "issue_date": "01/01/2020",
     "scale": "blueprints/effects",
     "location": [
-        {"lat": 1, "long": "2"}
+        "1 2",
+        "3 4"
     ],
     "language": "",
     "pages": {},

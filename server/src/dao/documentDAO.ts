@@ -19,7 +19,7 @@ class DocumentDAO {
     type_id: number,
     issue_date: string,
     scale: string,
-    location: { lat: number; long: number }[],
+    location: string[],
     language: string,
     pages: string
   ): Promise<boolean> {
@@ -28,16 +28,13 @@ class DocumentDAO {
         //TODO Case of Polygon
       } else {
         //Case of Point
-        console.log(location[0].lat, location[0].long);
-        const sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8, $9)`;
+        const sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_GeometryFromText('POINT(${location[0]})'), 4326), $6, $7)`;
         await db.query(sql, [
           title,
           description,
           type_id,
           issue_date,
           scale,
-          location[0].lat,
-          location[0].long,
           language,
           pages,
         ]);

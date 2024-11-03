@@ -19,7 +19,7 @@ class DocumentController {
    * @param type_id - The type ID of the document, must not be null.
    * @param issue_date - The issue date of the document, in the format DD/MM/YYYY, MM/YYYY, or YYYY, must not be null.
    * @param scale - The scale of the document, must not be null.
-   * @param location - An array of objects representing the coordinates of the document, can be a single point or a polygon. If null it's intended as the whole municipality area.
+   * @param location - An array of strings representing the coordinates of the document, can be a single point or a polygon. If null it's intended as the whole municipality area.
    * @param language - The language of the document, can be empty.
    * @param pages - The number of pages of the document.
    * @returns A Promise that resolves to true if the document has been successfully created.
@@ -30,7 +30,7 @@ class DocumentController {
     type_id: number,
     issue_date: string,
     scale: string,
-    location: { lat: number; long: number }[],
+    location: string[],
     language: string,
     pages: string
   ): Promise<boolean> {

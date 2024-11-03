@@ -44,7 +44,7 @@ class DocumentRoutes {
       body("scale").notEmpty().withMessage("Scale must not be empty."),
       body("location")
         .isArray({ min: 1 })
-        .withMessage("Location must be an array of objects with at least one coordinate."),
+        .withMessage("Location must be an array of strings with at least one coordinate."),
       body("language").optional().isString(),
       //body('pages').optional().isObject().withMessage('Pages must be an object.'),
       body("stakeholders")
@@ -53,6 +53,7 @@ class DocumentRoutes {
       this.errorHandler.validateRequest,
       //this.authService.isUrbanPlanner,
       (req: any, res: any, next: any) => {
+        //console.log(req.body);
         this.controller
           .createDocument(
             req.body.title,

@@ -61,7 +61,7 @@ async function sendDocument(document: Document) {
               type_id: document.type as number,
               issue_date: document.issueDate,
               scale: document.scale,
-              location: [document.coordinates],
+              location: [document.coordinates].map((point) => `${point.long} ${point.lat}`),
               language: document.language,
               pages: document.pages,
               stakeholders: document.stakeholder,
