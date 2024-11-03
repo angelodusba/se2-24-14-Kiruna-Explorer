@@ -63,7 +63,8 @@ class DocumentRoutes {
             req.body.scale,
             req.body.location,
             req.body.language,
-            req.body.pages
+            req.body.pages,
+            req.body.stakeholders
           )
           .then(() => res.status(200).end())
           .catch((err: any) => {

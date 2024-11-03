@@ -11,6 +11,7 @@ class DocumentDAO {
    * @param location - The location of the document.
    * @param language - The language of the document.
    * @param pages - .
+   * @param stakeholders - The stakeholders of the document.
    * @returns A Promise that resolves to true if the document has been created.
    */
   async createDocument(
@@ -21,15 +22,18 @@ class DocumentDAO {
     scale: string,
     location: string[],
     language: string,
-    pages: string
+    pages: string,
+    stakeholders: number[]
   ): Promise<boolean> {
     try {
+      var document_id: number = 0;
+      await db.query("BEGIN", []);
       if (location.length > 1) {
         //TODO Case of Polygon
       } else {
         //Case of Point
-        const sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_GeometryFromText('POINT(${location[0]})'), 4326), $6, $7)`;
-        await db.query(sql, [
+        const sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_GeometryFromText('POINT(${location[0]})'), 4326), $6, $7) RETURNING id`;
+        const res = await db.query(sql, [
           title,
           description,
           type_id,
@@ -38,9 +42,16 @@ class DocumentDAO {
           language,
           pages,
         ]);
+        document_id = res.rows[0].id;
       }
+      for (var stakeholder of stakeholders) {
+        const sql = `INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES ($1, $2)`;
+        await db.query(sql, [document_id, stakeholder]);
+      }
+      await db.query("COMMIT", []);
       return true;
     } catch (err: any) {
+      await db.query("ROLLBACK", []);
       throw new Error(err);
     }
   }

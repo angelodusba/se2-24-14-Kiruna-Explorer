@@ -22,6 +22,7 @@ class DocumentController {
    * @param location - An array of strings representing the coordinates of the document, can be a single point or a polygon. If null it's intended as the whole municipality area.
    * @param language - The language of the document, can be empty.
    * @param pages - The number of pages of the document.
+   * @param stakeholders - The stakeholders of the document.
    * @returns A Promise that resolves to true if the document has been successfully created.
    */
   async createDocument(
@@ -32,7 +33,8 @@ class DocumentController {
     scale: string,
     location: string[],
     language: string,
-    pages: string
+    pages: string,
+    stakeholders: number[]
   ): Promise<boolean> {
     return this.dao.createDocument(
       title,
@@ -42,7 +44,8 @@ class DocumentController {
       scale,
       location,
       language,
-      pages
+      pages,
+      stakeholders
     );
   }
 }
