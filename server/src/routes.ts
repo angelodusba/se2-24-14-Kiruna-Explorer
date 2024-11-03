@@ -3,7 +3,7 @@ import ErrorHandler from "./helper";
 import Authenticator from "./routers/auth";
 import { AuthRoutes, UserRoutes } from "./routers/userRoutes";
 import DocumentRoutes from "./routers/documentRoutes";
-import StakeHolderRoutes from "./routers/stakeHolderRoutes";
+import StakeholderRoutes from "./routers/stakeholderRoutes";
 import TypeRoutes from "./routers/typeRoutes";
 import ConnectionRoutes from "./routers/connectionRoutes";
 
@@ -28,7 +28,7 @@ function initRoutes(app: express.Application) {
   const userRoutes = new UserRoutes(authenticator);
   const authRoutes = new AuthRoutes(authenticator);
   const documentRoutes = new DocumentRoutes(authenticator);
-  const stakeHolderRoutes = new StakeHolderRoutes(authenticator);
+  const stakeholderRoutes = new StakeholderRoutes(authenticator);
   const typeRoutes = new TypeRoutes(authenticator);
   const connectionRoutes = new ConnectionRoutes(authenticator);
 
@@ -38,7 +38,7 @@ function initRoutes(app: express.Application) {
   app.use(`${prefix}/users`, userRoutes.getRouter());
   app.use(`${prefix}/sessions`, authRoutes.getRouter());
   app.use(`${prefix}/documents`, documentRoutes.getRouter());
-  app.use(`${prefix}/stakeholders`, stakeHolderRoutes.getRouter());
+  app.use(`${prefix}/stakeholders`, stakeholderRoutes.getRouter());
   app.use(`${prefix}/types`, typeRoutes.getRouter());
   app.use(`${prefix}/connections`, connectionRoutes.getRouter());
 

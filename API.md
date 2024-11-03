@@ -6,10 +6,10 @@ TODO: More complete description to be added here eventually.
 
 ## API List
 
-For all constraints on request parameters and request body content, always assume a `422` error in case one constraint is not satisfied.
-For all access constraints, always assume a `401` error in case the access rule is not satisfied.
-For all success scenarios, always assume a `200` status code for the API response.
-Specific error scenarios will have their corresponding error code.
+- For all constraints on request parameters and request body content, always assume a `422` error in case one constraint is not satisfied.
+- For all access constraints, always assume a `401` error in case the access rule is not satisfied.
+- For all success scenarios, always assume a `200` status code for the API response.
+- Specific error scenarios will have their corresponding error code.
 
 ### Access APIs
 
@@ -21,12 +21,16 @@ Allows login for a user with the provided credentials.
 - Request Body Content: An object having as attributes:
   - `email`: a string that must not be empty, and must be a valid email
   - `password`: a string that must not be empty
+  - `username`: a string that must not be empty
+  - `role`: a string that must not be empty
   - Example:
 
 ```JSON
 {
     "email": "mario.rossi@email.com",
-    "password": "MarioRossi"
+    "password": "password",
+    "username": "MarioRossi",
+    "role": "Resident"
 }
 ```
 
@@ -36,7 +40,8 @@ Allows login for a user with the provided credentials.
 ```JSON
 {
     "email": "mario.rossi@email.com",
-    "role": "resident"
+    "username": "MarioRossi",
+    "role": "Resident"
 }
 ```
 
@@ -52,7 +57,7 @@ Performs logout for the currently logged in user.
 - Request Parameters: None
 - Request Body Content: None
 - Response Body Content: None
-- Access Constraints: Can only be called by a logged in User
+- Access Constraints: Can only be called by a logged in user
 
 #### GET `kirunaexplorer/sessions`
 
@@ -66,11 +71,12 @@ Retrieves information about the currently logged in user.
 ```JSON
 {
     "email": "mario.rossi@email.com",
-    "role": "resident"
+    "username": "MarioRossi",
+    "role": "Resident"
 }
 ```
 
-- Access Constraints: Can only be called by a logged in User
+- Access Constraints: Can only be called by a logged in user
 
 ### User APIs
 

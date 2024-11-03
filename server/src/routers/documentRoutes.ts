@@ -30,6 +30,7 @@ class DocumentRoutes {
     // Create a new document
     this.router.post(
       "/",
+      this.authService.isUrbanPlanner,
       // Validation
       body("title").notEmpty().withMessage("Title must not be empty."),
       body("description").notEmpty().withMessage("Description must not be empty."),
@@ -38,7 +39,7 @@ class DocumentRoutes {
         .notEmpty()
         .withMessage("Issue date must not be empty.")
         .matches(
-          /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$|^([0][1-9]|[1][0-2])\/(\d{4})$|^\d{4}$/
+          /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$|^(0[1-9]|1[0-2])\/(\d{4})$|^\d{4}$/
         )
         .withMessage("Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY."),
       body("scale").notEmpty().withMessage("Scale must not be empty."),
@@ -46,14 +47,12 @@ class DocumentRoutes {
         .isArray({ min: 1 })
         .withMessage("Location must be an array of strings with at least one coordinate."),
       body("language").optional().isString(),
-      //body('pages').optional().isObject().withMessage('Pages must be an object.'),
+      body("pages").optional().isString(),
       body("stakeholders")
         .isArray({ min: 1 })
         .withMessage("Stakeholders must be an array of integers with at least one ID."),
       this.errorHandler.validateRequest,
-      //this.authService.isUrbanPlanner,
       (req: any, res: any, next: any) => {
-        //console.log(req.body);
         this.controller
           .createDocument(
             req.body.title,
@@ -73,42 +72,14 @@ class DocumentRoutes {
       }
     );
 
-    
-    /**
-     * @swagger
-     * /documents:
-     *  get:
-     *   summary: Get all documents names.
-     *  description: Get all documents names.
-     *  responses:
-     *   200:
-     *   description: An array of documents names.
-     *  content:
-     *  application/json:
-     *  schema:
-     * type: array
-     * items: object
-     * properties:
-     * id: integer
-     * title: string
-     * example:
-     * id: 1
-     * title: "Document 1"
-     * id: 2
-     * title: "Document 2"
-     */
-    this.router.get(
-      "/names",
-      //this.authService.isUrbanPlanner,
-      (req: any, res: any, next: any) => {
-        this.controller
-          .getDocumentsNames()
-          .then((documents) => res.status(200).json(documents))
-          .catch((err: any) => {
-            next(err);
-          });
-      }
-    );
+    this.router.get("/names", (req: any, res: any, next: any) => {
+      this.controller
+        .getDocumentsNames()
+        .then((documents) => res.status(200).json(documents))
+        .catch((err: any) => {
+          next(err);
+        });
+    });
   }
 }
 

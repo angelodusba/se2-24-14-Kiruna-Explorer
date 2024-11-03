@@ -8,9 +8,9 @@ class ConnectionAlreadyExistsError extends Error {
   customMessage: string;
   customCode: number;
 
-  constructor(document_id_1: number, document_id_2: number) {
+  constructor() {
     super();
-    this.customMessage = CONNECTION_ALREADY_EXISTS
+    this.customMessage = CONNECTION_ALREADY_EXISTS;
     this.customCode = 409;
   }
 }
