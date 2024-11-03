@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Container, TextField, Button, Typography, Box, Grid, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { ConnectionList, Connection } from '../dataModels/Connection';
+import { Connection, ConnectionList, halfConnection } from '../dataModels/Connection';
 import connectionApi from '../API/ConnectionApi';
 import API from '../API/Api';
 
 export function LinkDocumentForm(props: any) {
     const [columns, setColumns] = useState([{ id: 1, value: '' }]);
-    const [connectionList, setConnectionList] = useState<ConnectionList>(new ConnectionList(-1, new Array<Connection>(new Connection(-1, ''))));
+    const [connectionList, setConnectionList] = useState<ConnectionList>(new ConnectionList(0, new Array<halfConnection>(new halfConnection(0, ''))));
     const [typeOfConnection, setTypeOfConnection] = useState<string[]>([]);
     const [documentList, setDocumentList] = useState<{ id: string, title: string }[]>([]);
+    const [allConnections, setAllConnections] = useState<Connection[]>([]);
+    const [filteredDocumentList, setFilteredDocumentList] = useState<{ id: string, title: string }[]>([]);
 
     // Get the type of connections
     useEffect(() => {
-        
         connectionApi.getTypeOfConnections().then((data) => {
             let temp: string[] = [];
             for (let i = 0; i < data.length; i++) {
@@ -20,18 +21,22 @@ export function LinkDocumentForm(props: any) {
             }
             setTypeOfConnection(temp);
         });
-        /*
-        API.getDocuments().then((data) => {
-            let temp: string[] = [];
+
+        API.getAllDocumentsNames().then((data) => {
+            let temp: { id: string, title: string }[] = [];
             for (let i = 0; i < data.length; i++) {
-                temp.push({data[i].id,data[i].title.toString()});
+                temp.push({ id: data[i].id, title: data[i].title.toString() });
             }
             setDocumentList(temp);
         });
-        */
-        // Hardcoded for now
-        //setTypeOfConnection(['Reference', 'Citation', 'Influence']);
-        setDocumentList([{ id: '1', title: 'Document 1' }, { id: '2', title: 'Document 2' }, { id: '3', title: 'Document 3' }]);
+
+        connectionApi.getConnections().then((data) => {
+            let temp: Connection[] = [];
+            for (let i = 0; i < data.length; i++) {
+                temp.push(new Connection(data[i].document_id_1, data[i].document_id_2, data[i].connection_name));
+            }
+            setAllConnections(temp);
+        });
     }, []);
 
     // Add a new document to link
@@ -43,21 +48,23 @@ export function LinkDocumentForm(props: any) {
     const handleConnectionChange = (index: number, event: { target: { value: React.SetStateAction<string>; }; }) => {
         const newSelectedValue = new ConnectionList(connectionList.starting_document_id, connectionList.connections);
         if (newSelectedValue.connections.length <= index) {
-            newSelectedValue.connections.push(new Connection(-1, event.target.value as string));
+            newSelectedValue.connections.push(new halfConnection(-1, event.target.value as string));
         } else {
             newSelectedValue.connections[index].connection_name = event.target.value as string;
         }
         setConnectionList(newSelectedValue);
+        updateFilteredDocuments();
     };
 
     const handleLinkedDocumentChange = (index: number, event: { target: { value: React.SetStateAction<string>; }; }) => {
         let temp = new ConnectionList(connectionList.starting_document_id, connectionList.connections);
         if (temp.connections.length <= index) {
-            temp.connections.push(new Connection(Number(event.target.value), ''));
+            temp.connections.push(new halfConnection(Number(event.target.value), ''));
         } else {
-            temp.connections[index] = new Connection(Number(event.target.value), temp.connections[index].connection_name);
+            temp.connections[index] = new halfConnection(Number(event.target.value), temp.connections[index].connection_name);
         }
         setConnectionList(temp);
+        updateFilteredDocuments();
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -67,11 +74,21 @@ export function LinkDocumentForm(props: any) {
         console.log(connectionList);
     }
 
+    const updateFilteredDocuments = () => {
+        const startingDocumentId = connectionList.starting_document_id;
+        const existingConnections = allConnections.filter(conn => conn.document_id_1 === startingDocumentId).map(conn => conn.document_id_2);
+        const temp = allConnections.filter(conn => conn.document_id_2 === startingDocumentId).map(conn => conn.document_id_1);
+        existingConnections.push(...temp);
+        let i = documentList.filter(doc => !existingConnections.includes(Number(doc.id)) &&
+                     !connectionList.connections.map(conn => conn.connected_document_id).includes(Number(doc.id)));
+        setFilteredDocumentList(i);
+    };
+
     return (
         <Container maxWidth="lg">
             <Box sx={{ mt: 5 }}>
                 <Typography variant="h4" gutterBottom>
-                    Add a document
+                    Add a link
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
@@ -84,7 +101,10 @@ export function LinkDocumentForm(props: any) {
                                     id="document1"
                                     label="Document 1"
                                     value={connectionList.starting_document_id.toString()}
-                                    onChange={(event) => setConnectionList(new ConnectionList(Number(event.target.value), connectionList.connections))}
+                                    onChange={(event) => {
+                                        setConnectionList(new ConnectionList(Number(event.target.value), connectionList.connections))
+                                        updateFilteredDocuments();
+                                    }}
                                     required
                                 >
                                     {documentList.map((doc) => (
@@ -103,11 +123,11 @@ export function LinkDocumentForm(props: any) {
                                             labelId={`linked-document-${index}`}
                                             id={`linked-document-${index}`}
                                             label="Linked Document"
-                                            value={connectionList.connections[index]?.connected_document_id.toString() || ''}
+                                            value={filteredDocumentList[index]?.id || ''}
                                             onChange={(event) => handleLinkedDocumentChange(index, event)}
                                             required
                                         >
-                                            {documentList.map((doc) => (
+                                            {filteredDocumentList.map((doc) => (
                                                 <MenuItem key={doc.id} value={doc.id}>{doc.title}</MenuItem>
                                             ))}
                                         </Select>

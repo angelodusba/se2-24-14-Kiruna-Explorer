@@ -1,5 +1,6 @@
 import * as db from "../db/db";
 import DocumentDAO from "./documentDAO";
+import { ConnectionAlreadyExistsError } from "../errors/connectionErrors";
 
 class ConnectionDAO {
     /**
@@ -46,6 +47,12 @@ class ConnectionDAO {
             if (!doc1 || !doc2) {
                 throw new Error("Invalid document id");
             }
+            // Sort document_id_1 and document_id_2
+            if (document_id_1 > document_id_2) {
+                const temp = document_id_1;
+                document_id_1 = document_id_2;
+                document_id_2 = temp;
+            }
             //Insert the connection in the database
             await db.query("BEGIN", []);
             const sql = `INSERT INTO connections (document_id_1, document_id_2, direct_conn, collateral_conn, prevision_conn, update_conn) VALUES ($1, $2, $3, $4, $5, $6)`;
@@ -54,6 +61,32 @@ class ConnectionDAO {
             return true;
         } catch (err: any) {
             await db.query("ROLLBACK", []);
+            if(err.message.includes("duplicate key value violates unique constraint")) {
+                throw new Error("Connection already exists between: " + document_id_1 + " and " + document_id_2 );
+            }
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Get all connections from the database.
+     * @param no params
+     * @returns A Promise that resolves to an array of connections.
+     * Connection is reformatted as string
+     */
+    async getConnections(): Promise<any[]> {
+        try {
+            const sql = `SELECT * FROM connections`;
+            const result = await db.query(sql, []);
+            return result.rows.map((row: any) => {
+                return {
+                    document_id_1: row.document_id_1,
+                    document_id_2: row.document_id_2,
+                    connection_type: row.direct_conn ? "direct_conn" : row.collateral_conn ? "collateral_conn" : row.prevision_conn ? "prevision_conn" : "update_conn"
+                };
+            });
+            return result.rows;
+        } catch (err: any) {
             throw new Error(err);
         }
     }

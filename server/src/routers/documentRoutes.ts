@@ -73,16 +73,42 @@ class DocumentRoutes {
       }
     );
 
-    // Get all documents
-    /*
-        this.router.get('/', (req: any, res: any, next: any) => {
-            this.documentController.getAllDocuments()
-                .then((result: any) => {
-                    res.status(200).send(result);
-                })
-                .catch((err: any) => next(err));
-        });
-        */
+    
+    /**
+     * @swagger
+     * /documents:
+     *  get:
+     *   summary: Get all documents names.
+     *  description: Get all documents names.
+     *  responses:
+     *   200:
+     *   description: An array of documents names.
+     *  content:
+     *  application/json:
+     *  schema:
+     * type: array
+     * items: object
+     * properties:
+     * id: integer
+     * title: string
+     * example:
+     * id: 1
+     * title: "Document 1"
+     * id: 2
+     * title: "Document 2"
+     */
+    this.router.get(
+      "/names",
+      //this.authService.isUrbanPlanner,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .getDocumentsNames()
+          .then((documents) => res.status(200).json(documents))
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
   }
 }
 

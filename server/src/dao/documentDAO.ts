@@ -57,12 +57,14 @@ class DocumentDAO {
   }
 
   /**
-   * Get all documents.
+   * Get all documents ids and titles.
    * @returns A Promise that resolves to an array of documents.
+   * @throws An error if the documents cannot be retrieved.
    */
-  async getDocuments(): Promise<any[]> {
+
+  async getDocumentsNames(): Promise<any> {
     try {
-      const sql = `SELECT * FROM documents`;
+      const sql = `SELECT id, title FROM documents`;
       const res = await db.query(sql, []);
       return res.rows;
     } catch (err: any) {

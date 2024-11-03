@@ -32,6 +32,26 @@ class ConnectionController {
     } catch (err: any) {
       throw new Error(err);
     }
+  } 
+
+  /**
+   * Get all the connections
+   * @returns A list of all the connections.
+   * @example 
+   * [
+   * { document_id_1: 1, document_id_2 : 2, 
+   * connection_name: "direct_conn"},
+   * { document_id_1: 1, document_id_2 : 3,
+   * connection_name: "collateral_conn" }
+   * ]
+   */
+
+  async getConnections(): Promise<{ document_id_1: number, document_id_2: number, connection_name: string }[]> {
+    try {
+      return this.dao.getConnections();
+    } catch (err: any) {
+      throw new Error(err);
+    }
   }
 
   /**

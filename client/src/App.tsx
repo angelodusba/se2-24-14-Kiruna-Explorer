@@ -8,6 +8,9 @@ import User from "./models/User";
 import UserContext from "./contexts/UserContext";
 import API from "./API";
 
+import LinkDocumentForm from "./components/LinkDocumentForm";
+import AddDocumentForm from "./components/AddDocumentForm";
+
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
   const navigate = useNavigate();
@@ -50,6 +53,13 @@ function App() {
             }
           />
         </Route>
+        <Route
+          path="/link"
+          element={
+              <LinkDocumentForm></LinkDocumentForm>
+          }
+        />
+        <Route path="/add" element={<AddDocumentForm></AddDocumentForm>} />
       </Routes>
     </UserContext.Provider>
   );

@@ -79,8 +79,9 @@ async function sendDocument(document: Document) {
     }
 }
 
-async function getAllDocuments() {
+async function getAllDocumentsNames() {
     const response = await fetch(baseURL + "documents/names", {
+        method: "GET",
         credentials: "include",
     });
     if (response.ok) {
@@ -94,5 +95,5 @@ async function getAllDocuments() {
     }
 }
 
-const API = { baseURL, login, logOut, getUserInfo, sendDocument, getAllDocuments };
+const API = { baseURL, login, logOut, getUserInfo, sendDocument, getAllDocumentsNames };
 export default API;

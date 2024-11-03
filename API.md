@@ -281,3 +281,27 @@ Creates a new connection between the selected existing document and one or more 
 - Additional Constraints:
   - It should return a `404` error if the starting document does not exist in the database
   - It should return a `404` error if at least one of the connected documents does not exist in the database
+
+#### GET `kirunaexplorer/connections`
+
+Retrieves all connections between documents
+
+- Request Parameters: none
+- Request Body Content: None
+- Response Body Content: An array of object, each containing 
+            
+  - Example:
+
+```JSON
+[
+  {
+    "document_id_1": 1,
+    "document_id_2": 2,
+    "connection_name": "direct_conn"
+  },
+    {
+    "document_id_1": 1,
+    "document_id_2": 3,
+    "connection_name": "prevision_conn"
+  },
+]

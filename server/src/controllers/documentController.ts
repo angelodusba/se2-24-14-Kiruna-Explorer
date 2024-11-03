@@ -48,6 +48,16 @@ class DocumentController {
       stakeholders
     );
   }
+
+  /**
+   * Retrieves all documents ids and titles 
+   * by delegating to the DAO layer.
+   * @returns A Promise that resolves to an array of documents.
+   * @throws Error if the documents cannot be retrieved.
+   */
+  async getDocumentsNames(): Promise<Document[]> {
+    return this.dao.getDocumentsNames();
+  }
 }
 
 export default DocumentController;

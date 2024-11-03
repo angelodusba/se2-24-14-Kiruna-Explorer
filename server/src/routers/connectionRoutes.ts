@@ -27,7 +27,7 @@ class ConnectionRoutes {
     }
 
     initRoutes() {
-
+        //POST CONNECTIONS
         /**
          * @swagger
          * /connections:
@@ -89,6 +89,30 @@ class ConnectionRoutes {
                 }
             });
 
+        //GET CONNECTIONS
+        /**
+         * @swagger
+         * /connections:
+         *  get:
+         *   summary: Get all connections
+         *   description: Get all the connections
+         *    responses:
+         *     200:
+         *      description: OK
+         *     500:
+         *      description: Internal Server Error
+         */
+        this.router.get("/", 
+            //this.authService.isLoggedIn, 
+            async (req: any, res: any) => {
+                try {
+                    const result = await this.controller.getConnections();
+                    res.status(200).json(result);
+                } catch (err: any) {
+                    res.status(500).json({ error: err.message });
+                }
+            });
+        
         /**
          * @swagger
          * /connections/names:
