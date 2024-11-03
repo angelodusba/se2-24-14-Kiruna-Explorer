@@ -55,6 +55,37 @@ class DocumentDAO {
       throw new Error(err);
     }
   }
+
+  /**
+   * Get all documents.
+   * @returns A Promise that resolves to an array of documents.
+   */
+  async getDocuments(): Promise<any[]> {
+    try {
+      const sql = `SELECT * FROM documents`;
+      const res = await db.query(sql, []);
+      return res.rows;
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  /**
+   * Get a document by its id.
+   * @param id - The id of the document.
+   * @returns A Promise that resolves to the document.
+   * @throws An error if the document does not exist.
+   */
+  async getDocumentById(id: number): Promise<any> {
+    try {
+      const sql = `SELECT * FROM documents WHERE id = $1`;
+      const res = await db.query(sql, [id]);
+      return res.rows[0];
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+    
 }
 
 export default DocumentDAO;

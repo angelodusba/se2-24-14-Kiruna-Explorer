@@ -1,4 +1,5 @@
 import * as db from "../db/db";
+import DocumentDAO from "./documentDAO";
 
 class ConnectionDAO {
     /**
@@ -37,6 +38,15 @@ class ConnectionDAO {
                 default:
                     throw new Error("Invalid connection type");
             }
+            //Check that document_id_1 and document_id_2 are not the same
+            // and they exists in the database
+            const docDAO = new DocumentDAO();
+            const doc1 = await docDAO.getDocumentById(document_id_1);
+            const doc2 = await docDAO.getDocumentById(document_id_2);
+            if (!doc1 || !doc2) {
+                throw new Error("Invalid document id");
+            }
+            //Insert the connection in the database
             await db.query("BEGIN", []);
             const sql = `INSERT INTO connections (document_id_1, document_id_2, direct_conn, collateral_conn, prevision_conn, update_conn) VALUES ($1, $2, $3, $4, $5, $6)`;
             await db.query(sql, [document_id_1, document_id_2, direct_conn, collateral_conn, prevision_conn, update_conn]);
