@@ -1,4 +1,8 @@
 import * as db from "../db/db";
+import { DocumentNotFoundError } from "../errors/documentErrors";
+import Coordinates from "../models/coordinates";
+import Document from "../models/document";
+import Type from "../models/type";
 
 class DocumentDAO {
   /**
@@ -54,6 +58,9 @@ class DocumentDAO {
         language,
         pages,
       ]);
+      // Check for errors
+      if (!res.rows || res.rows.length === 0)
+        throw new Error("Unable to create the document right now, try again later");
       const document_id = res.rows[0].id;
       // Insert stakeholders connection to document
       for (const stakeholderId of stakeholderIds) {
@@ -92,11 +99,48 @@ class DocumentDAO {
    * @returns A Promise that resolves to the document.
    * @throws An error if the document does not exist.
    */
-  async getDocumentById(id: number): Promise<any> {
+  async getDocumentById(id: number): Promise<Document> {
     try {
-      const sql = `SELECT * FROM documents WHERE id = $1`;
+      const sql = `SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name,
+                    D.issue_date, D.scale, D.language, D.pages,
+                  CASE 
+                    WHEN location IS NULL THEN NULL
+                    WHEN ST_GeometryType(location) = 'ST_Point' THEN 
+                      substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
+                    WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
+                      substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
+                  END AS location
+                  FROM documents D, types T
+                  WHERE D.type_id=T.id AND D.id = $1`;
       const res = await db.query(sql, [id]);
-      return res.rows[0];
+      if (!res || res.rows.length === 0) {
+        throw new DocumentNotFoundError();
+      }
+      const doc = res.rows[0];
+      return new Document(
+        doc.id,
+        doc.title,
+        doc.description,
+        new Type(doc.type_id, doc.type_name),
+        doc.issue_date,
+        doc.scale,
+        doc.location
+          ? doc.location.split(",").map((coords: string) => {
+              const [lng, lat] = coords.split(" ").map(Number);
+              return new Coordinates(lng, lat);
+            })
+          : [],
+        doc.language,
+        doc.pages
+      );
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  async getDocumentsLocation() {
+    try {
+      const sql = `SELECT * FROM documents, types`;
     } catch (err: any) {
       throw new Error(err);
     }

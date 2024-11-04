@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import DocumentController from "../controllers/documentController";
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import ErrorHandler from "../helper";
 import Authenticator from "./auth";
 
@@ -45,7 +45,7 @@ class DocumentRoutes {
         .withMessage("Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY.")
         .bail()
         .custom((value) => {
-          if (value.split("/") < 3) return true;
+          if (value.split("/").length < 3) return true;
           const [day, month, year] = value.split("/").map(Number);
           const date = new Date(year, month - 1, day);
           // Check if the date is valid
@@ -137,6 +137,26 @@ class DocumentRoutes {
           next(err);
         });
     });
+
+    this.router.get(
+      "/:id",
+      // this.authService.isLoggedin(),
+      param("id")
+        .notEmpty()
+        .withMessage("Id must not be empty.")
+        .bail()
+        .isInt({ gt: 0 })
+        .withMessage("Param id must be a number greater than 0."),
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .getDocumentById(req.params.id)
+          .then((document) => res.status(200).json(document))
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
   }
 }
 

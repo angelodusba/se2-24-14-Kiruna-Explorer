@@ -1,3 +1,4 @@
+import Coordinates from "./coordinates";
 import Type from "./type";
 
 class Document {
@@ -7,7 +8,7 @@ class Document {
   type: Type;
   issue_date: string;
   scale: string;
-  location?: string;
+  location: Coordinates[];
   language?: string;
   pages?: string;
 
@@ -18,7 +19,7 @@ class Document {
     type: Type,
     issue_date: string,
     scale: string,
-    location: string,
+    location: Coordinates[],
     language: string,
     pages: string
   ) {
