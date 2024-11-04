@@ -7,7 +7,7 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: {
     xs: "90%",
-    sm: "50%",
+    sm: "40%",
   },
   height: "80%",
   bgcolor: "background.paper",

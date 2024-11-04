@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   Container,
-  TextField,
   Button,
   Typography,
   Box,
@@ -11,9 +10,8 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { ConnectionList, Connection } from "../models/Connection";
-import connectionApi from "../API/ConnectionApi";
-import API from "../API/Api";
+import { ConnectionList, Connection } from "../../models/Connection";
+import connectionApi from "../../API/ConnectionApi";
 
 export function LinkDocumentForm(props: any) {
   const [columns, setColumns] = useState([{ id: 1, value: "" }]);
