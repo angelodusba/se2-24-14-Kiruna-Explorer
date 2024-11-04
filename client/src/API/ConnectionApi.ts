@@ -31,8 +31,7 @@ async function sendConnections(connectionsList: ConnectionList) {
  */
 
 async function getConnections() {
-  const baseurl = API.baseURL;
-  let response = await fetch(baseurl + "connections", {
+  const response = await fetch(baseURL + "connections", {
     method: "GET",
     credentials: "include",
     headers: {
@@ -50,8 +49,7 @@ async function getConnections() {
 }
 
 async function getTypeOfConnections() {
-  const baseurl = API.baseURL;
-  let response = await fetch(baseurl + "connections/names", {
+  const response = await fetch(baseURL + "connections/names", {
     method: "GET",
     credentials: "include",
     headers: {

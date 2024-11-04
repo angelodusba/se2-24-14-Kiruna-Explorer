@@ -1,10 +1,4 @@
-export class StakeHolder{
-    id: number;
-    name: string;
-
-    constructor(id: number, name: string){
-        this.id = id;
-        this.name = name;
-    }
-
+export interface StakeHolder {
+  id: number;
+  name: string;
 }

@@ -14,7 +14,7 @@ import { Type } from "../../models/Type";
 import { StakeHolder } from "../../models/StakeHolders";
 import { Document } from "../../models/Document";
 import GeneralInfoForm from "./GeneralInfoForm";
-import { LinkDocumentForm } from "./LinkDocumentForm";
+import LinkDocumentForm from "./LinkDocumentForm";
 
 const steps = ["General info", "Georeference and scale", "Linking"];
 

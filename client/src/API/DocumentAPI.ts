@@ -77,7 +77,7 @@ async function getStakeholders() {
     },
   });
   if (response.ok) {
-    const stakeholders = await response.json();
+    const stakeholders: StakeHolder[] = await response.json();
     return stakeholders;
   } else {
     const errDetail = await response.json();
@@ -86,9 +86,26 @@ async function getStakeholders() {
   }
 }
 
+async function getAllDocumentsNames() {
+  const response = await fetch(baseURL + "documents/names", {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    const documents = await response.json();
+    return documents;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+    throw new Error("Error. Please reload the page");
+  }
+}
+
 const DocumentAPI = {
   sendDocument,
   getAllDocuments,
+  getAllDocumentsNames,
   getTypes,
   getStakeholders,
 };
