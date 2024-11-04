@@ -95,11 +95,11 @@ Adds a new document to the database.
   - `type_id`: an integer that must not be empty
   - `issue_date`: a string that must not be empty, in the format **DD/MM/YYYY** or **MM/YYYY** or **YYYY**
   - `scale`: a string that must not be empty
-  - `location`: an array of strings that must not be empty, representing the coordinates (logitude, latitude) of the document, can be a single point or a polygon
+  - `location`: an array of objects that can be empty, representing the coordinates (logitude, latitude) of the document, can be a single point or a polygon (if empty, it represents the entire municipality area)
   - `language`: a string that can be empty
-  - `pages`: TODO: optional attachment will be here
+  - `pages`: a string that can be empty
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
-  - `connections`: an array of objects that must not be empty, representing the connections of the document
+  - `connections`: an array of objects that can be empty, representing the connections to other documents
   - Example:
 
 ```JSON
@@ -110,8 +110,8 @@ Adds a new document to the database.
     "issue_date": "01/01/2020",
     "scale": "blueprints/effects",
     "location": [
-        "1 2",
-        "3 4"
+        {"lat": 1.0, "lng": 3.0},
+        {"lat": 5.0, "lng": 7.0},
     ],
     "language": "",
     "pages": {},
@@ -294,8 +294,7 @@ Retrieves all connections between documents
 
 - Request Parameters: none
 - Request Body Content: None
-- Response Body Content: An array of object, each containing 
-            
+- Response Body Content: An array of object, each containing
   - Example:
 
 ```JSON
@@ -311,3 +310,4 @@ Retrieves all connections between documents
     "connection_name": "prevision_conn"
   },
 ]
+```

@@ -8,10 +8,10 @@ class DocumentDAO {
    * @param type_id - The type of the new document. It must not be null.
    * @param issue_date - The issue date of the new document. It must not be null.
    * @param scale - The scale of the new document. It must not be null.
-   * @param location - The location of the document.
+   * @param location - The location of the document as "long lat, long lat, ... ".
    * @param language - The language of the document.
-   * @param pages - .
-   * @param stakeholders - The stakeholders of the document.
+   * @param pages - Number of pages of the document.
+   * @param stakeholderIds - The stakeholders of the document.
    * @returns A Promise that resolves to true if the document has been created.
    */
   async createDocument(
@@ -20,39 +20,53 @@ class DocumentDAO {
     type_id: number,
     issue_date: string,
     scale: string,
-    location: string[],
+    location: string,
     language: string,
     pages: string,
-    stakeholders: number[]
+    stakeholderIds: number[]
   ): Promise<boolean> {
+    const client = await db.pool.connect();
     try {
-      var document_id: number = 0;
-      await db.query("BEGIN", []);
-      if (location.length > 1) {
-        //TODO Case of Polygon
+      let sql = "";
+      await client.query("BEGIN");
+      if (!location || location === "") {
+        // Case of entire municipality area
+        sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) 
+                VALUES ($1, $2, $3, $4, $5, NULL, $6, $7) 
+                RETURNING id`;
+      } else if (location.split(",").length > 1) {
+        // Case of Polygon
+        sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) 
+       VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_GeometryFromText('POLYGON((${location}))'), 4326), $6, $7)
+       RETURNING id`;
       } else {
-        //Case of Point
-        const sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_GeometryFromText('POINT(${location[0]})'), 4326), $6, $7) RETURNING id`;
-        const res = await db.query(sql, [
-          title,
-          description,
-          type_id,
-          issue_date,
-          scale,
-          language,
-          pages,
-        ]);
-        document_id = res.rows[0].id;
+        // Case of single Point
+        sql = `INSERT INTO documents (title, description, type_id, issue_date, scale, location, language, pages) 
+         VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_GeometryFromText('POINT(${location})'), 4326), $6, $7)
+         RETURNING id`;
       }
-      for (var stakeholder of stakeholders) {
-        const sql = `INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES ($1, $2)`;
-        await db.query(sql, [document_id, stakeholder]);
+      const res = await client.query(sql, [
+        title,
+        description,
+        type_id,
+        issue_date,
+        scale,
+        language,
+        pages,
+      ]);
+      const document_id = res.rows[0].id;
+      // Insert stakeholders connection to document
+      for (const stakeholderId of stakeholderIds) {
+        sql = `INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES ($1, $2)`;
+        await client.query(sql, [document_id, stakeholderId]);
       }
-      await db.query("COMMIT", []);
+      await client.query("COMMIT");
       return true;
     } catch (err: any) {
-      await db.query("ROLLBACK", []);
+      await client.query("ROLLBACK");
       throw new Error(err);
+    } finally {
+      client.release();
     }
   }
 
@@ -65,7 +79,7 @@ class DocumentDAO {
   async getDocumentsNames(): Promise<any> {
     try {
       const sql = `SELECT id, title FROM documents`;
-      const res = await db.query(sql, []);
+      const res = await db.query(sql);
       return res.rows;
     } catch (err: any) {
       throw new Error(err);
@@ -87,7 +101,6 @@ class DocumentDAO {
       throw new Error(err);
     }
   }
-    
 }
 
 export default DocumentDAO;
