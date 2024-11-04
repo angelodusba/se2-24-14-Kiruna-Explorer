@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 
-const env = dotenv.config({ path: "../.env" });
+const env =
+  process.env.NODE_ENV === "dev"
+    ? dotenv.config({ path: "../.env" })
+    : dotenv.config({ path: "../.env.prod" });
 if (env.error) {
   throw new Error("File `.env` not found. Please create it.");
 }
