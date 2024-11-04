@@ -33,31 +33,31 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 function LoginCard(props) {
-  const [usernameError, setUsernameError] = React.useState("");
-  const [username, setUsername] = React.useState("");
+  const [emailError, setEmailError] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (usernameError || passwordError) {
+    if (emailError || passwordError) {
       return;
     }
 
-    props.login(username, password).catch(() => {
+    props.login(email, password).catch(() => {
       // TODO Set the error on the form or visualize general error in app (maybe preferred to centralize errors visualization)
     });
   };
 
   const validateInputs = () => {
-    if (!username || !/^[a-zA-Z_][a-zA-Z0-9_]{2,14}$/.test(username)) {
-      setUsernameError("Please enter a valid username.");
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Please enter a valid email.");
     } else {
-      setUsernameError("");
+      setEmailError("");
     }
 
-    if (!password || password.length < 6) {
-      setPasswordError("Password must be at least 6 characters long.");
+    if (!password || password.length < 4) {
+      setPasswordError("Password must be at least 4 characters long.");
     } else {
       setPasswordError("");
     }
@@ -81,24 +81,24 @@ function LoginCard(props) {
         width="100%"
         gap={2}>
         <FormControl>
-          <FormLabel htmlFor="username">Username</FormLabel>
+          <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
-            error={!!usernameError}
-            helperText={usernameError}
-            id="username"
-            type="username"
-            name="username"
-            placeholder="Username"
-            autoComplete="username"
+            error={!!emailError}
+            helperText={emailError}
+            id="email"
+            type="email"
+            name="email"
+            placeholder="Email"
+            autoComplete="email"
             autoFocus
             required
             fullWidth
             variant="outlined"
-            color={usernameError ? "error" : "primary"}
-            aria-label="username"
-            value={username}
+            color={emailError ? "error" : "primary"}
+            aria-label="email"
+            value={email}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setUsername(event.target.value);
+              setEmail(event.target.value);
             }}
           />
         </FormControl>

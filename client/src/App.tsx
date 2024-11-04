@@ -6,20 +6,25 @@ import LoginPage from "./components/Login/LoginPage";
 import { useState } from "react";
 import User from "./models/User";
 import UserContext from "./contexts/UserContext";
-import API from "./API";
+import AccessAPI from "./API/AccessAPI";
+import Dial from "./components/Dial";
+import FormModal from "./components/Forms/FormModal";
+import AddDocumentForm from "./components/Forms/AddDocumentForm";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [selectedOperation, setSelectedOperation] = useState(undefined); //Manages the forms modal
+
   const navigate = useNavigate();
 
-  const doLogin = async (username: string, password: string) => {
-    const user = await API.login(username, password);
+  const doLogin = async (email: string, password: string) => {
+    const user = await AccessAPI.login(email, password);
     setUser(user);
     navigate("/map");
   };
 
   const doLogout = async () => {
-    await API.logOut();
+    await AccessAPI.logOut();
     setUser(undefined);
     navigate("/");
   };
@@ -39,6 +44,12 @@ function App() {
             <>
               <Navbar logout={doLogout}></Navbar>
               <Outlet />
+              <Dial setOperation={setSelectedOperation}></Dial>
+              <FormModal
+                operation={selectedOperation}
+                setOperation={setSelectedOperation}>
+                {<AddDocumentForm></AddDocumentForm>}
+              </FormModal>
             </>
           }>
           <Route
