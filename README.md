@@ -45,6 +45,10 @@ POSTGRES_SERVICE=db-test
 POSTGRES_PORT=5435
 ```
 
-2. Start the database test containers with `docker compose -f docker-compose.test.yml up -d`.
+2. Start the database test container with `docker compose -f docker-compose.test.yml up -d`.
 
 3. Run the tests with: `npm run test`.
+
+   > if the database schema inside the container is not updated, stop the container with the command below and execute: `docker compose -f docker-compose.test.yml up -d --build`.
+
+4. To stop and delete the database test container, run `docker compose -f docker-compose.test.yml down -v`.
