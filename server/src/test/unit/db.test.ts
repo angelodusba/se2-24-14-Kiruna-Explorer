@@ -1,4 +1,3 @@
-import { PoolClient } from "pg";
 import UserDAO from "../../dao/userDAO";
 import * as db from "../../db/db";
 
