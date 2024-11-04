@@ -6,10 +6,10 @@ TODO: More complete description to be added here eventually.
 
 ## API List
 
-For all constraints on request parameters and request body content, always assume a `422` error in case one constraint is not satisfied.
-For all access constraints, always assume a `401` error in case the access rule is not satisfied.
-For all success scenarios, always assume a `200` status code for the API response.
-Specific error scenarios will have their corresponding error code.
+- For all constraints on request parameters and request body content, always assume a `422` error in case one constraint is not satisfied.
+- For all access constraints, always assume a `401` error in case the access rule is not satisfied.
+- For all success scenarios, always assume a `200` status code for the API response.
+- Specific error scenarios will have their corresponding error code.
 
 ### Access APIs
 
@@ -21,12 +21,16 @@ Allows login for a user with the provided credentials.
 - Request Body Content: An object having as attributes:
   - `email`: a string that must not be empty, and must be a valid email
   - `password`: a string that must not be empty
+  - `username`: a string that must not be empty
+  - `role`: a string that must not be empty
   - Example:
 
 ```JSON
 {
     "email": "mario.rossi@email.com",
-    "password": "MarioRossi"
+    "password": "password",
+    "username": "MarioRossi",
+    "role": "Resident"
 }
 ```
 
@@ -36,7 +40,8 @@ Allows login for a user with the provided credentials.
 ```JSON
 {
     "email": "mario.rossi@email.com",
-    "role": "resident"
+    "username": "MarioRossi",
+    "role": "Resident"
 }
 ```
 
@@ -52,7 +57,7 @@ Performs logout for the currently logged in user.
 - Request Parameters: None
 - Request Body Content: None
 - Response Body Content: None
-- Access Constraints: Can only be called by a logged in User
+- Access Constraints: Can only be called by a logged in user
 
 #### GET `kirunaexplorer/sessions`
 
@@ -66,11 +71,12 @@ Retrieves information about the currently logged in user.
 ```JSON
 {
     "email": "mario.rossi@email.com",
-    "role": "resident"
+    "username": "MarioRossi",
+    "role": "Resident"
 }
 ```
 
-- Access Constraints: Can only be called by a logged in User
+- Access Constraints: Can only be called by a logged in user
 
 ### User APIs
 
@@ -89,11 +95,11 @@ Adds a new document to the database.
   - `type_id`: an integer that must not be empty
   - `issue_date`: a string that must not be empty, in the format **DD/MM/YYYY** or **MM/YYYY** or **YYYY**
   - `scale`: a string that must not be empty
-  - `location`: an array of objects that must not be empty, representing the coordinates of the document, can be a single point or a polygon
+  - `location`: an array of objects that can be empty, representing the coordinates (logitude, latitude) of the document, can be a single point or a polygon (if empty, it represents the entire municipality area)
   - `language`: a string that can be empty
-  - `pages`: TODO: optional attachment will be here
+  - `pages`: a string that can be empty
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
-  - `connections`: an array of objects that must not be empty, representing the connections of the document
+  - `connections`: an array of objects that can be empty, representing the connections to other documents
   - Example:
 
 ```JSON
@@ -104,7 +110,8 @@ Adds a new document to the database.
     "issue_date": "01/01/2020",
     "scale": "blueprints/effects",
     "location": [
-        {"lat": 1, "long": "2"}
+        {"lat": 1.0, "lng": 3.0},
+        {"lat": 5.0, "lng": 7.0},
     ],
     "language": "",
     "pages": {},
@@ -280,3 +287,27 @@ Creates a new connection between the selected existing document and one or more 
 - Additional Constraints:
   - It should return a `404` error if the starting document does not exist in the database
   - It should return a `404` error if at least one of the connected documents does not exist in the database
+
+#### GET `kirunaexplorer/connections`
+
+Retrieves all connections between documents
+
+- Request Parameters: none
+- Request Body Content: None
+- Response Body Content: An array of object, each containing
+  - Example:
+
+```JSON
+[
+  {
+    "document_id_1": 1,
+    "document_id_2": 2,
+    "connection_name": "direct_conn"
+  },
+    {
+    "document_id_1": 1,
+    "document_id_2": 3,
+    "connection_name": "prevision_conn"
+  },
+]
+```

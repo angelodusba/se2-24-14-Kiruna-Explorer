@@ -1,4 +1,4 @@
-class StakeHolder {
+class Stakeholder {
   id: number;
   name: string;
 
@@ -8,4 +8,4 @@ class StakeHolder {
   }
 }
 
-export default StakeHolder;
+export default Stakeholder;

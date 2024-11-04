@@ -58,9 +58,14 @@ class UserRoutes {
       body("username").isString().notEmpty().withMessage("Field 'username' is required"),
       body("email").isEmail().notEmpty().withMessage("Field 'email' is required"),
       body("password").isString().notEmpty().withMessage("Field 'password' is required"),
-      body("role").isString().notEmpty().withMessage("Field 'role' is required"),
-      //.isIn(["Manager", "Customer", "Admin"]) TODO: Set roles
-      //.withMessage("Field 'role' possible values: 'Customer', 'Manager', 'Admin'"),
+      body("role")
+        .isString()
+        .notEmpty()
+        .withMessage("Field 'role' is required")
+        .isIn(["Resident", "Urban Planner", "Urban Developer"])
+        .withMessage(
+          "Field 'role' possible values: 'Resident', 'Urban Planner', 'Urban Developer'"
+        ),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller

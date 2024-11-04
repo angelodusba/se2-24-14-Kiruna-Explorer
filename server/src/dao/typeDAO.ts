@@ -3,7 +3,7 @@ import Type from "../models/type";
 
 class TypeDAO {
   /**
-   * Retrieves all types from the database.
+   * Retrieves all documents types from the database.
    * @returns A Promise that resolves to an array of Type objects.
    */
   async getTypes(): Promise<Type[]> {

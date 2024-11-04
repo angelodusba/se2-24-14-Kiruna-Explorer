@@ -32,8 +32,11 @@ const init = async () => {
   }
 };
 
-const query = async (text: string, params: any): Promise<QueryResult<any>> => {
+const query = async (
+  text: string,
+  params: any[] | undefined = undefined
+): Promise<QueryResult<any>> => {
   return pool.query(text, params);
 };
 
-export { init, query };
+export { init, query, pool };

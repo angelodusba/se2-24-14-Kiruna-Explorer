@@ -11,6 +11,9 @@ import Dial from "./components/Dial";
 import FormModal from "./components/Forms/FormModal";
 import AddDocumentForm from "./components/Forms/AddDocumentForm";
 
+import LinkDocumentForm from "./components/LinkDocumentForm";
+import AddDocumentForm from "./components/AddDocumentForm";
+
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [selectedOperation, setSelectedOperation] = useState(undefined); //Manages the forms modal
@@ -61,6 +64,13 @@ function App() {
             }
           />
         </Route>
+        <Route
+          path="/link"
+          element={
+              <LinkDocumentForm></LinkDocumentForm>
+          }
+        />
+        <Route path="/add" element={<AddDocumentForm></AddDocumentForm>} />
       </Routes>
     </UserContext.Provider>
   );

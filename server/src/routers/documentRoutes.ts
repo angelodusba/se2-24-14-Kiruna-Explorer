@@ -30,6 +30,8 @@ class DocumentRoutes {
     // Create a new document
     this.router.post(
       "/",
+      //this.authService.isLoggedIn,
+      //this.authService.isUrbanPlanner,
       // Validation
       body("title").notEmpty().withMessage("Title must not be empty."),
       body("description").notEmpty().withMessage("Description must not be empty."),
@@ -38,20 +40,75 @@ class DocumentRoutes {
         .notEmpty()
         .withMessage("Issue date must not be empty.")
         .matches(
-          /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$|^([0][1-9]|[1][0-2])\/(\d{4})$|^\d{4}$/
+          /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$|^(0[1-9]|1[0-2])\/(\d{4})$|^\d{4}$/
         )
-        .withMessage("Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY."),
+        .withMessage("Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY.")
+        .bail()
+        .custom((value) => {
+          if (value.split("/") < 3) return true;
+          const [day, month, year] = value.split("/").map(Number);
+          const date = new Date(year, month - 1, day);
+          // Check if the date is valid
+          if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
+          ) {
+            throw new Error("Issue date must be a valid date.");
+          }
+          return true; // Indicates the validation passed
+        }),
       body("scale").notEmpty().withMessage("Scale must not be empty."),
       body("location")
-        .isArray({ min: 1 })
-        .withMessage("Location must be an array of objects with at least one coordinate."),
+        .isArray()
+        .withMessage("Location must be an array.")
+        .bail()
+        .custom((value: any) => {
+          if (
+            !value.every(
+              (coord: any) =>
+                typeof coord === "object" &&
+                coord !== null &&
+                typeof coord.lat === "number" &&
+                typeof coord.lng === "number"
+            )
+          ) {
+            throw new Error(
+              "Each coordinate must be an object with numeric lat and lng properties."
+            );
+          }
+          return true; // Indicates the validation passed
+        }),
       body("language").optional().isString(),
-      //body('pages').optional().isObject().withMessage('Pages must be an object.'),
+      body("pages").optional().isString(),
       body("stakeholders")
         .isArray({ min: 1 })
         .withMessage("Stakeholders must be an array of integers with at least one ID."),
+      body("connections") // FIXME: adjust field names
+        .optional() // Allow the field to be absent
+        .isArray()
+        .withMessage("Connections must be an array.")
+        .bail()
+        .custom((value) => {
+          // Allow empty array
+          if (value.length === 0) return true;
+          // Validate each object in the connections array
+          if (
+            !value.every(
+              (conn: any) =>
+                typeof conn === "object" &&
+                conn !== null &&
+                typeof conn.connected_document_id === "number" &&
+                typeof conn.connection_name === "string"
+            )
+          ) {
+            throw new Error(
+              "Each connection must be an object with numeric connected_document_id and string connection_name."
+            );
+          }
+          return true; // Indicates the validation passed
+        }),
       this.errorHandler.validateRequest,
-      //this.authService.isUrbanPlanner,
       (req: any, res: any, next: any) => {
         this.controller
           .createDocument(
@@ -62,7 +119,8 @@ class DocumentRoutes {
             req.body.scale,
             req.body.location,
             req.body.language,
-            req.body.pages
+            req.body.pages,
+            req.body.stakeholders
           )
           .then(() => res.status(200).end())
           .catch((err: any) => {
@@ -71,16 +129,14 @@ class DocumentRoutes {
       }
     );
 
-    // Get all documents
-    /*
-        this.router.get('/', (req: any, res: any, next: any) => {
-            this.documentController.getAllDocuments()
-                .then((result: any) => {
-                    res.status(200).send(result);
-                })
-                .catch((err: any) => next(err));
+    this.router.get("/names", (req: any, res: any, next: any) => {
+      this.controller
+        .getDocumentsNames()
+        .then((documents) => res.status(200).json(documents))
+        .catch((err: any) => {
+          next(err);
         });
-        */
+    });
   }
 }
 
