@@ -39,4 +39,23 @@ const query = async (
   return pool.query(text, params);
 };
 
-export { init, query, pool };
+const cleanup = async () => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("DELETE FROM users");
+    await client.query("DELETE FROM connections");
+    await client.query("DELETE FROM documents_stakeholders");
+    await client.query("DELETE FROM stakeholders");
+    await client.query("DELETE FROM documents");
+    await client.query("DELETE FROM types");
+    await client.query("COMMIT");
+  } catch (err: any) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+export { init, query, pool, cleanup };
