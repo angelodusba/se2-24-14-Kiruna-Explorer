@@ -1,6 +1,5 @@
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Popup, Marker } from "react-leaflet";
-import Dial from "../Dial";
 import "projektpro-leaflet-smoothwheelzoom";
 
 function Map() {
@@ -30,7 +29,6 @@ function Map() {
           </Popup>
         </Marker>
       </MapContainer>
-      <Dial></Dial>
     </>
   );
 }

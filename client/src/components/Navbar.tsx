@@ -112,7 +112,7 @@ function Navbar(props) {
     setAccountAnchorEl(null);
   };
 
-  const renderAccountMenu = (
+  const renderAccountMenu = user && (
     <AccountMenu
       id="accountMenu"
       MenuListProps={{
@@ -122,13 +122,13 @@ function Navbar(props) {
       open={accountOpen}
       onClose={handleAccountMenuClose}>
       <Typography variant="h5" fontWeight="bold" align="center">
-        Hi Stocazzo
+        Hi {user.username}
       </Typography>
-      <MenuItem onClick={handleAccountMenuClose} disableRipple>
+      <MenuItem disableRipple>
         <ListItemIcon sx={{ color: "#003d8f" }}>
           <MailOutline fontSize="small" color="inherit" />
         </ListItemIcon>
-        MailStocazzo@gmail.com
+        {user.email}
       </MenuItem>
       <Divider sx={{ my: 0.5 }} />
       <MenuItem
@@ -201,7 +201,7 @@ function Navbar(props) {
                   alignItems: "center",
                   display: { xs: "flex", sm: "flex" },
                 }}>
-                {user ? (
+                {!user ? (
                   <Fab
                     variant="extended"
                     size="medium"
@@ -222,7 +222,7 @@ function Navbar(props) {
                         ? handleAccountMenuClose
                         : handleAccountMenuOpen
                     }>
-                    <Avatar {...stringAvatar("JedWatson")} />
+                    <Avatar {...stringAvatar(user.username)} />
                   </Fab>
                 )}
               </Grid>
@@ -230,7 +230,7 @@ function Navbar(props) {
           </Box>
         </Toolbar>
       </AppBar>
-      {renderAccountMenu}
+      {user && renderAccountMenu}
     </Box>
   );
 }
