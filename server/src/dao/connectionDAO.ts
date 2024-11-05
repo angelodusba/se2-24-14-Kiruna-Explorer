@@ -1,6 +1,5 @@
 import * as db from "../db/db";
 import DocumentDAO from "./documentDAO";
-import { ConnectionAlreadyExistsError } from "../errors/connectionErrors";
 
 class ConnectionDAO {
     /**

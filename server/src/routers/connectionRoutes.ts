@@ -64,6 +64,27 @@ class ConnectionRoutes {
      *  get:
      *   summary: Get all connections
      *   description: Get all the connections
+     *  responses:
+     *   200:
+     *   description: A list of connections
+     *  content:
+     *  application/json:
+     *  schema:
+     * type: array
+     * items:
+     * type: object
+     * properties:
+     * document_id_1:
+     * type: integer
+     * document_id_2:
+     * type: integer
+     * connection_type:
+     * type: string
+     * example: direct_conn
+     * required:
+     * - document_id_1
+     * - document_id_2
+     * - connection_type
      */
     this.router.get(
       "/",
