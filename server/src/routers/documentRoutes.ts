@@ -31,7 +31,7 @@ class DocumentRoutes {
     this.router.post(
       "/",
       //this.authService.isLoggedIn,
-      //this.authService.isUrbanPlanner,
+      this.authService.isUrbanPlanner,
       // Validation
       body("title").notEmpty().withMessage("Title must not be empty."),
       body("description").notEmpty().withMessage("Description must not be empty."),
