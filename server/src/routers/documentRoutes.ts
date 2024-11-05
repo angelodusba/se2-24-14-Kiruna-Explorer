@@ -138,6 +138,15 @@ class DocumentRoutes {
         });
     });
 
+    this.router.get("/location", (req: any, res: any, next: any) => {
+      this.controller
+        .getDocumentsLocation()
+        .then((docsLocation) => res.status(200).json(docsLocation))
+        .catch((err: any) => {
+          next(err);
+        });
+    });
+
     this.router.get(
       "/:id",
       // this.authService.isLoggedin(),

@@ -1,5 +1,6 @@
 import DocumentDAO from "../dao/documentDAO";
 import Document from "../models/document";
+import DocumentLocationResponse from "../response/documentLocationResponse";
 
 /**
  * Represents a controller for managing documents.
@@ -69,6 +70,14 @@ class DocumentController {
    */
   async getDocumentById(id: number): Promise<Document> {
     return this.dao.getDocumentById(id);
+  }
+
+  /**
+   * Retrieves documents location information.
+   * @returns A promise that resolves to an array of document location responses.
+   */
+  async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
+    return this.dao.getDocumentsLocation();
   }
 }
 

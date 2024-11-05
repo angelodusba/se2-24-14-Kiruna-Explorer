@@ -3,6 +3,7 @@ import { DocumentNotFoundError } from "../errors/documentErrors";
 import Coordinates from "../models/coordinates";
 import Document from "../models/document";
 import Type from "../models/type";
+import DocumentLocationResponse from "../response/documentLocationResponse";
 
 class DocumentDAO {
   /**
@@ -138,9 +139,40 @@ class DocumentDAO {
     }
   }
 
-  async getDocumentsLocation() {
+  /**
+   * Retrieves the locations of documents from the database.
+   * @returns A promise that resolves to an array of DocumentLocationResponse objects, each containing
+   *          a document's ID, type, and location coordinates (if available).
+   * @throws Throws an error if the query execution fails.
+   */
+  async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
     try {
-      const sql = `SELECT * FROM documents, types`;
+      const sql = `SELECT D.id, D.type_id, T.name AS type_name
+                    CASE 
+                      WHEN location IS NULL THEN NULL
+                      WHEN ST_GeometryType(location) = 'ST_Point' THEN 
+                        substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
+                      WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
+                        substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
+                    END AS location
+                  FROM documents D, types T WHERE D.type_id=T.id`;
+      const res = await db.query(sql);
+      if (!res || res.rows.length === 0) {
+        return [];
+      }
+      const response = res.rows.map((doc) => {
+        return new DocumentLocationResponse(
+          doc.id,
+          new Type(doc.type_id, doc.type_name),
+          doc.location
+            ? doc.location.split(",").map((coords: string) => {
+                const [lng, lat] = coords.split(" ").map(Number);
+                return new Coordinates(lng, lat);
+              })
+            : []
+        );
+      });
+      return response;
     } catch (err: any) {
       throw new Error(err);
     }
