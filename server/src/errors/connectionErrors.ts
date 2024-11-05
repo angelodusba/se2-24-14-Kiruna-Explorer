@@ -15,4 +15,19 @@ class ConnectionAlreadyExistsError extends Error {
   }
 }
 
-export { ConnectionAlreadyExistsError };
+const INVALID_CONNECTION_TYPE = "Invalid connection type";
+/**
+ * Represents an error that occurs when the connection type is invalid.
+ */
+class InvalidConnectionTypeError extends Error {
+  customMessage: string;
+  customCode: number;
+
+  constructor() {
+    super();
+    this.customMessage = INVALID_CONNECTION_TYPE;
+    this.customCode = 400;
+  }
+}
+
+export { ConnectionAlreadyExistsError ,InvalidConnectionTypeError};

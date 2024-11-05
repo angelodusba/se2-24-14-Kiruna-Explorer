@@ -53,7 +53,7 @@ class ConnectionRoutes {
           const result = await this.controller.createConnections(starting_document_id, connections);
           res.status(200).json(result);
         } catch (err: any) {
-          res.status(500).json({ error: err.message });
+          res.status(err.customCode || 500).json({ error: err.customMessage || err.message });
         }
       }
     );

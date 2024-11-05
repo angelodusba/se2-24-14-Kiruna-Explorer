@@ -30,7 +30,7 @@ class ConnectionController {
       }
       return true;
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   } 
 
@@ -50,7 +50,7 @@ class ConnectionController {
     try {
       return this.dao.getConnections();
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
 

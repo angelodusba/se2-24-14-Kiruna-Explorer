@@ -12,6 +12,9 @@ import Type from "../../models/type"
 import Stakeholder from "../../models/stakeholder"
 import exp from "constants"
 
+//ERRORS
+import { InvalidConnectionTypeError } from "../../errors/connectionErrors"
+
 const routePath = "/kirunaexplorer"
 
 const urbanPlanner = {
@@ -222,9 +225,9 @@ describe("POST kirunaexplorer/connections", () => {
                     }
                 ]
             })
-            .expect(500)
+            .expect(400)
             .catch((err) => {
-                expect(err.message).toContain("Invalid connection type");
+                expect(err).toBeInstanceOf(InvalidConnectionTypeError)
             });
         //Check if connections were created
         let connectionDao = new ConnectionDAO();

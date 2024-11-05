@@ -1,5 +1,6 @@
 import ConnectionDAO from "../../dao/connectionDAO";
 import * as db from "../../db/db";
+import { InvalidConnectionTypeError } from "../../errors/connectionErrors";
 
 jest.mock("../../db/db");
 jest.mock('../../dao/documentDAO', () => {
@@ -43,7 +44,8 @@ describe("ConnectionDAO", () => {
         });
 
         test("should throw error if connection type is invalid", async () => {
-            await expect(connectionDAO.createConnection(1, 2, "invalid_conn")).rejects.toThrow("Invalid connection type");
+            await expect(connectionDAO.createConnection(1, 2, "invalid_conn")).rejects
+                .toBeInstanceOf(InvalidConnectionTypeError)
         });
 
         test("should throw error if documents do not exist", async () => {

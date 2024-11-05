@@ -1,5 +1,6 @@
 import * as db from "../db/db";
 import DocumentDAO from "./documentDAO";
+import { InvalidConnectionTypeError } from "../errors/connectionErrors";
 
 class ConnectionDAO {
     /**
@@ -36,7 +37,7 @@ class ConnectionDAO {
                     update_conn = true;
                     break;
                 default:
-                    throw new Error("Invalid connection type");
+                    throw new InvalidConnectionTypeError();
             }
             //Check that document_id_1 and document_id_2 are not the same
             // and they exists in the database
@@ -60,10 +61,15 @@ class ConnectionDAO {
             return true;
         } catch (err: any) {
             await db.query("ROLLBACK", []);
-            if(err.message.includes("duplicate key value violates unique constraint")) {
+            if (err instanceof InvalidConnectionTypeError) {
+                throw err;
+            }
+            else if(err.message.includes("duplicate key value violates unique constraint")) {
                 throw new Error("Connection already exists between: " + document_id_1 + " and " + document_id_2 );
             }
-            throw new Error(err);
+            else {
+                throw new Error(err);
+            }
         }
     }
 
