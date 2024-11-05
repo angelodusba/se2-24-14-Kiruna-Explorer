@@ -1,4 +1,6 @@
 import DocumentDAO from "../dao/documentDAO";
+import Document from "../models/document";
+import DocumentLocationResponse from "../response/documentLocationResponse";
 
 /**
  * Represents a controller for managing documents.
@@ -52,13 +54,30 @@ class DocumentController {
   }
 
   /**
-   * Retrieves all documents ids and titles
-   * by delegating to the DAO layer.
+   * Retrieves all documents ids and titles.
    * @returns A Promise that resolves to an array of documents.
    * @throws Error if the documents cannot be retrieved.
    */
   async getDocumentsNames(): Promise<Document[]> {
     return this.dao.getDocumentsNames();
+  }
+
+  /**
+   * Retrieves a document by its unique identifier.
+   * @param id - The unique identifier of the document to retrieve.
+   * @returns A promise that resolves to the Document object associated with the specified id.
+   * @throws If no document is found, it throws an DocumentNotFoundError.
+   */
+  async getDocumentById(id: number): Promise<Document> {
+    return this.dao.getDocumentById(id);
+  }
+
+  /**
+   * Retrieves documents location information.
+   * @returns A promise that resolves to an array of document location responses.
+   */
+  async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
+    return this.dao.getDocumentsLocation();
   }
 }
 

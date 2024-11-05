@@ -160,7 +160,55 @@ Retrieves all the names and ids of the documents in the database.
 ]
 ```
 
-- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+#### GET `kirunaexplorer/documents/:id`
+
+Retrieves all the information of the requested document.
+
+- Request Parameters:
+  - id: an integer greater than 0
+- Request Body Content: None
+- Response Body Content: A Document object representing a document:
+  - Example:
+
+```JSON
+{
+	"id": 5,
+	"title": "Paris",
+	"description": "Capital of France",
+	"type": {
+		"id": 1,
+		"name": "Design"
+	},
+	"issue_date": "22/07/1980",
+	"scale": "1:8000",
+	"location": [
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		},
+		{
+			"lng": 12.5,
+			"lat": 46.5
+		},
+		{
+			"lng": 12.5,
+			"lat": 42.5
+		},
+		{
+			"lng": 7.5,
+			"lat": 42.5
+		},
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		}
+	],
+	"language": "french",
+	"pages": "60"
+}
+```
+
+- TODO: Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
 ### Stakeholder APIs
 

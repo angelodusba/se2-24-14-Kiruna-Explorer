@@ -1,6 +1,7 @@
 import * as db from "../db/db";
 import DocumentDAO from "./documentDAO";
-import { ConnectionAlreadyExistsError } from "../errors/connectionErrors";
+import { InvalidConnectionTypeError, ConnectionAlreadyExistsError } from "../errors/connectionErrors";
+import { DocumentNotFoundError } from "../errors/documentErrors";
 
 class ConnectionDAO {
     /**
@@ -37,7 +38,7 @@ class ConnectionDAO {
                     update_conn = true;
                     break;
                 default:
-                    throw new Error("Invalid connection type");
+                    throw new InvalidConnectionTypeError();
             }
             //Check that document_id_1 and document_id_2 are not the same
             // and they exists in the database
@@ -45,7 +46,7 @@ class ConnectionDAO {
             const doc1 = await docDAO.getDocumentById(document_id_1);
             const doc2 = await docDAO.getDocumentById(document_id_2);
             if (!doc1 || !doc2) {
-                throw new Error("Invalid document id");
+                throw new DocumentNotFoundError();
             }
             // Sort document_id_1 and document_id_2
             if (document_id_1 > document_id_2) {
@@ -62,9 +63,11 @@ class ConnectionDAO {
         } catch (err: any) {
             await db.query("ROLLBACK", []);
             if(err.message.includes("duplicate key value violates unique constraint")) {
-                throw new Error("Connection already exists between: " + document_id_1 + " and " + document_id_2 );
+                throw new ConnectionAlreadyExistsError(document_id_1, document_id_2, connection_type);
             }
-            throw new Error(err);
+            else{
+                throw err
+            }
         }
     }
 
@@ -85,9 +88,8 @@ class ConnectionDAO {
                     connection_type: row.direct_conn ? "direct_conn" : row.collateral_conn ? "collateral_conn" : row.prevision_conn ? "prevision_conn" : "update_conn"
                 };
             });
-            return result.rows;
         } catch (err: any) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -102,7 +104,7 @@ class ConnectionDAO {
             const result = await db.query(sql, []);
             return result.rows.map((row: { column_name: string }) => row.column_name);
         } catch (err: any) {
-            throw new Error(err);
+            throw err;
         }
     }
 

@@ -37,7 +37,8 @@ class ConnectionRoutes {
      */
     this.router.post(
       "/",
-      //this.authService.isLoggedIn,
+      this.authService.isLoggedIn,
+      this.authService.isUrbanPlanner,
       [
         body("starting_document_id").isInt(),
         body("connections").isArray().isLength({ min: 1 }),
@@ -52,7 +53,7 @@ class ConnectionRoutes {
           const result = await this.controller.createConnections(starting_document_id, connections);
           res.status(200).json(result);
         } catch (err: any) {
-          res.status(500).json({ error: err.message });
+          res.status(err.customCode || 500).json({ error: err.customMessage || err.message });
         }
       }
     );
@@ -64,6 +65,27 @@ class ConnectionRoutes {
      *  get:
      *   summary: Get all connections
      *   description: Get all the connections
+     *  responses:
+     *   200:
+     *   description: A list of connections
+     *  content:
+     *  application/json:
+     *  schema:
+     * type: array
+     * items:
+     * type: object
+     * properties:
+     * document_id_1:
+     * type: integer
+     * document_id_2:
+     * type: integer
+     * connection_type:
+     * type: string
+     * example: direct_conn
+     * required:
+     * - document_id_1
+     * - document_id_2
+     * - connection_type
      */
     this.router.get(
       "/",
@@ -73,7 +95,7 @@ class ConnectionRoutes {
           const result = await this.controller.getConnections();
           res.status(200).json(result);
         } catch (err: any) {
-          res.status(500).json({ error: err.message });
+          res.status(err.customCode || 500).json({ error: err.customMessage || err.message });
         }
       }
     );
@@ -84,6 +106,18 @@ class ConnectionRoutes {
      *  get:
      *   summary: Get connection names
      *  description: Get the connection names for a document
+     * responses:
+     * 200:
+     * description: A list of connection names
+     * content:
+     * application/json:
+     * schema:
+     * type: array
+     * items:
+     * type: string
+     * example: direct_conn
+     * required:
+     * - connection_name
      */
     this.router.get(
       "/names",
