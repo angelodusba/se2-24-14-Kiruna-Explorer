@@ -84,7 +84,6 @@ class ConnectionDAO {
                     connection_type: row.direct_conn ? "direct_conn" : row.collateral_conn ? "collateral_conn" : row.prevision_conn ? "prevision_conn" : "update_conn"
                 };
             });
-            return result.rows;
         } catch (err: any) {
             throw new Error(err);
         }

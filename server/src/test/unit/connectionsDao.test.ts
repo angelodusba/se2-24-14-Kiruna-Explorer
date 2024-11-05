@@ -29,11 +29,6 @@ describe("ConnectionDAO", () => {
         jest.restoreAllMocks();
     });
 
-    afterAll(async () => {
-        await db.cleanup();
-        await db.pool.end();
-    });
-
     describe("createConnection", () => {
         test("should create a new connection", async () => {
             

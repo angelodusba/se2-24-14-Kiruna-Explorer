@@ -37,7 +37,8 @@ class ConnectionRoutes {
      */
     this.router.post(
       "/",
-      //this.authService.isLoggedIn,
+      this.authService.isLoggedIn,
+      this.authService.isUrbanPlanner,
       [
         body("starting_document_id").isInt(),
         body("connections").isArray().isLength({ min: 1 }),
@@ -105,6 +106,18 @@ class ConnectionRoutes {
      *  get:
      *   summary: Get connection names
      *  description: Get the connection names for a document
+     * responses:
+     * 200:
+     * description: A list of connection names
+     * content:
+     * application/json:
+     * schema:
+     * type: array
+     * items:
+     * type: string
+     * example: direct_conn
+     * required:
+     * - connection_name
      */
     this.router.get(
       "/names",
