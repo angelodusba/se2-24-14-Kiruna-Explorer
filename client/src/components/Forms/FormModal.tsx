@@ -4,17 +4,15 @@ const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: {
-    xs: "90%",
-    sm: "40%",
-  },
-  height: "80%",
+  transform: "translate(-50%, -45%)",
+  width: "500px",
+  maxHeight: "80%",
   bgcolor: "background.paper",
-  border: "2px solid #000",
+  // border: "2px solid #000",
+  borderRadius: "8px",
   boxShadow: 24,
-  p: 0,
-  //overflowY: "auto",
+  p: 1,
+  overflowY: "auto",
 };
 
 function FormModal(props) {
@@ -23,7 +21,8 @@ function FormModal(props) {
       open={!!props.operation}
       onClose={() => props.setOperation(undefined)}
       aria-labelledby="FormModal"
-      aria-describedby="FormModalDescription">
+      aria-describedby="FormModalDescription"
+    >
       <Box sx={style}>{props.children}</Box>
     </Modal>
   );

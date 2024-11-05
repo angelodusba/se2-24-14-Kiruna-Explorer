@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid2";
-import {
-  Box,
-  Button,
-  Step,
-  StepLabel,
-  Stepper,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import React from "react";
 import DocumentAPI from "../../API/DocumentAPI";
 import { Type } from "../../models/Type";
@@ -43,7 +36,8 @@ function AddDocumentForm() {
             document={document}
             setDocument={setDocument}
             types={types}
-            stakeholders={stakeholders}></GeneralInfoForm>
+            stakeholders={stakeholders}
+          ></GeneralInfoForm>
         );
       case 1:
         return <></>;
@@ -122,10 +116,11 @@ function AddDocumentForm() {
         height: "100%",
         backgroundColor: "transparent",
         alignItems: "start",
-        my: 4,
         pt: 0,
         px: 4,
-      }}>
+        mt: 4,
+      }}
+    >
       <Grid sx={{ width: "100%" }} size="auto">
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label, index) => {
@@ -134,9 +129,7 @@ function AddDocumentForm() {
               optional?: React.ReactNode;
             } = {};
             if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
-              );
+              labelProps.optional = <Typography variant="caption">Optional</Typography>;
             }
             if (isStepSkipped(index)) {
               stepProps.completed = false;
@@ -156,12 +149,9 @@ function AddDocumentForm() {
           display: "flex",
           py: 2,
         }}
-        size="auto">
-        <Button
-          color="inherit"
-          disabled={activeStep === 0}
-          onClick={handleBack}
-          sx={{ mr: 1 }}>
+        size="auto"
+      >
+        <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           Back
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
@@ -170,9 +160,7 @@ function AddDocumentForm() {
             Skip
           </Button>
         )}
-        <Button onClick={handleNext}>
-          {activeStep === steps.length - 1 ? "Finish" : "Next"}
-        </Button>
+        <Button onClick={handleNext}>{activeStep === steps.length - 1 ? "Finish" : "Next"}</Button>
       </Grid>
     </Grid>
   );
