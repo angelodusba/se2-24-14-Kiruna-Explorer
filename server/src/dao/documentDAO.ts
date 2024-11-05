@@ -147,7 +147,7 @@ class DocumentDAO {
    */
   async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
     try {
-      const sql = `SELECT D.id, D.type_id, T.name AS type_name
+      const sql = `SELECT D.id, D.type_id, T.name AS type_name,
                     CASE 
                       WHEN location IS NULL THEN NULL
                       WHEN ST_GeometryType(location) = 'ST_Point' THEN 
@@ -155,7 +155,8 @@ class DocumentDAO {
                       WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                         substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
                     END AS location
-                  FROM documents D, types T WHERE D.type_id=T.id`;
+                  FROM documents D, types T WHERE D.type_id=T.id
+                  ORDER BY D.id`;
       const res = await db.query(sql);
       if (!res || res.rows.length === 0) {
         return [];
