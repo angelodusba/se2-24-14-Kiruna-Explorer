@@ -66,10 +66,10 @@ async function getTypeOfConnections() {
   }
 }
 
-const connectionApi = {
+const ConnectionAPI = {
   sendConnections,
   getConnections,
   getTypeOfConnections,
 };
 
-export default connectionApi;
+export default ConnectionAPI;

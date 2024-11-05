@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Grid from "@mui/material/Grid2";
 import {
   Box,
@@ -32,34 +32,17 @@ function AddDocumentForm() {
     new Document("", "", [], 0, 0, [], "", "", "")
   );
 
+  const formRef = useRef<HTMLFormElement>(null);
+
   const isStepSkipped = (step: number) => {
     return skipped.has(step);
   };
 
-  function getStepContent(step: number) {
-    switch (step) {
-      case 0:
-        return (
-          <GeneralInfoForm
-            document={document}
-            setDocument={setDocument}
-            types={types}
-            stakeholders={stakeholders}></GeneralInfoForm>
-        );
-      case 1:
-        return (
-          <GeoreferenceForm
-            document={document}
-            setDocument={setDocument}></GeoreferenceForm>
-        );
-      case 2:
-        return <LinkDocumentForm></LinkDocumentForm>;
-      default:
-        throw new Error("Unknown step");
-    }
-  }
-
   const handleNext = () => {
+    if (formRef.current && !formRef.current.reportValidity()) {
+      return;
+    }
+
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
@@ -106,6 +89,9 @@ function AddDocumentForm() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (formRef.current && !formRef.current.reportValidity()) {
+      return;
+    }
     DocumentAPI.sendDocument(document);
   };
 
@@ -114,10 +100,33 @@ function AddDocumentForm() {
     fetchTypes();
   }, []);
 
+  function getStepContent(step: number) {
+    switch (step) {
+      case 0:
+        return (
+          <GeneralInfoForm
+            document={document}
+            setDocument={setDocument}
+            types={types}
+            stakeholders={stakeholders}
+          />
+        );
+      case 1:
+        return (
+          <GeoreferenceForm document={document} setDocument={setDocument} />
+        );
+      case 2:
+        return <LinkDocumentForm document={document} id={0} />;
+      default:
+        throw new Error("Unknown step");
+    }
+  }
+
   return (
     <Grid
       container
       component="form"
+      ref={formRef}
       onSubmit={handleSubmit}
       spacing={3}
       sx={{
@@ -126,7 +135,6 @@ function AddDocumentForm() {
         width: "100%",
         height: "100%",
         backgroundColor: "transparent",
-        alignItems: "start",
         pt: 0,
         px: 4,
         mt: 4,
