@@ -112,6 +112,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
     await cleanup();
+    await db.pool.end();
 })
 
 describe("POST kirunaexplorer/documents", () => {

@@ -1,6 +1,7 @@
 import ConnectionDAO from "../../dao/connectionDAO";
 import * as db from "../../db/db";
-import { InvalidConnectionTypeError } from "../../errors/connectionErrors";
+import { InvalidConnectionTypeError, ConnectionAlreadyExistsError } from "../../errors/connectionErrors";
+import { DocumentNotFoundError } from "../../errors/documentErrors";
 
 jest.mock("../../db/db");
 jest.mock('../../dao/documentDAO', () => {
@@ -49,7 +50,7 @@ describe("ConnectionDAO", () => {
         });
 
         test("should throw error if documents do not exist", async () => {
-            await expect(connectionDAO.createConnection(1, -1, "direct_conn")).rejects.toThrow("Invalid document id");
+            await expect(connectionDAO.createConnection(1, -1, "direct_conn")).rejects.toBeInstanceOf(DocumentNotFoundError);
         });
 
         test("should throw error if connection already exists", async () => {
@@ -57,7 +58,7 @@ describe("ConnectionDAO", () => {
             (db.query as jest.Mock).mockRejectedValueOnce(new Error("duplicate key value violates unique constraint"));
 
 
-            await expect(connectionDAO.createConnection(1, 2, "direct_conn")).rejects.toThrow("Connection already exists between: 1 and 2");
+            await expect(connectionDAO.createConnection(1, 2, "direct_conn")).rejects.toBeInstanceOf(ConnectionAlreadyExistsError);
         });
     });
 

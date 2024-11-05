@@ -1,6 +1,7 @@
 import * as db from "../db/db";
 import DocumentDAO from "./documentDAO";
-import { InvalidConnectionTypeError } from "../errors/connectionErrors";
+import { InvalidConnectionTypeError, ConnectionAlreadyExistsError } from "../errors/connectionErrors";
+import { DocumentNotFoundError } from "../errors/documentErrors";
 
 class ConnectionDAO {
     /**
@@ -45,7 +46,7 @@ class ConnectionDAO {
             const doc1 = await docDAO.getDocumentById(document_id_1);
             const doc2 = await docDAO.getDocumentById(document_id_2);
             if (!doc1 || !doc2) {
-                throw new Error("Invalid document id");
+                throw new DocumentNotFoundError();
             }
             // Sort document_id_1 and document_id_2
             if (document_id_1 > document_id_2) {
@@ -61,14 +62,11 @@ class ConnectionDAO {
             return true;
         } catch (err: any) {
             await db.query("ROLLBACK", []);
-            if (err instanceof InvalidConnectionTypeError) {
-                throw err;
+            if(err.message.includes("duplicate key value violates unique constraint")) {
+                throw new ConnectionAlreadyExistsError(document_id_1, document_id_2, connection_type);
             }
-            else if(err.message.includes("duplicate key value violates unique constraint")) {
-                throw new Error("Connection already exists between: " + document_id_1 + " and " + document_id_2 );
-            }
-            else {
-                throw new Error(err);
+            else{
+                throw err
             }
         }
     }
@@ -91,7 +89,7 @@ class ConnectionDAO {
                 };
             });
         } catch (err: any) {
-            throw new Error(err);
+            throw err;
         }
     }
 
@@ -106,7 +104,7 @@ class ConnectionDAO {
             const result = await db.query(sql, []);
             return result.rows.map((row: { column_name: string }) => row.column_name);
         } catch (err: any) {
-            throw new Error(err);
+            throw err;
         }
     }
 

@@ -13,7 +13,9 @@ import Stakeholder from "../../models/stakeholder"
 import exp from "constants"
 
 //ERRORS
-import { InvalidConnectionTypeError } from "../../errors/connectionErrors"
+import { InvalidConnectionTypeError, ConnectionAlreadyExistsError } from "../../errors/connectionErrors"
+import { DocumentNotFoundError } from "../../errors/documentErrors"
+import { randomInt } from "crypto"
 
 const routePath = "/kirunaexplorer"
 
@@ -228,6 +230,36 @@ describe("POST kirunaexplorer/connections", () => {
             .expect(400)
             .catch((err) => {
                 expect(err).toBeInstanceOf(InvalidConnectionTypeError)
+            });
+        //Check if connections were created
+        let connectionDao = new ConnectionDAO();
+        let connections = await connectionDao.getConnections();
+        expect(connections).toEqual([]);
+    });
+    test("POST /kirunaexplorer/connections - fail, document does not exist", async () => {
+        let documentDao = new DocumentDAO();
+        let documents = await documentDao.getDocumentsNames();
+        let document2 = documents[1];
+        let nonExistentID = randomInt(1000,2000);
+        while (documents.map((doc: any) => doc.id).includes(nonExistentID)) {
+            nonExistentID = randomInt(0,20000);
+        }
+        await request(app)
+            .post(`${routePath}/connections`)
+            .set("Cookie", urbanPlannerCookie)
+            .send({
+                starting_document_id: nonExistentID,
+                connections: [
+                    {
+                        connected_document_id: document2.id,
+                        connection_name: "direct_conn"
+                    }
+                ]
+            })
+            .expect(new DocumentNotFoundError().customCode)
+            .catch((err) => {
+                console.log(err);
+                expect(err).toBeInstanceOf(DocumentNotFoundError);
             });
         //Check if connections were created
         let connectionDao = new ConnectionDAO();

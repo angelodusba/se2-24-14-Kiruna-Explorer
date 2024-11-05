@@ -135,7 +135,7 @@ class DocumentDAO {
         doc.pages
       );
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
 

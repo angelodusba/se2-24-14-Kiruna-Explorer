@@ -61,7 +61,7 @@ class ConnectionController {
     try {
       return this.dao.getConnectionNames();
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
   
