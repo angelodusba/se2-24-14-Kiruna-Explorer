@@ -7,12 +7,27 @@ const style = {
   transform: "translate(-50%, -45%)",
   width: "500px",
   maxHeight: "80%",
+  minHeight: "60%",
   bgcolor: "background.paper",
-  // border: "2px solid #000",
   borderRadius: "8px",
   boxShadow: 24,
   p: 1,
   overflowY: "auto",
+  maxWidth: {
+    xs: "80%",
+    sm: "600px",
+  },
+  minWidth: {
+    xs: "80&",
+    sm: "400px",
+  },
+  //Hide scrollbar but allow scrolling
+  "&::-webkit-scrollbar": {
+    width: "0px",
+    background: "transparent",
+  },
+  msOverflowStyle: "none",
+  scrollbarWidth: "none",
 };
 
 function FormModal(props) {
@@ -21,8 +36,7 @@ function FormModal(props) {
       open={!!props.operation}
       onClose={() => props.setOperation(undefined)}
       aria-labelledby="FormModal"
-      aria-describedby="FormModalDescription"
-    >
+      aria-describedby="FormModalDescription">
       <Box sx={style}>{props.children}</Box>
     </Modal>
   );

@@ -1,13 +1,15 @@
+export interface Point {
+  lat: number;
+  lng: number;
+}
+
 export class Document {
   title: string;
   description: string;
   stakeholder: number[];
   type: number;
   pages: number;
-  coordinates: {
-    lat: number;
-    long: number;
-  };
+  coordinates: Point[];
   issueDate: string;
   scale: string;
   language: string;
@@ -18,7 +20,7 @@ export class Document {
     stakeholder: number[],
     type: number,
     pages: number,
-    coordinates: { lat: number; long: number },
+    coordinates: Point[],
     issueDate: string,
     scale: string,
     language: string

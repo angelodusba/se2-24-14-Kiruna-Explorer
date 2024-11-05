@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid2";
-import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Step,
+  StepLabel,
+  Stepper,
+  Typography,
+} from "@mui/material";
 import React from "react";
 import DocumentAPI from "../../API/DocumentAPI";
 import { Type } from "../../models/Type";
@@ -8,6 +15,7 @@ import { StakeHolder } from "../../models/StakeHolders";
 import { Document } from "../../models/Document";
 import GeneralInfoForm from "./GeneralInfoForm";
 import LinkDocumentForm from "./LinkDocumentForm";
+import GeoreferenceForm from "./GeoreferenceForm";
 
 const steps = ["General info", "Georeference and scale", "Linking"];
 
@@ -21,7 +29,7 @@ function AddDocumentForm() {
   const [types, setTypes] = useState<Type[]>([]);
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
   const [document, setDocument] = useState<Document>(
-    new Document("", "", [], 0, 0, { lat: 0, long: 0 }, "", "", "")
+    new Document("", "", [], 0, 0, [], "", "", "")
   );
 
   const isStepSkipped = (step: number) => {
@@ -36,11 +44,14 @@ function AddDocumentForm() {
             document={document}
             setDocument={setDocument}
             types={types}
-            stakeholders={stakeholders}
-          ></GeneralInfoForm>
+            stakeholders={stakeholders}></GeneralInfoForm>
         );
       case 1:
-        return <></>;
+        return (
+          <GeoreferenceForm
+            document={document}
+            setDocument={setDocument}></GeoreferenceForm>
+        );
       case 2:
         return <LinkDocumentForm></LinkDocumentForm>;
       default:
@@ -119,8 +130,7 @@ function AddDocumentForm() {
         pt: 0,
         px: 4,
         mt: 4,
-      }}
-    >
+      }}>
       <Grid sx={{ width: "100%" }} size="auto">
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label, index) => {
@@ -129,7 +139,9 @@ function AddDocumentForm() {
               optional?: React.ReactNode;
             } = {};
             if (isStepOptional(index)) {
-              labelProps.optional = <Typography variant="caption">Optional</Typography>;
+              labelProps.optional = (
+                <Typography variant="caption">Optional</Typography>
+              );
             }
             if (isStepSkipped(index)) {
               stepProps.completed = false;
@@ -149,9 +161,12 @@ function AddDocumentForm() {
           display: "flex",
           py: 2,
         }}
-        size="auto"
-      >
-        <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
+        size="auto">
+        <Button
+          color="inherit"
+          disabled={activeStep === 0}
+          onClick={handleBack}
+          sx={{ mr: 1 }}>
           Back
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
@@ -160,7 +175,9 @@ function AddDocumentForm() {
             Skip
           </Button>
         )}
-        <Button onClick={handleNext}>{activeStep === steps.length - 1 ? "Finish" : "Next"}</Button>
+        <Button onClick={handleNext}>
+          {activeStep === steps.length - 1 ? "Finish" : "Next"}
+        </Button>
       </Grid>
     </Grid>
   );
