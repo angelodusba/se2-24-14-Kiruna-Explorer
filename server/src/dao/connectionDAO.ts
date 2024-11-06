@@ -102,15 +102,31 @@ class ConnectionDAO {
   }
 
   /**
-   * From the header of connection table,
-   * get the connection names for a document.
-   * @param no params
+   * Retrieve all the connections types.
    */
   async getConnectionNames(): Promise<string[]> {
     try {
       const sql = `SELECT column_name FROM information_schema.columns WHERE table_name = 'connections' AND column_name NOT IN ('document_id_1', 'document_id_2')`;
       const result = await db.query(sql, []);
       return result.rows.map((row: { column_name: string }) => row.column_name);
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
+   * Deletes all connections related to a specific document.
+   * @param document_id - The ID of the document for which all related connections
+   *                      will be deleted. This can be either in `document_id_1`
+   *                      or `document_id_2` field in the `connections` table.
+   * @returns A promise that resolves to `true` if the operation is successful,
+   *          or throws an error if the deletion fails.
+   */
+  async deleteConnectionsByDocumentId(document_id: number): Promise<boolean> {
+    try {
+      const sql = `DELETE FROM connections WHERE document_id_1 = $1 OR document_id_2 = $1`;
+      await db.query(sql, [document_id]);
+      return true;
     } catch (err: any) {
       throw err;
     }

@@ -9,13 +9,13 @@ class StakeholderDAO {
   async getStakeholders(): Promise<Stakeholder[]> {
     try {
       const sql = "SELECT * FROM stakeholders";
-      const result = await db.query(sql, []);
+      const result = await db.query(sql);
       const stakeholders: Stakeholder[] = result.rows.map((row) => {
         return new Stakeholder(row.id, row.name);
       });
       return stakeholders;
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
 }
