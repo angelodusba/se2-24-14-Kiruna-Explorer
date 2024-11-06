@@ -71,23 +71,27 @@ class ConnectionRoutes {
     );
 
     /**
-     * GET /connections?document_id - Retrieves a list of connection names
+     * GET /connections?document_id
+     * Retrieves a list of connection filtered by the optional parameter document_id
      */
     this.router.get(
       "/",
       //this.authService.isLoggedIn,
-      (req: any, res: any, next: any) => {
-        this.controller
-          .getConnections(req.query.document_id)
-          .then((connections) => res.status(200).json(connections))
-          .catch((err: any) => {
-            next(err);
-          });
+      async (req: any, res: any, next: any) => {
+        try {
+          const connections = Number(req.query.document_id)
+            ? await this.controller.getConnectionsByDocumentId(Number(req.query.document_id))
+            : await this.controller.getConnections();
+          res.status(200).json(connections);
+        } catch (err: any) {
+          next(err);
+        }
       }
     );
 
     /**
-     * GET /connections/names - Retrieves a list of connection names
+     * GET /connections/names
+     * Retrieves a list of connection names
      */
     this.router.get(
       "/names",

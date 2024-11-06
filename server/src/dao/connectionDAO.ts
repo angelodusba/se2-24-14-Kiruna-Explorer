@@ -1,6 +1,7 @@
 import * as db from "../db/db";
 import Connection, { ConnectionType } from "../models/connection";
 import { ConnectionAlreadyExistsError } from "../errors/connectionErrors";
+import ConnectionByDocumentIdResponse from "../response/connectionsByDocumentIdResponse";
 
 class ConnectionDAO {
   /**
@@ -77,9 +78,15 @@ class ConnectionDAO {
    * @returns A Promise that resolves to an array of connections.
    * Connections are formatted as strings.
    */
-  async getConnectionsByDocumentId(document_id: number): Promise<Connection[]> {
+  async getConnectionsByDocumentId(document_id: number): Promise<ConnectionByDocumentIdResponse[]> {
     try {
-      const sql = `SELECT * FROM connections WHERE document_id_1 = $1 OR document_id_2 = $1`;
+      const sql = `SELECT direct_conn, collateral_conn, prevision_conn, update_conn,
+                    CASE 
+                      WHEN document_id_1 = $1 THEN document_id_2
+                      WHEN document_id_2 = $1 THEN document_id_1
+                    END AS document_id
+                  FROM connections
+                  WHERE document_id_1 = $1 OR document_id_2 = $1;`;
       const result = await db.query(sql, [document_id]);
       return result.rows.map((row: any) => {
         // Filter connection types based on row data
@@ -87,7 +94,7 @@ class ConnectionDAO {
           // Check if the corresponding column in the row has a truthy value
           return !!row[type];
         });
-        return new Connection(row.document_id_1, row.document_id_2, connectionTypes);
+        return new ConnectionByDocumentIdResponse(row.document_id, connectionTypes);
       });
     } catch (err: any) {
       throw err;

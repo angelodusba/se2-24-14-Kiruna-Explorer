@@ -1,5 +1,6 @@
 import ConnectionDAO from "../dao/connectionDAO";
 import Connection from "../models/connection";
+import ConnectionByDocumentIdResponse from "../response/connectionsByDocumentIdResponse";
 
 /**
  * Represents a controller for managing connections.
@@ -40,13 +41,20 @@ class ConnectionController {
   }
 
   /**
-   * Get all the connections
+   * Get all the connections.
    * @returns A list of all the connections.
    */
-  async getConnections(document_id: number | undefined): Promise<Connection[]> {
-    return document_id
-      ? this.dao.getConnectionsByDocumentId(document_id)
-      : this.dao.getConnections();
+  async getConnections(): Promise<Connection[]> {
+    return this.dao.getConnections();
+  }
+
+  /**
+   * Get all the connections related to a certain document.
+   * @param document_id - The id of the document used to filter the connections.
+   * @returns A list of filtered connections.
+   */
+  async getConnectionsByDocumentId(document_id: number): Promise<ConnectionByDocumentIdResponse[]> {
+    return this.dao.getConnectionsByDocumentId(document_id);
   }
 
   /**
