@@ -29,7 +29,7 @@ class DocumentDAO {
     language: string,
     pages: string,
     stakeholderIds: number[]
-  ): Promise<boolean> {
+  ): Promise<{ id: number }> {
     const client = await db.pool.connect();
     try {
       let sql = "";
@@ -69,10 +69,10 @@ class DocumentDAO {
         await client.query(sql, [document_id, stakeholderId]);
       }
       await client.query("COMMIT");
-      return true;
+      return { id: document_id };
     } catch (err: any) {
       await client.query("ROLLBACK");
-      throw new Error(err);
+      throw err;
     } finally {
       client.release();
     }
@@ -90,7 +90,7 @@ class DocumentDAO {
       const res = await db.query(sql);
       return res.rows;
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
 
@@ -175,7 +175,7 @@ class DocumentDAO {
       });
       return response;
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
 }

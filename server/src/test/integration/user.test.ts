@@ -3,13 +3,6 @@ import request from 'supertest'
 import { app } from "../../../index"
 import * as db from "../../db/db"
 import {cleanup} from "../../db/db"
-import ConnectionDAO from "../../dao/connectionDAO"
-import DocumentDAO from "../../dao/documentDAO"
-import StakeholderDAO from "../../dao/stakeholderDAO"
-import TypeDAO from "../../dao/typeDAO"
-
-import Type from "../../models/type"
-import Stakeholder from "../../models/stakeholder"
 
 const routePath = "/kirunaexplorer"
 
@@ -59,14 +52,6 @@ beforeAll(async () => {
     await cleanup()
     await postUser(urbanPlanner)
     urbanPlannerCookie = await login(urbanPlanner)
-    // Populate DB with types, stakeholders
-    // Insert three types
-    await db.query("INSERT INTO types (name) VALUES ($1)", ["type1"]);
-    await db.query("INSERT INTO types (name) VALUES ($1)", ["type2"]);
-    await db.query("INSERT INTO types (name) VALUES ($1)", ["type3"]);
-    // Insert two stakeholders
-    await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder1"]);
-    await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder2"]);
 })
 
 afterAll(async () => {
@@ -97,18 +82,6 @@ describe("POST /users", () => {
         //TODO: Uncomment and adjust the following lines once the following route is uncommented and adjusted in userRoutes.ts
         //const users = await request(app).get(baseURL).set("Cookie", adminCookie).expect(200);
         //expect(users.body).toHaveLength(2);
-    });
-
-    test("POST /users - Empty username", async () => {
-        await request(app)
-            .post(`${routePath}/users`)
-            .send({
-                username: "",
-                email: "urbanplanner@gmail.com",
-                password: "urbanplanner",
-                role: "Urban Planner"
-            })
-            .expect(422);
     });
 
     test("POST /users - Empty username", async () => {
@@ -263,5 +236,91 @@ describe("PUT /users/:email", () => {
                 email: "newresident@gmail.com"
             })
             .expect(401);
+    });
+});
+
+describe("POST /sessions", () => {
+    test("POST /sessions - success ", async () => {
+        const residentCookie = await login(resident);
+        expect(residentCookie).toBeDefined();
+    });
+
+    test("POST /sessions - Invalid email", async () => {
+        const invalidUser = {
+            username: "invalid",
+            email: "invalidgmailcom",
+            password: "invalid",
+            role: "Resident",
+        };
+        await request(app).post(`${routePath}/sessions`).send(invalidUser).expect(422);
+    });
+
+    test("POST /sessions - Empty password", async () => {
+        const invalidUser = {
+            username: "invalid",
+            email: "invalid@gmail.com",
+            password: "",
+            role: "Resident",
+        };
+        await request(app).post(`${routePath}/sessions`).send(invalidUser).expect(422);
+    });
+
+    test("POST /sessions - Wrong credentials", async () => {
+        const invalidUser = {
+            username: "invalid",
+            email: "invalid@gmail.com",
+            password: "invalid",
+            role: "Resident",
+        };
+        await request(app).post(`${routePath}/sessions`).send(invalidUser).expect(401);
+    });
+});
+
+describe("DELETE /sessions/current", () => {
+    test("DELETE /sessions/current - success", async () => {
+        const residentCookie = await login(resident);
+
+        //TODO: Uncomment and adjust the following lines once the following route is uncommented and adjusted in userRoutes.ts
+        // Get current user
+        /* await request(app)
+            .get(`${baseURL}/${customer.username}`)
+            .set("Cookie", customerCookie)
+            .expect(200); */
+        // Logout
+        await request(app).delete(`${routePath}/sessions`).set("Cookie", residentCookie).expect(200);
+        
+        //TODO: Uncomment and adjust the following lines once the following route is uncommented and adjusted in userRoutes.ts
+        // Expect to be unauthorized
+        /* await request(app)
+            .get(`${baseURL}/${customer.username}`)
+            .set("Cookie", customerCookie)
+            .expect(401); */
+    });
+
+    test("DELETE /sessions - already logged out", async () => {
+        const residentCookie = await login(resident);
+        // Logout
+        await request(app).delete(`${routePath}/sessions`).set("Cookie", residentCookie).expect(200);
+        // Try to logout again
+        await request(app).delete(`${routePath}/sessions`).set("Cookie", residentCookie).expect(401);
+    });
+});
+
+describe("GET /sessions", () => {
+    test("GET /sessions - success", async () => {
+        const residentCookie = await login(resident);
+        await request(app)
+            .get(`${routePath}/sessions`)
+            .set("Cookie", residentCookie)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.username).toBe(resident.username);
+                expect(res.body.email).toBe(resident.email);
+                expect(res.body.role).toBe(resident.role);
+            });
+    });
+
+    test("GET /sessions - not logged in", async () => {
+        await request(app).get(`${routePath}/sessions`).expect(401);
     });
 });

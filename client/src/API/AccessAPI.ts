@@ -1,17 +1,17 @@
-import User from "./models/User";
+import User from "../models/User";
 
-const baseURL = "http://localhost:3001/kirunaExplorer/";
+const baseURL = "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Access APIs ------------------------ */
 
-async function login(username: string, password: string) {
+async function login(email: string, password: string) {
   const response = await fetch(baseURL + "sessions", {
     method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username: username, password: password }),
+    body: JSON.stringify({ email: email, password: password }),
   });
   if (response.ok) {
     const user = await response.json();
@@ -26,19 +26,19 @@ async function login(username: string, password: string) {
 }
 
 async function logOut() {
-  await fetch(baseURL + "sessions/current", {
+  await fetch(baseURL + "sessions", {
     method: "DELETE",
     credentials: "include",
   });
 }
 
 async function getUserInfo() {
-  const response = await fetch(baseURL + "sessions/current", {
+  const response = await fetch(baseURL + "sessions", {
     credentials: "include",
   });
   if (response.ok) {
     const user = await response.json();
-    return user;
+    return new User(user.username, user.email, user.role);
   } else {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
@@ -47,9 +47,9 @@ async function getUserInfo() {
   }
 }
 
-const API = {
+const AccessAPI = {
   login,
   logOut,
   getUserInfo,
 };
-export default API;
+export default AccessAPI;

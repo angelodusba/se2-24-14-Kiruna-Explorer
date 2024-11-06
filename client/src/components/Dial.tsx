@@ -2,15 +2,23 @@ import { AddLinkOutlined, NoteAddOutlined } from "@mui/icons-material";
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import { useState } from "react";
 
-const actions = [
-  { icon: <NoteAddOutlined />, name: "Add document" },
-  { icon: <AddLinkOutlined />, name: "Link documents" },
-];
-
-function Dial() {
+function Dial(props) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const actions = [
+    {
+      id: 1,
+      icon: <NoteAddOutlined />,
+      name: "Add document",
+    },
+    {
+      id: 2,
+      icon: <AddLinkOutlined />,
+      name: "Link documents",
+    },
+  ];
 
   return (
     <SpeedDial
@@ -32,11 +40,11 @@ function Dial() {
       open={open}>
       {actions.map((action) => (
         <SpeedDialAction
-          key={action.name}
+          key={action.id}
           icon={action.icon}
           tooltipTitle={action.name}
           tooltipOpen
-          onClick={handleClose}
+          onClick={() => props.setOperation(action.id)}
           sx={{
             "& .MuiSpeedDialAction-staticTooltipLabel": {
               whiteSpace: "nowrap",
