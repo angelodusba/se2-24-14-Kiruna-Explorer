@@ -17,7 +17,7 @@ import GeneralInfoForm from "./GeneralInfoForm";
 import LinkDocumentForm from "./LinkDocumentForm";
 import GeoreferenceForm from "./GeoreferenceForm";
 
-const steps = ["General info", "Georeference and scale", "Linking"];
+const steps = ["General info", "Georeference", "Linking"];
 
 const isStepOptional = (step: number) => {
   return step === 2;
@@ -35,6 +35,9 @@ function AddDocumentForm(props) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log(document);
+    return;
     event.preventDefault();
     if (formRef.current && !formRef.current.reportValidity()) {
       return;
@@ -123,11 +126,51 @@ function AddDocumentForm(props) {
         height: "100%",
         backgroundColor: "transparent",
         pt: 0,
-        px: 4,
+        px: 0,
         mt: 4,
       }}>
       <Grid sx={{ width: "100%" }} size="auto">
-        <Stepper activeStep={activeStep} alternativeLabel>
+        <Stepper
+          id="mobile-stepper"
+          activeStep={activeStep}
+          alternativeLabel
+          sx={{
+            width: "100%",
+            top: "0px",
+            display: { sm: "flex", md: "none" },
+          }}>
+          {steps.map((label, index) => {
+            const stepProps: { completed?: boolean } = {};
+            const labelProps: {
+              optional?: React.ReactNode;
+            } = {};
+            if (isStepOptional(index)) {
+              labelProps.optional = (
+                <Typography variant="caption">Optional</Typography>
+              );
+            }
+            return (
+              <Step
+                sx={{
+                  ":first-child": { pl: 0 },
+                  ":last-child": { pr: 0 },
+                  "& .MuiStepConnector-root": { top: { xs: 12, sm: 12 } },
+                }}
+                key={label}
+                {...stepProps}>
+                <StepLabel
+                  {...labelProps}
+                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}>
+                  {label}
+                </StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
+        <Stepper
+          sx={{ display: { xs: "none", md: "flex" } }}
+          activeStep={activeStep}
+          alternativeLabel>
           {steps.map((label, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {

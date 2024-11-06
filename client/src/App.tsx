@@ -12,6 +12,7 @@ import FormModal from "./components/Forms/FormModal";
 import AddDocumentForm from "./components/Forms/AddDocumentForm";
 import DocumentAPI from "./API/DocumentAPI";
 import LinkDocumentForm from "./components/Forms/LinkDocumentForm";
+import DocumentCard from "./components/Map/DocumentCard";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -81,6 +82,7 @@ function App() {
                   )
                 )}
               </FormModal>
+              <DocumentCard></DocumentCard>
             </>
           }>
           <Route

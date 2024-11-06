@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Checkbox,
   Chip,
@@ -28,6 +29,7 @@ function GeneralInfoForm(props) {
         width: "100%",
         display: "flex",
         py: 2,
+        px: 2,
       }}
       size={6}
       spacing={2}>
@@ -48,26 +50,23 @@ function GeneralInfoForm(props) {
       <Grid
         sx={{ display: "flex", flexDirection: "column" }}
         size={{ xs: 12, md: 6 }}>
-        <FormControl required>
-          <InputLabel id="typeSelect">Type</InputLabel>
-          <Select
-            labelId="typeSelect"
-            id="typeSelect"
-            value={props.document.type || ""}
-            label="Type"
-            onChange={(event) => {
-              props.setDocument((prevDocument) => ({
-                ...prevDocument,
-                type: Number(event.target.value),
-              }));
-            }}>
-            {props.types.map((type) => (
-              <MenuItem key={type.id} value={type.id}>
-                {type.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          options={props.types}
+          getOptionLabel={(option) => option.name}
+          id="typeSelect"
+          value={
+            props.types.find((type) => type.id === props.document.type) || null
+          }
+          onChange={(event, newValue) => {
+            props.setDocument((prevDocument) => ({
+              ...prevDocument,
+              type: newValue ? Number(newValue.id) : 0,
+            }));
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Type" variant="outlined" required />
+          )}
+        />
       </Grid>
       <Grid
         sx={{ display: "flex", flexDirection: "column" }}
