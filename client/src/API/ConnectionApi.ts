@@ -48,6 +48,24 @@ async function getConnections() {
   }
 }
 
+async function getConnectionsByDocumentId(id) {
+  const response = await fetch(baseURL + `connections/document/${id}`, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    const halfConnections = await response.json();
+    return halfConnections;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+  }
+}
+
 async function getTypeOfConnections() {
   const response = await fetch(baseURL + "connections/names", {
     method: "GET",
@@ -58,7 +76,11 @@ async function getTypeOfConnections() {
   });
   if (response.ok) {
     const connections = await response.json();
-    return connections;
+    return connections.map((conn) => {
+      const parts = conn.split("_");
+      const capitalized = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+      return capitalized;
+    });
   } else {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
@@ -69,6 +91,7 @@ async function getTypeOfConnections() {
 const ConnectionAPI = {
   sendConnections,
   getConnections,
+  getConnectionsByDocumentId,
   getTypeOfConnections,
 };
 

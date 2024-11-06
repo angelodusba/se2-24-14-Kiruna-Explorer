@@ -34,7 +34,9 @@ class DocumentRoutes {
       this.authService.isUrbanPlanner,
       // Validation
       body("title").notEmpty().withMessage("Title must not be empty."),
-      body("description").notEmpty().withMessage("Description must not be empty."),
+      body("description")
+        .notEmpty()
+        .withMessage("Description must not be empty."),
       body("type_id").isInt().withMessage("Type ID must be an integer."),
       body("issue_date")
         .notEmpty()
@@ -42,7 +44,9 @@ class DocumentRoutes {
         .matches(
           /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$|^(0[1-9]|1[0-2])\/(\d{4})$|^\d{4}$/
         )
-        .withMessage("Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY.")
+        .withMessage(
+          "Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY."
+        )
         .bail()
         .custom((value) => {
           if (value.split("/").length < 3) return true;
@@ -69,8 +73,8 @@ class DocumentRoutes {
               (coord: any) =>
                 typeof coord === "object" &&
                 coord !== null &&
-                typeof coord.lat === "number" &&
-                typeof coord.lng === "number"
+                !isNaN(Number(coord.lat)) &&
+                !isNaN(Number(coord.lng))
             )
           ) {
             throw new Error(
@@ -83,7 +87,9 @@ class DocumentRoutes {
       body("pages").optional().isString(),
       body("stakeholders")
         .isArray({ min: 1 })
-        .withMessage("Stakeholders must be an array of integers with at least one ID."),
+        .withMessage(
+          "Stakeholders must be an array of integers with at least one ID."
+        ),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller
@@ -98,7 +104,7 @@ class DocumentRoutes {
             req.body.pages,
             req.body.stakeholders
           )
-          .then(() => res.status(200).end())
+          .then((response) => res.status(200).json(response))
           .catch((err: any) => {
             next(err);
           });

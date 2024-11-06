@@ -23,50 +23,42 @@ const isStepOptional = (step: number) => {
   return step === 2;
 };
 
-function AddDocumentForm() {
+function AddDocumentForm(props) {
   const [activeStep, setActiveStep] = useState<number>(0);
-  const [skipped, setSkipped] = useState(new Set<number>());
   const [types, setTypes] = useState<Type[]>([]);
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
   const [document, setDocument] = useState<Document>(
-    new Document("", "", [], 0, 0, [], "", "", "")
+    new Document("", "", [], 0, "", [], "", "Blueprints/material effects", "")
   );
+  const [insertedDocumentId, setInsertedDocumentId] = useState(undefined);
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const isStepSkipped = (step: number) => {
-    return skipped.has(step);
-  };
-
-  const handleNext = () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (formRef.current && !formRef.current.reportValidity()) {
       return;
     }
-
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
+    if (activeStep === steps.length - 2) {
+      //Insert DOC
+      const id = await DocumentAPI.sendDocument(document);
+      setInsertedDocumentId(id);
     }
-
+    if (activeStep === steps.length - 1) {
+      handleClose();
+      //Link inserted document
+      return;
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
   };
 
   const handleBack = () => {
     setActiveStep(activeStep - 1);
   };
 
-  const handleSkip = () => {
-    if (!isStepOptional(activeStep)) {
-      throw new Error("You can't skip a step that isn't optional.");
-    }
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped((prevSkipped) => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
+  const handleClose = () => {
+    props.setOperation(undefined);
+    return;
   };
 
   const fetchStakeholders = async () => {
@@ -85,14 +77,6 @@ function AddDocumentForm() {
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (formRef.current && !formRef.current.reportValidity()) {
-      return;
-    }
-    // DocumentAPI.sendDocument(document);
   };
 
   useEffect(() => {
@@ -116,7 +100,10 @@ function AddDocumentForm() {
           <GeoreferenceForm document={document} setDocument={setDocument} />
         );
       case 2:
-        return <LinkDocumentForm id={0} />;
+        return (
+          insertedDocumentId && <LinkDocumentForm docId={insertedDocumentId} />
+        );
+
       default:
         throw new Error("Unknown step");
     }
@@ -126,8 +113,8 @@ function AddDocumentForm() {
     <Grid
       container
       component="form"
-      ref={formRef}
       onSubmit={handleSubmit}
+      ref={formRef}
       spacing={3}
       sx={{
         display: "flex",
@@ -150,9 +137,6 @@ function AddDocumentForm() {
               labelProps.optional = (
                 <Typography variant="caption">Optional</Typography>
               );
-            }
-            if (isStepSkipped(index)) {
-              stepProps.completed = false;
             }
             return (
               <Step key={label} {...stepProps}>
@@ -179,13 +163,11 @@ function AddDocumentForm() {
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
         {isStepOptional(activeStep) && (
-          <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+          <Button color="inherit" onClick={handleClose} sx={{ mr: 1 }}>
             Skip
           </Button>
         )}
-        <Button
-          type={activeStep === steps.length - 2 ? "submit" : "button"}
-          onClick={handleNext}>
+        <Button type={"submit"}>
           {activeStep === steps.length - 1
             ? "Link"
             : activeStep === steps.length - 2

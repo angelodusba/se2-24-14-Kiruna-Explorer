@@ -56,7 +56,7 @@ function GeoreferenceForm(props) {
               } else if (Number(event.target.value) === 1) {
                 props.setDocument((prevDocument) => ({
                   ...prevDocument,
-                  coordinates: [{ lat: 0, lng: 0 }],
+                  coordinates: [{ lat: "", lng: "" }],
                 }));
               }
             }}>
@@ -94,7 +94,7 @@ function GeoreferenceForm(props) {
               ...prevDocument,
               coordinates: [
                 {
-                  ...prevDocument.coordinates,
+                  ...prevDocument.coordinates[0],
                   lat: event.target.value,
                 },
               ],
@@ -102,6 +102,12 @@ function GeoreferenceForm(props) {
           }
           required={georeferenceModality === 1}
           disabled={georeferenceModality !== 1}
+          slotProps={{
+            htmlInput: {
+              step: "any",
+              pattern: "[0-9]*[.,]?[0-9]*",
+            },
+          }}
         />
       </Grid>
       <Grid
@@ -125,7 +131,7 @@ function GeoreferenceForm(props) {
               ...prevDocument,
               coordinates: [
                 {
-                  ...prevDocument.coordinates,
+                  ...prevDocument.coordinates[0],
                   lng: event.target.value,
                 },
               ],
@@ -133,6 +139,12 @@ function GeoreferenceForm(props) {
           }
           required={georeferenceModality === 1}
           disabled={georeferenceModality !== 1}
+          slotProps={{
+            htmlInput: {
+              step: "any",
+              pattern: "[0-9]*[.,]?[0-9]*",
+            },
+          }}
         />
       </Grid>
 

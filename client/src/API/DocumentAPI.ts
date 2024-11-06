@@ -5,7 +5,7 @@ import { StakeHolder } from "../models/StakeHolders";
 const baseURL = "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
-async function sendDocument(document: Document) {
+async function sendDocument(document: Document): Promise<number> {
   const response = await fetch(baseURL + "documents", {
     method: "POST",
     credentials: "include",
@@ -18,14 +18,15 @@ async function sendDocument(document: Document) {
       type_id: document.type as number,
       issue_date: document.issueDate,
       scale: document.scale,
-      location: [document.coordinates],
+      location: document.coordinates,
       language: document.language,
       pages: document.pages,
       stakeholders: document.stakeholder,
     }),
   });
   if (response.ok) {
-    return null;
+    const res = await response.json();
+    return res.id;
   } else {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;

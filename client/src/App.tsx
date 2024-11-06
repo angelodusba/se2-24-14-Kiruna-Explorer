@@ -33,6 +33,9 @@ function App() {
   };
 
   useEffect(() => {
+    if (selectedOperation !== undefined) {
+      return;
+    }
     const checkAuth = async () => {
       try {
         const u = await AccessAPI.getUserInfo();
@@ -47,7 +50,7 @@ function App() {
       })
       .catch((err) => console.log(err));
     checkAuth();
-  }, []);
+  }, [selectedOperation]);
   return (
     <UserContext.Provider value={user}>
       <Routes>

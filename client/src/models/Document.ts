@@ -8,7 +8,7 @@ export class Document {
   description: string;
   stakeholder: number[];
   type: number;
-  pages: number;
+  pages: string;
   coordinates: Point[];
   issueDate: string;
   scale: string;
@@ -19,7 +19,7 @@ export class Document {
     description: string,
     stakeholder: number[],
     type: number,
-    pages: number,
+    pages: string,
     coordinates: Point[],
     issueDate: string,
     scale: string,

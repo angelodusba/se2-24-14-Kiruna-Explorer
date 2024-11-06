@@ -1,4 +1,5 @@
 import { Box, Modal } from "@mui/material";
+import React from "react";
 
 const style = {
   position: "absolute",
@@ -37,7 +38,17 @@ function FormModal(props) {
       onClose={() => props.setOperation(undefined)}
       aria-labelledby="FormModal"
       aria-describedby="FormModalDescription">
-      <Box sx={style}>{props.children}</Box>
+      <Box sx={style}>
+        {React.Children.map(props.children, (child) => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child, {
+              ...props,
+              setOperation: props.setOperation,
+            });
+          }
+          return child;
+        })}
+      </Box>
     </Modal>
   );
 }

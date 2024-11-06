@@ -1,10 +1,10 @@
 export class halfConnection {
   connected_document_id: number | undefined;
-  connection_names: string[];
+  connection_types: string[];
 
-  constructor(connected_document_id: number, connection_names: string[]) {
+  constructor(connected_document_id: number, connection_types: string[]) {
     this.connected_document_id = connected_document_id;
-    this.connection_names = connection_names;
+    this.connection_types = connection_types;
   }
 }
 export class ConnectionList {
@@ -20,12 +20,12 @@ export class ConnectionList {
 export class Connection {
   document_id_1: number;
   document_id_2: number;
-  connection_name: string;
+  connection_name: string[];
 
   constructor(
     document_id_1: number,
     document_id_2: number,
-    connection_name: string
+    connection_name: string[]
   ) {
     this.document_id_1 = document_id_1;
     this.document_id_2 = document_id_2;
