@@ -37,7 +37,7 @@ class DocumentController {
     language: string,
     pages: string,
     stakeholderIds: number[]
-  ): Promise<boolean> {
+  ): Promise<{ id: number }> {
     // Convert object array into a comma separated string of coordinates
     const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
     return this.dao.createDocument(

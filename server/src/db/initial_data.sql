@@ -1,7 +1,7 @@
 -----------------
 -- Users table --
 -----------------
-INSERT INTO "users" (email, username, password, role, salt) VALUES ('john@kiruna.com', 'john', '1af1ee4c85bcbba4146ab20de52cde6b', 'UrbanPlanner', '70706c1bbff40ddcbee4f6de82fd450f');
+INSERT INTO "users" (email, username, password, role, salt) VALUES ('john@kiruna.com', 'john', '1af1ee4c85bcbba4146ab20de52cde6b', 'Urban Planner', '70706c1bbff40ddcbee4f6de82fd450f');
 INSERT INTO "users" (email, username, password, role, salt) VALUES ('kevin@kiruna.com', 'kevin', '1af1ee4c85bcbba4146ab20de52cde6b', 'Resident', '70706c1bbff40ddcbee4f6de82fd450f');
 
 -----------------
@@ -29,9 +29,22 @@ INSERT INTO "documents" (title, description, type_id, issue_date, scale, languag
     '1:1000', 
     'English', 
     '5', 
-    ST_SetSRID(ST_GeometryFromText('POINT(30.0 -90.0)'), 4326)  -- Point location using WKT
+    ST_SetSRID(ST_GeometryFromText('POINT(20.257458 67.857175)'), 4326)  -- Point location using WKT
  -- ST_SetSRID(ST_MakePoint(30.0, -90.0), 4326)  -- Variant
 );
+
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
+    'Sample Location Document', 
+    'This document has a specific point location.', 
+    1, -- type_id
+    '2023-10-01', 
+    '1:1000', 
+    'English', 
+    '5', 
+    ST_SetSRID(ST_GeometryFromText('POINT(20.220723 67.861445)'), 4326)  -- Point location using WKT
+ -- ST_SetSRID(ST_MakePoint(30.0, -90.0), 4326)  -- Variant
+);
+
 
 -- 2. Document with a null location (all the Kiruna's area)
 INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages) VALUES (
@@ -69,6 +82,8 @@ INSERT INTO "documents"  (title, description, type_id, issue_date, scale, locati
 -- Connections table --
 -----------------------
 INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 2, TRUE); -- at least one connection type must be TRUE
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 3, TRUE);
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (3, 4, TRUE);
 
 ------------------------
 -- Stakeholders table --

@@ -1,8 +1,9 @@
 import express, { Router } from "express";
 import ConnectionController from "../controllers/connectionController";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import ErrorHandler from "../helper";
 import Authenticator from "./auth";
+import { ConnectionType } from "../models/connection";
 
 class ConnectionRoutes {
   private router: Router;
@@ -43,81 +44,65 @@ class ConnectionRoutes {
         body("starting_document_id").isInt(),
         body("connections").isArray().isLength({ min: 1 }),
         body("connections.*.connected_document_id").isInt(),
-        body("connections.*.connection_name").isString(),
+        body("connections.*.connection_types")
+          .isArray()
+          .withMessage("connection_types must be an array")
+          .custom((value: string[]) => {
+            // Check each string in the array to ensure it's one of the allowed values from ConnectionType
+            const validConnectionTypes: string[] =
+              Object.values(ConnectionType);
+            for (const type of value) {
+              if (!validConnectionTypes.includes(type)) {
+                throw new Error(`Invalid connection type: ${type}`);
+              }
+            }
+            return true;
+          })
+          .withMessage(
+            "Each connection type must be a valid value in ['direct_conn', 'collateral_conn',  'prevision_conn', 'update_conn']"
+          ),
       ],
       this.errorHandler.validateRequest,
-      async (req: any, res: any) => {
-        try {
-          const starting_document_id = req.body.starting_document_id;
-          const connections = req.body.connections;
-          const result = await this.controller.createConnections(starting_document_id, connections);
-          res.status(200).json(result);
-        } catch (err: any) {
-          res.status(err.customCode || 500).json({ error: err.customMessage || err.message });
-        }
+      (req: any, res: any, next: any) => {
+        this.controller
+          .createConnections(
+            req.body.starting_document_id,
+            req.body.connections
+          )
+          .then(() => res.status(200).end())
+          .catch((err: any) => {
+            next(err);
+          });
       }
     );
 
-    //GET CONNECTIONS
     /**
-     * @swagger
-     * /connections:
-     *  get:
-     *   summary: Get all connections
-     *   description: Get all the connections
-     *  responses:
-     *   200:
-     *   description: A list of connections
-     *  content:
-     *  application/json:
-     *  schema:
-     * type: array
-     * items:
-     * type: object
-     * properties:
-     * document_id_1:
-     * type: integer
-     * document_id_2:
-     * type: integer
-     * connection_type:
-     * type: string
-     * example: direct_conn
-     * required:
-     * - document_id_1
-     * - document_id_2
-     * - connection_type
+     * GET /connections?document_id
+     * Retrieves a list of connection filtered by the optional parameter document_id
      */
     this.router.get(
       "/",
-      //this.authService.isLoggedIn,
-      async (req: any, res: any) => {
+      query("document_id")
+        .isInt({ min: 1 })
+        .withMessage("Page must be an integer greater than 0"),
+      this.errorHandler.validateRequest,
+      async (req: any, res: any, next: any) => {
         try {
-          const result = await this.controller.getConnections();
-          res.status(200).json(result);
+          const connections = Number(req.query.document_id)
+            ? await this.controller.getConnectionsByDocumentId(
+                Number(req.query.document_id)
+              )
+            : await this.controller.getConnections();
+          res.status(200).json(connections);
         } catch (err: any) {
-          res.status(err.customCode || 500).json({ error: err.customMessage || err.message });
+          next(err);
         }
       }
     );
 
     /**
-     * @swagger
-     * /connections/names:
-     *  get:
-     *   summary: Get connection names
-     *  description: Get the connection names for a document
-     * responses:
-     * 200:
-     * description: A list of connection names
-     * content:
-     * application/json:
-     * schema:
-     * type: array
-     * items:
-     * type: string
-     * example: direct_conn
-     * required:
-     * - connection_name
+     * GET /connections/names
+     * Retrieves a list of connection names
      */
     this.router.get(
       "/names",
@@ -127,6 +112,46 @@ class ConnectionRoutes {
           .getConnectionNames()
           .then((connections) => res.status(200).json(connections))
           .catch((err: any) => next(err));
+      }
+    );
+
+    this.router.put(
+      "/",
+      // this.authService.isLoggedIn,
+      // this.authService.isUrbanPlanner,
+      [
+        body("starting_document_id").isInt(),
+        body("connections").isArray().isLength({ min: 1 }),
+        body("connections.*.document_id").isInt(),
+        body("connections.*.connection_types")
+          .isArray()
+          .withMessage("connection_types must be an array")
+          .custom((value: string[]) => {
+            // Check each string in the array to ensure it's one of the allowed values from ConnectionType
+            const validConnectionTypes: string[] =
+              Object.values(ConnectionType);
+            for (const type of value) {
+              if (!validConnectionTypes.includes(type)) {
+                throw new Error(`Invalid connection type: ${type}`);
+              }
+            }
+            return true;
+          })
+          .withMessage(
+            "Each connection type must be a valid value in ['direct_conn', 'collateral_conn',  'prevision_conn', 'update_conn']"
+          ),
+      ],
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .updateConnections(
+            req.body.starting_document_id,
+            req.body.connections
+          )
+          .then(() => res.status(200).end())
+          .catch((err: any) => {
+            next(err);
+          });
       }
     );
   }
