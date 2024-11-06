@@ -78,7 +78,7 @@ class UserDAO {
       if (!row) throw new UserNotFoundError();
       return new User(row.username, row.email, row.role);
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
 
@@ -155,10 +155,10 @@ class UserDAO {
    * @param role The new role of the user
    * @returns A Promise that resolves to the updated User object if the information has been updated
    */
-  async updateUserInfo(username: string, email: string, role: Role): Promise<User> {
+  async updateUserInfo(username: string, email: string, role: Role, userEmail: string): Promise<User> {
     try {
       const sql = "UPDATE users SET username = $1, email = $2, role = $3 WHERE email = $4";
-      const result = await db.query(sql, [username, email, role, email]);
+      const result = await db.query(sql, [username, email, role, userEmail]);
       if (result.rowCount === 0) {
         throw new UserNotFoundError();
       }

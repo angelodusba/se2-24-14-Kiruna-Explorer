@@ -89,12 +89,12 @@ class UserController {
    * @param email The email of the user to update. It must be equal to the email of the user parameter.
    * @returns A Promise that resolves to the updated user
    */
-  async updateUserInfo(user: User, username: string, email: string): Promise<User> {
-    const userToUpdate = await this.dao.getUserByEmail(email);
-    if (user.email !== email) {
+  async updateUserInfo(user: User, username: string, email: string, paramEmail: string): Promise<User> {
+    const userToUpdate = await this.dao.getUserByEmail(paramEmail);
+    if (userToUpdate.email !== user.email) {
       throw new UnauthorizedUserError();
     }
-    return this.dao.updateUserInfo(username, email, user.role);
+    return this.dao.updateUserInfo(username, email, user.role, userToUpdate.email);
   }
 }
 

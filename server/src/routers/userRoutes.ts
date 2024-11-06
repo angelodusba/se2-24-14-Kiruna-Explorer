@@ -179,13 +179,13 @@ class UserRoutes {
     this.router.put(
       "/:email",
       this.authService.isLoggedIn,
-      param("email").isString().notEmpty().withMessage("Param 'email' is required"),
+      param("email").isEmail().notEmpty().withMessage("Param 'email' is required"),
       body("username").isString().notEmpty().withMessage("Field 'username' is required"),
-      body("email").isString().notEmpty().withMessage("Field 'email' is required"),
+      body("email").isEmail().notEmpty().withMessage("Field 'email' is required"),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) =>
         this.controller
-          .updateUserInfo(req.user, req.body.username, req.body.email)
+          .updateUserInfo(req.user, req.body.username, req.body.email, req.params.email)
           .then((user: User) => res.status(200).json(user))
           .catch((err: any) => next(err))
     );
