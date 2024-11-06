@@ -72,6 +72,29 @@ class ConnectionDAO {
   }
 
   /**
+   * Get all connections of the specified document.
+   * @param document_id - The id of the document to filter the connections.
+   * @returns A Promise that resolves to an array of connections.
+   * Connections are formatted as strings.
+   */
+  async getConnectionsByDocumentId(document_id: number): Promise<Connection[]> {
+    try {
+      const sql = `SELECT * FROM connections WHERE document_id_1 = $1 OR document_id_2 = $1`;
+      const result = await db.query(sql, [document_id]);
+      return result.rows.map((row: any) => {
+        // Filter connection types based on row data
+        const connectionTypes: string[] = Object.values(ConnectionType).filter((type) => {
+          // Check if the corresponding column in the row has a truthy value
+          return !!row[type];
+        });
+        return new Connection(row.document_id_1, row.document_id_2, connectionTypes);
+      });
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
    * From the header of connection table,
    * get the connection names for a document.
    * @param no params

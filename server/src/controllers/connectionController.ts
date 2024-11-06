@@ -17,22 +17,23 @@ class ConnectionController {
    * Creates a number of new connections.
    * @param starting_document_id - The id of the document that the connections start from.
    * @param connections - The list of connections to create.
-   * @param connections[i].connected_document_id - Number, The id of the document that the connection goes to.
-   * @param connections[i].connection_types - Array of strings, The types of the connection.
    */
   async createConnections(
     starting_document_id: number,
     connections: { connected_document_id: number; connection_types: string[] }[]
   ): Promise<boolean> {
     try {
-      for (let i = 0; i < connections.length; i++) {
-        await this.dao.createConnection(
-          starting_document_id,
-          connections[i].connected_document_id,
-          connections[i].connection_types
-        );
-      }
-      return true;
+      // Process all connections concurrently
+      await Promise.all(
+        connections.map(async (connection) => {
+          await this.dao.createConnection(
+            starting_document_id,
+            connection.connected_document_id,
+            connection.connection_types
+          );
+        })
+      );
+      return true; // Return true if all connections are successfully created
     } catch (err: any) {
       throw err;
     }
@@ -42,8 +43,10 @@ class ConnectionController {
    * Get all the connections
    * @returns A list of all the connections.
    */
-  async getConnections(): Promise<Connection[]> {
-    return this.dao.getConnections();
+  async getConnections(document_id: number | undefined): Promise<Connection[]> {
+    return document_id
+      ? this.dao.getConnectionsByDocumentId(document_id)
+      : this.dao.getConnections();
   }
 
   /**
