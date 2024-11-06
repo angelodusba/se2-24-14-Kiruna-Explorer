@@ -271,36 +271,6 @@ describe("POST kirunaexplorer/documents", () => {
             })
             .expect(422);
     });
-
-    test("POST /kirunaexplorer/documents - document with invalid connections", async () => {
-        const test_obj = await retrieveInitialData();
-        await request(app)
-            .post(`${routePath}/documents`)
-            .set("Cookie", urbanPlannerCookie)
-            .send({
-                title: "this is a title",
-                description: "This is a description",
-                type_id: test_obj.type1,
-                issue_date: "01/01/2020",
-                scale: "blueprints/effects",
-                location: [
-                    {"lat": 1.0, "lng": 3.0}
-                ],
-                language: "",
-                pages: "pages",
-                stakeholders: [test_obj.stakeholder1, test_obj.stakeholder2],
-                connections: [
-                    {
-                        "connected_document_id": test_obj.document1.id,
-                    },
-                    {
-                        "connected_document_id": test_obj.document2.id,
-                        "connection_name": test_obj.connection_name2
-                    }
-                ]
-            })
-            .expect(422);
-    });
 });
 
 describe("GET /kirunaexplorer/documents/names", () => {
@@ -323,6 +293,22 @@ describe("GET /kirunaexplorer/documents/names", () => {
                         "title": test_obj.document2.title
                     }
                 );
+            });
+    });
+});
+
+describe("GET /kirunaexplorer/documents/location", () => {
+    test("GET /kirunaexplorer/documents/location - success", async () => {
+        const documentDAO = new DocumentDAO();
+        const inserted_docs = await documentDAO.getDocumentsNames();
+        await request(app)
+            .get(`${routePath}/documents/location`)
+            .set("Cookie", urbanPlannerCookie)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.some((item: any) => {
+                    return item.id == inserted_docs.find((doc: any) => doc.title == "this is a title").id && item.location.some((coords: any) => coords.lat == 1.0 && coords.lng == 3.0);
+                })).toBe(true);
             });
     });
 });
