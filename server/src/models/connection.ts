@@ -1,26 +1,20 @@
 class Connection {
   id_doc1: number;
   id_doc2: number;
-  direct_conn: boolean;
-  collateral_conn: boolean;
-  prevision_conn: boolean;
-  update_conn: boolean;
+  connection_types: string[];
 
-  constructor(
-    id_doc1: number,
-    id_doc2: number,
-    direct_conn: boolean = false,
-    collateral_conn: boolean = false,
-    prevision_conn: boolean = false,
-    update_conn: boolean = false
-  ) {
+  constructor(id_doc1: number, id_doc2: number, connection_types: string[]) {
     this.id_doc1 = id_doc1;
     this.id_doc2 = id_doc2;
-    this.direct_conn = direct_conn;
-    this.collateral_conn = collateral_conn;
-    this.prevision_conn = prevision_conn;
-    this.update_conn = update_conn;
+    this.connection_types = connection_types;
   }
+}
+
+export enum ConnectionType {
+  DIRECT = "direct_conn",
+  COLLATERAL = "collateral_conn",
+  PREVISION = "prevision_conn",
+  UPDATE = "update_conn",
 }
 
 export default Connection;

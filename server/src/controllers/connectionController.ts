@@ -1,4 +1,5 @@
 import ConnectionDAO from "../dao/connectionDAO";
+import Connection from "../models/connection";
 
 /**
  * Represents a controller for managing connections.
@@ -17,54 +18,40 @@ class ConnectionController {
    * @param starting_document_id - The id of the document that the connections start from.
    * @param connections - The list of connections to create.
    * @param connections[i].connected_document_id - Number, The id of the document that the connection goes to.
-   * @param connections[i].connection_name - String, The name of the connection.
+   * @param connections[i].connection_types - Array of strings, The types of the connection.
    */
-
   async createConnections(
     starting_document_id: number,
-    connections: { connected_document_id: number, connection_name: string }[]
+    connections: { connected_document_id: number; connection_types: string[] }[]
   ): Promise<boolean> {
     try {
       for (let i = 0; i < connections.length; i++) {
-        await this.dao.createConnection(starting_document_id, connections[i].connected_document_id, connections[i].connection_name);
+        await this.dao.createConnection(
+          starting_document_id,
+          connections[i].connected_document_id,
+          connections[i].connection_types
+        );
       }
       return true;
     } catch (err: any) {
       throw err;
     }
-  } 
+  }
 
   /**
    * Get all the connections
    * @returns A list of all the connections.
-   * @example 
-   * [
-   * { document_id_1: 1, document_id_2 : 2, 
-   * connection_name: "direct_conn"},
-   * { document_id_1: 1, document_id_2 : 3,
-   * connection_name: "collateral_conn" }
-   * ]
    */
-
-  async getConnections(): Promise<{ document_id_1: number, document_id_2: number, connection_name: string }[]> {
-    try {
-      return this.dao.getConnections();
-    } catch (err: any) {
-      throw err;
-    }
+  async getConnections(): Promise<Connection[]> {
+    return this.dao.getConnections();
   }
 
   /**
    * Get the connection names for a document.
    */
   async getConnectionNames(): Promise<string[]> {
-    try {
-      return this.dao.getConnectionNames();
-    } catch (err: any) {
-      throw err;
-    }
+    return this.dao.getConnectionNames();
   }
-  
 }
 
 export default ConnectionController;

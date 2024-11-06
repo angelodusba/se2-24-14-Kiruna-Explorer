@@ -129,7 +129,15 @@ Adds a new document to the database.
 }
 ```
 
-- Response Body Content: None
+- Response Body Content: An object that contains the id of the newly created document.
+  - Example:
+
+```JSON
+{
+  "id": 1
+}
+```
+
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:
   - It should return a `409` error if a document with the same title already exists in the database

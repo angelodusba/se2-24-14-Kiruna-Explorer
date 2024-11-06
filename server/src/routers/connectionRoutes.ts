@@ -3,6 +3,7 @@ import ConnectionController from "../controllers/connectionController";
 import { body } from "express-validator";
 import ErrorHandler from "../helper";
 import Authenticator from "./auth";
+import { ConnectionType } from "../models/connection";
 
 class ConnectionRoutes {
   private router: Router;
@@ -43,18 +44,29 @@ class ConnectionRoutes {
         body("starting_document_id").isInt(),
         body("connections").isArray().isLength({ min: 1 }),
         body("connections.*.connected_document_id").isInt(),
-        body("connections.*.connection_name").isString(),
+        body("connections.*.connection_types")
+          .isArray()
+          .withMessage("connection_types must be an array")
+          .custom((value: string[]) => {
+            // Check each string in the array to ensure it's one of the allowed values from ConnectionType
+            const validConnectionTypes: string[] = Object.values(ConnectionType);
+            for (const type of value) {
+              if (!validConnectionTypes.includes(type)) {
+                throw new Error(`Invalid connection type: ${type}`);
+              }
+            }
+            return true;
+          })
+          .withMessage("Each connection type must be a valid value from ConnectionType enum"),
       ],
       this.errorHandler.validateRequest,
-      async (req: any, res: any) => {
-        try {
-          const starting_document_id = req.body.starting_document_id;
-          const connections = req.body.connections;
-          const result = await this.controller.createConnections(starting_document_id, connections);
-          res.status(200).json(result);
-        } catch (err: any) {
-          res.status(err.customCode || 500).json({ error: err.customMessage || err.message });
-        }
+      (req: any, res: any, next: any) => {
+        this.controller
+          .createConnections(req.body.starting_document_id, req.body.connections)
+          .then(() => res.status(200).end())
+          .catch((err: any) => {
+            next(err);
+          });
       }
     );
 
@@ -90,13 +102,29 @@ class ConnectionRoutes {
     this.router.get(
       "/",
       //this.authService.isLoggedIn,
-      async (req: any, res: any) => {
-        try {
-          const result = await this.controller.getConnections();
-          res.status(200).json(result);
-        } catch (err: any) {
-          res.status(err.customCode || 500).json({ error: err.customMessage || err.message });
-        }
+      (req: any, res: any, next: any) => {
+        this.controller
+          .getConnections()
+          .then((connections) => res.status(200).json(connections))
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
+
+    /**
+     * Fetch the connections related to a certain document
+     */
+    this.router.get(
+      "/document/:id",
+      //this.authService.isLoggedIn,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .getConnectionsByDocumentId()
+          .then((connections) => res.status(200).json(connections))
+          .catch((err: any) => {
+            next(err);
+          });
       }
     );
 
