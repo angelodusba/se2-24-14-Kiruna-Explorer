@@ -1,6 +1,25 @@
-import { Box, Modal, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Divider,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Modal,
+  Typography,
+} from "@mui/material";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
+import {
+  AspectRatioOutlined,
+  AutoStoriesOutlined,
+  LinkOutlined,
+  LocationOnOutlined,
+  SupervisorAccountOutlined,
+  TodayOutlined,
+  TranslateOutlined,
+} from "@mui/icons-material";
 
 const style = {
   position: "absolute",
@@ -51,6 +70,7 @@ function DocumentCard(props) {
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
+              mb: 1,
             }}>
             <Grid size={2}>
               {" "}
@@ -68,17 +88,152 @@ function DocumentCard(props) {
               </Typography>
             </Grid>
           </Grid>
+          <Divider />
+          <Grid container>
+            <Grid
+              size={{ sm: 12, md: 6 }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                pl: 1,
+                mt: 2,
+              }}>
+              <List
+                sx={{
+                  width: "100%",
+                  maxWidth: 360,
+                  bgcolor: "background.paper",
+                }}>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <SupervisorAccountOutlined></SupervisorAccountOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Stakeholders"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="LKAB"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <AspectRatioOutlined></AspectRatioOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Scale"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="1:1000"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <TodayOutlined></TodayOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Issuance date"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="12/12/2012"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <TodayOutlined></TodayOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Type"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="Material effect"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <LinkOutlined></LinkOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Connections"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="3"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <TranslateOutlined></TranslateOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Language"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="Italian"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <AutoStoriesOutlined></AutoStoriesOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Pages"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="100"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <LocationOnOutlined></LocationOnOutlined>
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Location"
+                    primaryTypographyProps={{
+                      sx: { fontWeight: "bold", color: "#003d8f" },
+                    }}
+                    secondary="Affanculo"
+                  />
+                </ListItem>
+              </List>
+            </Grid>
+            <Grid
+              size={{ sm: 12, md: 6 }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                pl: 1,
+                mt: 2,
+              }}>
+              <Typography color="#003d8f" fontWeight="bold">
+                Description
+              </Typography>
+            </Grid>
+          </Grid>
         </Grid>
-
-        <Typography variant="h5" component="div"></Typography>
-        <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
-          adjective
-        </Typography>
-        <Typography variant="body2">
-          well meaning and kindly.
-          <br />
-          {'"a benevolent smile"'}
-        </Typography>
       </Box>
     </Modal>
   );

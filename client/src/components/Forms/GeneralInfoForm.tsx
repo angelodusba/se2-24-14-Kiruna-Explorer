@@ -29,7 +29,6 @@ function GeneralInfoForm(props) {
         width: "100%",
         display: "flex",
         py: 2,
-        px: 2,
       }}
       size={6}
       spacing={2}>

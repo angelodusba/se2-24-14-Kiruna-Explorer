@@ -49,7 +49,7 @@ async function getConnections() {
 }
 
 async function getConnectionsByDocumentId(id) {
-  const response = await fetch(baseURL + `connections/document/${id}`, {
+  const response = await fetch(baseURL + `connections?document_id=${id}`, {
     method: "GET",
     credentials: "include",
     headers: {
@@ -58,6 +58,7 @@ async function getConnectionsByDocumentId(id) {
   });
   if (response.ok) {
     const halfConnections = await response.json();
+    console.log(halfConnections);
     return halfConnections;
   } else {
     const errDetail = await response.json();

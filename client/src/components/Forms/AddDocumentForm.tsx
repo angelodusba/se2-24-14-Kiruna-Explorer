@@ -36,9 +36,6 @@ function AddDocumentForm(props) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(document);
-    return;
-    event.preventDefault();
     if (formRef.current && !formRef.current.reportValidity()) {
       return;
     }
@@ -126,7 +123,7 @@ function AddDocumentForm(props) {
         height: "100%",
         backgroundColor: "transparent",
         pt: 0,
-        px: 0,
+        px: 2,
         mt: 4,
       }}>
       <Grid sx={{ width: "100%" }} size="auto">

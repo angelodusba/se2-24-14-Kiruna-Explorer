@@ -82,7 +82,11 @@ INSERT INTO "documents"  (title, description, type_id, issue_date, scale, locati
 -- Connections table --
 -----------------------
 INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 2, TRUE); -- at least one connection type must be TRUE
-
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 2, TRUE);
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 3, TRUE);
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (3, 4, TRUE);
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (3, 5, TRUE);
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 5, TRUE);
 ------------------------
 -- Stakeholders table --
 ------------------------
