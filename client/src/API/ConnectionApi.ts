@@ -1,12 +1,18 @@
-import { ConnectionList } from "../models/Connection";
+import { ConnectionList, halfConnection } from "../models/Connection";
 
 const baseURL = "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Links APIs ------------------------ */
 
 async function sendConnections(connectionsList: ConnectionList) {
+  connectionsList.connections.forEach((conn) => {
+    conn.connection_types = conn.connection_types.map((type) => {
+      const decapitalized = type.charAt(0).toLowerCase() + type.slice(1);
+      return `${decapitalized}_conn`;
+    });
+  });
   const response = await fetch(baseURL + "connections", {
-    method: "POST",
+    method: "PUT",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
@@ -14,8 +20,7 @@ async function sendConnections(connectionsList: ConnectionList) {
     body: JSON.stringify(connectionsList),
   });
   if (response.ok) {
-    const connections = await response.json();
-    return connections;
+    return;
   } else {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
@@ -57,8 +62,13 @@ async function getConnectionsByDocumentId(id) {
     },
   });
   if (response.ok) {
-    const halfConnections = await response.json();
-    console.log(halfConnections);
+    const halfConnections: halfConnection[] = await response.json();
+    halfConnections.forEach((conn) => {
+      conn.connection_types = conn.connection_types.map((type) => {
+        const parts = type.split("_");
+        return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+      });
+    });
     return halfConnections;
   } else {
     const errDetail = await response.json();

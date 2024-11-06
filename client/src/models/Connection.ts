@@ -1,9 +1,9 @@
 export class halfConnection {
-  connected_document_id: number | undefined;
+  document_id: number | undefined;
   connection_types: string[];
 
-  constructor(connected_document_id: number, connection_types: string[]) {
-    this.connected_document_id = connected_document_id;
+  constructor(document_id: number, connection_types: string[]) {
+    this.document_id = document_id;
     this.connection_types = connection_types;
   }
 }

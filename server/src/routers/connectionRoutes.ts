@@ -49,7 +49,8 @@ class ConnectionRoutes {
           .withMessage("connection_types must be an array")
           .custom((value: string[]) => {
             // Check each string in the array to ensure it's one of the allowed values from ConnectionType
-            const validConnectionTypes: string[] = Object.values(ConnectionType);
+            const validConnectionTypes: string[] =
+              Object.values(ConnectionType);
             for (const type of value) {
               if (!validConnectionTypes.includes(type)) {
                 throw new Error(`Invalid connection type: ${type}`);
@@ -64,7 +65,10 @@ class ConnectionRoutes {
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller
-          .createConnections(req.body.starting_document_id, req.body.connections)
+          .createConnections(
+            req.body.starting_document_id,
+            req.body.connections
+          )
           .then(() => res.status(200).end())
           .catch((err: any) => {
             next(err);
@@ -78,12 +82,16 @@ class ConnectionRoutes {
      */
     this.router.get(
       "/",
-      query("document_id").isInt({ min: 1 }).withMessage("Page must be an integer greater than 0"),
+      query("document_id")
+        .isInt({ min: 1 })
+        .withMessage("Page must be an integer greater than 0"),
       this.errorHandler.validateRequest,
       async (req: any, res: any, next: any) => {
         try {
           const connections = Number(req.query.document_id)
-            ? await this.controller.getConnectionsByDocumentId(Number(req.query.document_id))
+            ? await this.controller.getConnectionsByDocumentId(
+                Number(req.query.document_id)
+              )
             : await this.controller.getConnections();
           res.status(200).json(connections);
         } catch (err: any) {
@@ -114,13 +122,14 @@ class ConnectionRoutes {
       [
         body("starting_document_id").isInt(),
         body("connections").isArray().isLength({ min: 1 }),
-        body("connections.*.connected_document_id").isInt(),
+        body("connections.*.document_id").isInt(),
         body("connections.*.connection_types")
           .isArray()
           .withMessage("connection_types must be an array")
           .custom((value: string[]) => {
             // Check each string in the array to ensure it's one of the allowed values from ConnectionType
-            const validConnectionTypes: string[] = Object.values(ConnectionType);
+            const validConnectionTypes: string[] =
+              Object.values(ConnectionType);
             for (const type of value) {
               if (!validConnectionTypes.includes(type)) {
                 throw new Error(`Invalid connection type: ${type}`);
@@ -135,7 +144,10 @@ class ConnectionRoutes {
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller
-          .updateConnections(req.body.starting_document_id, req.body.connections)
+          .updateConnections(
+            req.body.starting_document_id,
+            req.body.connections
+          )
           .then(() => res.status(200).end())
           .catch((err: any) => {
             next(err);

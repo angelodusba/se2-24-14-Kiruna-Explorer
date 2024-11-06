@@ -56,7 +56,7 @@ function GeneralInfoForm(props) {
           value={
             props.types.find((type) => type.id === props.document.type) || null
           }
-          onChange={(event, newValue) => {
+          onChange={(_event, newValue) => {
             props.setDocument((prevDocument) => ({
               ...prevDocument,
               type: newValue ? Number(newValue.id) : 0,
@@ -92,12 +92,11 @@ function GeneralInfoForm(props) {
           fullWidth
           label="Pages"
           variant="outlined"
-          type="number"
           value={props.document.pages || ""}
           onChange={(event) =>
             props.setDocument((prevDocument) => ({
               ...prevDocument,
-              pages: Number(event.target.value),
+              pages: event.target.value,
             }))
           }
         />

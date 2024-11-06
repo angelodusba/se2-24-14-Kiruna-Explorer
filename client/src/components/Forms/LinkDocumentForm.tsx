@@ -34,9 +34,7 @@ export function LinkDocumentForm(props) {
   const [documentList, setDocumentList] = useState<
     { id: number; title: string }[]
   >([]);
-  /*const [docExistingConnections, setdocExistingConnections] = useState<
-    halfConnection[]
-  >([]);*/
+
   const getTitleById = (id: number): string | undefined => {
     const document = documentList.find((doc) => doc.id === id);
     return document ? document.title : undefined;
@@ -47,8 +45,9 @@ export function LinkDocumentForm(props) {
     return;
   };
 
-  const handleLinkSubmit = (event) => {
+  const handleLinkSubmit = async (event) => {
     event.preventDefault();
+    await ConnectionAPI.sendConnections(connectionList);
     props.setOperation(undefined);
     return;
   };
@@ -175,11 +174,11 @@ export function LinkDocumentForm(props) {
                     <Select
                       labelId="document"
                       id="document"
-                      value={connection.connected_document_id || ""}
+                      value={connection.document_id || ""}
                       label="Document to link"
                       onChange={(event) => {
                         const newConnections = connectionList.connections;
-                        newConnections[index].connected_document_id = Number(
+                        newConnections[index].document_id = Number(
                           event.target.value
                         );
                         setConnectionList((prevList) => ({
@@ -191,9 +190,9 @@ export function LinkDocumentForm(props) {
                         if (
                           doc.id === connectionList.starting_document_id ||
                           (connectionList.connections.some(
-                            (conn) => conn.connected_document_id === doc.id
+                            (conn) => conn.document_id === doc.id
                           ) &&
-                            connection.connected_document_id !== doc.id)
+                            connection.document_id !== doc.id)
                         ) {
                           return;
                         }
@@ -223,10 +222,8 @@ export function LinkDocumentForm(props) {
                       onChange={(event) => {
                         const newConnections = connectionList.connections;
                         const value = event.target.value as string[];
-                        console.log(value);
 
                         newConnections[index].connection_types = value;
-                        console.log(newConnections);
                         setConnectionList((prevList) => ({
                           ...prevList,
                           connections: newConnections,
@@ -285,21 +282,20 @@ export function LinkDocumentForm(props) {
             <AddCircleOutlined />
           </IconButton>
         </Tooltip>
-        {props.docId === undefined && (
-          <Grid
-            sx={{
-              width: "100%",
-              display: "flex",
-              py: 2,
-            }}
-            size="auto">
-            <Button color="error" onClick={handleClose} sx={{ mr: 1 }}>
-              Close
-            </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button type={"submit"}>Link</Button>
-          </Grid>
-        )}
+
+        <Grid
+          sx={{
+            width: "100%",
+            display: "flex",
+            py: 2,
+          }}
+          size="auto">
+          <Button color="error" onClick={handleClose} sx={{ mr: 1 }}>
+            Close
+          </Button>
+          <Box sx={{ flex: "1 1 auto" }} />
+          <Button type={"submit"}>Link</Button>
+        </Grid>
       </Grid>
     </Grid>
   );

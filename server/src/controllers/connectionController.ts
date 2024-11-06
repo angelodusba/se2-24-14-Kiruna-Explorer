@@ -53,7 +53,9 @@ class ConnectionController {
    * @param document_id - The id of the document used to filter the connections.
    * @returns A list of filtered connections.
    */
-  async getConnectionsByDocumentId(document_id: number): Promise<ConnectionByDocumentIdResponse[]> {
+  async getConnectionsByDocumentId(
+    document_id: number
+  ): Promise<ConnectionByDocumentIdResponse[]> {
     return this.dao.getConnectionsByDocumentId(document_id);
   }
 
@@ -71,18 +73,21 @@ class ConnectionController {
    */
   async updateConnections(
     starting_document_id: number,
-    connections: { connected_document_id: number; connection_types: string[] }[]
+    connections: { document_id: number; connection_types: string[] }[]
   ): Promise<boolean> {
     try {
       // Delete previous connections of starting document
-      const res = await this.dao.deleteConnectionsByDocumentId(starting_document_id);
-      if (!res) throw new Error("An error occurred while updating the connections.");
+      const res = await this.dao.deleteConnectionsByDocumentId(
+        starting_document_id
+      );
+      if (!res)
+        throw new Error("An error occurred while updating the connections.");
       // Insert the new connections
       await Promise.all(
         connections.map(async (connection) => {
           await this.dao.createConnection(
             starting_document_id,
-            connection.connected_document_id,
+            connection.document_id,
             connection.connection_types
           );
         })

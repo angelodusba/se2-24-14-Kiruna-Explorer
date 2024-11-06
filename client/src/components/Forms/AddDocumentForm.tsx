@@ -17,13 +17,13 @@ import GeneralInfoForm from "./GeneralInfoForm";
 import LinkDocumentForm from "./LinkDocumentForm";
 import GeoreferenceForm from "./GeoreferenceForm";
 
-const steps = ["General info", "Georeference", "Linking"];
+const steps = ["General info", "Georeference and scale", "Linking"];
 
 const isStepOptional = (step: number) => {
   return step === 2;
 };
 
-function AddDocumentForm(props) {
+function AddDocumentForm() {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [types, setTypes] = useState<Type[]>([]);
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
@@ -44,21 +44,11 @@ function AddDocumentForm(props) {
       const id = await DocumentAPI.sendDocument(document);
       setInsertedDocumentId(id);
     }
-    if (activeStep === steps.length - 1) {
-      handleClose();
-      //Link inserted document
-      return;
-    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
     setActiveStep(activeStep - 1);
-  };
-
-  const handleClose = () => {
-    props.setOperation(undefined);
-    return;
   };
 
   const fetchStakeholders = async () => {
@@ -190,7 +180,7 @@ function AddDocumentForm(props) {
       <Grid
         sx={{
           width: "100%",
-          display: "flex",
+          display: activeStep === steps.length - 1 ? "none" : "flex",
           py: 2,
         }}
         size="auto">
@@ -202,17 +192,8 @@ function AddDocumentForm(props) {
           Back
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
-        {isStepOptional(activeStep) && (
-          <Button color="inherit" onClick={handleClose} sx={{ mr: 1 }}>
-            Skip
-          </Button>
-        )}
         <Button type={"submit"}>
-          {activeStep === steps.length - 1
-            ? "Link"
-            : activeStep === steps.length - 2
-            ? "Create"
-            : "Next"}
+          {activeStep === steps.length - 2 ? "Create" : "Next"}
         </Button>
       </Grid>
     </Grid>

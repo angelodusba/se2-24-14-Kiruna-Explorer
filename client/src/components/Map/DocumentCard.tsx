@@ -54,7 +54,7 @@ const style = {
 function DocumentCard(props) {
   return (
     <Modal
-      open={true}
+      open={false}
       disableAutoFocus
       onClose={() => props.setOperation(undefined)}
       aria-labelledby="CardModal"
