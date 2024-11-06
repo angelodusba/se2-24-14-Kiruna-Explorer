@@ -92,7 +92,7 @@ function AddDocumentForm() {
     if (formRef.current && !formRef.current.reportValidity()) {
       return;
     }
-    DocumentAPI.sendDocument(document);
+    // DocumentAPI.sendDocument(document);
   };
 
   useEffect(() => {
@@ -116,7 +116,7 @@ function AddDocumentForm() {
           <GeoreferenceForm document={document} setDocument={setDocument} />
         );
       case 2:
-        return <LinkDocumentForm document={document} id={0} />;
+        return <LinkDocumentForm id={0} />;
       default:
         throw new Error("Unknown step");
     }
@@ -183,8 +183,14 @@ function AddDocumentForm() {
             Skip
           </Button>
         )}
-        <Button onClick={handleNext}>
-          {activeStep === steps.length - 1 ? "Finish" : "Next"}
+        <Button
+          type={activeStep === steps.length - 2 ? "submit" : "button"}
+          onClick={handleNext}>
+          {activeStep === steps.length - 1
+            ? "Link"
+            : activeStep === steps.length - 2
+            ? "Create"
+            : "Next"}
         </Button>
       </Grid>
     </Grid>

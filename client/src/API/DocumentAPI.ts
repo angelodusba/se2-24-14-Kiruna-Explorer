@@ -49,6 +49,21 @@ async function getAllDocuments() {
     throw new Error("Error. Please reload the page");
   }
 }
+async function getDocumentsLocation() {
+  const response = await fetch(baseURL + "documents/location", {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    const documents = await response.json();
+    return documents;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+    throw new Error("Error. Please reload the page");
+  }
+}
 
 async function getTypes(): Promise<Type[]> {
   const response = await fetch(baseURL + "types", {
@@ -105,6 +120,7 @@ async function getAllDocumentsNames() {
 const DocumentAPI = {
   sendDocument,
   getAllDocuments,
+  getDocumentsLocation,
   getAllDocumentsNames,
   getTypes,
   getStakeholders,

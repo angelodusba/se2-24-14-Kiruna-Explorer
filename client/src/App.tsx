@@ -3,19 +3,20 @@ import Map from "./components/Map/Map";
 import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import LoginPage from "./components/Login/LoginPage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import User from "./models/User";
 import UserContext from "./contexts/UserContext";
 import AccessAPI from "./API/AccessAPI";
 import Dial from "./components/Dial";
 import FormModal from "./components/Forms/FormModal";
 import AddDocumentForm from "./components/Forms/AddDocumentForm";
-
+import DocumentAPI from "./API/DocumentAPI";
 import LinkDocumentForm from "./components/Forms/LinkDocumentForm";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [selectedOperation, setSelectedOperation] = useState(undefined); //Manages the forms modal
+  const [docsLocation, setDocsLocation] = useState([]);
 
   const navigate = useNavigate();
 
@@ -30,6 +31,23 @@ function App() {
     setUser(undefined);
     navigate("/");
   };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const u = await AccessAPI.getUserInfo();
+        setUser(u);
+      } catch {
+        setUser(undefined);
+      }
+    };
+    DocumentAPI.getDocumentsLocation()
+      .then((response) => {
+        setDocsLocation(response);
+      })
+      .catch((err) => console.log(err));
+    checkAuth();
+  }, []);
   return (
     <UserContext.Provider value={user}>
       <Routes>
@@ -46,11 +64,19 @@ function App() {
             <>
               <Navbar logout={doLogout}></Navbar>
               <Outlet />
-              <Dial setOperation={setSelectedOperation}></Dial>
+              {user && user.role == "Urban Planner" && (
+                <Dial setOperation={setSelectedOperation}></Dial>
+              )}
               <FormModal
                 operation={selectedOperation}
                 setOperation={setSelectedOperation}>
-                {<AddDocumentForm></AddDocumentForm>}
+                {selectedOperation === 1 ? (
+                  <AddDocumentForm></AddDocumentForm>
+                ) : (
+                  selectedOperation === 2 && (
+                    <LinkDocumentForm></LinkDocumentForm>
+                  )
+                )}
               </FormModal>
             </>
           }>
@@ -58,13 +84,11 @@ function App() {
             path="/map"
             element={
               <>
-                <Map></Map>
+                <Map docs={docsLocation}></Map>
               </>
             }
           />
         </Route>
-        <Route path="/link" element={<LinkDocumentForm></LinkDocumentForm>} />
-        <Route path="/add" element={<AddDocumentForm></AddDocumentForm>} />
       </Routes>
     </UserContext.Provider>
   );

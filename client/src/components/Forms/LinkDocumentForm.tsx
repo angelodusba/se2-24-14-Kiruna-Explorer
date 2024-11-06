@@ -16,15 +16,16 @@ import {
   Chip,
   Checkbox,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ConnectionList, halfConnection } from "../../models/Connection.ts";
-import ConnectionAPI from "../../API/ConnectionAPI.ts";
+import ConnectionAPI from "../../API/ConnectionApi.ts";
 import { AddCircleOutlined } from "@mui/icons-material";
 
 export function LinkDocumentForm(props) {
   const [connectionList, setConnectionList] = useState<ConnectionList>(
-    new ConnectionList(props.document ? props.document.id : undefined, [
+    new ConnectionList(props.id ? props.id : undefined, [
       new halfConnection(undefined, []),
     ])
   );
@@ -59,10 +60,28 @@ export function LinkDocumentForm(props) {
         width: "100%",
         display: "flex",
         py: 2,
+        p: props.document ? 0 : 2,
       }}
       size={6}
       spacing={2}>
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={12}>
+      <Grid
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+        size={12}>
+        <Grid
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            pb: 2,
+          }}
+          size={12}>
+          <Typography display={props.document ? "none" : "flex"} variant="h4">
+            Add link
+          </Typography>
+        </Grid>
         <FormControl required>
           <InputLabel id="document1">Document to link</InputLabel>
           <Select
@@ -92,7 +111,9 @@ export function LinkDocumentForm(props) {
         {connectionList.connections.map((connection, index) => (
           <Card key={index} variant="outlined">
             <CardActions>
-              <Box sx={{ flexGrow: 1 }}></Box>
+              <Box sx={{ flexGrow: 1 }}>
+                <Typography variant="h6">Link #{index + 1}</Typography>
+              </Box>
               <Tooltip title="Delete">
                 <IconButton
                   aria-label="delete"
