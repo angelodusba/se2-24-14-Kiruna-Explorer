@@ -84,30 +84,6 @@ class DocumentRoutes {
       body("stakeholders")
         .isArray({ min: 1 })
         .withMessage("Stakeholders must be an array of integers with at least one ID."),
-      body("connections") // FIXME: adjust field names
-        .optional() // Allow the field to be absent
-        .isArray()
-        .withMessage("Connections must be an array.")
-        .bail()
-        .custom((value) => {
-          // Allow empty array
-          if (value.length === 0) return true;
-          // Validate each object in the connections array
-          if (
-            !value.every(
-              (conn: any) =>
-                typeof conn === "object" &&
-                conn !== null &&
-                typeof conn.connected_document_id === "number" &&
-                typeof conn.connection_name === "string"
-            )
-          ) {
-            throw new Error(
-              "Each connection must be an object with numeric connected_document_id and string connection_name."
-            );
-          }
-          return true; // Indicates the validation passed
-        }),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller
