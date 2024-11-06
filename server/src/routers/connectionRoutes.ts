@@ -70,41 +70,15 @@ class ConnectionRoutes {
       }
     );
 
-    //GET CONNECTIONS
     /**
-     * @swagger
-     * /connections:
-     *  get:
-     *   summary: Get all connections
-     *   description: Get all the connections
-     *  responses:
-     *   200:
-     *   description: A list of connections
-     *  content:
-     *  application/json:
-     *  schema:
-     * type: array
-     * items:
-     * type: object
-     * properties:
-     * document_id_1:
-     * type: integer
-     * document_id_2:
-     * type: integer
-     * connection_type:
-     * type: string
-     * example: direct_conn
-     * required:
-     * - document_id_1
-     * - document_id_2
-     * - connection_type
+     * GET /connections?document_id - Retrieves a list of connection names
      */
     this.router.get(
       "/",
       //this.authService.isLoggedIn,
       (req: any, res: any, next: any) => {
         this.controller
-          .getConnections()
+          .getConnections(req.query.document_id)
           .then((connections) => res.status(200).json(connections))
           .catch((err: any) => {
             next(err);
@@ -113,39 +87,7 @@ class ConnectionRoutes {
     );
 
     /**
-     * Fetch the connections related to a certain document
-     */
-    this.router.get(
-      "/document/:id",
-      //this.authService.isLoggedIn,
-      (req: any, res: any, next: any) => {
-        this.controller
-          .getConnectionsByDocumentId()
-          .then((connections) => res.status(200).json(connections))
-          .catch((err: any) => {
-            next(err);
-          });
-      }
-    );
-
-    /**
-     * @swagger
-     * /connections/names:
-     *  get:
-     *   summary: Get connection names
-     *  description: Get the connection names for a document
-     * responses:
-     * 200:
-     * description: A list of connection names
-     * content:
-     * application/json:
-     * schema:
-     * type: array
-     * items:
-     * type: string
-     * example: direct_conn
-     * required:
-     * - connection_name
+     * GET /connections/names - Retrieves a list of connection names
      */
     this.router.get(
       "/names",
