@@ -1,8 +1,10 @@
 services:
   db:
-    image: postgis/postgis:17-3.5 # PostGIS with PostgreSQL 17
+    build:
+      context: ./server/src/db/
+      dockerfile: Dockerfile.dev
     restart: always
-    container_name: postgis
+    container_name: kiruna_postgis
     env_file:
       - .env
     environment:
@@ -10,13 +12,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - kiruna_postgis_data:/var/lib/postgresql/data # Persistent storage for db data
 
   db_gui:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: kiruna_pgadmin
     env_file:
       - .env
     environment:
@@ -24,8 +26,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
       - "5050:80" # Exposing pgAdmin on port 5050
-    depends_on:
-      - db
     volumes:
       - kiruna_pgadmin_data:/var/lib/pgadmin # Persist pgAdmin data
 

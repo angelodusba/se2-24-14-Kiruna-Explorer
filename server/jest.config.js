@@ -3,4 +3,5 @@ module.exports = {
   testEnvironment: "node",
   testMatch: ["**/**test**/**/*.test.ts"],
   reporters: ["default"],
+  setupFiles: ["./jest.setup.js"],
 };
