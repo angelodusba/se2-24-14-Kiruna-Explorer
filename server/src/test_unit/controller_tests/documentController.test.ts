@@ -24,7 +24,7 @@ describe("DocumentController", () => {
   describe("createDocument", () => {
     it("should create a new document successfully", async () => {
       // Mock the createDocument method to resolve to true
-      mockDocumentDAO.createDocument.mockResolvedValue(true);
+      mockDocumentDAO.createDocument.mockResolvedValue({ id: 1 });
 
       const documentData = {
         title: "Test Document",
@@ -50,7 +50,7 @@ describe("DocumentController", () => {
         documentData.stakeholders
       );
 
-      expect(result).toBe(true);
+      expect(result).toStrictEqual({ id: 1 });
       expect(mockDocumentDAO.createDocument).toHaveBeenCalledWith(
         documentData.title,
         documentData.description,
