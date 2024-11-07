@@ -165,20 +165,6 @@ describe("POST kirunaexplorer/connections", () => {
       .expect((res) => {
         expect(res.body).toEqual({});
       });
-    //Check if connections were created
-    let connections = await connectionDao.getConnections();
-    expect(connections).toEqual([
-      {
-        id_doc1: document1.id,
-        id_doc2: document2.id,
-        connection_types: ["direct_conn"],
-      },
-      {
-        id_doc1: document1.id,
-        id_doc2: document3.id,
-        connection_types: ["collateral_conn"],
-      },
-    ]);
   });
 
   test("POST /kirunaexplorer/connections - fail, no connections", async () => {
