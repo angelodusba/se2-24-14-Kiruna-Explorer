@@ -143,3 +143,4 @@ dist
 
 # Env files
 .env
+.env.test
