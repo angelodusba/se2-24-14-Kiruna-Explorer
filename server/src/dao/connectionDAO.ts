@@ -21,13 +21,10 @@ class ConnectionDAO {
   ): Promise<boolean> {
     try {
       // Map each connection type to an object with the connection type as the key
-      const selectedConnections = Object.values(ConnectionType).reduce(
-        (acc, type) => {
-          acc[type] = connection_types.includes(type); // Check if type exists in the connection_type array
-          return acc;
-        },
-        {} as Record<string, boolean>
-      );
+      const selectedConnections = Object.values(ConnectionType).reduce((acc, type) => {
+        acc[type] = connection_types.includes(type); // Check if type exists in the connection_type array
+        return acc;
+      }, {} as Record<string, boolean>);
 
       // Sort document_id_1 and document_id_2 ASC
       if (document_id_1 > document_id_2) {
@@ -46,14 +43,12 @@ class ConnectionDAO {
       ]);
       return true;
     } catch (err: any) {
-      if (
-        err.message.includes("duplicate key value violates unique constraint")
-      ) {
+      if (err.message.includes("duplicate key value violates unique constraint")) {
         throw new ConnectionAlreadyExistsError();
       }
       if (
         err.message.includes(
-          '"documents".insert or update on table "connections" violates foreign key constraint'
+          'insert or update on table "connections" violates foreign key constraint'
         )
       ) {
         throw new DocumentNotFoundError();
@@ -74,17 +69,11 @@ class ConnectionDAO {
       const result = await db.query(sql);
       return result.rows.map((row: any) => {
         // Filter connection types based on row data
-        const connectionTypes: string[] = Object.values(ConnectionType).filter(
-          (type) => {
-            // Check if the corresponding column in the row has a truthy value
-            return !!row[type];
-          }
-        );
-        return new Connection(
-          row.document_id_1,
-          row.document_id_2,
-          connectionTypes
-        );
+        const connectionTypes: string[] = Object.values(ConnectionType).filter((type) => {
+          // Check if the corresponding column in the row has a truthy value
+          return !!row[type];
+        });
+        return new Connection(row.document_id_1, row.document_id_2, connectionTypes);
       });
     } catch (err: any) {
       throw err;
@@ -97,9 +86,7 @@ class ConnectionDAO {
    * @returns A Promise that resolves to an array of connections.
    * Connections are formatted as strings.
    */
-  async getConnectionsByDocumentId(
-    document_id: number
-  ): Promise<ConnectionByDocumentIdResponse[]> {
+  async getConnectionsByDocumentId(document_id: number): Promise<ConnectionByDocumentIdResponse[]> {
     try {
       const sql = `SELECT direct_conn, collateral_conn, prevision_conn, update_conn,
                     CASE 
@@ -111,16 +98,11 @@ class ConnectionDAO {
       const result = await db.query(sql, [document_id]);
       return result.rows.map((row: any) => {
         // Filter connection types based on row data
-        const connectionTypes: string[] = Object.values(ConnectionType).filter(
-          (type) => {
-            // Check if the corresponding column in the row has a truthy value
-            return !!row[type];
-          }
-        );
-        return new ConnectionByDocumentIdResponse(
-          row.document_id,
-          connectionTypes
-        );
+        const connectionTypes: string[] = Object.values(ConnectionType).filter((type) => {
+          // Check if the corresponding column in the row has a truthy value
+          return !!row[type];
+        });
+        return new ConnectionByDocumentIdResponse(row.document_id, connectionTypes);
       });
     } catch (err: any) {
       throw err;
