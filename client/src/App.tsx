@@ -4,7 +4,7 @@ import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import LoginPage from "./components/Login/LoginPage";
 import { useEffect, useState } from "react";
-import User from "./models/User";
+import User, { Role } from "./models/User";
 import UserContext from "./contexts/UserContext";
 import AccessAPI from "./API/AccessAPI";
 import DocumentAPI from "./API/DocumentAPI";
@@ -13,7 +13,6 @@ import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
-  // const [selectedOperation, setSelectedOperation] = useState(undefined); //Manages the forms modal
   const [docsLocation, setDocsLocation] = useState([]);
 
   const navigate = useNavigate();
@@ -70,11 +69,20 @@ function App() {
               </>
             }
           >
-            <Route path="add" element={<AddDocumentPage />} />
+            <Route
+              path="add"
+              element={
+                user && user.role === Role.UrbanPlanner ? (
+                  <AddDocumentPage />
+                ) : (
+                  <Navigate to="/auth" />
+                )
+              }
+            />
             <Route
               path="link"
               element={
-                user && user.role === "Urban Planner" ? (
+                user && user.role === Role.UrbanPlanner ? (
                   <LinkDocumentsPage />
                 ) : (
                   <Navigate to="/auth" />

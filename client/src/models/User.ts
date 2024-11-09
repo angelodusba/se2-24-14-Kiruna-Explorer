@@ -10,4 +10,10 @@ class User {
   }
 }
 
+export enum Role {
+  Resident = "Resident",
+  UrbanPlanner = "Urban Planner",
+  UrbanDeveloper = "Urban Developer",
+}
+
 export default User;

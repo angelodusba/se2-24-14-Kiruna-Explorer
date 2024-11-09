@@ -20,8 +20,6 @@ function LinkDocumentsPage() {
   };
 
   const handleLinkSubmit = async (connectionList) => {
-    console.log(connectionList);
-    return;
     await ConnectionAPI.sendConnections(connectionList);
     handleClose();
   };
