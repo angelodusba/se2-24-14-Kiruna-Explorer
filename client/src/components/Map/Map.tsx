@@ -5,6 +5,7 @@ import L from "leaflet";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useState } from "react";
+import Dial from "../Dial";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -23,15 +24,20 @@ function Map(props) {
 
   return (
     <>
+      <Dial />
+
       <MapContainer
         className="map"
         center={[67.85572, 20.22513]}
         minZoom={12}
         zoom={13}
-        attributionControl={false}
-        zoomControl={false}
-        scrollWheelZoom={false} // Needed to enable smooth zoom
-        style={{ height: "100vh" }}>
+        touchZoom
+        doubleClickZoom
+        attributionControl={true}
+        zoomControl={true}
+        scrollWheelZoom // Needed to enable smooth zoom
+        style={{ height: "100vh", overflowY: "auto" }}
+      >
         <TileLayer
           keepBuffer={100}
           attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
@@ -54,7 +60,8 @@ function Map(props) {
                     },
                   }}
                   icon={customIcon}
-                  position={L.latLng(doc.location[0])}></Marker>
+                  position={L.latLng(doc.location[0])}
+                ></Marker>
               );
             }
             if (doc.location.length === 0) {
@@ -67,7 +74,8 @@ function Map(props) {
                   }}
                   key={doc.id}
                   icon={customIcon}
-                  position={[67.85572, 20.22513]}></Marker>
+                  position={[67.85572, 20.22513]}
+                ></Marker>
               );
               return null;
             }

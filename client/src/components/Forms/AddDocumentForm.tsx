@@ -1,13 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import Grid from "@mui/material/Grid2";
-import {
-  Box,
-  Button,
-  Step,
-  StepLabel,
-  Stepper,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import React from "react";
 import DocumentAPI from "../../API/DocumentAPI";
 import { Type } from "../../models/Type";
@@ -86,13 +79,9 @@ function AddDocumentForm() {
           />
         );
       case 1:
-        return (
-          <GeoreferenceForm document={document} setDocument={setDocument} />
-        );
+        return <GeoreferenceForm document={document} setDocument={setDocument} />;
       case 2:
-        return (
-          insertedDocumentId && <LinkDocumentForm docId={insertedDocumentId} />
-        );
+        return insertedDocumentId && <LinkDocumentForm docId={insertedDocumentId} />;
 
       default:
         throw new Error("Unknown step");
@@ -115,7 +104,8 @@ function AddDocumentForm() {
         pt: 0,
         px: 2,
         mt: 4,
-      }}>
+      }}
+    >
       <Grid sx={{ width: "100%" }} size="auto">
         <Stepper
           id="mobile-stepper"
@@ -125,29 +115,30 @@ function AddDocumentForm() {
             width: "100%",
             top: "0px",
             display: { sm: "flex", md: "none" },
-          }}>
+          }}
+        >
           {steps.map((label, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;
             } = {};
             if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
-              );
+              labelProps.optional = <Typography variant="caption">Optional</Typography>;
             }
             return (
               <Step
                 sx={{
-                  ":first-child": { pl: 0 },
+                  ":first-of-type": { pl: 0 },
                   ":last-child": { pr: 0 },
                   "& .MuiStepConnector-root": { top: { xs: 12, sm: 12 } },
                 }}
                 key={label}
-                {...stepProps}>
+                {...stepProps}
+              >
                 <StepLabel
                   {...labelProps}
-                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}>
+                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}
+                >
                   {label}
                 </StepLabel>
               </Step>
@@ -157,16 +148,15 @@ function AddDocumentForm() {
         <Stepper
           sx={{ display: { xs: "none", md: "flex" } }}
           activeStep={activeStep}
-          alternativeLabel>
+          alternativeLabel
+        >
           {steps.map((label, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;
             } = {};
             if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
-              );
+              labelProps.optional = <Typography variant="caption">Optional</Typography>;
             }
             return (
               <Step key={label} {...stepProps}>
@@ -183,18 +173,13 @@ function AddDocumentForm() {
           display: activeStep === steps.length - 1 ? "none" : "flex",
           py: 2,
         }}
-        size="auto">
-        <Button
-          color="inherit"
-          disabled={activeStep === 0}
-          onClick={handleBack}
-          sx={{ mr: 1 }}>
+        size="auto"
+      >
+        <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           Back
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
-        <Button type={"submit"}>
-          {activeStep === steps.length - 2 ? "Create" : "Next"}
-        </Button>
+        <Button type={"submit"}>{activeStep === steps.length - 2 ? "Create" : "Next"}</Button>
       </Grid>
     </Grid>
   );

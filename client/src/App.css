@@ -12,7 +12,3 @@ body {
   background-color: #003d8f !important;
   color: white !important;
 }
-
-.map {
-  overflow-y: auto;
-}

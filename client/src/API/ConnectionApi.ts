@@ -1,4 +1,4 @@
-import { ConnectionList, halfConnection } from "../models/Connection";
+import { ConnectionList, HalfConnection } from "../models/Connection";
 
 const baseURL = "http://localhost:3001/kirunaexplorer/";
 
@@ -62,7 +62,7 @@ async function getConnectionsByDocumentId(id) {
     },
   });
   if (response.ok) {
-    const halfConnections: halfConnection[] = await response.json();
+    const halfConnections: HalfConnection[] = await response.json();
     halfConnections.forEach((conn) => {
       conn.connection_types = conn.connection_types.map((type) => {
         const parts = type.split("_");

@@ -7,16 +7,13 @@ import { useEffect, useState } from "react";
 import User from "./models/User";
 import UserContext from "./contexts/UserContext";
 import AccessAPI from "./API/AccessAPI";
-import Dial from "./components/Dial";
-import FormModal from "./components/Forms/FormModal";
-import AddDocumentForm from "./components/Forms/AddDocumentForm";
 import DocumentAPI from "./API/DocumentAPI";
-import LinkDocumentForm from "./components/Forms/LinkDocumentForm";
-import DocumentCard from "./components/Map/DocumentCard";
+import AddDocumentPage from "./pages/AddDocumentPage";
+import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
-  const [selectedOperation, setSelectedOperation] = useState(undefined); //Manages the forms modal
+  // const [selectedOperation, setSelectedOperation] = useState(undefined); //Manages the forms modal
   const [docsLocation, setDocsLocation] = useState([]);
 
   const navigate = useNavigate();
@@ -34,13 +31,10 @@ function App() {
   };
 
   useEffect(() => {
-    if (selectedOperation !== undefined) {
-      return;
-    }
     const checkAuth = async () => {
       try {
-        const u = await AccessAPI.getUserInfo();
-        setUser(u);
+        const user = await AccessAPI.getUserInfo();
+        setUser(user);
       } catch {
         setUser(undefined);
       }
@@ -51,49 +45,45 @@ function App() {
       })
       .catch((err) => console.log(err));
     checkAuth();
-  }, [selectedOperation]);
+  }, []);
   return (
     <UserContext.Provider value={user}>
       <Routes>
-        <Route
-          path="/"
-          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-        />
-        <Route
-          path="/auth"
-          element={<LoginPage login={doLogin}></LoginPage>}></Route>
+        <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+
+        <Route path="/auth" element={<LoginPage login={doLogin} />} />
         <Route
           path="/"
           element={
             <>
-              <Navbar logout={doLogout}></Navbar>
+              <Navbar logout={doLogout} />
               <Outlet />
-              {user && user.role == "Urban Planner" && (
-                <Dial setOperation={setSelectedOperation}></Dial>
-              )}
-              <FormModal
-                operation={selectedOperation}
-                setOperation={setSelectedOperation}>
-                {selectedOperation === 1 ? (
-                  <AddDocumentForm></AddDocumentForm>
-                ) : (
-                  selectedOperation === 2 && (
-                    <LinkDocumentForm></LinkDocumentForm>
-                  )
-                )}
-              </FormModal>
-              <DocumentCard></DocumentCard>
             </>
-          }>
+          }
+        >
           <Route
             path="/map"
             element={
               <>
-                <Map docs={docsLocation}></Map>
+                <Map docs={docsLocation} />
+                <Outlet />
               </>
             }
-          />
+          >
+            <Route path="add" element={<AddDocumentPage />} />
+            <Route
+              path="link"
+              element={
+                user && user.role === "Urban Planner" ? (
+                  <LinkDocumentsPage />
+                ) : (
+                  <Navigate to="/auth" />
+                )
+              }
+            />
+          </Route>
         </Route>
+        <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
       </Routes>
     </UserContext.Provider>
   );

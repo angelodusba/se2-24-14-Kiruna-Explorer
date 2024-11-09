@@ -1,12 +1,13 @@
-import { Box, Modal } from "@mui/material";
 import React from "react";
+import { Box, Modal } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const style = {
+  display: "flex",
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -45%)",
-  width: "500px",
   maxHeight: "80%",
   minHeight: "60%",
   bgcolor: "background.paper",
@@ -19,7 +20,7 @@ const style = {
     sm: "600px",
   },
   minWidth: {
-    xs: "80&",
+    xs: "80%",
     sm: "400px",
   },
   //Hide scrollbar but allow scrolling
@@ -32,18 +33,21 @@ const style = {
 };
 
 function FormModal(props) {
+  const navigate = useNavigate();
   return (
     <Modal
-      open={!!props.operation}
-      onClose={() => props.setOperation(undefined)}
+      open={true}
+      onClose={() => {
+        navigate("/map");
+      }}
       aria-labelledby="FormModal"
-      aria-describedby="FormModalDescription">
+      aria-describedby="FormModalDescription"
+    >
       <Box sx={style}>
         {React.Children.map(props.children, (child) => {
           if (React.isValidElement(child)) {
             return React.cloneElement(child, {
               ...props,
-              setOperation: props.setOperation,
             });
           }
           return child;

@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid2";
-import DocumentAPI from "../../API/DocumentAPI.ts";
 import {
   FormControl,
   InputLabel,
@@ -20,111 +18,66 @@ import {
   Button,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { ConnectionList, halfConnection } from "../../models/Connection.ts";
-import ConnectionAPI from "../../API/ConnectionApi.ts";
+import { HalfConnection } from "../../models/Connection.ts";
 import { AddCircleOutlined } from "@mui/icons-material";
 
-export function LinkDocumentForm(props) {
-  const [connectionList, setConnectionList] = useState<ConnectionList>(
-    new ConnectionList(props.docId ? props.docId : undefined, [
-      new halfConnection(undefined, []),
-    ])
-  );
-  const [typeOfConnection, setTypeOfConnection] = useState<string[]>([]);
-  const [documentList, setDocumentList] = useState<
-    { id: number; title: string }[]
-  >([]);
-
+export function LinkDocumentForm({
+  connectionTypes,
+  documentsList,
+  handleClose,
+  handleLinkSubmit,
+  handleSelectDocument,
+  connectionsList,
+  handleAddConnection,
+  handleDeleteConnection,
+  handleSelectLinkedDocument,
+  handleSelectConnectionTypes,
+  docId = undefined,
+}) {
   const getTitleById = (id: number): string | undefined => {
-    const document = documentList.find((doc) => doc.id === id);
+    const document = documentsList.find((doc) => doc.id === id);
     return document ? document.title : undefined;
   };
-
-  const handleClose = () => {
-    props.setOperation(undefined);
-    return;
-  };
-
-  const handleLinkSubmit = async (event) => {
-    event.preventDefault();
-    await ConnectionAPI.sendConnections(connectionList);
-    props.setOperation(undefined);
-    return;
-  };
-
-  const handleExistingConnectionsUpdate = (event) => {
-    ConnectionAPI.getConnectionsByDocumentId(Number(event.target.value)).then(
-      (halfConnections: halfConnection[]) => {
-        setConnectionList(() => ({
-          starting_document_id: Number(event.target.value),
-          connections: halfConnections,
-        }));
-      }
-    );
-  };
-
-  // Get the type of connections
-  useEffect(() => {
-    ConnectionAPI.getTypeOfConnections().then((data) => {
-      const temp: string[] = [];
-      for (let i = 0; i < data.length; i++) {
-        temp.push(data[i]);
-      }
-      setTypeOfConnection(temp);
-    });
-
-    DocumentAPI.getAllDocumentsNames().then((data) => {
-      const temp: { id: number; title: string }[] = [];
-      for (let i = 0; i < data.length; i++) {
-        temp.push({ id: data[i].id, title: data[i].title.toString() });
-      }
-      setDocumentList(temp);
-    });
-  }, []);
 
   return (
     <Grid
       container
-      component={props.docId === undefined ? "form" : "div"}
-      onSubmit={handleLinkSubmit}
+      component={docId === undefined ? "form" : "div"}
+      onSubmit={(event) => {
+        event.preventDefault();
+        handleLinkSubmit(connectionsList);
+      }}
       sx={{
         width: "100%",
-        display: "flex",
         pt: 2,
-        px: props.docId ? 0 : 2,
+        px: docId ? 0 : 2,
       }}
-      size={6}
-      spacing={2}>
+      size={12}
+      spacing={2}
+    >
       <Grid
         sx={{
           display: "flex",
           flexDirection: "column",
         }}
-        size={12}>
-        <Grid
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            pb: 2,
-          }}
-          size={12}>
-          <Typography display={"flex"} variant="h6">
-            {props.docId
-              ? `Document to link: ${getTitleById(props.docId)}`
-              : "Manage Links"}
-          </Typography>
-        </Grid>
-        {!props.docId && (
+        size={12}
+      >
+        <Typography variant="h6" style={{ textAlign: "center", marginBottom: 15 }}>
+          {docId ? `Document to link: ${getTitleById(docId)}` : "Manage Links"}
+        </Typography>{" "}
+        {!docId && (
           <FormControl required>
             <InputLabel id="document1">Document to link</InputLabel>
             <Select
               labelId="document1"
               id="document1"
-              value={connectionList.starting_document_id || ""}
+              value={connectionsList.starting_document_id || ""}
               label="Document to link"
-              onChange={handleExistingConnectionsUpdate}>
-              {documentList.map((doc) => (
+              onChange={(event) => {
+                handleSelectDocument(Number(event.target.value));
+              }}
+            >
+              {documentsList.map((doc) => (
                 <MenuItem key={doc.id} value={doc.id}>
                   {doc.title}
                 </MenuItem>
@@ -133,12 +86,9 @@ export function LinkDocumentForm(props) {
           </FormControl>
         )}
       </Grid>
-      <Grid
-        container
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={12}
-        spacing={1}>
-        {connectionList.connections.map((connection, index) => (
+      {/* CONNECTIONS LIST */}
+      <Grid sx={{ display: "flex", flexDirection: "column" }} size={12} gap={2}>
+        {connectionsList.connections.map((connection: HalfConnection, index: number) => (
           <Card key={index} variant="outlined">
             <CardActions>
               <Box sx={{ flexGrow: 1 }}>
@@ -150,26 +100,18 @@ export function LinkDocumentForm(props) {
                   color="error"
                   size="small"
                   onClick={() => {
-                    const newConnections = connectionList.connections.filter(
-                      (_, i) => i !== index
-                    );
-                    setConnectionList((prevList) => ({
-                      ...prevList,
-                      connections: newConnections,
-                    }));
-                  }}>
+                    handleDeleteConnection(connection.document_id);
+                  }}
+                >
                   <DeleteIcon />
                 </IconButton>
               </Tooltip>
             </CardActions>
             <CardContent>
+              {/* LINKED DOCUMENT */}
               <Grid container spacing={2}>
-                <Grid
-                  sx={{ display: "flex", flexDirection: "column" }}
-                  size={{ xs: 12, md: 6 }}>
-                  <FormControl
-                    required
-                    disabled={!connectionList.starting_document_id}>
+                <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
+                  <FormControl required disabled={!connectionsList.starting_document_id}>
                     <InputLabel id="document">Linked document</InputLabel>
                     <Select
                       labelId="document"
@@ -177,77 +119,45 @@ export function LinkDocumentForm(props) {
                       value={connection.document_id || ""}
                       label="Document to link"
                       onChange={(event) => {
-                        const newConnections = connectionList.connections;
-                        newConnections[index].document_id = Number(
-                          event.target.value
-                        );
-                        setConnectionList((prevList) => ({
-                          ...prevList,
-                          connections: newConnections,
-                        }));
-                      }}>
-                      {documentList.map((doc) => {
-                        if (
-                          doc.id === connectionList.starting_document_id ||
-                          (connectionList.connections.some(
-                            (conn) => conn.document_id === doc.id
-                          ) &&
-                            connection.document_id !== doc.id)
-                        ) {
-                          return;
-                        }
-                        return (
+                        const documentId = Number(event.target.value);
+                        handleSelectLinkedDocument(index, documentId);
+                      }}
+                    >
+                      {documentsList
+                        .filter((doc) => doc.id !== connectionsList.starting_document_id)
+                        .map((doc) => (
                           <MenuItem key={doc.id} value={doc.id}>
                             {doc.title}
                           </MenuItem>
-                        );
-                      })}
+                        ))}
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid
-                  sx={{ display: "flex", flexDirection: "column" }}
-                  size={{ xs: 12, md: 6 }}>
-                  <FormControl
-                    required
-                    disabled={!connectionList.starting_document_id}>
-                    <InputLabel id="connectionType">
-                      Connection types
-                    </InputLabel>
+                {/* CONNECTION TYPES */}
+                <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
+                  <FormControl required>
+                    <InputLabel id="connectionType">Connection types</InputLabel>
                     <Select
                       labelId="connectionType"
                       id="connectionType"
                       multiple
                       value={connection.connection_types}
                       onChange={(event) => {
-                        const newConnections = connectionList.connections;
-                        const value = event.target.value as string[];
-
-                        newConnections[index].connection_types = value;
-                        setConnectionList((prevList) => ({
-                          ...prevList,
-                          connections: newConnections,
-                        }));
+                        const connection_types = event.target.value as string[];
+                        handleSelectConnectionTypes(index, connection_types);
                       }}
-                      input={
-                        <OutlinedInput
-                          id="connectionType"
-                          label="Connection Types"
-                        />
-                      }
+                      input={<OutlinedInput id="connectionType" label="Connection Types" />}
                       renderValue={(selected) => (
-                        <Box
-                          sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                           {selected.map((value, ind) => (
                             <Chip key={ind} label={value} />
                           ))}
                         </Box>
-                      )}>
-                      {typeOfConnection.map((type) => (
+                      )}
+                    >
+                      {connectionTypes.map((type) => (
                         <MenuItem key={type} value={type}>
-                          <Checkbox
-                            checked={connection.connection_types.includes(type)}
-                          />
+                          <Checkbox checked={connection.connection_types.includes(type)} />
                           <ListItemText primary={type} />
                         </MenuItem>
                       ))}
@@ -259,43 +169,33 @@ export function LinkDocumentForm(props) {
           </Card>
         ))}
       </Grid>
+      <Grid size={12} sx={{ display: "flex", alignItems: "center" }}>
+        {/* ADD LINK BUTTON */}
+        {connectionsList.connections.length > 0 &&
+          connectionsList.connections.at(-1).document_id &&
+          connectionsList.connections.at(-1).connection_types.length > 0 && (
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={<AddCircleOutlined />}
+              onClick={handleAddConnection}
+            >
+              Add link
+            </Button>
+          )}
+      </Grid>
       <Grid
         sx={{
+          width: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
+          justifyContent: "space-between",
+          py: 2,
         }}
-        size={12}>
-        <Tooltip title="Add new link">
-          <IconButton
-            aria-label="add"
-            size="medium"
-            color="success"
-            onClick={() => {
-              const newConnections = connectionList.connections;
-              newConnections.push(new halfConnection(undefined, []));
-              setConnectionList((prevList) => ({
-                ...prevList,
-                connections: newConnections,
-              }));
-            }}>
-            <AddCircleOutlined />
-          </IconButton>
-        </Tooltip>
-
-        <Grid
-          sx={{
-            width: "100%",
-            display: "flex",
-            py: 2,
-          }}
-          size="auto">
-          <Button color="error" onClick={handleClose} sx={{ mr: 1 }}>
-            Close
-          </Button>
-          <Box sx={{ flex: "1 1 auto" }} />
-          <Button type={"submit"}>Link</Button>
-        </Grid>
+      >
+        <Button color="error" onClick={handleClose}>
+          Close
+        </Button>
+        <Button type={"submit"}>Link</Button>
       </Grid>
     </Grid>
   );
