@@ -4,8 +4,10 @@ import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Dial from "../Dial";
+import UserContext from "../../contexts/UserContext";
+import { Role } from "../../models/User";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -20,12 +22,12 @@ const handleDocumentShow = (id) => {
 };
 
 function Map(props) {
+  const user = useContext(UserContext);
   const [docCard, setDocCard] = useState(undefined);
 
   return (
     <>
-      <Dial />
-
+      {user && user.role === Role.UrbanPlanner && <Dial />}
       <MapContainer
         className="map"
         center={[67.85572, 20.22513]}

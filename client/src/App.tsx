@@ -45,12 +45,15 @@ function App() {
       .catch((err) => console.log(err));
     checkAuth();
   }, []);
+
   return (
     <UserContext.Provider value={user}>
       <Routes>
         <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
-
-        <Route path="/auth" element={<LoginPage login={doLogin} />} />
+        <Route
+          path="/auth"
+          element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
+        />
         <Route
           path="/"
           element={
