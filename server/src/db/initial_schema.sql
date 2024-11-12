@@ -57,6 +57,15 @@ CREATE TABLE IF NOT EXISTS public."documents_stakeholders"
     PRIMARY KEY (document_id, stakeholder_id)
 );
 
+-- Attachments table
+CREATE TABLE IF NOT EXISTS public."attachments" (
+    id SERIAL PRIMARY KEY,
+    document_id INT NOT NULL REFERENCES public."documents"(id),
+    original BOOLEAN NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    path TEXT NOT NULL
+);
+
 -- Search tables inside public schema
 SET search_path TO public;
 
