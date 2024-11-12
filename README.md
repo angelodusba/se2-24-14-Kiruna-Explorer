@@ -4,7 +4,21 @@ Repository for the main project of the Software Engineering 2 (2024) course at P
 
 ## Getting started
 
-In order to get the system up and running you just need to execute the following command from the root directory of the repository:
+In order to get the system up and running you need to:
+
+1. Create a `.env.prod` file in the root directory of the repository, like the following:
+
+```
+SECRET=kirunaProdSecret
+
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=admin
+POSTGRES_DB=kiruna-db
+POSTGRES_SERVICE=db
+POSTGRES_PORT=5432
+```
+
+2. Execute the following command, always from the root:
 
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env.prod up
