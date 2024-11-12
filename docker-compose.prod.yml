@@ -1,19 +1,19 @@
 services:
-  # frontend:
-  #   build:
-  #     context: ./client
-  #     dockerfile: Dockerfile
-  #     args:
-  #       VITE_API_URL: ${API_URL}
-  #   container_name: kiruna-explorer-app
-  #   environment:
-  #     # Explicitly pass the API_URL environment variable from .env.prod to build args
-  #     API_URL: ${API_URL} # This makes sure that API_URL is available during build
-  #   restart: "always"
-  #   ports:
-  #     - "8080:3000"
-  #   depends_on:
-  #     - backend  # Ensure the backend service is up before frontend
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3001/kirunaexplorer/
+    container_name: kiruna-explorer-app
+    environment:
+      # Explicitly pass the API_URL environment variable from .env.prod to build args
+      API_URL: http://localhost:3001/kirunaexplorer/
+    restart: "always"
+    ports:
+      - "8080:3000"
+    depends_on:
+      - backend
 
   backend:
     build:
@@ -26,6 +26,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_SERVICE: ${POSTGRES_SERVICE}
       POSTGRES_PORT: ${POSTGRES_PORT}
+      CORS_ORIGIN: http://localhost:8080
+      SECRET: ${SECRET}
     ports:
       - "3001:3001"
     depends_on:

@@ -2,14 +2,7 @@ import { Document } from "../models/Document";
 import { Type } from "../models/Type";
 import { StakeHolder } from "../models/StakeHolders";
 
-let baseURL = "";
-// Check environment
-if (import.meta.env.MODE === "production") {
-  baseURL = import.meta.env.VITE_API_URL;
-  if (!baseURL) throw new Error("Error: environment variable 'VITE_API_URL' not set!");
-} else {
-  baseURL = "http://localhost:3001/kirunaexplorer/";
-}
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 async function sendDocument(document: Document): Promise<number> {
