@@ -3,7 +3,7 @@ import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Dial(props) {
+function Dial() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);

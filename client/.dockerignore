@@ -1,0 +1,37 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build artifacts
+dist
+.vite
+build
+
+# Test files and directories
+coverage
+*.test.js
+*.test.ts
+*.test.tsx
+*.spec.js
+*.spec.ts
+*.spec.tsx
+*.snap
+
+# IDE/editor files
+.vscode
+.idea
+*.swp
+*.swo
+*.bak
+
+# OS generated files
+.DS_Store
+.directory
+Thumbs.db
+
+# Miscellaneous
+.env.*
+.env

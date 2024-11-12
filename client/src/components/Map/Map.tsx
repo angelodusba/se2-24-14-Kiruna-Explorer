@@ -18,6 +18,7 @@ const customIcon = new L.Icon({
 
 const handleDocumentShow = (id) => {
   //FetchDocByID and set docCard to that
+  console.log(id);
   return;
 };
 

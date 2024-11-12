@@ -1,6 +1,13 @@
 import User from "../models/User";
 
-const baseURL = "http://localhost:3001/kirunaexplorer/";
+let baseURL = "";
+// Check environment
+if (import.meta.env.MODE === "production") {
+  baseURL = import.meta.env.VITE_API_URL;
+  if (!baseURL) throw new Error("Error: environment variable 'VITE_API_URL' not set!");
+} else {
+  baseURL = "http://localhost:3001/kirunaexplorer/";
+}
 
 /** ------------------- Access APIs ------------------------ */
 
