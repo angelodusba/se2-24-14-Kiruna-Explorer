@@ -1,99 +1,87 @@
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import React from "react";
-import DocumentAPI from "../../API/DocumentAPI";
-import { Type } from "../../models/Type";
-import { StakeHolder } from "../../models/StakeHolders";
 import { Document } from "../../models/Document";
 import GeneralInfoForm from "./GeneralInfoForm";
-import LinkDocumentForm from "./LinkDocumentForm";
 import GeoreferenceForm from "./GeoreferenceForm";
+import LinkDocumentForm from "./LinkDocumentForm";
 
-const steps = ["General info", "Georeference and scale", "Linking"];
+function AddDocumentForm({
+  steps,
+  activeStep,
+  stakeholders,
+  types,
+  handleSubmit,
+  handleBack,
+  insertedDocumentId,
+  connectionTypes,
+  documentsList,
+  handleClose,
+  handleLinkSubmit,
+  connectionsList,
+  handleAddConnection,
+  handleDeleteConnection,
+  handleSelectLinkedDocument,
+  handleSelectConnectionTypes,
+}) {
+  const [document, setDocument] = useState<Document>({
+    title: "",
+    description: "",
+    stakeholderIds: [],
+    typeId: null,
+    pages: "",
+    coordinates: [],
+    issueDate: "",
+    scale: "Blueprints/material effects",
+    language: "",
+  });
 
-const isStepOptional = (step: number) => {
-  return step === 2;
-};
-
-function AddDocumentForm() {
-  const [activeStep, setActiveStep] = useState<number>(0);
-  const [types, setTypes] = useState<Type[]>([]);
-  const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
-  const [document, setDocument] = useState<Document>(
-    new Document("", "", [], 0, "", [], "", "Blueprints/material effects", "")
-  );
-  const [insertedDocumentId, setInsertedDocumentId] = useState(undefined);
-
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (formRef.current && !formRef.current.reportValidity()) {
-      return;
-    }
-    if (activeStep === steps.length - 2) {
-      //Insert DOC
-      const id = await DocumentAPI.sendDocument(document);
-      setInsertedDocumentId(id);
-    }
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  const isStepOptional = (index: number): boolean => {
+    return steps[index].optional;
   };
 
-  const handleBack = () => {
-    setActiveStep(activeStep - 1);
-  };
+  // const formRef = useRef<HTMLFormElement>(null);
 
-  const fetchStakeholders = async () => {
-    try {
-      const stakeholders = await DocumentAPI.getStakeholders();
-      setStakeholders(stakeholders);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const fetchTypes = async () => {
-    try {
-      const types = await DocumentAPI.getTypes();
-      setTypes(types);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchStakeholders();
-    fetchTypes();
-  }, []);
-
-  function getStepContent(step: number) {
-    switch (step) {
-      case 0:
-        return (
-          <GeneralInfoForm
-            document={document}
-            setDocument={setDocument}
-            types={types}
-            stakeholders={stakeholders}
-          />
-        );
-      case 1:
-        return <GeoreferenceForm document={document} setDocument={setDocument} />;
-      case 2:
-        return insertedDocumentId && <LinkDocumentForm docId={insertedDocumentId} />;
-
-      default:
-        throw new Error("Unknown step");
-    }
-  }
+  const currentForm =
+    activeStep === 0 ? (
+      <GeneralInfoForm
+        types={types}
+        stakeholders={stakeholders}
+        document={document}
+        setDocument={setDocument}
+      />
+    ) : activeStep === 1 ? (
+      <GeoreferenceForm document={document} setDocument={setDocument} />
+    ) : (
+      <LinkDocumentForm
+        docId={insertedDocumentId}
+        connectionTypes={connectionTypes}
+        documentsList={documentsList}
+        handleClose={handleClose}
+        handleLinkSubmit={handleLinkSubmit}
+        handleSelectDocument={null}
+        connectionsList={connectionsList}
+        handleAddConnection={handleAddConnection}
+        handleDeleteConnection={handleDeleteConnection}
+        handleSelectLinkedDocument={handleSelectLinkedDocument}
+        handleSelectConnectionTypes={handleSelectConnectionTypes}
+      />
+    );
 
   return (
     <Grid
       container
       component="form"
-      onSubmit={handleSubmit}
-      ref={formRef}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (activeStep === steps.length - 1) {
+          handleLinkSubmit();
+        } else {
+          handleSubmit(document);
+        }
+      }}
+      // ref={formRef}
       spacing={3}
       sx={{
         display: "flex",
@@ -108,16 +96,15 @@ function AddDocumentForm() {
     >
       <Grid sx={{ width: "100%" }} size="auto">
         <Stepper
-          id="mobile-stepper"
+          id="stepper"
           activeStep={activeStep}
           alternativeLabel
           sx={{
             width: "100%",
             top: "0px",
-            display: { sm: "flex", md: "none" },
           }}
         >
-          {steps.map((label, index) => {
+          {steps.map((step, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;
@@ -132,55 +119,52 @@ function AddDocumentForm() {
                   ":last-child": { pr: 0 },
                   "& .MuiStepConnector-root": { top: { xs: 12, sm: 12 } },
                 }}
-                key={label}
+                key={index}
                 {...stepProps}
               >
                 <StepLabel
                   {...labelProps}
                   sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}
                 >
-                  {label}
+                  {step.label}
                 </StepLabel>
               </Step>
             );
           })}
         </Stepper>
-        <Stepper
-          sx={{ display: { xs: "none", md: "flex" } }}
-          activeStep={activeStep}
-          alternativeLabel
-        >
-          {steps.map((label, index) => {
-            const stepProps: { completed?: boolean } = {};
-            const labelProps: {
-              optional?: React.ReactNode;
-            } = {};
-            if (isStepOptional(index)) {
-              labelProps.optional = <Typography variant="caption">Optional</Typography>;
-            }
-            return (
-              <Step key={label} {...stepProps}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
-              </Step>
-            );
-          })}
-        </Stepper>
       </Grid>
-      {getStepContent(activeStep)}
+
       <Grid
+        container
         sx={{
           width: "100%",
-          display: activeStep === steps.length - 1 ? "none" : "flex",
+          display: "flex",
           py: 2,
         }}
-        size="auto"
+        size={6}
+        spacing={2}
       >
-        <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-          Back
-        </Button>
-        <Box sx={{ flex: "1 1 auto" }} />
-        <Button type={"submit"}>{activeStep === steps.length - 2 ? "Create" : "Next"}</Button>
+        {/* FORM CURRENTLY DISPLAYED */}
+        {currentForm}
       </Grid>
+      {activeStep !== steps.length - 1 && (
+        <Grid
+          sx={{
+            width: "100%",
+            display: activeStep === steps.length - 1 ? "none" : "flex",
+            py: 2,
+          }}
+          size="auto"
+        >
+          {activeStep > 0 && activeStep < steps.length - 1 && (
+            <Button color="inherit" onClick={handleBack} sx={{ mr: 1 }}>
+              Back
+            </Button>
+          )}
+          <Box sx={{ flex: "1 1 auto" }} />
+          <Button type={"submit"}>{activeStep === steps.length - 2 ? "Create" : "Next"}</Button>
+        </Grid>
+      )}
     </Grid>
   );
 }

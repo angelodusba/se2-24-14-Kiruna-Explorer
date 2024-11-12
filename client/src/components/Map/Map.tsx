@@ -79,7 +79,6 @@ function Map(props) {
                   position={[67.85572, 20.22513]}
                 ></Marker>
               );
-              return null;
             }
           })}
         </MarkerClusterGroup>

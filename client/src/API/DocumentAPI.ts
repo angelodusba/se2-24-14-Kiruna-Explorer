@@ -15,13 +15,13 @@ async function sendDocument(document: Document): Promise<number> {
     body: JSON.stringify({
       title: document.title,
       description: document.description,
-      type_id: document.type as number,
+      type_id: document.typeId as number,
       issue_date: document.issueDate,
       scale: document.scale,
       location: document.coordinates,
       language: document.language,
       pages: document.pages,
-      stakeholders: document.stakeholder,
+      stakeholders: document.stakeholderIds,
     }),
   });
   if (response.ok) {

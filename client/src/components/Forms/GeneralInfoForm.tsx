@@ -12,33 +12,39 @@ import {
   TextField,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import { Document } from "../../models/Document";
 
-function GeneralInfoForm(props) {
+function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
   const handleStakeholderChange = (event) => {
     const selectedStakeholders = event.target.value as number[];
-
-    props.setDocument((prevDocument) => ({
+    setDocument((prevDocument) => ({
       ...prevDocument,
-      stakeholder: selectedStakeholders,
+      stakeholderIds: selectedStakeholders,
     }));
   };
+
+  const handleIssueDateChange = (issueDate: string) => {
+    if (issueDate.length > 10) return;
+    setDocument((prevDocument: Document) => {
+      const prevLen = prevDocument.issueDate.length;
+      const currLen = issueDate.length;
+      if ((prevLen === 4 && currLen === 5) || (prevLen === 7 && currLen === 8)) {
+        // YYYY or YYYY/MM inserted
+        issueDate = `${prevDocument.issueDate}/${issueDate.slice(-1)}`;
+      }
+      return { ...prevDocument, issueDate: issueDate };
+    });
+  };
+
   return (
-    <Grid
-      container
-      sx={{
-        width: "100%",
-        display: "flex",
-        py: 2,
-      }}
-      size={6}
-      spacing={2}>
+    <>
       <Grid sx={{ display: "flex", flexDirection: "column" }} size={12}>
         <TextField
           label="Title"
           variant="outlined"
-          value={props.document.title}
+          value={document.title}
           onChange={(event) =>
-            props.setDocument((prevDocument) => ({
+            setDocument((prevDocument) => ({
               ...prevDocument,
               title: event.target.value,
             }))
@@ -46,20 +52,16 @@ function GeneralInfoForm(props) {
           required
         />
       </Grid>
-      <Grid
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={{ xs: 12, md: 6 }}>
+      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
         <Autocomplete
-          options={props.types}
+          options={types}
           getOptionLabel={(option) => option.name}
           id="typeSelect"
-          value={
-            props.types.find((type) => type.id === props.document.type) || null
-          }
+          value={types.find((type) => type.id === document.typeId) || null}
           onChange={(_event, newValue) => {
-            props.setDocument((prevDocument) => ({
+            setDocument((prevDocument) => ({
               ...prevDocument,
-              type: newValue ? Number(newValue.id) : 0,
+              typeId: newValue ? Number(newValue.id) : 0,
             }));
           }}
           renderInput={(params) => (
@@ -67,50 +69,41 @@ function GeneralInfoForm(props) {
           )}
         />
       </Grid>
-      <Grid
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={{ xs: 12, md: 6 }}>
+      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
         <TextField
           fullWidth
           label="Issue Date"
           variant="outlined"
-          value={props.document.issueDate}
-          onChange={(event) =>
-            props.setDocument((prevDocument) => ({
-              ...prevDocument,
-              issueDate: event.target.value,
-            }))
-          }
+          value={document.issueDate}
+          onChange={(event) => {
+            handleIssueDateChange(event.target.value);
+          }}
           helperText="YYYY/MM/DD or YYYY/MM or YYYY"
           required
         />
       </Grid>
-      <Grid
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={{ xs: 12, md: 6 }}>
+      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
         <TextField
           fullWidth
           label="Pages"
           variant="outlined"
-          value={props.document.pages || ""}
+          value={document.pages}
           onChange={(event) =>
-            props.setDocument((prevDocument) => ({
+            setDocument((prevDocument) => ({
               ...prevDocument,
               pages: event.target.value,
             }))
           }
         />
       </Grid>
-      <Grid
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={{ xs: 12, md: 6 }}>
+      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
         <TextField
           fullWidth
           label="Language"
           variant="outlined"
-          value={props.document.language}
+          value={document.language}
           onChange={(event) =>
-            props.setDocument((prevDocument) => ({
+            setDocument((prevDocument) => ({
               ...prevDocument,
               language: event.target.value,
             }))
@@ -125,26 +118,23 @@ function GeneralInfoForm(props) {
             labelId="stakeholders"
             id="stakeholders"
             multiple
-            value={props.document.stakeholder}
+            value={document.stakeholderIds}
             onChange={handleStakeholderChange}
             input={<OutlinedInput id="stakeholders" label="stakeholders" />}
             renderValue={(selected) => (
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                 {(selected as number[]).map((value) => {
-                  const stakeholder = props.stakeholders.find(
-                    (s) => s.id === value
-                  );
+                  const stakeholder = stakeholders.find((s) => s.id === value);
                   return stakeholder ? (
                     <Chip key={stakeholder.id} label={stakeholder.name} />
                   ) : null;
                 })}
               </Box>
-            )}>
-            {props.stakeholders.map((stakeholder) => (
+            )}
+          >
+            {stakeholders.map((stakeholder) => (
               <MenuItem key={stakeholder.id} value={stakeholder.id}>
-                <Checkbox
-                  checked={props.document.stakeholder.includes(stakeholder.id)}
-                />
+                <Checkbox checked={document.stakeholderIds.includes(stakeholder.id)} />
                 <ListItemText primary={stakeholder.name} />
               </MenuItem>
             ))}
@@ -158,9 +148,9 @@ function GeneralInfoForm(props) {
           variant="outlined"
           minRows={3}
           multiline
-          value={props.document.description}
+          value={document.description}
           onChange={(event) =>
-            props.setDocument((prevDocument) => ({
+            setDocument((prevDocument) => ({
               ...prevDocument,
               description: event.target.value,
             }))
@@ -168,7 +158,7 @@ function GeneralInfoForm(props) {
           required
         />
       </Grid>
-    </Grid>
+    </>
   );
 }
 

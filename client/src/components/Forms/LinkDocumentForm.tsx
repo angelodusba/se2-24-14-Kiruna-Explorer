@@ -20,6 +20,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { HalfConnection } from "../../models/Connection.ts";
 import { AddCircleOutlined } from "@mui/icons-material";
+import { useEffect } from "react";
 
 export function LinkDocumentForm({
   connectionTypes,
