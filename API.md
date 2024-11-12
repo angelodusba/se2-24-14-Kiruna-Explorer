@@ -115,17 +115,7 @@ Adds a new document to the database.
     ],
     "language": "",
     "pages": {},
-    "stakeholders": [1, 2],
-    "connections": [
-        {
-            "connected_document_id": 1,
-            "connection_name": "direct_conn"
-        },
-        {
-            "connected_document_id": 2,
-            "connection_name": "prevision_conn"
-        }
-    ]
+    "stakeholders": [1, 2]
 }
 ```
 
@@ -144,7 +134,89 @@ Adds a new document to the database.
   - It should return a `404` error if the type of the document does not exist in the database
   - It should return a `404` error if at least one of the stakeholder does not exist in the database
   - It should return a `404` error if the scale does not exist in the database
-  - It should return a `404` error if at least one of the connected documents does not exist in the database
+
+#### PUT `kirunaexplorer/documents/location`
+
+Updates the location of a document in the database.
+
+- Request Parameters: None
+- Request Body Content: An object that represents the document to be updated. The object must have the following attributes:
+  - `id`: an integer that must not be empty, representing the id of the document to be updated
+  - `location`: an array of objects that can be empty, representing the coordinates (logitude, latitude) of the document, can be a single point or a polygon (if empty, it represents the entire municipality area)
+  - Example:
+
+```JSON
+{
+    "id": 1,
+    "location": [
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		}
+    ]
+}
+```
+
+- Response Body Content: None
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `404` error if the document does not exist in the database
+
+#### GET `kirunaexplorer/documents/location`
+
+Retrieves all the locations of the documents in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of DocumentLocationResponse objects, each containing a document's ID, type, and location coordinates (if available):
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "type":  { 
+            "id": 1, 
+            "name": "Design"
+        },
+        "location": [
+            {
+                "lng": 19.5,
+                "lat": 48.5
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "type":  {
+            "id": 1,
+            "name": "Design"
+        },
+        "location": [ 		
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            }
+        ]
+    }
+]
+```
 
 #### GET `kirunaexplorer/documents/names`
 
