@@ -52,7 +52,6 @@ SECRET=kirunasecret
 POSTGRES_USER=kiruna
 POSTGRES_PASSWORD=explorer
 POSTGRES_DB=kiruna-db
-POSTGRES_SERVICE=db
 POSTGRES_PORT=5432
 
 PGADMIN_EMAIL=kiruna@explorer.com
@@ -76,7 +75,6 @@ SECRET=kirunasecret
 POSTGRES_USER=kiruna
 POSTGRES_PASSWORD=explorer
 POSTGRES_DB=kiruna-db
-POSTGRES_SERVICE=db-test
 POSTGRES_PORT=5435
 ```
 
