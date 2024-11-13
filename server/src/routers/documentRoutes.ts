@@ -148,6 +148,42 @@ class DocumentRoutes {
           });
       }
     );
+
+    this.router.put(
+      "/location",
+      this.authService.isUrbanPlanner,
+      body("id").isInt().withMessage("Document ID must be an integer."),
+      body("location")
+        .isArray()
+        .withMessage("Location must be an array.")
+        .bail()
+        .custom((value: any) => {
+            if (
+            !value.every(
+                (coord: any) =>
+                typeof coord === "object" &&
+                coord !== null &&
+                !isNaN(Number(coord.lat)) &&
+                !isNaN(Number(coord.lng))
+            )
+            ) {
+            throw new Error(
+                "Each coordinate must be an object with numeric lat and lng properties."
+            );
+            }
+            return true; // Indicates the validation passed
+        }),
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .updateDocumentLocation(req.body.id, req.body.location)
+          .then(() => res.status(200).end())
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
+    
   }
 }
 

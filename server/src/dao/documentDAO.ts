@@ -178,6 +178,44 @@ class DocumentDAO {
       throw err;
     }
   }
+
+   /**
+   * Updates the location of a document in the database.
+   * @param documentId - The unique identifier of the document to update.
+   * @param location - The new location of the document. It can be a string representing
+   *                   a single point ("long lat") or a polygon ("long lat, long lat, ...").
+   *                   If empty, the location is set to NULL, indicating the entire municipality area.
+   * @returns A promise that resolves to true if the document's location has been successfully updated.
+   * @throws DocumentNotFoundError if the document does not exist.
+   * @throws Throws an error if the query execution fails.
+   */
+  async updateDocumentLocation(
+    documentId: number,
+    location: string
+  ): Promise<boolean> {
+    try {
+      let sql = "";
+      if (!location || location === "") {
+        // Case of entire municipality area
+        sql = `UPDATE documents SET location = NULL WHERE id = $1`;
+      } else if (location.split(",").length > 1) {
+        // Case of Polygon
+        sql = `UPDATE documents SET location = ST_SetSRID(ST_GeometryFromText('POLYGON((${location}))'), 4326) WHERE id = $1`;
+      } else {
+        // Case of single Point
+        sql = `UPDATE documents SET location = ST_SetSRID(ST_GeometryFromText('POINT(${location})'), 4326) WHERE id = $1`;
+      }
+      const res = await db.query(sql, [documentId]);
+      if (res.rowCount === 0) {
+        throw new DocumentNotFoundError();
+      }
+      return true;
+    } catch (err: any) {
+      throw err;
+    }
+  }
 }
+
+
 
 export default DocumentDAO;

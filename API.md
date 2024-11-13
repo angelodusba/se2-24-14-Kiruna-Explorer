@@ -99,7 +99,6 @@ Adds a new document to the database.
   - `language`: a string that can be empty
   - `pages`: a string that can be empty
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
-  - `connections`: an array of objects that can be empty, representing the connections to other documents
   - Example:
 
 ```JSON

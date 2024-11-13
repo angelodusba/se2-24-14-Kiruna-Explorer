@@ -79,6 +79,24 @@ class DocumentController {
   async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
     return this.dao.getDocumentsLocation();
   }
+
+  /**
+   * Updates the location of a document.
+   * @param id - The unique identifier of the document to update.
+   * @param location - An array of objects representing the new coordinates of the document,
+   *                   can be a single point or a polygon. If empty, it represents the entire municipality area.
+   * @returns A promise that resolves to true if the document's location has been successfully updated.
+   * @throws DocumentNotFoundError if the document does not exist.
+   */
+  async updateDocumentLocation(
+    id: number,
+    location: { lat: number; lng: number }[]
+  ): Promise<boolean> {
+    // Convert object array into a comma separated string of coordinates
+    const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
+    return this.dao.updateDocumentLocation(id, locationStr);
+  }
+
 }
 
 export default DocumentController;
