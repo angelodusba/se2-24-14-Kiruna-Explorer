@@ -29,7 +29,6 @@ function Map(props) {
     <>
       {user && user.role === Role.UrbanPlanner && <Dial />}
       <MapContainer
-        className="map"
         center={[67.85572, 20.22513]}
         minZoom={12}
         zoom={13}
@@ -37,9 +36,8 @@ function Map(props) {
         doubleClickZoom
         attributionControl={true}
         zoomControl={true}
-        scrollWheelZoom // Needed to enable smooth zoom
-        style={{ height: "100vh", overflowY: "auto" }}
-      >
+        scrollWheelZoom={false} // Needed to enable smooth zoom
+        style={{ height: "100vh" }}>
         <TileLayer
           keepBuffer={100}
           attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
@@ -62,8 +60,7 @@ function Map(props) {
                     },
                   }}
                   icon={customIcon}
-                  position={L.latLng(doc.location[0])}
-                ></Marker>
+                  position={L.latLng(doc.location[0])}></Marker>
               );
             }
             if (doc.location.length === 0) {
@@ -76,8 +73,7 @@ function Map(props) {
                   }}
                   key={doc.id}
                   icon={customIcon}
-                  position={[67.85572, 20.22513]}
-                ></Marker>
+                  position={[67.85572, 20.22513]}></Marker>
               );
             }
           })}

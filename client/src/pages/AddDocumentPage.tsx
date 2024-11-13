@@ -11,7 +11,8 @@ import { ConnectionList, HalfConnection } from "../models/Connection";
 
 const steps = [
   { label: "General info", optional: false },
-  { label: "Georeference and scale", optional: false },
+  { label: "Georeference", optional: false },
+  { label: "Attachments", optional: true },
   { label: "Linking", optional: true },
 ];
 
@@ -27,12 +28,11 @@ function AddDocumentPage() {
     connections: [],
   });
   const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
-  const [documentsList, setDocumentsList] = useState<{ id: number; title: string }[]>([]);
+  const [documentsList, setDocumentsList] = useState<
+    { id: number; title: string }[]
+  >([]);
 
   const handleSubmit = async (document: Document) => {
-    // if (formRef.current && !formRef.current.reportValidity()) {
-    //   return;
-    // }
     if (activeStep === steps.length - 2) {
       //Insert DOC
       const id = await DocumentAPI.sendDocument(document);
@@ -72,11 +72,17 @@ function AddDocumentPage() {
   const handleAddConnection = () => {
     setConnectionsList((prevList) => ({
       starting_document_id: prevList.starting_document_id,
-      connections: [...prevList.connections, { document_id: undefined, connection_types: [] }],
+      connections: [
+        ...prevList.connections,
+        { document_id: undefined, connection_types: [] },
+      ],
     }));
   };
 
-  const handleSelectLinkedDocument = (connIndex: number, documentId: number) => {
+  const handleSelectLinkedDocument = (
+    connIndex: number,
+    documentId: number
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       newConnections[connIndex].document_id = documentId;
@@ -87,7 +93,10 @@ function AddDocumentPage() {
     });
   };
 
-  const handleSelectConnectionTypes = (connIndex: number, connection_types: string[]) => {
+  const handleSelectConnectionTypes = (
+    connIndex: number,
+    connection_types: string[]
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       newConnections[connIndex].connection_types = connection_types;

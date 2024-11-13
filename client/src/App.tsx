@@ -49,10 +49,15 @@ function App() {
   return (
     <UserContext.Provider value={user}>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+        <Route
+          path="/"
+          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+        />
         <Route
           path="/auth"
-          element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
+          element={
+            user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
+          }
         />
         <Route
           path="/"
@@ -61,8 +66,7 @@ function App() {
               <Navbar logout={doLogout} />
               <Outlet />
             </>
-          }
-        >
+          }>
           <Route
             path="/map"
             element={
@@ -70,8 +74,7 @@ function App() {
                 <Map docs={docsLocation} />
                 <Outlet />
               </>
-            }
-          >
+            }>
             <Route
               path="add"
               element={
@@ -94,7 +97,10 @@ function App() {
             />
           </Route>
         </Route>
-        <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+        <Route
+          path="*"
+          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+        />
       </Routes>
     </UserContext.Provider>
   );
