@@ -8,6 +8,7 @@ import { useContext, useState } from "react";
 import Dial from "../Dial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -15,6 +16,10 @@ const customIcon = new L.Icon({
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
+const bounds = L.latLngBounds(
+  [67.7458, 20.0253], // Southwest coordinates (adjust to set the limit)
+  [67.9658, 20.4253] // Northeast coordinates (adjust to set the limit)
+);
 
 const handleDocumentShow = (id) => {
   //FetchDocByID and set docCard to that
@@ -23,15 +28,19 @@ const handleDocumentShow = (id) => {
 
 function Map(props) {
   const user = useContext(UserContext);
-  const [docCard, setDocCard] = useState(undefined);
+  const { disabledInput } = useContext(DisabledInputContext);
+  //const [docCard, setDocCard] = useState(undefined);
 
   return (
     <>
-      {user && user.role === Role.UrbanPlanner && <Dial />}
+      {!disabledInput && user && user.role === Role.UrbanPlanner && <Dial />}
       <MapContainer
         center={[67.85572, 20.22513]}
         minZoom={12}
         zoom={13}
+        bounds={bounds}
+        maxBounds={bounds}
+        maxBoundsViscosity={1.0}
         touchZoom
         doubleClickZoom
         attributionControl={true}

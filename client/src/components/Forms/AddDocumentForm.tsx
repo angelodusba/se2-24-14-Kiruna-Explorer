@@ -31,6 +31,7 @@ function AddDocumentForm({
   handleDeleteConnection,
   handleSelectLinkedDocument,
   handleSelectConnectionTypes,
+  setModalOpen,
 }) {
   const [document, setDocument] = useState<Document>({
     title: "",
@@ -57,7 +58,11 @@ function AddDocumentForm({
         setDocument={setDocument}
       />
     ) : activeStep === 1 ? (
-      <GeoreferenceForm document={document} setDocument={setDocument} />
+      <GeoreferenceForm
+        document={document}
+        setDocument={setDocument}
+        setModalOpen={setModalOpen}
+      />
     ) : (
       <LinkDocumentForm
         docId={insertedDocumentId}

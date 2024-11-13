@@ -21,7 +21,7 @@ const style = {
   },
   minWidth: {
     xs: "80%",
-    sm: "400px",
+    sm: "500px",
   },
   //Hide scrollbar but allow scrolling
   "&::-webkit-scrollbar": {
@@ -36,13 +36,12 @@ function FormModal(props) {
   const navigate = useNavigate();
   return (
     <Modal
-      open={true}
+      open={!props.open ? props.open : true}
       onClose={() => {
         navigate("/map");
       }}
       aria-labelledby="FormModal"
-      aria-describedby="FormModalDescription"
-    >
+      aria-describedby="FormModalDescription">
       <Box sx={style}>
         {React.Children.map(props.children, (child) => {
           if (React.isValidElement(child)) {

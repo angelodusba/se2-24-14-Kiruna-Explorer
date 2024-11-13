@@ -3,15 +3,11 @@ import {
   Box,
   Checkbox,
   FormControl,
-  FormControlLabel,
   InputAdornment,
   InputLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
   Select,
   TextField,
-  Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { Document } from "../../models/Document";
@@ -84,10 +80,10 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
       }
       return { ...prevDocument, issueDate: issueDate };
     });
-    /* if (!datePattern.test(issueDate)) {
+    if (!datePattern.test(issueDate)) {
       setDateError("Invalid date format. Use YYYY/MM/DD, YYYY/MM, or YYYY");
       return;
-    }*/
+    }
   };
 
   return (
@@ -264,7 +260,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
       <Grid
         sx={{ display: "flex", flexDirection: "column" }}
         size={{ xs: 12, md: scaleModality !== 3 ? 12 : 6 }}>
-        <FormControl>
+        <FormControl required>
           <InputLabel id="scaleModality">Scale type</InputLabel>
           <Select
             required

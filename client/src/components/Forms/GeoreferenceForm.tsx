@@ -1,16 +1,26 @@
 import {
+  Divider,
   FormControl,
   FormControlLabel,
+  Link,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Grid from "@mui/material/Grid2";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
-function GeoreferenceForm(props) {
+function GeoreferenceForm({ setDocument, document, setModalOpen }) {
   const [georeferenceModality, setGeoreferenceModality] = useState(0);
+
+  const { setDisabledInput } = useContext(DisabledInputContext);
+
+  const handlePointPicking = () => {
+    setModalOpen(false);
+    setDisabledInput(true);
+  };
 
   return (
     <Grid
@@ -32,8 +42,12 @@ function GeoreferenceForm(props) {
         <Typography variant="h6">Georeference Modality</Typography>
       </Grid>
       <Grid
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={{ xs: 12, md: 6 }}>
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+        size={{ xs: 12, md: georeferenceModality === 1 ? 6 : 12 }}>
         <FormControl>
           <RadioGroup
             aria-labelledby="georeferenceModality"
@@ -42,12 +56,12 @@ function GeoreferenceForm(props) {
             onChange={(event) => {
               setGeoreferenceModality(Number(event.target.value));
               if (Number(event.target.value) === 0) {
-                props.setDocument((prevDocument) => ({
+                setDocument((prevDocument) => ({
                   ...prevDocument,
                   coordinates: [],
                 }));
               } else if (Number(event.target.value) === 1) {
-                props.setDocument((prevDocument) => ({
+                setDocument((prevDocument) => ({
                   ...prevDocument,
                   coordinates: [{ lat: "", lng: "" }],
                 }));
@@ -66,79 +80,91 @@ function GeoreferenceForm(props) {
           </RadioGroup>
         </FormControl>
       </Grid>
+
       <Grid
+        container
         sx={{
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
+          alignItems: "center",
         }}
-        size={{ xs: 6, md: 3 }}>
-        <TextField
-          fullWidth
-          label="Lat"
-          variant="outlined"
-          value={
-            props.document.coordinates[0]
-              ? props.document.coordinates[0].lat
-              : ""
-          }
-          onChange={(event) =>
-            props.setDocument((prevDocument) => ({
-              ...prevDocument,
-              coordinates: [
-                {
-                  ...prevDocument.coordinates[0],
-                  lat: event.target.value,
-                },
-              ],
-            }))
-          }
-          required={georeferenceModality === 1}
-          disabled={georeferenceModality !== 1}
-          slotProps={{
-            htmlInput: {
-              step: "any",
-              pattern: "[0-9]*[.,]?[0-9]*",
-            },
+        size={6}>
+        <Grid
+          sx={{
+            display: georeferenceModality === 1 ? "flex" : "none",
+            flexDirection: "column",
+            justifyContent: "center",
           }}
-        />
-      </Grid>
-      <Grid
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-        size={{ xs: 6, md: 3 }}>
-        <TextField
-          fullWidth
-          label="Lng"
-          variant="outlined"
-          value={
-            props.document.coordinates[0]
-              ? props.document.coordinates[0].lng
-              : ""
-          }
-          onChange={(event) =>
-            props.setDocument((prevDocument) => ({
-              ...prevDocument,
-              coordinates: [
-                {
-                  ...prevDocument.coordinates[0],
-                  lng: event.target.value,
-                },
-              ],
-            }))
-          }
-          required={georeferenceModality === 1}
-          disabled={georeferenceModality !== 1}
-          slotProps={{
-            htmlInput: {
-              step: "any",
-              pattern: "[0-9]*[.,]?[0-9]*",
-            },
+          size={{ xs: 12, md: 6 }}>
+          <TextField
+            fullWidth
+            label="Lat"
+            variant="outlined"
+            value={document.coordinates[0] ? document.coordinates[0].lat : ""}
+            onChange={(event) =>
+              setDocument((prevDocument) => ({
+                ...prevDocument,
+                coordinates: [
+                  {
+                    ...prevDocument.coordinates[0],
+                    lat: event.target.value,
+                  },
+                ],
+              }))
+            }
+            required={georeferenceModality === 1}
+            disabled={georeferenceModality !== 1}
+            slotProps={{
+              htmlInput: {
+                step: "any",
+                pattern: "[0-9]*[.,]?[0-9]*",
+              },
+            }}
+          />
+        </Grid>
+        <Grid
+          sx={{
+            display: georeferenceModality === 1 ? "flex" : "none",
+            flexDirection: "column",
+            justifyContent: "center",
           }}
-        />
+          size={{ xs: 12, md: 6 }}>
+          <TextField
+            fullWidth
+            label="Lng"
+            variant="outlined"
+            value={document.coordinates[0] ? document.coordinates[0].lng : ""}
+            onChange={(event) =>
+              setDocument((prevDocument) => ({
+                ...prevDocument,
+                coordinates: [
+                  {
+                    ...prevDocument.coordinates[0],
+                    lng: event.target.value,
+                  },
+                ],
+              }))
+            }
+            required={georeferenceModality === 1}
+            disabled={georeferenceModality !== 1}
+            slotProps={{
+              htmlInput: {
+                step: "any",
+                pattern: "[0-9]*[.,]?[0-9]*",
+              },
+            }}
+          />
+        </Grid>
+        <Divider>Or</Divider>
+        <Grid
+          sx={{
+            display: georeferenceModality === 1 ? "flex" : "none",
+            justifyContent: "center",
+          }}
+          size={12}>
+          <Link component="button" variant="body2" onClick={handlePointPicking}>
+            Button Link
+          </Link>
+        </Grid>
       </Grid>
     </Grid>
   );
