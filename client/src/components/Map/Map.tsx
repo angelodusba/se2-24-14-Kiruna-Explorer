@@ -6,6 +6,7 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useContext, useState } from "react";
 import Dial from "../Dial";
+import DocumentDial from "../DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 
@@ -29,6 +30,7 @@ function Map(props) {
   return (
     <>
       {user && user.role === Role.UrbanPlanner && <Dial />}
+      {user && user.role === Role.UrbanPlanner && <DocumentDial />}
       <MapContainer
         className="map"
         center={[67.85572, 20.22513]}
