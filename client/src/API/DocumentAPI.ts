@@ -1,6 +1,7 @@
 import { Document } from "../models/Document";
 import { Type } from "../models/Type";
 import { StakeHolder } from "../models/StakeHolders";
+import { Point } from "../models/Document";
 
 const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
@@ -121,12 +122,37 @@ async function getMunicipalityDocuments(){
   }
 }
 
+async function changeDocumentLocation(id: number, location: Point[]){
+  const response = await fetch(baseURL + "documents/location", {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id: id,
+      location: location
+    }),
+  });
+  if (response.ok) {
+    const res = await response.json();
+    return res;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+
+    throw new Error("Something went wrong");
+  }
+}
+
 const DocumentAPI = {
   sendDocument,
   getDocumentsLocation,
   getAllDocumentsNames,
   getTypes,
   getStakeholders,
-  getMunicipalityDocuments
+  getMunicipalityDocuments,
+  changeDocumentLocation
 };
 export default DocumentAPI;
