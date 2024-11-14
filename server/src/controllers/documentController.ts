@@ -1,5 +1,6 @@
 import DocumentDAO from "../dao/documentDAO";
 import Document from "../models/document";
+import DocumentCardResponse from "../response/documentCardResponse";
 import DocumentLocationResponse from "../response/documentLocationResponse";
 
 /**
@@ -103,6 +104,10 @@ class DocumentController {
     // Convert object array into a comma separated string of coordinates
     const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
     return this.dao.updateDocumentLocation(id, locationStr);
+  }
+
+  async getDocumentCard(id: number): Promise<DocumentCardResponse> {
+    return this.dao.getDocumentCard(id);
   }
 }
 
