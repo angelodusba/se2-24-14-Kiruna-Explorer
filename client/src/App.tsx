@@ -101,7 +101,7 @@ function App() {
                 }
               />
               <Route 
-            path = "municipality"
+              path = "municipality"
               element= {
                 user && user.role === Role.UrbanPlanner ? (
                   <ListMunicipality />

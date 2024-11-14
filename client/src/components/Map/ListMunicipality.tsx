@@ -11,7 +11,7 @@ function ListMunicipality() {
     useEffect(() => {
         const fetchDocuments = async () => {
         const response = await DocumentAPI.getMunicipalityDocuments();
-        console.log(response);
+        console.log("Im here");
         setDocuments(response);
         };
         fetchDocuments();
@@ -22,7 +22,7 @@ function ListMunicipality() {
     <FormModal>
         <Container maxWidth="sm">
         <Typography variant="h4" align="center" gutterBottom>
-            List of Documents
+            Municipality Related Documents
         </Typography>
         <List>
             {documents.map((documents) => (

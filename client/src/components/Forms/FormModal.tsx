@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Modal } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
 const style = {
   display: "flex",
@@ -34,9 +35,13 @@ const style = {
 
 function FormModal(props) {
   const navigate = useNavigate();
+
+  const disabledInput = useContext(DisabledInputContext);
+
   return (
     <Modal
-      open={!props.open ? props.open : true}
+      
+      open={true}
       onClose={() => {
         navigate("/map");
       }}
