@@ -169,6 +169,25 @@ class DocumentRoutes {
     );
 
     this.router.get(
+      "/card/:id",
+      param("id")
+        .notEmpty()
+        .withMessage("Id must not be empty.")
+        .bail()
+        .isInt({ gt: 0 })
+        .withMessage("Param id must be a number greater than 0."),
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .getDocumentCard(req.params.id)
+          .then((document) => res.status(200).json(document))
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
+
+    this.router.get(
       "/:id",
       param("id")
         .notEmpty()
