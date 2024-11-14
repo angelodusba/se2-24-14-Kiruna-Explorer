@@ -30,13 +30,11 @@ class DocumentRoutes {
     // Create a new document
     this.router.post(
       "/",
-      //this.authService.isLoggedIn,
+      this.authService.isLoggedIn,
       this.authService.isUrbanPlanner,
       // Validation
       body("title").notEmpty().withMessage("Title must not be empty."),
-      body("description")
-        .notEmpty()
-        .withMessage("Description must not be empty."),
+      body("description").notEmpty().withMessage("Description must not be empty."),
       body("type_id").isInt().withMessage("Type ID must be an integer."),
       body("issue_date")
         .notEmpty()
@@ -44,9 +42,7 @@ class DocumentRoutes {
         .matches(
           /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$|^(0[1-9]|1[0-2])\/(\d{4})$|^\d{4}$/
         )
-        .withMessage(
-          "Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY."
-        )
+        .withMessage("Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY.")
         .bail()
         .custom((value) => {
           if (value.split("/").length < 3) return true;
@@ -87,9 +83,7 @@ class DocumentRoutes {
       body("pages").optional().isString(),
       body("stakeholders")
         .isArray({ min: 1 })
-        .withMessage(
-          "Stakeholders must be an array of integers with at least one ID."
-        ),
+        .withMessage("Stakeholders must be an array of integers with at least one ID."),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller
@@ -131,7 +125,6 @@ class DocumentRoutes {
 
     this.router.get(
       "/:id",
-      // this.authService.isLoggedin(),
       param("id")
         .notEmpty()
         .withMessage("Id must not be empty.")
@@ -149,8 +142,18 @@ class DocumentRoutes {
       }
     );
 
+    this.router.get("/municipality", (req: any, res: any, next: any) => {
+      this.controller
+        .getMunicipalityDocuments()
+        .then((docs) => res.status(200).json(docs))
+        .catch((err: any) => {
+          next(err);
+        });
+    });
+
     this.router.put(
       "/location",
+      this.authService.isLoggedIn,
       this.authService.isUrbanPlanner,
       body("id").isInt().withMessage("Document ID must be an integer."),
       body("location")
@@ -158,20 +161,20 @@ class DocumentRoutes {
         .withMessage("Location must be an array.")
         .bail()
         .custom((value: any) => {
-            if (
+          if (
             !value.every(
-                (coord: any) =>
+              (coord: any) =>
                 typeof coord === "object" &&
                 coord !== null &&
                 !isNaN(Number(coord.lat)) &&
                 !isNaN(Number(coord.lng))
             )
-            ) {
+          ) {
             throw new Error(
-                "Each coordinate must be an object with numeric lat and lng properties."
+              "Each coordinate must be an object with numeric lat and lng properties."
             );
-            }
-            return true; // Indicates the validation passed
+          }
+          return true; // Indicates the validation passed
         }),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
@@ -183,7 +186,6 @@ class DocumentRoutes {
           });
       }
     );
-    
   }
 }
 

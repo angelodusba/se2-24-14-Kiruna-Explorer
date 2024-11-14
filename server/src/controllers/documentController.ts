@@ -81,6 +81,14 @@ class DocumentController {
   }
 
   /**
+   * Retrieve all the documents that belong to the municipality area.
+   * @returns A Promise that resolves to an array of Document objects.
+   */
+  async getMunicipalityDocuments(): Promise<Document[]> {
+    return this.dao.getMunicipalityDocuments();
+  }
+
+  /**
    * Updates the location of a document.
    * @param id - The unique identifier of the document to update.
    * @param location - An array of objects representing the new coordinates of the document,
@@ -96,7 +104,6 @@ class DocumentController {
     const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
     return this.dao.updateDocumentLocation(id, locationStr);
   }
-
 }
 
 export default DocumentController;

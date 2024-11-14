@@ -83,7 +83,6 @@ class DocumentDAO {
    * @returns A Promise that resolves to an array of documents.
    * @throws An error if the documents cannot be retrieved.
    */
-
   async getDocumentsNames(): Promise<any> {
     try {
       const sql = `SELECT id, title FROM documents`;
@@ -141,8 +140,7 @@ class DocumentDAO {
 
   /**
    * Retrieves the locations of documents from the database.
-   * @returns A promise that resolves to an array of DocumentLocationResponse objects, each containing
-   *          a document's ID, type, and location coordinates (if available).
+   * @returns A promise that resolves to an array of DocumentLocationResponse objects.
    * @throws Throws an error if the query execution fails.
    */
   async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
@@ -179,7 +177,38 @@ class DocumentDAO {
     }
   }
 
-   /**
+  /**
+   * Retrieve all the documents that belong to the municipality area.
+   * @returns A Promise that resolves to an array of Document objects.
+   * @throws Throws an error if the query execution fails.
+   */
+  async getMunicipalityDocuments(): Promise<Document[]> {
+    try {
+      const sql = `SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name,
+                    D.issue_date, D.scale, D.language, D.pages
+                  FROM documents D, types T
+                  WHERE D.type_id=T.id AND D.location IS NULL`;
+      const res = await db.query(sql);
+      return res.rows.map(
+        (doc: any) =>
+          new Document(
+            doc.id,
+            doc.title,
+            doc.description,
+            new Type(doc.type_id, doc.type_name),
+            doc.issue_date,
+            doc.scale,
+            [],
+            doc.language,
+            doc.pages
+          )
+      );
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
    * Updates the location of a document in the database.
    * @param documentId - The unique identifier of the document to update.
    * @param location - The new location of the document. It can be a string representing
@@ -189,10 +218,7 @@ class DocumentDAO {
    * @throws DocumentNotFoundError if the document does not exist.
    * @throws Throws an error if the query execution fails.
    */
-  async updateDocumentLocation(
-    documentId: number,
-    location: string
-  ): Promise<boolean> {
+  async updateDocumentLocation(documentId: number, location: string): Promise<boolean> {
     try {
       let sql = "";
       if (!location || location === "") {
@@ -215,7 +241,5 @@ class DocumentDAO {
     }
   }
 }
-
-
 
 export default DocumentDAO;
