@@ -123,25 +123,6 @@ class DocumentRoutes {
         });
     });
 
-    this.router.get(
-      "/:id",
-      param("id")
-        .notEmpty()
-        .withMessage("Id must not be empty.")
-        .bail()
-        .isInt({ gt: 0 })
-        .withMessage("Param id must be a number greater than 0."),
-      this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) => {
-        this.controller
-          .getDocumentById(req.params.id)
-          .then((document) => res.status(200).json(document))
-          .catch((err: any) => {
-            next(err);
-          });
-      }
-    );
-
     this.router.get("/municipality", (req: any, res: any, next: any) => {
       this.controller
         .getMunicipalityDocuments()
@@ -181,6 +162,25 @@ class DocumentRoutes {
         this.controller
           .updateDocumentLocation(req.body.id, req.body.location)
           .then(() => res.status(200).end())
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
+
+    this.router.get(
+      "/:id",
+      param("id")
+        .notEmpty()
+        .withMessage("Id must not be empty.")
+        .bail()
+        .isInt({ gt: 0 })
+        .withMessage("Param id must be a number greater than 0."),
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .getDocumentById(req.params.id)
+          .then((document) => res.status(200).json(document))
           .catch((err: any) => {
             next(err);
           });
