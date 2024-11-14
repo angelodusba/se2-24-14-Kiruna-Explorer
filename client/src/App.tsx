@@ -10,6 +10,7 @@ import AccessAPI from "./API/AccessAPI";
 import DocumentAPI from "./API/DocumentAPI";
 import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
+import DocumentList from "./components/listDocument/DocumentList";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -49,10 +50,15 @@ function App() {
   return (
     <UserContext.Provider value={user}>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+        <Route
+          path="/"
+          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+        />
         <Route
           path="/auth"
-          element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
+          element={
+            user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
+          }
         />
         <Route
           path="/"
@@ -92,9 +98,22 @@ function App() {
                 )
               }
             />
+            <Route
+              path="documents"
+              element={
+                user ? (
+                  <DocumentList open={true} onClose={() => {}} />
+                ) : (
+                  <Navigate to="/auth" />
+                )
+              }
+            />
           </Route>
         </Route>
-        <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+        <Route
+          path="*"
+          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+        />
       </Routes>
     </UserContext.Provider>
   );

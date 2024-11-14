@@ -1,5 +1,5 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Popup, Marker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
@@ -8,6 +8,7 @@ import { useContext, useState } from "react";
 import Dial from "../Dial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
+import DocumentList from "../listDocument/DocumentList";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -24,11 +25,22 @@ const handleDocumentShow = (id) => {
 
 function Map(props) {
   const user = useContext(UserContext);
-  const [docCard, setDocCard] = useState(undefined);
+  // const [docCard, setDocCard] = useState(undefined);
+  const [openDocuments, setOpenDocuments] = useState(false);
+
+  const handleOpenDocuments = () => {
+    setOpenDocuments(true);
+  };
+
+  const handleCloseDocuments = () => {
+    setOpenDocuments(false);
+  };
 
   return (
     <>
-      {user && user.role === Role.UrbanPlanner && <Dial />}
+      {user && user.role === Role.UrbanPlanner && (
+        <Dial onOpenDocuments={handleOpenDocuments} />
+      )}
       <MapContainer
         className="map"
         center={[67.85572, 20.22513]}
@@ -84,6 +96,7 @@ function Map(props) {
           })}
         </MarkerClusterGroup>
       </MapContainer>
+      <DocumentList open={openDocuments} onClose={handleCloseDocuments} />
     </>
   );
 }
