@@ -10,10 +10,12 @@ import AccessAPI from "./API/AccessAPI";
 import DocumentAPI from "./API/DocumentAPI";
 import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
+import { DisabledInputContext } from "./contexts/DisabledInputContext";
 import ListMunicipality from "./components/Map/ListMunicipality";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [disabledInput, setDisabledInput] = useState<boolean>(false);
   const [docsLocation, setDocsLocation] = useState([]);
 
   const navigate = useNavigate();
@@ -49,51 +51,56 @@ function App() {
 
   return (
     <UserContext.Provider value={user}>
-      <Routes>
-        <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
-        <Route
-          path="/auth"
-          element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
-        />
-        <Route
-          path="/"
-          element={
-            <>
-              <Navbar logout={doLogout} />
-              <Outlet />
-            </>
-          }
-        >
+      <DisabledInputContext.Provider
+        value={{ disabledInput, setDisabledInput }}>
+        <Routes>
           <Route
-            path="/map"
+            path="/"
+            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+          />
+          <Route
+            path="/auth"
+            element={
+              user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
+            }
+          />
+          <Route
+            path="/"
             element={
               <>
-                <Map docs={docsLocation} />
+                {!disabledInput && <Navbar logout={doLogout} />}
                 <Outlet />
               </>
-            }
-          >
+            }>
             <Route
-              path="add"
+              path="/map"
               element={
-                user && user.role === Role.UrbanPlanner ? (
-                  <AddDocumentPage />
-                ) : (
-                  <Navigate to="/auth" />
-                )
-              }
-            />
-            <Route
-              path="link"
-              element={
-                user && user.role === Role.UrbanPlanner ? (
-                  <LinkDocumentsPage />
-                ) : (
-                  <Navigate to="/auth" />
-                )
-              }
-            />
-            <Route 
+                <>
+                  <Map docs={docsLocation} />
+                  <Outlet />
+                </>
+              }>
+              <Route
+                path="add"
+                element={
+                  user && user.role === Role.UrbanPlanner ? (
+                    <AddDocumentPage />
+                  ) : (
+                    <Navigate to="/auth" />
+                  )
+                }
+              />
+              <Route
+                path="link"
+                element={
+                  user && user.role === Role.UrbanPlanner ? (
+                    <LinkDocumentsPage />
+                  ) : (
+                    <Navigate to="/auth" />
+                  )
+                }
+              />
+              <Route 
             path = "municipality"
               element= {
                 user && user.role === Role.UrbanPlanner ? (
@@ -103,9 +110,13 @@ function App() {
                 )
               }/>
           </Route>
-        </Route>
-        <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
-      </Routes>
+          </Route>
+          <Route
+            path="*"
+            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+          />
+        </Routes>
+      </DisabledInputContext.Provider>{" "}
     </UserContext.Provider>
   );
 }

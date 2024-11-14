@@ -20,6 +20,7 @@ import Grid from "@mui/material/Grid2";
 import UserContext from "../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
+import { DisabledInputContext } from "../contexts/DisabledInputContext";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -99,6 +100,7 @@ const AccountMenu = styled((props: MenuProps) => (
 
 function Navbar(props) {
   const user = React.useContext(UserContext);
+  const { disabledInput } = React.useContext(DisabledInputContext);
   const navigate = useNavigate();
 
   const [accountAnchorEl, setAccountAnchorEl] =
@@ -203,6 +205,7 @@ function Navbar(props) {
                 }}>
                 {!user ? (
                   <Fab
+                    disabled={disabledInput}
                     variant="extended"
                     size="medium"
                     className="customButton"
@@ -212,6 +215,7 @@ function Navbar(props) {
                   </Fab>
                 ) : (
                   <Fab
+                    disabled={disabledInput}
                     size="medium"
                     id="accountMenu"
                     aria-controls={accountOpen ? "accountMenu" : undefined}
