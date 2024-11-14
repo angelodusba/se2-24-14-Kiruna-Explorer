@@ -10,6 +10,7 @@ import AccessAPI from "./API/AccessAPI";
 import DocumentAPI from "./API/DocumentAPI";
 import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
+import ListMunicipality from "./components/Map/ListMunicipality";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -92,6 +93,15 @@ function App() {
                 )
               }
             />
+            <Route 
+            path = "municipality"
+              element= {
+                user && user.role === Role.UrbanPlanner ? (
+                  <ListMunicipality />
+                ) : (
+                  <Navigate to="/auth" />
+                )
+              }/>
           </Route>
         </Route>
         <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />

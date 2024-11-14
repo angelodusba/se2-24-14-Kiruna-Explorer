@@ -14,6 +14,7 @@ function DocumentDial() {
         id: 1,
         icon: <Folder />,
         name: "Show municipal area documents",
+        url: "/map/municipality",
         },
     ]
 
@@ -42,7 +43,7 @@ function DocumentDial() {
             tooltipTitle={action.name}
             tooltipPlacement="right"
             tooltipOpen
-            onClick={() => navigate("/documentssjhshhs")}
+            onClick={() => navigate(action.url)}
             sx={{
                 "& .MuiSpeedDialAction-staticTooltipLabel": {
                 whiteSpace: "nowrap",
