@@ -22,6 +22,7 @@ import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 import SearchBar from "./SearchBar";
+import { Filter } from "../models/Filter";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -149,9 +150,9 @@ function Navbar(props) {
     </AccountMenu>
   );
 
-  const handleSearch = (text: string, type:string) => {
-    console.log(text, type);
-    // Implement logic for search
+  const handleSearch = (filter: Filter) => {
+    // Maybe props.fetchData(filter)
+    console.log(filter);
   }
 
   return (
@@ -191,7 +192,7 @@ function Navbar(props) {
                   Kiruna Explorer
                 </Typography>
               </Grid>
-              <SearchBar onSearch = {handleSearch}/>
+              <SearchBar onSearch = {(filter) => handleSearch(filter)}/>
               <Grid
                 size={6}
                 sx={{
