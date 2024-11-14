@@ -1,16 +1,25 @@
-import React, { useEffect } from 'react';
-import { List, ListItem, ListItemText, Container, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+
+import { List, ListItem, ListItemText, Container, Typography, ListItemButton } from '@mui/material';
 import FormModal from '../Forms/FormModal';
+import DocumentAPI from '../../API/DocumentAPI';
 
 function ListMunicipality() {
-  // Example list of document names
-  const documents = [
-    { id: 1, name: 'Document 1' },
-    { id: 2, name: 'Document 2' },
-    { id: 3, name: 'Document 3' },
-    { id: 4, name: 'Document 4' },
-  ];
+  
+  const [documents, setDocuments] = useState([]);
 
+    useEffect(() => {
+        const fetchDocuments = async () => {
+        const response = await DocumentAPI.getAllDocumentsNames();
+        // Get documents location and filter the ones with no location
+        const response2 = await DocumentAPI.getDocumentsLocation();
+        const idsWithNoLocation = response2.filter((doc) => doc.location.length === 0).map((doc) => doc.id);
+        // Filter documents with location
+        const temp = response.filter((doc) => idsWithNoLocation.includes(doc.id));
+        setDocuments(temp);
+        };
+        fetchDocuments();
+    }, []);
 
   return (
     <>
@@ -20,9 +29,11 @@ function ListMunicipality() {
             List of Documents
         </Typography>
         <List>
-            {documents.map((doc) => (
-            <ListItem key={doc.id}>
-                <ListItemText primary={doc.name} />
+            {documents.map((documents) => (
+            <ListItem key={documents.id}>
+                <ListItemButton>
+                    <ListItemText primary={documents.title} />
+                </ListItemButton>
             </ListItem>
             ))}
         </List>

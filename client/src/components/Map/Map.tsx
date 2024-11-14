@@ -69,6 +69,7 @@ function Map(props) {
                 ></Marker>
               );
             }
+            {/*
             if (doc.location.length === 0) {
               return (
                 <Marker
@@ -83,6 +84,7 @@ function Map(props) {
                 ></Marker>
               );
             }
+            */}
           })}
         </MarkerClusterGroup>
       </MapContainer>
