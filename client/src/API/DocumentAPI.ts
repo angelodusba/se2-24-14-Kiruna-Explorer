@@ -36,20 +36,7 @@ async function sendDocument(document: Document): Promise<number> {
   }
 }
 
-async function getAllDocuments() {
-  const response = await fetch(baseURL + "documents/names", {
-    credentials: "include",
-  });
-  if (response.ok) {
-    const documents = await response.json();
-    return documents;
-  } else {
-    const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
-  }
-}
+
 async function getDocumentsLocation() {
   const response = await fetch(baseURL + "documents/location", {
     method: "GET",
@@ -118,12 +105,28 @@ async function getAllDocumentsNames() {
   }
 }
 
+async function getMunicipalityDocuments(){
+  const response = await fetch(baseURL + "documents/municipality", {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    const documents = await response.json();
+    return documents;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+    throw new Error("Error. Please reload the page");
+  }
+}
+
 const DocumentAPI = {
   sendDocument,
-  getAllDocuments,
   getDocumentsLocation,
   getAllDocumentsNames,
   getTypes,
   getStakeholders,
+  getMunicipalityDocuments
 };
 export default DocumentAPI;

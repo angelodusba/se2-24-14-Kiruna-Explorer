@@ -10,13 +10,9 @@ function ListMunicipality() {
 
     useEffect(() => {
         const fetchDocuments = async () => {
-        const response = await DocumentAPI.getAllDocumentsNames();
-        // Get documents location and filter the ones with no location
-        const response2 = await DocumentAPI.getDocumentsLocation();
-        const idsWithNoLocation = response2.filter((doc) => doc.location.length === 0).map((doc) => doc.id);
-        // Filter documents with location
-        const temp = response.filter((doc) => idsWithNoLocation.includes(doc.id));
-        setDocuments(temp);
+        const response = await DocumentAPI.getMunicipalityDocuments();
+        console.log(response);
+        setDocuments(response);
         };
         fetchDocuments();
     }, []);
