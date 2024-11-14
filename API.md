@@ -289,6 +289,73 @@ Retrieves all the information of the requested document.
 
 - TODO: Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
+#### GET `kirunaexplorer/documents/filtered`
+
+Retrieves all the names and ids of the documents matching the particular filter.
+
+- Request Parameters: None
+- Request Body Content: An object that has two main properties: type of filter and filter parameters. The object must have the following attributes:
+  - `type`: a string representing the type of filtering
+  - `params`: an object that contains the specific parameters for the type filter
+  - Example:
+
+## Date Filter
+
+```JSON
+{
+    "type": "issue_date",
+    "params": {
+        "start_date": "01/01/2020",
+        "end_date": "31/12/2020"
+    }
+}
+```
+
+## Title Filter
+
+```JSON
+{
+  "type": "title",
+  "params": {
+    "title": "Document 1"
+  }
+}
+```
+## Type Filter
+
+```JSON
+{
+  "type": "type",
+  "params": {
+    "type": {
+      "id": 1,
+      "name": "Node type 1"
+    }
+  }
+}
+```
+
+
+- Response Body Content: An array of objects, each representing a document:
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "title": "Document 1"
+    },
+    {
+        "id": 2,
+        "title": "Document 2"
+    }
+]
+```
+
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+
+
+
 ### Stakeholder APIs
 
 #### GET `kirunaexplorer/stakeholders`
