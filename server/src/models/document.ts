@@ -1,5 +1,6 @@
 import Coordinates from "./coordinates";
 import Type from "./type";
+import Attachment from "./attachment";
 
 class Document {
   id: number;
@@ -11,6 +12,7 @@ class Document {
   location: Coordinates[];
   language?: string;
   pages?: string;
+  attachments?: Attachment[];
 
   constructor(
     id: number,
@@ -21,7 +23,9 @@ class Document {
     scale: string,
     location: Coordinates[],
     language: string,
-    pages: string
+    pages: string,
+    attachments: Attachment[]
+
   ) {
     this.id = id;
     this.title = title;
@@ -32,6 +36,7 @@ class Document {
     this.location = location;
     this.language = language;
     this.pages = pages;
+    this.attachments = attachments;
   }
 }
 
