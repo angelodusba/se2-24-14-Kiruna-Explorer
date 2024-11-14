@@ -132,7 +132,8 @@ class DocumentDAO {
             })
           : [],
         doc.language,
-        doc.pages
+        doc.pages,
+        doc.attachments
       );
     } catch (err: any) {
       throw err;
@@ -201,7 +202,8 @@ class DocumentDAO {
             doc.scale,
             [],
             doc.language,
-            doc.pages
+            doc.pages,
+            doc.attachments,
           )
       );
     } catch (err: any) {

@@ -21,6 +21,7 @@ import UserContext from "../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
+import SearchBar from "./SearchBar";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -148,6 +149,11 @@ function Navbar(props) {
     </AccountMenu>
   );
 
+  const handleSearch = (text: string, type:string) => {
+    console.log(text, type);
+    // Implement logic for search
+  }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -185,6 +191,7 @@ function Navbar(props) {
                   Kiruna Explorer
                 </Typography>
               </Grid>
+              <SearchBar onSearch = {handleSearch}/>
               <Grid
                 size={6}
                 sx={{

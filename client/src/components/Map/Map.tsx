@@ -10,6 +10,7 @@ import DocumentDial from "../DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
+import SearchBar from "../SearchBar";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -32,6 +33,7 @@ function Map(props) {
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
   //const [docCard, setDocCard] = useState(undefined);
+
 
   return (
     <>

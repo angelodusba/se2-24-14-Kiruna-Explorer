@@ -12,6 +12,7 @@ import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
 import ListMunicipality from "./components/Map/ListMunicipality";
+import SearchBar from "./components/SearchBar";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -31,6 +32,8 @@ function App() {
     setUser(undefined);
     navigate("/");
   };
+
+
 
   useEffect(() => {
     const checkAuth = async () => {
