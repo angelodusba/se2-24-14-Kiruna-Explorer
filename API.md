@@ -174,8 +174,8 @@ Retrieves all the locations of the documents in the database.
 [
     {
         "id": 1,
-        "type":  { 
-            "id": 1, 
+        "type":  {
+            "id": 1,
             "name": "Design"
         },
         "location": [
@@ -191,7 +191,7 @@ Retrieves all the locations of the documents in the database.
             "id": 1,
             "name": "Design"
         },
-        "location": [ 		
+        "location": [
             {
                 "lng": 7.5,
                 "lat": 46.5
@@ -291,75 +291,39 @@ Retrieves all the information of the requested document.
 
 #### GET `kirunaexplorer/documents/filtered`
 
-Retrieves all the names and ids of the documents matching the particular filter.
+Retrieves all the information of the documents matching the specified filters.
 
 - Request Parameters: None
-- Request Body Content: An object that has one main property: type of filter and filter parameters. The object must have the following attributes:
-  - `params`: a list of objects that contains the specific parameters for the filter
+- Request Body Content: An object that can contain one or more of the following filter paramters:
+  - `title` (string) - Documents' title.
+  - `description` (string) - Documents' description.
+  - `start_year` (string) - Documents' issue year must be after this value.
+  - `end_year` (string) - Documents' issue year must be before or within this value.
+  - `scale` (string) - Documents' scale, it accepts the following values:
+    - "Blueprints/material effects"
+    - "Text"
+    - "Concept"
+    - "1:NUMBER" (architectural scale)
+  - `type` (number[]) - List of document types ids.
+  - `language` (string) - Documents' language, it can be either "English" or "Swedish".
+  - `stakeholders` (number[]) - List of stakeholders ids related to the documents.
   - Example:
-
-## Date Filter
 
 ```JSON
 {
     "params":
       {
-        "start_date": "01/01/2020",
-        "end_date": "31/12/2020"
+        "title": "doc1",
+        "description": "descr",
+        "start_year": "2020",
+        "end_year": "2022",
+        "scale": "Concept",
+        "type": [1,2],
+        "language": "English",
+        "stakeholders": [3,5,7]
     }
 }
 ```
-
-## Title Filter
-
-```JSON
-{
-  "params":
-    {
-    "title": "Document 1"
-    },
-}
-```
-## Type Filter
-
-```JSON
-{
-  "params": 
-  {
-    "type":
-        {
-        "id": 1,
-        "name": "Node type 1"
-        },
-  }
-}
-```
-
-## StakeHolder Filter
-
-```JSON
-{
-  "params": {
-    "stakeholders": [1,2]
-  }
-}
-```
-
-## Mixed Filter
-
-```JSON
-{
-  "params": {
-    "title": "aaa",
-    "stakeholders": [1,2]
-    "type": {
-      "id":1,
-      "name": "aaaa"
-    }
-  }
-}
-```
-
 
 - Response Body Content: An array of objects, each representing a document:
   - Example:
@@ -367,19 +331,28 @@ Retrieves all the names and ids of the documents matching the particular filter.
 ```JSON
 [
     {
-        "id": 1,
-        "title": "Document 1"
+      "id": 1,
+      "title": "Doc title",
+      "description": "Doc description",
+      "type": {
+        "id": 5,
+        "name": "Prescriptive"
+      },
+      "issue_date": "1980",
+      "scale": "Text",
+      "location": [
+        {"lat": 20.94, "lng": 33.21}
+      ],
+      "language": "English",
+      "pages": "32"
     },
     {
-        "id": 2,
-        "title": "Document 2"
+      ...
     }
 ]
 ```
 
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
-
-
 
 ### Stakeholder APIs
 

@@ -3,9 +3,9 @@ class Attachment {
   document_id: number;
   type: string;
   original: boolean;
-  path: String;
+  path: string;
 
-  constructor(id: number, document_id: number, type: string, original: boolean, path: String) {
+  constructor(id: number, document_id: number, type: string, original: boolean, path: string) {
     this.id = id;
     this.document_id = document_id;
     this.type = type;

@@ -16,19 +16,23 @@ class AttachmentController {
    * @param path - The path to the attachment, must not be null.
    * @returns A Promise that resolves to the ID of the attachment if it has been successfully added.
    */
-  async addAttachment(document_id: number, type: string, original: boolean, path: string): Promise<{ id: number }> {
+  async addAttachment(
+    document_id: number,
+    type: string,
+    original: boolean,
+    path: string
+  ): Promise<{ id: number }> {
     return this.dao.addAttachment(document_id, type, original, path);
-    }
+  }
 
-    /**
-     * retrieves all attachments of a document by delegating to the DAO layer.
-     * @param document_id - The ID of the document, must not be null.
-     * @returns A Promise that resolves to an array of attachments.
-     * @throws Error if the attachments cannot be retrieved.
-     * */
-    async getAttachments(document_id: number): Promise<Attachment[]> {
-      return this.dao.getAttachments(document_id);
-    }
+  /**
+   * Retrieves all attachments of a document by delegating to the DAO layer.
+   * @param document_id - The ID of the document, must not be null.
+   * @returns A Promise that resolves to an array of attachments.
+   * */
+  async getAttachments(document_id: number): Promise<Attachment[]> {
+    return this.dao.getAttachments(document_id);
+  }
 }
 
 export default AttachmentController;
