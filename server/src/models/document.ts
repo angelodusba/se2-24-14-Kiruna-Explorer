@@ -12,7 +12,6 @@ class Document {
   location: Coordinates[];
   language?: string;
   pages?: string;
-  attachments?: Attachment[];
 
   constructor(
     id: number,
@@ -24,7 +23,6 @@ class Document {
     location: Coordinates[],
     language: string,
     pages: string,
-    attachments: Attachment[]
 
   ) {
     this.id = id;
@@ -36,7 +34,6 @@ class Document {
     this.location = location;
     this.language = language;
     this.pages = pages;
-    this.attachments = attachments;
   }
 }
 

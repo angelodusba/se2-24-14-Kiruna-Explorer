@@ -30,3 +30,5 @@ class AttachmentController {
       return this.dao.getAttachments(document_id);
     }
 }
+
+export default AttachmentController;
