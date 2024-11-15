@@ -12,20 +12,12 @@ import {
     IconButton,
     Autocomplete,
     Grid,
-    Checkbox,
-    FormControl,
-    InputLabel,
-    Select
   } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
 import { Type } from "../models/Type";
 import { StakeHolder } from "../models/StakeHolders";
 import {Filter} from "../models/Filter";
-
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-
 
 import DocumentAPI from "../API/DocumentAPI";
 const datePattern = /^([0-9]{4})$/;
@@ -38,60 +30,50 @@ const languages = [
     },
   ];
 
-const SearchBarWithButton = ({ docsLocation, handleOpen }) => {
+const SearchBarWithButton = ({ docsLocation, handleOpen, handleSearch }) => {
     const [text, setText] = useState('');
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [duplicateTitles, setDuplicateTitles] = useState([]);
 
-    useEffect(() => {
-        const titleCount = docsLocation.reduce((acc, doc) => {
-            acc[doc.title] = (acc[doc.title] || 0) + 1;
-            return acc;
-        }, {});
-
-        const duplicates = Object.keys(titleCount)
-            .filter((title) => titleCount[title] > 1)
-            .map((title) => ({
-                title,
-                count: titleCount[title],
-            }));
-
-        setDuplicateTitles(duplicates);
-    }, [docsLocation]);
-  
     return (
-      <Autocomplete
-        freeSolo
-        fullWidth
-        options={
-            docsLocation.map((doc) => ({ title: doc.title, id: doc.id, isDuplicate : duplicateTitles.some((dup) => dup.title === doc.title) }))
-        }
-        value={docsLocation.find((doc) => doc.title === text) || null}
-        onChange={(event, newValue) => {setSelectedDoc(newValue)}}
-        inputValue={text}
-        onInputChange={(event, newInputValue) => setText(newInputValue || "")}
-        getOptionLabel={(option: {id, title, isDuplicate}) => option.title + (option.isDuplicate ? " " + option.id : "")}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Search Title"
-            fullWidth
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {params.InputProps.endAdornment}
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleOpen}>
-                      <AddIcon />
-                    </IconButton>
-                  </InputAdornment>
-                </>
-              ),
-            }}
-          />
-        )}
-      />
+      <>
+        <Autocomplete
+          freeSolo
+          fullWidth
+          options={
+              docsLocation.map((doc) => ({ title: doc.title, id: doc.id }))
+          }
+          value={docsLocation.find((doc) => doc.title === text) || null}
+          onChange={(event, newValue) => {setSelectedDoc(newValue)}}
+          inputValue={text}
+          onInputChange={(event, newInputValue) => setText(newInputValue || "")}
+          getOptionLabel={(option: {id, title}) => option.title}
+          getOptionKey={(option: {id, title}) => option.id}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search Title"
+              fullWidth
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {params.InputProps.endAdornment}
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleOpen}>
+                        <AddIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  </>
+                ),
+              }}
+            />
+          )}
+        />
+        <Button variant="contained" color="primary" onClick={() => handleSearch(text)}>
+                  Search
+        </Button>
+      </>
     );
   };
 
@@ -105,18 +87,18 @@ function SearchBar(props) {
     const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
     const FILTER_DEFAULTS = {
         params: {
-          title: "",
+          title: undefined,
           type: undefined,
-          stakeholders: [],
-          startDate: "",
-          endDate: "",
-          description: "",
-          scale: "",
-          location: null,
-          radius: 0,
-          language: "",
-          minPages: 0,
-          maxPages: 0,
+          stakeholders: undefined,
+          startDate: undefined,
+          endDate: undefined,
+          description: undefined,
+          scale: undefined,
+          location: undefined,
+          radius: undefined,
+          language: undefined,
+          minPages: undefined,
+          maxPages: undefined,
         }
     };
     const [filter, setFilter] = useState<Filter>(FILTER_DEFAULTS);
@@ -147,10 +129,31 @@ function SearchBar(props) {
     // Handle opening and closing the form
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    
+    // Handle title search submission, for now duplicates are not handled
+    const handleSearch = (text) => {
+        let filter = FILTER_DEFAULTS;
+        filter.params.title = text;
+        let temp = {...filter};
+        for (let key in filter.params) {
+          if (temp.params[key] === "" || temp.params[key] === null || temp.params[key] === undefined) {
+            delete temp.params[key];
+          }
+        }
+        props.onSearch(filter);
+        console.log("Search for: ", filter);
+    };
   
     // Handle form submission
     const handleSubmit = () => {
-      props.onSearch(filter);
+      let temp = {...filter};
+      for (let key in temp.params) {
+        if (temp.params[key] === "" || temp.params[key] === null || temp.params[key] === undefined) {
+          delete temp.params[key];
+        }
+      }
+      props.onSearch(temp);
+      console.log("Search for: ", filter);
       handleClose();
     };
 
@@ -170,7 +173,7 @@ function SearchBar(props) {
             {/* TextField with button inside */}
             <SearchBarWithButton
                 docsLocation={props.docsLocation}
-                handleOpen={handleOpen} />
+                handleOpen={handleOpen} handleSearch={handleSearch} />
 
             {/* Dialog Form */}
             <Dialog open={open} onClose={handleClose} fullWidth>
@@ -188,7 +191,7 @@ function SearchBar(props) {
                     <Grid item xs={12}>
                         <TextField
                             label="Title"
-                            value={filter.params.title}
+                            value={filter.params.title || ""}
                             onChange={(e) =>
                             setFilter({
                                 params: { ...filter.params, title: e.target.value },
@@ -220,7 +223,7 @@ function SearchBar(props) {
                             multiple
                             options={stakeholders}
                             getOptionLabel={(option) => option.name}
-                            value={filter.params.stakeholders}
+                            value={filter.params.stakeholders || []}
                             onChange={(e, newValue) =>
                                 setFilter({
                                     params: { ...filter.params, stakeholders: newValue },
@@ -235,7 +238,7 @@ function SearchBar(props) {
                     <Grid item xs={6}>
                         <TextField
                             label="Start Date"
-                            value={filter.params.startDate}
+                            value={filter.params.startDate || ""}
                             onChange={(e) =>
                                 setFilter({
                                     params: { ...filter.params, startDate: e.target.value },
@@ -250,7 +253,7 @@ function SearchBar(props) {
                     <Grid item xs={6}>
                         <TextField
                             label="End Date"
-                            value={filter.params.endDate}
+                            value={filter.params.endDate || ""}
                             onChange={(e) =>
                                 setFilter({
                                     params: { ...filter.params, endDate: e.target.value },
@@ -314,10 +317,6 @@ function SearchBar(props) {
                     <Button onClick={handleSubmit}>Search</Button>
                 </DialogActions>
             </Dialog>
-
-            <Button variant="contained" color="primary">
-                Search
-            </Button>
         </Box>
     );
 }

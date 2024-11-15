@@ -164,7 +164,7 @@ function Navbar(props) {
 
   const handleSearch = (filter: Filter) => {
     // Maybe props.fetchData(filter)
-    console.log(filter);
+    
   }
 
   return (
