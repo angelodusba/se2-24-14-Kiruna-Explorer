@@ -3,6 +3,7 @@ import { DocumentNotFoundError } from "../errors/documentErrors";
 import Coordinates from "../models/coordinates";
 import Document from "../models/document";
 import Type from "../models/type";
+import DocumentCardResponse from "../response/documentCardResponse";
 import DocumentLocationResponse from "../response/documentLocationResponse";
 
 class DocumentDAO {
@@ -83,7 +84,6 @@ class DocumentDAO {
    * @returns A Promise that resolves to an array of documents.
    * @throws An error if the documents cannot be retrieved.
    */
-
   async getDocumentsNames(): Promise<any> {
     try {
       const sql = `SELECT id, title FROM documents`;
@@ -132,7 +132,8 @@ class DocumentDAO {
             })
           : [],
         doc.language,
-        doc.pages
+        doc.pages,
+        doc.attachments
       );
     } catch (err: any) {
       throw err;
@@ -141,8 +142,7 @@ class DocumentDAO {
 
   /**
    * Retrieves the locations of documents from the database.
-   * @returns A promise that resolves to an array of DocumentLocationResponse objects, each containing
-   *          a document's ID, type, and location coordinates (if available).
+   * @returns A promise that resolves to an array of DocumentLocationResponse objects.
    * @throws Throws an error if the query execution fails.
    */
   async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
@@ -174,6 +174,128 @@ class DocumentDAO {
         );
       });
       return response;
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieve all the documents that belong to the municipality area.
+   * @returns A Promise that resolves to an array of Document objects.
+   * @throws Throws an error if the query execution fails.
+   */
+  async getMunicipalityDocuments(): Promise<Document[]> {
+    try {
+      const sql = `SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name,
+                    D.issue_date, D.scale, D.language, D.pages
+                  FROM documents D, types T
+                  WHERE D.type_id=T.id AND D.location IS NULL`;
+      const res = await db.query(sql);
+      return res.rows.map(
+        (doc: any) =>
+          new Document(
+            doc.id,
+            doc.title,
+            doc.description,
+            new Type(doc.type_id, doc.type_name),
+            doc.issue_date,
+            doc.scale,
+            [],
+            doc.language,
+            doc.pages,
+            doc.attachments,
+          )
+      );
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
+   * Updates the location of a document in the database.
+   * @param documentId - The unique identifier of the document to update.
+   * @param location - The new location of the document. It can be a string representing
+   *                   a single point ("long lat") or a polygon ("long lat, long lat, ...").
+   *                   If empty, the location is set to NULL, indicating the entire municipality area.
+   * @returns A promise that resolves to true if the document's location has been successfully updated.
+   * @throws DocumentNotFoundError if the document does not exist.
+   * @throws Throws an error if the query execution fails.
+   */
+  async updateDocumentLocation(documentId: number, location: string): Promise<boolean> {
+    try {
+      let sql = "";
+      if (!location || location === "") {
+        // Case of entire municipality area
+        sql = `UPDATE documents SET location = NULL WHERE id = $1`;
+      } else if (location.split(",").length > 1) {
+        // Case of Polygon
+        sql = `UPDATE documents SET location = ST_SetSRID(ST_GeometryFromText('POLYGON((${location}))'), 4326) WHERE id = $1`;
+      } else {
+        // Case of single Point
+        sql = `UPDATE documents SET location = ST_SetSRID(ST_GeometryFromText('POINT(${location})'), 4326) WHERE id = $1`;
+      }
+      const res = await db.query(sql, [documentId]);
+      if (res.rowCount === 0) {
+        throw new DocumentNotFoundError();
+      }
+      return true;
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  async getDocumentCard(documentId: number): Promise<DocumentCardResponse> {
+    try {
+      const sql = `SELECT D.id, D.title, D.description, T.id AS type_id, T.name AS type_name,
+                    D.issue_date, D.scale, D.language, D.pages,
+                    CASE 
+                      WHEN location IS NULL THEN NULL
+                      WHEN ST_GeometryType(location) = 'ST_Point' THEN 
+                        substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
+                      WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
+                        substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 10))
+                    END AS location,
+                    COALESCE(SUM(conn.conn_num), 0) AS conn_count, stakeholders
+                  FROM documents D 
+                    JOIN types T ON D.type_id = T.id 
+                    LEFT JOIN (
+                        SELECT COUNT(*) AS conn_num, C.document_id_1, C.document_id_2
+                        FROM connections C
+                    GROUP BY C.document_id_1, C.document_id_2
+                    ) conn ON (D.id = conn.document_id_1 OR D.id = conn.document_id_2)
+                    LEFT JOIN (
+                      SELECT D.id, ARRAY_AGG(S.name) AS stakeholders -- Aggregate stakeholder names
+                      FROM documents D, documents_stakeholders DS, stakeholders S
+                      WHERE D.id=DS.document_id AND S.id=DS.stakeholder_id
+                      GROUP BY D.id
+                    ) stake on D.id=stake.id
+                  WHERE D.id=$1
+                  GROUP BY D.id, D.title, description, T.id, T.name, issue_date, scale, language, pages, location, stakeholders
+                  ORDER BY D.id;
+      `;
+      const res = await db.query(sql, [documentId]);
+      if (!res || res.rows.length === 0) {
+        throw new DocumentNotFoundError();
+      }
+      const doc = res.rows[0];
+      return new DocumentCardResponse(
+        doc.id,
+        doc.title,
+        doc.description,
+        new Type(doc.type_id, doc.type_name),
+        doc.issue_date,
+        doc.scale,
+        doc.location
+          ? doc.location.split(",").map((coords: string) => {
+              const [lng, lat] = coords.split(" ").map(Number);
+              return new Coordinates(lng, lat);
+            })
+          : [],
+        doc.language,
+        doc.pages,
+        Number(doc.conn_count),
+        doc.stakeholders
+      );
     } catch (err: any) {
       throw err;
     }

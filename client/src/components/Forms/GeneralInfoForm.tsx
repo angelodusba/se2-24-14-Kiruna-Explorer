@@ -2,38 +2,88 @@ import {
   Autocomplete,
   Box,
   Checkbox,
-  Chip,
   FormControl,
+  InputAdornment,
   InputLabel,
-  ListItemText,
   MenuItem,
-  OutlinedInput,
   Select,
   TextField,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { Document } from "../../models/Document";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import { StakeHolder } from "../../models/StakeHolders";
+import { useMemo, useState } from "react";
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
+const datePattern =
+  /^([0-9]{4})(\/(0[1-9]|1[0-2])(\/(0[1-9]|[12][0-9]|3[01]))?)?$/;
+const languages = [
+  { code: "GB", label: "English" },
+  {
+    code: "SE",
+    label: "Sweden",
+  },
+];
 
 function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
-  const handleStakeholderChange = (event) => {
-    const selectedStakeholders = event.target.value as number[];
+  const [dateError, setDateError] = useState("");
+  const [scaleModality, setScaleModality] = useState(null);
+
+  const scaleLabels = [
+    "Blueprints/material effects",
+    "Text",
+    "Concept",
+    "Architectural scale",
+  ];
+
+  const selectedStakeholders = useMemo(
+    () =>
+      stakeholders.filter((stakeholder) =>
+        document.stakeholderIds.includes(stakeholder.id)
+      ),
+    [document.stakeholderIds, stakeholders]
+  );
+
+  const handleStakeholderChange = (_event, newValue) => {
+    const updatedStakeholdersIDs = newValue.map((stakeholder) =>
+      Number(stakeholder.id)
+    );
+
     setDocument((prevDocument) => ({
       ...prevDocument,
-      stakeholderIds: selectedStakeholders,
+      stakeholderIds: updatedStakeholdersIDs,
     }));
+    console.log(stakeholders);
+    console.log(selectedStakeholders);
   };
 
   const handleIssueDateChange = (issueDate: string) => {
+    setDateError("");
+    const validChars = /^[0-9/]*$/;
     if (issueDate.length > 10) return;
+    if (!validChars.test(issueDate)) {
+      setDateError("You can only enter numbers");
+      return;
+    }
     setDocument((prevDocument: Document) => {
       const prevLen = prevDocument.issueDate.length;
       const currLen = issueDate.length;
-      if ((prevLen === 4 && currLen === 5) || (prevLen === 7 && currLen === 8)) {
+      if (
+        (prevLen === 4 && currLen === 5) ||
+        (prevLen === 7 && currLen === 8)
+      ) {
         // YYYY or YYYY/MM inserted
         issueDate = `${prevDocument.issueDate}/${issueDate.slice(-1)}`;
       }
       return { ...prevDocument, issueDate: issueDate };
     });
+    if (!datePattern.test(issueDate)) {
+      setDateError("Invalid date format. Use YYYY/MM/DD, YYYY/MM, or YYYY");
+      return;
+    }
   };
 
   return (
@@ -52,7 +102,26 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
           required
         />
       </Grid>
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
+      <Grid sx={{ display: "flex", flexDirection: "column" }} size={12}>
+        <TextField
+          fullWidth
+          label="Description"
+          variant="outlined"
+          minRows={2}
+          multiline
+          value={document.description}
+          onChange={(event) =>
+            setDocument((prevDocument) => ({
+              ...prevDocument,
+              description: event.target.value,
+            }))
+          }
+          required
+        />
+      </Grid>
+      <Grid
+        sx={{ display: "flex", flexDirection: "column" }}
+        size={{ xs: 12, md: 6 }}>
         <Autocomplete
           options={types}
           getOptionLabel={(option) => option.name}
@@ -69,93 +138,179 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
           )}
         />
       </Grid>
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
+      <Grid
+        sx={{ display: "flex", flexDirection: "column" }}
+        size={{ xs: 12, md: 6 }}>
+        <Autocomplete
+          fullWidth
+          id="languages"
+          options={languages}
+          autoHighlight
+          value={
+            languages.find((language) => language.label == document.language) ||
+            null
+          }
+          onChange={(_event, newValue) => {
+            setDocument((prevDocument) => ({
+              ...prevDocument,
+              language: newValue ? newValue.label : "",
+            }));
+          }}
+          getOptionLabel={(option) => option.label}
+          renderOption={(props, option) => {
+            const { key, ...optionProps } = props;
+            return (
+              <Box
+                key={key}
+                component="li"
+                sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
+                {...optionProps}>
+                <img
+                  loading="lazy"
+                  width="20"
+                  srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                  src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+                  alt=""
+                />
+                {option.label}
+              </Box>
+            );
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Language"
+              slotProps={{
+                htmlInput: {
+                  ...params.inputProps,
+                  autoComplete: "new-password", // disable autocomplete and autofill
+                },
+              }}
+            />
+          )}
+        />
+      </Grid>
+      <Grid
+        sx={{ display: "flex", flexDirection: "column" }}
+        size={{ xs: 12, md: 6 }}>
+        <Autocomplete
+          multiple
+          id="stakeholdersSelect"
+          options={stakeholders}
+          limitTags={1}
+          disableCloseOnSelect
+          isOptionEqualToValue={(option, value) => option.id == value.id}
+          getOptionLabel={(option: StakeHolder) => option.name}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Checkbox
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                {option.name}
+              </li>
+            );
+          }}
+          value={selectedStakeholders || null}
+          onChange={handleStakeholderChange}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Stakeholders"
+              placeholder="Stakeholders"
+              slotProps={{
+                htmlInput: {
+                  ...params.inputProps,
+                  required: selectedStakeholders.length === 0,
+                },
+              }}
+              required
+            />
+          )}
+        />
+      </Grid>
+      <Grid
+        sx={{ display: "flex", flexDirection: "column" }}
+        size={{ xs: 12, md: 6 }}>
         <TextField
           fullWidth
           label="Issue Date"
           variant="outlined"
+          onBlur={() => setDateError("")}
           value={document.issueDate}
           onChange={(event) => {
             handleIssueDateChange(event.target.value);
           }}
-          helperText="YYYY/MM/DD or YYYY/MM or YYYY"
+          error={!!dateError}
+          helperText={dateError ? dateError : "YYYY/MM/DD or YYYY/MM or YYYY"}
           required
-        />
-      </Grid>
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
-        <TextField
-          fullWidth
-          label="Pages"
-          variant="outlined"
-          value={document.pages}
-          onChange={(event) =>
-            setDocument((prevDocument) => ({
-              ...prevDocument,
-              pages: event.target.value,
-            }))
-          }
-        />
-      </Grid>
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
-        <TextField
-          fullWidth
-          label="Language"
-          variant="outlined"
-          value={document.language}
-          onChange={(event) =>
-            setDocument((prevDocument) => ({
-              ...prevDocument,
-              language: event.target.value,
-            }))
-          }
+          slotProps={{
+            htmlInput: {
+              inputMode: "numeric",
+              pattern: datePattern.source,
+            },
+          }}
         />
       </Grid>
 
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={12}>
+      <Grid
+        sx={{ display: "flex", flexDirection: "column" }}
+        size={{ xs: 12, md: scaleModality !== 3 ? 12 : 6 }}>
         <FormControl required>
-          <InputLabel id="stakeholders">Stakeholders</InputLabel>
+          <InputLabel id="scaleModality">Scale type</InputLabel>
           <Select
-            labelId="stakeholders"
-            id="stakeholders"
-            multiple
-            value={document.stakeholderIds}
-            onChange={handleStakeholderChange}
-            input={<OutlinedInput id="stakeholders" label="stakeholders" />}
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {(selected as number[]).map((value) => {
-                  const stakeholder = stakeholders.find((s) => s.id === value);
-                  return stakeholder ? (
-                    <Chip key={stakeholder.id} label={stakeholder.name} />
-                  ) : null;
-                })}
-              </Box>
-            )}
-          >
-            {stakeholders.map((stakeholder) => (
-              <MenuItem key={stakeholder.id} value={stakeholder.id}>
-                <Checkbox checked={document.stakeholderIds.includes(stakeholder.id)} />
-                <ListItemText primary={stakeholder.name} />
-              </MenuItem>
-            ))}
+            required
+            variant="outlined"
+            labelId="scaleModality"
+            id="scaleModality"
+            value={scaleModality}
+            label="Scale type"
+            onChange={(event) => {
+              const newMod = event.target.value;
+              setScaleModality(newMod);
+              setDocument((prevDocument) => ({
+                ...prevDocument,
+                scale: newMod !== 3 ? scaleLabels[newMod] : "",
+              }));
+            }}>
+            {scaleLabels.map((mod, index) => {
+              return <MenuItem value={index}>{mod}</MenuItem>;
+            })}
           </Select>
         </FormControl>
       </Grid>
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={12}>
+      <Grid
+        sx={{
+          display: scaleModality !== 3 ? "none" : "flex",
+          flexDirection: "column",
+        }}
+        size={{ xs: 12, md: 6 }}>
         <TextField
           fullWidth
-          label="Description"
+          type="number"
+          label="Architectural scale"
           variant="outlined"
-          minRows={3}
-          multiline
-          value={document.description}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">1 :</InputAdornment>
+              ),
+            },
+          }}
+          value={scaleModality !== 3 ? "" : document.scale}
           onChange={(event) =>
             setDocument((prevDocument) => ({
               ...prevDocument,
-              description: event.target.value,
+              scale: event.target.value,
             }))
           }
-          required
+          placeholder="1000"
+          required={scaleModality === 3}
+          disabled={scaleModality !== 3}
         />
       </Grid>
     </>

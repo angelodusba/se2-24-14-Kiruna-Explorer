@@ -99,7 +99,6 @@ Adds a new document to the database.
   - `language`: a string that can be empty
   - `pages`: a string that can be empty
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
-  - `connections`: an array of objects that can be empty, representing the connections to other documents
   - Example:
 
 ```JSON
@@ -289,6 +288,98 @@ Retrieves all the information of the requested document.
 ```
 
 - TODO: Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+
+#### GET `kirunaexplorer/documents/filtered`
+
+Retrieves all the names and ids of the documents matching the particular filter.
+
+- Request Parameters: None
+- Request Body Content: An object that has one main property: type of filter and filter parameters. The object must have the following attributes:
+  - `params`: a list of objects that contains the specific parameters for the filter
+  - Example:
+
+## Date Filter
+
+```JSON
+{
+    "params":
+      {
+        "start_date": "01/01/2020",
+        "end_date": "31/12/2020"
+    }
+}
+```
+
+## Title Filter
+
+```JSON
+{
+  "params":
+    {
+    "title": "Document 1"
+    },
+}
+```
+## Type Filter
+
+```JSON
+{
+  "params": 
+  {
+    "type":
+        {
+        "id": 1,
+        "name": "Node type 1"
+        },
+  }
+}
+```
+
+## StakeHolder Filter
+
+```JSON
+{
+  "params": {
+    "stakeholders": [1,2]
+  }
+}
+```
+
+## Mixed Filter
+
+```JSON
+{
+  "params": {
+    "title": "aaa",
+    "stakeholders": [1,2]
+    "type": {
+      "id":1,
+      "name": "aaaa"
+    }
+  }
+}
+```
+
+
+- Response Body Content: An array of objects, each representing a document:
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "title": "Document 1"
+    },
+    {
+        "id": 2,
+        "title": "Document 2"
+    }
+]
+```
+
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+
+
 
 ### Stakeholder APIs
 

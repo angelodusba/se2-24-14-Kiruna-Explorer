@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Modal } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
 const style = {
   display: "flex",
@@ -21,7 +22,7 @@ const style = {
   },
   minWidth: {
     xs: "80%",
-    sm: "400px",
+    sm: "500px",
   },
   //Hide scrollbar but allow scrolling
   "&::-webkit-scrollbar": {
@@ -34,15 +35,18 @@ const style = {
 
 function FormModal(props) {
   const navigate = useNavigate();
+
+  const disabledInput = useContext(DisabledInputContext);
+
   return (
     <Modal
+      
       open={true}
       onClose={() => {
         navigate("/map");
       }}
       aria-labelledby="FormModal"
-      aria-describedby="FormModalDescription"
-    >
+      aria-describedby="FormModalDescription">
       <Box sx={style}>
         {React.Children.map(props.children, (child) => {
           if (React.isValidElement(child)) {

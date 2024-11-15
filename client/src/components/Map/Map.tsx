@@ -6,9 +6,12 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useContext, useState } from "react";
 import Dial from "../Dial";
+import DocumentDial from "../DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import DocumentList from "../listDocument/DocumentList";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
+import SearchBar from "../SearchBar";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -16,6 +19,10 @@ const customIcon = new L.Icon({
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
+const bounds = L.latLngBounds(
+  [67.7458, 20.0253], // Southwest coordinates (adjust to set the limit)
+  [67.9658, 20.4253] // Northeast coordinates (adjust to set the limit)
+);
 
 const handleDocumentShow = (id) => {
   //FetchDocByID and set docCard to that
@@ -36,16 +43,23 @@ function Map(props) {
     setOpenDocuments(false);
   };
 
+  const { disabledInput } = useContext(DisabledInputContext);
+  //const [docCard, setDocCard] = useState(undefined);
+
   return (
     <>
       {user && user.role === Role.UrbanPlanner && (
         <Dial onOpenDocuments={handleOpenDocuments} />
       )}
+      {!disabledInput && user && user.role === Role.UrbanPlanner && <Dial onOpenDocuments={handleOpenDocuments} />}
+      {!disabledInput && user && user.role === Role.UrbanPlanner && <DocumentDial />}
       <MapContainer
-        className="map"
         center={[67.85572, 20.22513]}
         minZoom={12}
         zoom={13}
+        bounds={bounds}
+        maxBounds={bounds}
+        maxBoundsViscosity={1.0}
         touchZoom
         doubleClickZoom
         attributionControl={true}
@@ -75,10 +89,10 @@ function Map(props) {
                     },
                   }}
                   icon={customIcon}
-                  position={L.latLng(doc.location[0])}
-                ></Marker>
+                  position={L.latLng(doc.location[0])}></Marker>
               );
             }
+            {/*
             if (doc.location.length === 0) {
               return (
                 <Marker
@@ -89,10 +103,10 @@ function Map(props) {
                   }}
                   key={doc.id}
                   icon={customIcon}
-                  position={[67.85572, 20.22513]}
-                ></Marker>
+                  position={[67.85572, 20.22513]}></Marker>
               );
             }
+            */}
           })}
         </MarkerClusterGroup>
       </MapContainer>
@@ -100,5 +114,4 @@ function Map(props) {
     </>
   );
 }
-
 export default Map;

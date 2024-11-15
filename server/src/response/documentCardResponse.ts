@@ -1,8 +1,7 @@
-import Coordinates from "./coordinates";
-import Type from "./type";
-import Attachment from "./attachment";
+import Coordinates from "../models/coordinates";
+import Type from "../models/type";
 
-class Document {
+class DocumentCardResponse {
   id: number;
   title: string;
   description: string;
@@ -12,7 +11,8 @@ class Document {
   location: Coordinates[];
   language?: string;
   pages?: string;
-  attachments?: Attachment[];
+  conn_count: number;
+  stakeholders: string[];
 
   constructor(
     id: number,
@@ -24,8 +24,8 @@ class Document {
     location: Coordinates[],
     language: string,
     pages: string,
-    attachments: Attachment[]
-
+    conn_count: number,
+    stakeholders: string[]
   ) {
     this.id = id;
     this.title = title;
@@ -36,8 +36,9 @@ class Document {
     this.location = location;
     this.language = language;
     this.pages = pages;
-    this.attachments = attachments;
+    this.conn_count = conn_count;
+    this.stakeholders = stakeholders;
   }
 }
 
-export default Document;
+export default DocumentCardResponse;

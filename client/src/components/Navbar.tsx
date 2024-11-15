@@ -21,6 +21,9 @@ import UserContext from "../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
 import DocumentList from "./listDocument/DocumentList";
+import { DisabledInputContext } from "../contexts/DisabledInputContext";
+import SearchBar from "./SearchBar";
+import { Filter } from "../models/Filter";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -100,6 +103,7 @@ const AccountMenu = styled((props: MenuProps) => (
 
 function Navbar(props) {
   const user = React.useContext(UserContext);
+  const { disabledInput } = React.useContext(DisabledInputContext);
   const navigate = useNavigate();
 
   const [accountAnchorEl, setAccountAnchorEl] =
@@ -158,6 +162,11 @@ function Navbar(props) {
     </AccountMenu>
   );
 
+  const handleSearch = (filter: Filter) => {
+    // Maybe props.fetchData(filter)
+    console.log(filter);
+  }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -198,6 +207,7 @@ function Navbar(props) {
                   Kiruna Explorer
                 </Typography>
               </Grid>
+              <SearchBar onSearch = {(filter) => handleSearch(filter)}/>
               <Grid
                 size={6}
                 sx={{
@@ -218,6 +228,7 @@ function Navbar(props) {
               >
                 {!user ? (
                   <Fab
+                    disabled={disabledInput}
                     variant="extended"
                     size="medium"
                     className="customButton"
@@ -228,6 +239,7 @@ function Navbar(props) {
                   </Fab>
                 ) : (
                   <Fab
+                    disabled={disabledInput}
                     size="medium"
                     id="accountMenu"
                     aria-controls={accountOpen ? "accountMenu" : undefined}

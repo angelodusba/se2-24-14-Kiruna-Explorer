@@ -1,6 +1,13 @@
 import { useState } from "react";
 import Grid from "@mui/material/Grid2";
-import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Step,
+  StepLabel,
+  Stepper,
+  Typography,
+} from "@mui/material";
 import React from "react";
 import { Document } from "../../models/Document";
 import GeneralInfoForm from "./GeneralInfoForm";
@@ -24,6 +31,7 @@ function AddDocumentForm({
   handleDeleteConnection,
   handleSelectLinkedDocument,
   handleSelectConnectionTypes,
+  setModalOpen,
 }) {
   const [document, setDocument] = useState<Document>({
     title: "",
@@ -41,8 +49,6 @@ function AddDocumentForm({
     return steps[index].optional;
   };
 
-  // const formRef = useRef<HTMLFormElement>(null);
-
   const currentForm =
     activeStep === 0 ? (
       <GeneralInfoForm
@@ -52,7 +58,11 @@ function AddDocumentForm({
         setDocument={setDocument}
       />
     ) : activeStep === 1 ? (
-      <GeoreferenceForm document={document} setDocument={setDocument} />
+      <GeoreferenceForm
+        document={document}
+        setDocument={setDocument}
+        setModalOpen={setModalOpen}
+      />
     ) : (
       <LinkDocumentForm
         docId={insertedDocumentId}
@@ -81,7 +91,6 @@ function AddDocumentForm({
           handleSubmit(document);
         }
       }}
-      // ref={formRef}
       spacing={3}
       sx={{
         display: "flex",
@@ -92,8 +101,7 @@ function AddDocumentForm({
         pt: 0,
         px: 2,
         mt: 4,
-      }}
-    >
+      }}>
       <Grid sx={{ width: "100%" }} size="auto">
         <Stepper
           id="stepper"
@@ -102,15 +110,16 @@ function AddDocumentForm({
           sx={{
             width: "100%",
             top: "0px",
-          }}
-        >
+          }}>
           {steps.map((step, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;
             } = {};
             if (isStepOptional(index)) {
-              labelProps.optional = <Typography variant="caption">Optional</Typography>;
+              labelProps.optional = (
+                <Typography variant="caption">Optional</Typography>
+              );
             }
             return (
               <Step
@@ -120,12 +129,10 @@ function AddDocumentForm({
                   "& .MuiStepConnector-root": { top: { xs: 12, sm: 12 } },
                 }}
                 key={index}
-                {...stepProps}
-              >
+                {...stepProps}>
                 <StepLabel
                   {...labelProps}
-                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}
-                >
+                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}>
                   {step.label}
                 </StepLabel>
               </Step>
@@ -142,8 +149,7 @@ function AddDocumentForm({
           py: 2,
         }}
         size={6}
-        spacing={2}
-      >
+        spacing={2}>
         {/* FORM CURRENTLY DISPLAYED */}
         {currentForm}
       </Grid>
@@ -154,15 +160,16 @@ function AddDocumentForm({
             display: activeStep === steps.length - 1 ? "none" : "flex",
             py: 2,
           }}
-          size="auto"
-        >
+          size="auto">
           {activeStep > 0 && activeStep < steps.length - 1 && (
             <Button color="inherit" onClick={handleBack} sx={{ mr: 1 }}>
               Back
             </Button>
           )}
           <Box sx={{ flex: "1 1 auto" }} />
-          <Button type={"submit"}>{activeStep === steps.length - 2 ? "Create" : "Next"}</Button>
+          <Button type={"submit"}>
+            {activeStep === steps.length - 2 ? "Create" : "Next"}
+          </Button>
         </Grid>
       )}
     </Grid>

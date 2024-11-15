@@ -37,7 +37,7 @@ const DocumentList: React.FC<{ open: boolean; onClose: () => void }> = ({
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const documentsList = await DocumentAPI.getAllDocuments();
+        const documentsList = await DocumentAPI.getAllDocumentsNames();
         setDocuments(documentsList);
       } catch (err) {
         setError("Error fetching documents");
