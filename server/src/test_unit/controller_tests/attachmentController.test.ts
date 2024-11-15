@@ -29,7 +29,7 @@ describe("AttachmentController", () => {
 
       const attachmentData = {
         document_id: 1,
-        type: 1,
+        type: "type1",
         original: true,
         path: "/path/to/attachment", //! should i add a local folder inside the repo to store the attachments?
         };

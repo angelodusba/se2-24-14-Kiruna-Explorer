@@ -34,9 +34,8 @@ class AttachmentRoutes {
             this.authService.isLoggedIn,
             this.authService.isUrbanPlanner,
             // Validation
-            body("type").isInt().withMessage("Type must be an integer."),
+            body("type").isInt().withMessage("Type must be a string."),
             body("original").isBoolean().withMessage("Original must be a boolean."),
-            body("path").notEmpty().withMessage("Path must not be empty."),
             // Handler
             this.errorHandler.validateRequest,
             (req: any, res: any, next: any) => {

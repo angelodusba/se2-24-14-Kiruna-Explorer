@@ -1,16 +1,15 @@
-import Type from "./type"
 
 
 class Attachment{
     id: number;
     document_id: number;
-    type: Type;
+    type: string;
     original: boolean
     path: String;
 
     constructor(id: number,
         document_id: number,
-        type: Type,
+        type: string,
         original: boolean,
         path: String){
             this.id=id;
