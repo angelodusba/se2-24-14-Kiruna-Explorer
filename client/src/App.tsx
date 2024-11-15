@@ -115,8 +115,14 @@ function App() {
                 }
               />
               <Route path= "municipality" 
-            element={<ListMunicipality />} /> 
-            </Route>
+                element={
+                  user ? (
+                    <ListMunicipality open={true} onClose={() => navigate("/map")} />
+                  ) : (
+                    <Navigate to="/auth" />
+                  )
+                }/>
+              </Route>
             
           </Route>
 
