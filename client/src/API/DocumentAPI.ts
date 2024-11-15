@@ -2,6 +2,7 @@ import { Document } from "../models/Document";
 import { Type } from "../models/Type";
 import { StakeHolder } from "../models/StakeHolders";
 import { Point } from "../models/Document";
+import { Filter } from "../models/Filter";
 
 const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
@@ -146,6 +147,37 @@ async function changeDocumentLocation(id: number, location: Point[]){
   }
 }
 
+/** ------------------- Filtered Documents APIs ------------------------ */
+/** Get documents based on the filter:
+  * @param {Filter} params - parameters of the fiter to be applied
+  * @returns {Document[]} - array of documents that match the filter
+  * @throws {Error} - error message
+  * @example
+  * const documents = await getFilteredDocument(filter: Filter);
+  * 
+*/
+
+
+async function getFilteredDocuments(filter: Filter): Promise<Document[]> {
+  const response = await fetch(baseURL + "documents/filter", {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ filter }),
+  });
+  if (response.ok) {
+    const documents = await response.json();
+    return documents;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+    throw new Error("Error. Please reload the page");
+  }
+}
+
 const DocumentAPI = {
   sendDocument,
   getDocumentsLocation,
@@ -153,6 +185,7 @@ const DocumentAPI = {
   getTypes,
   getStakeholders,
   getMunicipalityDocuments,
-  changeDocumentLocation
+  changeDocumentLocation,
+  getFilteredDocuments
 };
 export default DocumentAPI;
