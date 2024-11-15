@@ -318,17 +318,14 @@ Retrieves all the information of the documents matching the specified filters.
 
 ```JSON
 {
-    "params":
-      {
-        "title": "doc1",
-        "description": "descr",
-        "start_year": "2020",
-        "end_year": "2022",
-        "scale": "Concept",
-        "type": [1,2],
-        "language": "English",
-        "stakeholders": [3,5,7]
-    }
+  "title": "doc1",
+  "description": "descr",
+  "start_year": "2020",
+  "end_year": "2022",
+  "scale": "Concept",
+  "type": [1,2],
+  "language": "English",
+  "stakeholders": [3,5,7]
 }
 ```
 
