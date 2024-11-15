@@ -20,6 +20,7 @@ import Grid from "@mui/material/Grid2";
 import UserContext from "../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
+import DocumentList from "./listDocument/DocumentList";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 import SearchBar from "./SearchBar";
 import { Filter } from "../models/Filter";
@@ -109,11 +110,20 @@ function Navbar(props) {
     React.useState<null | HTMLElement>(null);
   const accountOpen = Boolean(accountAnchorEl);
 
+  const [openDocuments, setOpenDocuments] = React.useState(false);
+
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAccountAnchorEl(event.currentTarget);
   };
   const handleAccountMenuClose = () => {
     setAccountAnchorEl(null);
+  };
+
+  // const handleViewDocuments = () => {
+  //   setOpenDocuments(true);
+  // };
+  const handleCloseDocuments = () => {
+    setOpenDocuments(false);
   };
 
   const renderAccountMenu = user && (
@@ -124,7 +134,8 @@ function Navbar(props) {
       }}
       anchorEl={accountAnchorEl}
       open={accountOpen}
-      onClose={handleAccountMenuClose}>
+      onClose={handleAccountMenuClose}
+    >
       <Typography variant="h5" fontWeight="bold" align="center">
         Hi {user.username}
       </Typography>
@@ -141,7 +152,8 @@ function Navbar(props) {
           props.logout();
         }}
         disableRipple
-        sx={{ color: "error.main" }}>
+        sx={{ color: "error.main" }}
+      >
         <ListItemIcon>
           <Logout fontSize="small" color="error" />
         </ListItemIcon>
@@ -165,7 +177,8 @@ function Navbar(props) {
           border: "none",
           zIndex: 1000000,
           color: "white",
-        }}>
+        }}
+      >
         <Toolbar sx={{ flexGrow: 1 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Grid container>
@@ -177,7 +190,8 @@ function Navbar(props) {
                   flexDirection: "row",
                   alignItems: "center",
                   marginTop: "8px",
-                }}>
+                }}
+              >
                 <img
                   src={KirunaLogo}
                   width="40px"
@@ -188,7 +202,8 @@ function Navbar(props) {
                 <Typography
                   variant="h5"
                   component="div"
-                  sx={{ display: { sm: "block", xs: "none" } }}>
+                  sx={{ display: { sm: "block", xs: "none" } }}
+                >
                   Kiruna Explorer
                 </Typography>
               </Grid>
@@ -200,11 +215,10 @@ function Navbar(props) {
                 sx={{
                   justifyContent: "center",
                   display: { xs: "none", sm: "flex" },
-                }}>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ margin: "auto" }}></Stack>
+                }}
+              >
+                <Stack direction="row" spacing={1} sx={{ margin: "auto" }}>
+                </Stack>
               </Grid>
               <Grid
                 size="grow"
@@ -212,14 +226,16 @@ function Navbar(props) {
                   justifyContent: "end",
                   alignItems: "center",
                   display: { xs: "flex", sm: "flex" },
-                }}>
+                }}
+              >
                 {!user ? (
                   <Fab
                     disabled={disabledInput}
                     variant="extended"
                     size="medium"
                     className="customButton"
-                    onClick={() => navigate("/auth")}>
+                    onClick={() => navigate("/auth")}
+                  >
                     <AccountCircleOutlined sx={{ mr: 1 }} />
                     Login
                   </Fab>
@@ -235,7 +251,8 @@ function Navbar(props) {
                       accountOpen
                         ? handleAccountMenuClose
                         : handleAccountMenuOpen
-                    }>
+                    }
+                  >
                     <Avatar {...stringAvatar(user.username)} />
                   </Fab>
                 )}
@@ -245,6 +262,7 @@ function Navbar(props) {
         </Toolbar>
       </AppBar>
       {user && renderAccountMenu}
+      <DocumentList open={openDocuments} onClose={handleCloseDocuments} />
     </Box>
   );
 }

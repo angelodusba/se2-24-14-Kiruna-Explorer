@@ -1,5 +1,5 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Popup, Marker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
@@ -9,6 +9,7 @@ import Dial from "../Dial";
 import DocumentDial from "../DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
+import DocumentList from "../listDocument/DocumentList";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import SearchBar from "../SearchBar";
 
@@ -31,13 +32,26 @@ const handleDocumentShow = (id) => {
 
 function Map(props) {
   const user = useContext(UserContext);
+  // const [docCard, setDocCard] = useState(undefined);
+  const [openDocuments, setOpenDocuments] = useState(false);
+
+  const handleOpenDocuments = () => {
+    setOpenDocuments(true);
+  };
+
+  const handleCloseDocuments = () => {
+    setOpenDocuments(false);
+  };
+
   const { disabledInput } = useContext(DisabledInputContext);
   //const [docCard, setDocCard] = useState(undefined);
 
-
   return (
     <>
-      {!disabledInput && user && user.role === Role.UrbanPlanner && <Dial />}
+      {user && user.role === Role.UrbanPlanner && (
+        <Dial onOpenDocuments={handleOpenDocuments} />
+      )}
+      {!disabledInput && user && user.role === Role.UrbanPlanner && <Dial onOpenDocuments={handleOpenDocuments} />}
       {!disabledInput && user && user.role === Role.UrbanPlanner && <DocumentDial />}
       <MapContainer
         center={[67.85572, 20.22513]}
@@ -50,8 +64,9 @@ function Map(props) {
         doubleClickZoom
         attributionControl={true}
         zoomControl={true}
-        scrollWheelZoom={false} // Needed to enable smooth zoom
-        style={{ height: "100vh" }}>
+        scrollWheelZoom // Needed to enable smooth zoom
+        style={{ height: "100vh", overflowY: "auto" }}
+      >
         <TileLayer
           keepBuffer={100}
           attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
@@ -95,8 +110,8 @@ function Map(props) {
           })}
         </MarkerClusterGroup>
       </MapContainer>
+      <DocumentList open={openDocuments} onClose={handleCloseDocuments} />
     </>
   );
 }
-
 export default Map;

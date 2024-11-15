@@ -16,7 +16,7 @@ class AttachmentController {
    * @param path - The path to the attachment, must not be null.
    * @returns A Promise that resolves to the ID of the attachment if it has been successfully added.
    */
-  async addAttachment(document_id: number, type: number, original: boolean, path: string): Promise<{ id: number }> {
+  async addAttachment(document_id: number, type: string, original: boolean, path: string): Promise<{ id: number }> {
     return this.dao.addAttachment(document_id, type, original, path);
     }
 
@@ -30,3 +30,5 @@ class AttachmentController {
       return this.dao.getAttachments(document_id);
     }
 }
+
+export default AttachmentController;

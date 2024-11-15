@@ -39,6 +39,7 @@ async function sendDocument(document: Document): Promise<number> {
 }
 
 
+
 async function getDocumentsLocation() {
   const response = await fetch(baseURL + "documents/location", {
     method: "GET",
