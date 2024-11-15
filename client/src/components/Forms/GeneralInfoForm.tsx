@@ -30,7 +30,8 @@ const languages = [
 
 function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
   const [dateError, setDateError] = useState("");
-  const [scaleModality, setScaleModality] = useState(null);
+  const [scaleError, setScaleError] = useState("");
+  const [scaleModality, setScaleModality] = useState<number>(0);
 
   const scaleLabels = [
     "Blueprints/material effects",
@@ -84,6 +85,19 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
       setDateError("Invalid date format. Use YYYY/MM/DD, YYYY/MM, or YYYY");
       return;
     }
+  };
+
+  const handleScaleChange = (scale: string) => {
+    setScaleError("");
+    const validChars = /^[0-9]*$/;
+    if (!validChars.test(scale)) {
+      setScaleError("You can only enter numbers");
+      return;
+    }
+    setDocument((prevDocument) => ({
+      ...prevDocument,
+      scale: scale,
+    }));
   };
 
   return (
@@ -240,13 +254,13 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
           fullWidth
           label="Issue Date"
           variant="outlined"
-          onBlur={() => setDateError("")}
           value={document.issueDate}
           onChange={(event) => {
             handleIssueDateChange(event.target.value);
           }}
           error={!!dateError}
           helperText={dateError ? dateError : "YYYY/MM/DD or YYYY/MM or YYYY"}
+          onBlur={() => setDateError("")}
           required
           slotProps={{
             htmlInput: {
@@ -270,7 +284,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
             value={scaleModality}
             label="Scale type"
             onChange={(event) => {
-              const newMod = event.target.value;
+              const newMod = Number(event.target.value);
               setScaleModality(newMod);
               setDocument((prevDocument) => ({
                 ...prevDocument,
@@ -278,7 +292,11 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
               }));
             }}>
             {scaleLabels.map((mod, index) => {
-              return <MenuItem value={index}>{mod}</MenuItem>;
+              return (
+                <MenuItem key={index} value={index}>
+                  {mod}
+                </MenuItem>
+              );
             })}
           </Select>
         </FormControl>
@@ -291,9 +309,11 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         size={{ xs: 12, md: 6 }}>
         <TextField
           fullWidth
-          type="number"
           label="Architectural scale"
           variant="outlined"
+          error={!!scaleError}
+          helperText={scaleError && scaleError}
+          onBlur={() => setScaleError("")}
           slotProps={{
             input: {
               startAdornment: (
@@ -302,12 +322,9 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
             },
           }}
           value={scaleModality !== 3 ? "" : document.scale}
-          onChange={(event) =>
-            setDocument((prevDocument) => ({
-              ...prevDocument,
-              scale: event.target.value,
-            }))
-          }
+          onChange={(event) => {
+            handleScaleChange(event.target.value);
+          }}
           placeholder="1000"
           required={scaleModality === 3}
           disabled={scaleModality !== 3}

@@ -11,6 +11,7 @@ import DocumentAPI from "./API/DocumentAPI";
 import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
+import DocumentCard from "./components/Map/DocumentCard";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -75,8 +76,8 @@ function App() {
               path="/map"
               element={
                 <>
-                  <Map docs={docsLocation} />
-                  <Outlet />
+                  <Map docs={docsLocation}></Map>
+                  <DocumentCard></DocumentCard>
                 </>
               }>
               <Route

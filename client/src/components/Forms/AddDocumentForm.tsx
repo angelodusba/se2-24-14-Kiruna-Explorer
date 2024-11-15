@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import {
   Box,
@@ -9,10 +8,10 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { Document } from "../../models/Document";
 import GeneralInfoForm from "./GeneralInfoForm";
 import GeoreferenceForm from "./GeoreferenceForm";
 import LinkDocumentForm from "./LinkDocumentForm";
+import AttachmentsForm from "./AttachmentsForm";
 
 function AddDocumentForm({
   steps,
@@ -31,20 +30,9 @@ function AddDocumentForm({
   handleDeleteConnection,
   handleSelectLinkedDocument,
   handleSelectConnectionTypes,
-  setModalOpen,
+  document,
+  setDocument,
 }) {
-  const [document, setDocument] = useState<Document>({
-    title: "",
-    description: "",
-    stakeholderIds: [],
-    typeId: null,
-    pages: "",
-    coordinates: [],
-    issueDate: "",
-    scale: "Blueprints/material effects",
-    language: "",
-  });
-
   const isStepOptional = (index: number): boolean => {
     return steps[index].optional;
   };
@@ -58,11 +46,9 @@ function AddDocumentForm({
         setDocument={setDocument}
       />
     ) : activeStep === 1 ? (
-      <GeoreferenceForm
-        document={document}
-        setDocument={setDocument}
-        setModalOpen={setModalOpen}
-      />
+      <GeoreferenceForm document={document} setDocument={setDocument} />
+    ) : activeStep === 2 ? (
+      <AttachmentsForm></AttachmentsForm>
     ) : (
       <LinkDocumentForm
         docId={insertedDocumentId}

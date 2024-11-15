@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AddDocumentForm from "../components/Forms/AddDocumentForm";
 import FormModal from "../components/Forms/FormModal";
 import { StakeHolder } from "../models/StakeHolders";
@@ -8,21 +8,35 @@ import { Document } from "../models/Document";
 import { useNavigate } from "react-router-dom";
 import ConnectionAPI from "../API/ConnectionApi";
 import { ConnectionList, HalfConnection } from "../models/Connection";
+import MapPicker from "../components/Map/MapPicker";
+import { DisabledInputContext } from "../contexts/DisabledInputContext";
 
 const steps = [
   { label: "General info", optional: false },
   { label: "Georeference", optional: false },
-  { label: "Attachments", optional: true },
+  { label: "Attachments", optional: false },
   { label: "Linking", optional: true },
 ];
 
 function AddDocumentPage() {
   const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(true);
+  const { disabledInput } = useContext(DisabledInputContext);
+
   // AddDocumentForm data
   const [activeStep, setActiveStep] = useState<number>(0);
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
   const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
+  const [document, setDocument] = useState<Document>({
+    title: "",
+    description: "",
+    stakeholderIds: [],
+    typeId: null,
+    pages: "",
+    coordinates: [],
+    issueDate: "",
+    scale: "",
+    language: "",
+  });
   // LinkDocumentForm data
   const [connectionsList, setConnectionsList] = useState<ConnectionList>({
     starting_document_id: undefined,
@@ -36,6 +50,7 @@ function AddDocumentPage() {
   const handleSubmit = async (document: Document) => {
     if (activeStep === steps.length - 2) {
       //Insert DOC
+
       const id = await DocumentAPI.sendDocument(document);
       setConnectionsList({
         starting_document_id: id,
@@ -149,7 +164,7 @@ function AddDocumentPage() {
 
   return (
     <>
-      <FormModal open={modalOpen}>
+      <FormModal>
         <AddDocumentForm
           steps={steps}
           activeStep={activeStep}
@@ -167,9 +182,11 @@ function AddDocumentPage() {
           handleDeleteConnection={handleDeleteConnection}
           handleSelectLinkedDocument={handleSelectLinkedDocument}
           handleSelectConnectionTypes={handleSelectConnectionTypes}
-          setModalOpen={setModalOpen}
+          document={document}
+          setDocument={setDocument}
         />
       </FormModal>
+      {disabledInput && <MapPicker setDocument={setDocument}></MapPicker>}
     </>
   );
 }

@@ -1,26 +1,21 @@
 import {
-  Divider,
+  Button,
   FormControl,
   FormControlLabel,
-  Link,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from "@mui/material";
+import PlaceIcon from "@mui/icons-material/Place";
 import { useContext, useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
-function GeoreferenceForm({ setDocument, document, setModalOpen }) {
+function GeoreferenceForm({ setDocument, document }) {
   const [georeferenceModality, setGeoreferenceModality] = useState(0);
 
   const { setDisabledInput } = useContext(DisabledInputContext);
-
-  const handlePointPicking = () => {
-    setModalOpen(false);
-    setDisabledInput(true);
-  };
 
   return (
     <Grid
@@ -154,16 +149,19 @@ function GeoreferenceForm({ setDocument, document, setModalOpen }) {
             }}
           />
         </Grid>
-        <Divider>Or</Divider>
         <Grid
           sx={{
             display: georeferenceModality === 1 ? "flex" : "none",
             justifyContent: "center",
           }}
           size={12}>
-          <Link component="button" variant="body2" onClick={handlePointPicking}>
-            Button Link
-          </Link>
+          <Button
+            onClick={() => setDisabledInput(true)}
+            variant="outlined"
+            size="small"
+            startIcon={<PlaceIcon />}>
+            Pick on the map
+          </Button>
         </Grid>
       </Grid>
     </Grid>

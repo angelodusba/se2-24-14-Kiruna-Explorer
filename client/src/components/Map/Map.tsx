@@ -1,14 +1,15 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Popup, Marker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import Dial from "../Dial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
+import { Outlet } from "react-router-dom";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -46,7 +47,10 @@ function Map(props) {
         attributionControl={true}
         zoomControl={true}
         scrollWheelZoom={false} // Needed to enable smooth zoom
-        style={{ height: "100vh" }}>
+        style={{
+          height: "100vh",
+          cursor: disabledInput ? "crosshair" : "auto",
+        }}>
         <TileLayer
           keepBuffer={100}
           attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
@@ -57,36 +61,40 @@ function Map(props) {
           url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
         />
         <MarkerClusterGroup>
-          {props.docs.map((doc) => {
-            if (!doc) return null;
-            if (doc.location.length === 1) {
-              return (
-                <Marker
-                  key={doc.id}
-                  eventHandlers={{
-                    click: () => {
-                      handleDocumentShow(doc.id);
-                    },
-                  }}
-                  icon={customIcon}
-                  position={L.latLng(doc.location[0])}></Marker>
-              );
-            }
-            if (doc.location.length === 0) {
-              return (
-                <Marker
-                  eventHandlers={{
-                    click: () => {
-                      handleDocumentShow(doc.id);
-                    },
-                  }}
-                  key={doc.id}
-                  icon={customIcon}
-                  position={[67.85572, 20.22513]}></Marker>
-              );
-            }
-          })}
+          {!disabledInput &&
+            props.docs.map((doc) => {
+              if (!doc) return null;
+              if (doc.location.length === 1) {
+                return (
+                  <Marker
+                    riseOnHover
+                    key={doc.id}
+                    eventHandlers={{
+                      click: () => {
+                        handleDocumentShow(doc.id);
+                      },
+                    }}
+                    icon={customIcon}
+                    position={L.latLng(doc.location[0])}></Marker>
+                );
+              }
+              if (doc.location.length === 0) {
+                return (
+                  <Marker
+                    riseOnHover
+                    eventHandlers={{
+                      click: () => {
+                        handleDocumentShow(doc.id);
+                      },
+                    }}
+                    key={doc.id}
+                    icon={customIcon}
+                    position={[67.85572, 20.22513]}></Marker>
+                );
+              }
+            })}
         </MarkerClusterGroup>
+        <Outlet></Outlet>
       </MapContainer>
     </>
   );

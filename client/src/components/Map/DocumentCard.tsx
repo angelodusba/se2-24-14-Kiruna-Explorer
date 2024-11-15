@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   Divider,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -14,6 +15,7 @@ import Grid from "@mui/material/Grid2";
 import {
   AspectRatioOutlined,
   AutoStoriesOutlined,
+  EditOutlined,
   LinkOutlined,
   LocationOnOutlined,
   SupervisorAccountOutlined,
@@ -25,7 +27,7 @@ const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -45%)",
+  transform: "translate(-50%, -50%)",
   width: "500px",
   maxHeight: "80%",
   minHeight: "60%",
@@ -35,12 +37,12 @@ const style = {
   p: 1,
   overflowY: "auto",
   maxWidth: {
-    xs: "80%",
-    sm: "600px",
+    xs: "90%",
+    sm: "700px",
   },
   minWidth: {
     xs: "80%",
-    sm: "400px",
+    sm: "700px",
   },
   //Hide scrollbar but allow scrolling
   "&::-webkit-scrollbar": {
@@ -54,7 +56,7 @@ const style = {
 function DocumentCard(props) {
   return (
     <Modal
-      open={false}
+      open={true}
       disableAutoFocus
       onClose={() => props.setOperation(undefined)}
       aria-labelledby="CardModal"
@@ -73,7 +75,6 @@ function DocumentCard(props) {
               mb: 1,
             }}>
             <Grid size={2}>
-              {" "}
               <img
                 src={KirunaLogo}
                 width="40px"
@@ -82,16 +83,16 @@ function DocumentCard(props) {
                 style={{ marginLeft: "8px" }}
               />
             </Grid>
-            <Grid size={10} sx={{ display: "flex", justifyContent: "center" }}>
+            <Grid size={10} sx={{ display: "flex", justifyContent: "start" }}>
               <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                 Title
               </Typography>
             </Grid>
           </Grid>
-          <Divider />
+          <Divider variant="middle" />
           <Grid container>
             <Grid
-              size={{ sm: 12, md: 6 }}
+              size={{ sm: 12, md: 7 }}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -104,8 +105,11 @@ function DocumentCard(props) {
                   width: "100%",
                   maxWidth: 360,
                   bgcolor: "background.paper",
+                  display: "grid",
+                  gap: 2,
+                  gridTemplateColumns: "repeat(2, 1fr)",
                 }}>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <SupervisorAccountOutlined></SupervisorAccountOutlined>
@@ -115,11 +119,15 @@ function DocumentCard(props) {
                     primary="Stakeholders"
                     primaryTypographyProps={{
                       sx: { fontWeight: "bold", color: "#003d8f" },
+                      variant: "subtitle2",
                     }}
                     secondary="LKAB"
+                    secondaryTypographyProps={{
+                      variant: "caption",
+                    }}
                   />
                 </ListItem>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <AspectRatioOutlined></AspectRatioOutlined>
@@ -129,25 +137,36 @@ function DocumentCard(props) {
                     primary="Scale"
                     primaryTypographyProps={{
                       sx: { fontWeight: "bold", color: "#003d8f" },
+                      variant: "subtitle2",
+                    }}
+                    secondaryTypographyProps={{
+                      variant: "caption",
                     }}
                     secondary="1:1000"
                   />
                 </ListItem>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <TodayOutlined></TodayOutlined>
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary="Issuance date"
+                    primary="Issue date"
                     primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
+                      sx: {
+                        fontWeight: "bold",
+                        color: "#003d8f",
+                      },
+                      variant: "subtitle2",
+                    }}
+                    secondaryTypographyProps={{
+                      variant: "caption",
                     }}
                     secondary="12/12/2012"
                   />
                 </ListItem>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <TodayOutlined></TodayOutlined>
@@ -156,12 +175,19 @@ function DocumentCard(props) {
                   <ListItemText
                     primary="Type"
                     primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
+                      sx: {
+                        fontWeight: "bold",
+                        color: "#003d8f",
+                      },
+                      variant: "subtitle2",
+                    }}
+                    secondaryTypographyProps={{
+                      variant: "caption",
                     }}
                     secondary="Material effect"
                   />
                 </ListItem>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <LinkOutlined></LinkOutlined>
@@ -170,12 +196,19 @@ function DocumentCard(props) {
                   <ListItemText
                     primary="Connections"
                     primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
+                      sx: {
+                        fontWeight: "bold",
+                        color: "#003d8f",
+                      },
+                      variant: "subtitle2",
+                    }}
+                    secondaryTypographyProps={{
+                      variant: "caption",
                     }}
                     secondary="3"
                   />
                 </ListItem>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <TranslateOutlined></TranslateOutlined>
@@ -184,12 +217,19 @@ function DocumentCard(props) {
                   <ListItemText
                     primary="Language"
                     primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
+                      sx: {
+                        fontWeight: "bold",
+                        color: "#003d8f",
+                      },
+                      variant: "subtitle2",
+                    }}
+                    secondaryTypographyProps={{
+                      variant: "caption",
                     }}
                     secondary="Italian"
                   />
                 </ListItem>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <AutoStoriesOutlined></AutoStoriesOutlined>
@@ -198,12 +238,19 @@ function DocumentCard(props) {
                   <ListItemText
                     primary="Pages"
                     primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
+                      sx: {
+                        fontWeight: "bold",
+                        color: "#003d8f",
+                      },
+                      variant: "subtitle2",
+                    }}
+                    secondaryTypographyProps={{
+                      variant: "caption",
                     }}
                     secondary="100"
                   />
                 </ListItem>
-                <ListItem>
+                <ListItem sx={{ alignItems: "start" }}>
                   <ListItemAvatar>
                     <Avatar>
                       <LocationOnOutlined></LocationOnOutlined>
@@ -212,24 +259,52 @@ function DocumentCard(props) {
                   <ListItemText
                     primary="Location"
                     primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
+                      sx: {
+                        fontWeight: "bold",
+                        color: "#003d8f",
+                      },
+                      variant: "subtitle2",
                     }}
-                    secondary="Affanculo"
+                    secondaryTypographyProps={{
+                      variant: "caption",
+                    }}
+                    secondary="Casa"
                   />
                 </ListItem>
               </List>
             </Grid>
+            <Divider orientation="vertical" flexItem sx={{ marginRight: -1 }} />
             <Grid
-              size={{ sm: 12, md: 6 }}
+              size={{ sm: 12, md: 5 }}
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "start",
-                pl: 1,
+                alignItems: "center",
                 mt: 2,
+                gap: 1,
+                pl: 2,
               }}>
               <Typography color="#003d8f" fontWeight="bold">
                 Description
+              </Typography>
+              <Typography>
+                Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do
+                eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrum exercitationem ullamco
+                laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute
+                irure reprehenderit in voluptate velit esse cillum dolore eu
+                fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non
+                proident, sunt in culpa qui officia deserunt mollit anim id est
+                laborum
+              </Typography>
+              <Typography
+                color="#003d8f"
+                fontWeight="bold"
+                sx={{ mt: 1, mr: 2 }}>
+                Original resources
+                <IconButton aria-label="delete" size="small">
+                  <EditOutlined fontSize="inherit" />
+                </IconButton>
               </Typography>
             </Grid>
           </Grid>
