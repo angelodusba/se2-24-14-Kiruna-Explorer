@@ -13,7 +13,6 @@ function ListMunicipality({ open, onClose }) {
         const fetchDocuments = async () => {
         const response = await DocumentAPI.getMunicipalityDocuments();
         setDocuments(response);
-        console.log(response);
           if (response.length === 0) {
               setError("No documents found");
           }
@@ -25,16 +24,13 @@ function ListMunicipality({ open, onClose }) {
       <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth
         sx={
           {
+            top: "5%",
             display: "flex",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -45%)",
-            minHeight: "80%",
-            maxHeight: "90%",
-            bgcolor: "background.paper",
-            borderRadius: "8px",
-            boxShadow: 24,
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "90%",
+            width: "100%",
             p: 1,
           }
         }
@@ -82,6 +78,7 @@ function ListMunicipality({ open, onClose }) {
             <Button onClick={onClose} color="error">
               Close
             </Button>
+
           </DialogActions>
         </Dialog>
     );
