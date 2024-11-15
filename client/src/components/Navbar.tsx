@@ -192,7 +192,9 @@ function Navbar(props) {
                   Kiruna Explorer
                 </Typography>
               </Grid>
-              <SearchBar onSearch = {(filter) => handleSearch(filter)}/>
+              <SearchBar onSearch = {(filter) => handleSearch(filter)}
+                          docsLocation = {props.docsLocation}
+                          setDocsLocation = {props.setDocsLocation}/>
               <Grid
                 size={6}
                 sx={{

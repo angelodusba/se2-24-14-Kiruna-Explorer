@@ -38,6 +38,63 @@ const languages = [
     },
   ];
 
+const SearchBarWithButton = ({ docsLocation, handleOpen }) => {
+    const [text, setText] = useState('');
+    const [selectedDoc, setSelectedDoc] = useState(null);
+    const [duplicateTitles, setDuplicateTitles] = useState([]);
+
+    useEffect(() => {
+        const titleCount = docsLocation.reduce((acc, doc) => {
+            acc[doc.title] = (acc[doc.title] || 0) + 1;
+            return acc;
+        }, {});
+
+        const duplicates = Object.keys(titleCount)
+            .filter((title) => titleCount[title] > 1)
+            .map((title) => ({
+                title,
+                count: titleCount[title],
+            }));
+
+        setDuplicateTitles(duplicates);
+    }, [docsLocation]);
+  
+    return (
+      <Autocomplete
+        freeSolo
+        fullWidth
+        options={
+            docsLocation.map((doc) => ({ title: doc.title, id: doc.id, isDuplicate : duplicateTitles.some((dup) => dup.title === doc.title) }))
+        }
+        value={docsLocation.find((doc) => doc.title === text) || null}
+        onChange={(event, newValue) => {setSelectedDoc(newValue)}}
+        inputValue={text}
+        onInputChange={(event, newInputValue) => setText(newInputValue || "")}
+        getOptionLabel={(option: {id, title, isDuplicate}) => option.title + (option.isDuplicate ? " " + option.id : "")}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Search Title"
+            fullWidth
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {params.InputProps.endAdornment}
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleOpen}>
+                      <AddIcon />
+                    </IconButton>
+                  </InputAdornment>
+                </>
+              ),
+            }}
+          />
+        )}
+      />
+    );
+  };
+
 function SearchBar(props) {
     const [search, setSearch] = useState('');
     const [open, setOpen] = useState(false);
@@ -46,9 +103,6 @@ function SearchBar(props) {
 
     const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
     const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
-    const [documentsList, setDocumentsList] = useState<
-        { id: number; title: string }[]
-    >([]);
     const FILTER_DEFAULTS = {
         params: {
           title: "",
@@ -85,14 +139,8 @@ function SearchBar(props) {
       .catch((error) => {
         console.log(error);
       });
-    // Fetch documents names, to filter radius search
-    DocumentAPI.getAllDocumentsNames()
-        .then((docs: { id: number; title: string }[]) => {
-          setDocumentsList(docs);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+    // Documents names and locations
+    // props.docsLocation and props.setDocsLocation
     }, []);
 
 
@@ -120,21 +168,9 @@ function SearchBar(props) {
             }}
         >
             {/* TextField with button inside */}
-            <TextField
-                label="Search Title"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                fullWidth
-                InputProps={{
-                endAdornment: (
-                    <InputAdornment position="end">
-                    <IconButton onClick={handleOpen}>
-                        <AddIcon />
-                    </IconButton>
-                    </InputAdornment>
-                ),
-                }}
-            />
+            <SearchBarWithButton
+                docsLocation={props.docsLocation}
+                handleOpen={handleOpen} />
 
             {/* Dialog Form */}
             <Dialog open={open} onClose={handleClose} fullWidth>

@@ -71,7 +71,9 @@ function App() {
             path="/"
             element={
               <>
-                {!disabledInput && <Navbar logout={doLogout} />}
+                {!disabledInput && <Navbar logout={doLogout} 
+                docsLocation = {docsLocation}
+                setDocsLocation = {setDocsLocation}/>}
                 <Outlet />
               </>
             }>
