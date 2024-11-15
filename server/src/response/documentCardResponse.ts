@@ -1,3 +1,4 @@
+import Attachment from "../models/attachment";
 import Coordinates from "../models/coordinates";
 import Type from "../models/type";
 
@@ -13,6 +14,7 @@ class DocumentCardResponse {
   pages?: string;
   conn_count: number;
   stakeholders: string[];
+  attachments: Attachment[];
 
   constructor(
     id: number,
@@ -25,7 +27,8 @@ class DocumentCardResponse {
     language: string,
     pages: string,
     conn_count: number,
-    stakeholders: string[]
+    stakeholders: string[],
+    attachments: Attachment[]
   ) {
     this.id = id;
     this.title = title;
@@ -38,6 +41,7 @@ class DocumentCardResponse {
     this.pages = pages;
     this.conn_count = conn_count;
     this.stakeholders = stakeholders;
+    this.attachments = attachments;
   }
 }
 

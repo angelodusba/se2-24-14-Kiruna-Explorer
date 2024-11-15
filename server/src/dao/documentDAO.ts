@@ -1,5 +1,6 @@
 import * as db from "../db/db";
 import { DocumentNotFoundError } from "../errors/documentErrors";
+import Attachment from "../models/attachment";
 import Coordinates from "../models/coordinates";
 import Document from "../models/document";
 import Type from "../models/type";
@@ -132,8 +133,7 @@ class DocumentDAO {
             })
           : [],
         doc.language,
-        doc.pages,
-        doc.attachments
+        doc.pages
       );
     } catch (err: any) {
       throw err;
@@ -203,8 +203,7 @@ class DocumentDAO {
             doc.scale,
             [],
             doc.language,
-            doc.pages,
-            doc.attachments,
+            doc.pages
           )
       );
     } catch (err: any) {
@@ -247,7 +246,8 @@ class DocumentDAO {
 
   async getDocumentCard(documentId: number): Promise<DocumentCardResponse> {
     try {
-      const sql = `SELECT D.id, D.title, D.description, T.id AS type_id, T.name AS type_name,
+      // Fetch document info
+      let sql = `SELECT D.id, D.title, D.description, T.id AS type_id, T.name AS type_name,
                     D.issue_date, D.scale, D.language, D.pages,
                     CASE 
                       WHEN location IS NULL THEN NULL
@@ -255,30 +255,40 @@ class DocumentDAO {
                         substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
                       WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                         substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 10))
-                    END AS location,
-                    COALESCE(SUM(conn.conn_num), 0) AS conn_count, stakeholders
-                  FROM documents D 
-                    JOIN types T ON D.type_id = T.id 
-                    LEFT JOIN (
-                        SELECT COUNT(*) AS conn_num, C.document_id_1, C.document_id_2
-                        FROM connections C
-                    GROUP BY C.document_id_1, C.document_id_2
-                    ) conn ON (D.id = conn.document_id_1 OR D.id = conn.document_id_2)
-                    LEFT JOIN (
-                      SELECT D.id, ARRAY_AGG(S.name) AS stakeholders -- Aggregate stakeholder names
-                      FROM documents D, documents_stakeholders DS, stakeholders S
-                      WHERE D.id=DS.document_id AND S.id=DS.stakeholder_id
-                      GROUP BY D.id
-                    ) stake on D.id=stake.id
-                  WHERE D.id=$1
-                  GROUP BY D.id, D.title, description, T.id, T.name, issue_date, scale, language, pages, location, stakeholders
-                  ORDER BY D.id;
+                    END AS location
+                  FROM documents D, types T
+				          WHERE D.type_id=T.id AND D.id=$1;
       `;
-      const res = await db.query(sql, [documentId]);
+      let res = await db.query(sql, [documentId]);
       if (!res || res.rows.length === 0) {
         throw new DocumentNotFoundError();
       }
       const doc = res.rows[0];
+
+      // Fetch stakeholders
+      sql = `SELECT ARRAY_AGG(S.name) AS stakeholders
+              FROM documents D, documents_stakeholders DS, stakeholders S
+              WHERE D.id=DS.document_id AND S.id=DS.stakeholder_id AND D.id=$1
+              GROUP BY D.id
+      `;
+      res = await db.query(sql, [documentId]);
+      const stakeholders: string[] = res.rows.length === 1 ? res.rows[0].stakeholders : [];
+
+      // Fetch connections number
+      sql = `SELECT COUNT(*) AS conn_num
+              FROM connections
+              WHERE document_id_1 = $1 OR document_id_2 = $1
+      `;
+      res = await db.query(sql, [documentId]);
+      const conn_num = res.rows.length === 1 ? res.rows[0].conn_num : 0;
+
+      // Fetch attachments
+      sql = `SELECT * from attachments WHERE document_id = $1`;
+      res = await db.query(sql, [documentId]);
+      const attachments = res.rows.map(
+        (row) => new Attachment(row.id, row.document_id, row.type, row.original, row.path)
+      );
+
       return new DocumentCardResponse(
         doc.id,
         doc.title,
@@ -294,8 +304,9 @@ class DocumentDAO {
           : [],
         doc.language,
         doc.pages,
-        Number(doc.conn_count),
-        doc.stakeholders
+        Number(conn_num),
+        stakeholders,
+        attachments
       );
     } catch (err: any) {
       throw err;
