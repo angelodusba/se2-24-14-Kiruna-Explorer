@@ -12,6 +12,7 @@ import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 import DocumentList from "./components/listDocument/DocumentList";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
+import ListMunicipality from "./components/Map/ListMunicipality";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -69,7 +70,7 @@ function App() {
             path="/"
             element={
               <>
-                <Navbar logout={doLogout} />
+                <Navbar logout={doLogout} docsLocation={docsLocation} setDocsLocation={docsLocation} />
                 <Outlet />
               </>
             }
@@ -113,8 +114,12 @@ function App() {
                   )
                 }
               />
+              <Route path= "municipality" 
+            element={<ListMunicipality />} /> 
             </Route>
+            
           </Route>
+
           <Route
             path="*"
             element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
