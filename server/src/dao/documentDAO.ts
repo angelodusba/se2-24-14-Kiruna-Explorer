@@ -165,6 +165,7 @@ class DocumentDAO {
         return new DocumentLocationResponse(
           doc.id,
           new Type(doc.type_id, doc.type_name),
+          doc.title,
           doc.location
             ? doc.location.split(",").map((coords: string) => {
                 const [lng, lat] = coords.split(" ").map(Number);
