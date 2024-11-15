@@ -9,7 +9,9 @@ import { ConnectionList, HalfConnection } from "../models/Connection";
 function LinkDocumentsPage() {
   const navigate = useNavigate();
   const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
-  const [documentsList, setDocumentsList] = useState<{ id: number; title: string }[]>([]);
+  const [documentsList, setDocumentsList] = useState<
+    { id: number; title: string }[]
+  >([]);
   const [connectionsList, setConnectionsList] = useState<ConnectionList>({
     starting_document_id: undefined,
     connections: [],
@@ -25,12 +27,14 @@ function LinkDocumentsPage() {
   };
 
   const handleSelectDocument = (docId: number) => {
-    ConnectionAPI.getConnectionsByDocumentId(docId).then((halfConnections: HalfConnection[]) => {
-      setConnectionsList({
-        starting_document_id: docId,
-        connections: halfConnections,
-      });
-    });
+    ConnectionAPI.getConnectionsByDocumentId(docId).then(
+      (halfConnections: HalfConnection[]) => {
+        setConnectionsList({
+          starting_document_id: docId,
+          connections: halfConnections,
+        });
+      }
+    );
   };
 
   const handleDeleteConnection = (document_id: number) => {
@@ -48,11 +52,17 @@ function LinkDocumentsPage() {
   const handleAddConnection = () => {
     setConnectionsList((prevList) => ({
       starting_document_id: prevList.starting_document_id,
-      connections: [...prevList.connections, { document_id: undefined, connection_types: [] }],
+      connections: [
+        ...prevList.connections,
+        { document_id: undefined, connection_types: [] },
+      ],
     }));
   };
 
-  const handleSelectLinkedDocument = (connIndex: number, documentId: number) => {
+  const handleSelectLinkedDocument = (
+    connIndex: number,
+    documentId: number
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       newConnections[connIndex].document_id = documentId;
@@ -63,7 +73,10 @@ function LinkDocumentsPage() {
     });
   };
 
-  const handleSelectConnectionTypes = (connIndex: number, connection_types: string[]) => {
+  const handleSelectConnectionTypes = (
+    connIndex: number,
+    connection_types: string[]
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       newConnections[connIndex].connection_types = connection_types;
@@ -79,9 +92,11 @@ function LinkDocumentsPage() {
     ConnectionAPI.getTypeOfConnections().then((connTypes: string[]) => {
       setConnectionTypes(connTypes);
     });
-    DocumentAPI.getAllDocumentsNames().then((docs: { id: number; title: string }[]) => {
-      setDocumentsList(docs);
-    });
+    DocumentAPI.getAllDocumentsNames().then(
+      (docs: { id: number; title: string }[]) => {
+        setDocumentsList(docs);
+      }
+    );
   }, []);
 
   return (
