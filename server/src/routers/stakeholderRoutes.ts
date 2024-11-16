@@ -32,7 +32,7 @@ class StakeholderRoutes {
      * It requires the user to be logged in and to be an urban planner.
      * It returns an array of stakeholders.
      */
-    this.router.get("/", this.authService.isUrbanPlanner, (req: any, res: any, next: any) =>
+    this.router.get("/", (req: any, res: any, next: any) =>
       this.controller
         .getStakeholders()
         .then((stakeholders) => res.status(200).json(stakeholders))

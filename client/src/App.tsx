@@ -13,6 +13,7 @@ import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 import DocumentList from "./components/listDocument/DocumentList";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
 import ListMunicipality from "./components/Map/ListMunicipality";
+import AdvancedSearchPage from "./pages/AdvancedSearchPage";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -52,25 +53,22 @@ function App() {
 
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider
-        value={{ disabledInput, setDisabledInput }}
-      >
+      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
         <Routes>
-          <Route
-            path="/"
-            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-          />
+          <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
           <Route
             path="/auth"
-            element={
-              user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
-            }
+            element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
           />
           <Route
             path="/"
             element={
               <>
-                <Navbar logout={doLogout} docsLocation={docsLocation} setDocsLocation={docsLocation} />
+                <Navbar
+                  logout={doLogout}
+                  docsLocation={docsLocation}
+                  setDocsLocation={docsLocation}
+                />
                 <Outlet />
               </>
             }
@@ -107,29 +105,23 @@ function App() {
               <Route
                 path="documents"
                 element={
-                  user ? (
-                    <DocumentList open={true} onClose={() => {}} />
-                  ) : (
-                    <Navigate to="/auth" />
-                  )
+                  user ? <DocumentList open={true} onClose={() => {}} /> : <Navigate to="/auth" />
                 }
               />
-              <Route path= "municipality" 
+              <Route
+                path="municipality"
                 element={
                   user ? (
                     <ListMunicipality open={true} onClose={() => navigate("/map")} />
                   ) : (
                     <Navigate to="/auth" />
                   )
-                }/>
-              </Route>
-            
+                }
+              />
+              <Route path="search" element={<AdvancedSearchPage />} />
+            </Route>
           </Route>
-
-          <Route
-            path="*"
-            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-          />
+          <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
         </Routes>
       </DisabledInputContext.Provider>
     </UserContext.Provider>

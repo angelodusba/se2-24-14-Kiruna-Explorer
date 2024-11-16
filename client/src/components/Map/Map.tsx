@@ -11,7 +11,7 @@ import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import DocumentList from "../listDocument/DocumentList";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
-import SearchBar from "../SearchBar";
+import SearchBar from "../SearchBarOld.old";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -48,10 +48,10 @@ function Map(props) {
 
   return (
     <>
-      {user && user.role === Role.UrbanPlanner && (
+      {user && user.role === Role.UrbanPlanner && <Dial onOpenDocuments={handleOpenDocuments} />}
+      {!disabledInput && user && user.role === Role.UrbanPlanner && (
         <Dial onOpenDocuments={handleOpenDocuments} />
       )}
-      {!disabledInput && user && user.role === Role.UrbanPlanner && <Dial onOpenDocuments={handleOpenDocuments} />}
       {!disabledInput && user && user.role === Role.UrbanPlanner && <DocumentDial />}
       <MapContainer
         center={[67.85572, 20.22513]}
@@ -63,7 +63,7 @@ function Map(props) {
         touchZoom
         doubleClickZoom
         attributionControl={true}
-        zoomControl={true}
+        zoomControl={false}
         scrollWheelZoom // Needed to enable smooth zoom
         style={{ height: "100vh", overflowY: "auto" }}
       >
@@ -89,10 +89,12 @@ function Map(props) {
                     },
                   }}
                   icon={customIcon}
-                  position={L.latLng(doc.location[0])}></Marker>
+                  position={L.latLng(doc.location[0])}
+                ></Marker>
               );
             }
-            {/*
+            {
+              /*
             if (doc.location.length === 0) {
               return (
                 <Marker
@@ -106,7 +108,8 @@ function Map(props) {
                   position={[67.85572, 20.22513]}></Marker>
               );
             }
-            */}
+            */
+            }
           })}
         </MarkerClusterGroup>
       </MapContainer>

@@ -6,12 +6,12 @@ import {
   MenuItem,
   Menu,
   AppBar,
-  Stack,
   Divider,
   MenuProps,
   Fab,
   Avatar,
   ListItemIcon,
+  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
@@ -23,23 +23,18 @@ import { Logout, MailOutline } from "@mui/icons-material";
 import DocumentList from "./listDocument/DocumentList";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 import SearchBar from "./SearchBar";
-import { Filter } from "../models/Filter";
+import { SearchFilter } from "../models/SearchFilter";
 
 function stringToColor(string: string) {
   let hash = 0;
-  let i;
-
-  for (i = 0; i < string.length; i += 1) {
+  for (let i = 0; i < string.length; i += 1) {
     hash = string.charCodeAt(i) + ((hash << 5) - hash);
   }
-
   let color = "#";
-
-  for (i = 0; i < 3; i += 1) {
+  for (let i = 0; i < 3; i += 1) {
     const value = (hash >> (i * 8)) & 0xff;
     color += `00${value.toString(16)}`.slice(-2);
   }
-
   return color;
 }
 
@@ -89,10 +84,7 @@ const AccountMenu = styled((props: MenuProps) => (
         marginRight: theme.spacing(1.5),
       },
       "&:active": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.selectedOpacity
-        ),
+        backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
       },
     },
     ...theme.applyStyles("dark", {
@@ -105,11 +97,8 @@ function Navbar(props) {
   const user = React.useContext(UserContext);
   const { disabledInput } = React.useContext(DisabledInputContext);
   const navigate = useNavigate();
-
-  const [accountAnchorEl, setAccountAnchorEl] =
-    React.useState<null | HTMLElement>(null);
+  const [accountAnchorEl, setAccountAnchorEl] = React.useState<null | HTMLElement>(null);
   const accountOpen = Boolean(accountAnchorEl);
-
   const [openDocuments, setOpenDocuments] = React.useState(false);
 
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -119,14 +108,17 @@ function Navbar(props) {
     setAccountAnchorEl(null);
   };
 
-  // const handleViewDocuments = () => {
-  //   setOpenDocuments(true);
-  // };
   const handleCloseDocuments = () => {
     setOpenDocuments(false);
   };
 
-  const renderAccountMenu = user && (
+  const handleSearch = (search: string) => {
+    // Maybe props.fetchData(filter)
+    const filters: SearchFilter = { title: search };
+    console.log(filters);
+  };
+
+  const renderAccountMenu = (
     <AccountMenu
       id="accountMenu"
       MenuListProps={{
@@ -137,13 +129,13 @@ function Navbar(props) {
       onClose={handleAccountMenuClose}
     >
       <Typography variant="h5" fontWeight="bold" align="center">
-        Hi {user.username}
+        Hi {user?.username}
       </Typography>
       <MenuItem disableRipple>
         <ListItemIcon sx={{ color: "#003d8f" }}>
           <MailOutline fontSize="small" color="inherit" />
         </ListItemIcon>
-        {user.email}
+        {user?.email}
       </MenuItem>
       <Divider sx={{ my: 0.5 }} />
       <MenuItem
@@ -162,11 +154,6 @@ function Navbar(props) {
     </AccountMenu>
   );
 
-  const handleSearch = (filter: Filter) => {
-    // Maybe props.fetchData(filter)
-    
-  }
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -175,7 +162,7 @@ function Navbar(props) {
         sx={{
           boxShadow: "none",
           border: "none",
-          zIndex: 1000000,
+          zIndex: 1000,
           color: "white",
         }}
       >
@@ -207,18 +194,16 @@ function Navbar(props) {
                   Kiruna Explorer
                 </Typography>
               </Grid>
-              <SearchBar onSearch = {(filter) => handleSearch(filter)}
-                          docsLocation = {props.docsLocation}
-                          setDocsLocation = {props.setDocsLocation}/>
               <Grid
                 size={6}
                 sx={{
                   justifyContent: "center",
-                  display: { xs: "none", sm: "flex" },
+                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
-                <Stack direction="row" spacing={1} sx={{ margin: "auto" }}>
-                </Stack>
+                <SearchBar onSearch={handleSearch} />
               </Grid>
               <Grid
                 size="grow"
@@ -247,11 +232,7 @@ function Navbar(props) {
                     aria-controls={accountOpen ? "accountMenu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={accountOpen ? "true" : undefined}
-                    onClick={
-                      accountOpen
-                        ? handleAccountMenuClose
-                        : handleAccountMenuOpen
-                    }
+                    onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
                   >
                     <Avatar {...stringAvatar(user.username)} />
                   </Fab>

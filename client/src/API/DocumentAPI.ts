@@ -2,7 +2,7 @@ import { Document } from "../models/Document";
 import { Type } from "../models/Type";
 import { StakeHolder } from "../models/StakeHolders";
 import { Point } from "../models/Document";
-import { Filter } from "../models/Filter";
+import { SearchFilter } from "../models/SearchFilter";
 
 const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
@@ -37,8 +37,6 @@ async function sendDocument(document: Document): Promise<number> {
     throw new Error("Something went wrong");
   }
 }
-
-
 
 async function getDocumentsLocation() {
   const response = await fetch(baseURL + "documents/location", {
@@ -108,7 +106,7 @@ async function getAllDocumentsNames() {
   }
 }
 
-async function getMunicipalityDocuments(){
+async function getMunicipalityDocuments() {
   const response = await fetch(baseURL + "documents/municipality", {
     method: "GET",
     credentials: "include",
@@ -124,7 +122,7 @@ async function getMunicipalityDocuments(){
   }
 }
 
-async function changeDocumentLocation(id: number, location: Point[]){
+async function changeDocumentLocation(id: number, location: Point[]) {
   const response = await fetch(baseURL + "documents/location", {
     method: "PUT",
     credentials: "include",
@@ -133,7 +131,7 @@ async function changeDocumentLocation(id: number, location: Point[]){
     },
     body: JSON.stringify({
       id: id,
-      location: location
+      location: location,
     }),
   });
   if (response.ok) {
@@ -150,16 +148,15 @@ async function changeDocumentLocation(id: number, location: Point[]){
 
 /** ------------------- Filtered Documents APIs ------------------------ */
 /** Get documents based on the filter:
-  * @param {Filter} params - parameters of the fiter to be applied
-  * @returns {Document[]} - array of documents that match the filter
-  * @throws {Error} - error message
-  * @example
-  * const documents = await getFilteredDocument(filter: Filter);
-  * 
-*/
+ * @param {SearchFilter} params - parameters of the fiter to be applied
+ * @returns {Document[]} - array of documents that match the filter
+ * @throws {Error} - error message
+ * @example
+ * const documents = await getFilteredDocument(filter: Filter);
+ *
+ */
 
-
-async function getFilteredDocuments(filter: Filter): Promise<Document[]> {
+async function getFilteredDocuments(filter: SearchFilter): Promise<Document[]> {
   const response = await fetch(baseURL + "documents/filter", {
     method: "GET",
     credentials: "include",
@@ -187,6 +184,6 @@ const DocumentAPI = {
   getStakeholders,
   getMunicipalityDocuments,
   changeDocumentLocation,
-  getFilteredDocuments
+  getFilteredDocuments,
 };
 export default DocumentAPI;
