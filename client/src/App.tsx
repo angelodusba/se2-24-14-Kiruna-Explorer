@@ -12,6 +12,9 @@ import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 import DocumentList from "./components/listDocument/DocumentList";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
+import DocumentCard from "./components/Map/DocumentCard";
+import AttachmentsPage from "./pages/AttachmentsPage";
+import GeoreferencePage from "./pages/GeoreferencePage";
 import ListMunicipality from "./components/Map/ListMunicipality";
 import AdvancedSearchPage from "./pages/AdvancedSearchPage";
 
@@ -34,6 +37,14 @@ function App() {
     navigate("/");
   };
 
+  const fetchDocuments = () => {
+    DocumentAPI.getDocumentsLocation()
+      .then((response) => {
+        setDocsLocation(response);
+      })
+      .catch((err) => console.log(err));
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -43,22 +54,24 @@ function App() {
         setUser(undefined);
       }
     };
-    DocumentAPI.getDocumentsLocation()
-      .then((response) => {
-        setDocsLocation(response);
-      })
-      .catch((err) => console.log(err));
+    fetchDocuments();
     checkAuth();
   }, []);
 
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
+      <DisabledInputContext.Provider
+        value={{ disabledInput, setDisabledInput }}>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+          <Route
+            path="/"
+            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+          />
           <Route
             path="/auth"
-            element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
+            element={
+              user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
+            }
           />
           <Route
             path="/"
@@ -71,22 +84,19 @@ function App() {
                 />
                 <Outlet />
               </>
-            }
-          >
+            }>
             <Route
               path="/map"
               element={
                 <>
-                  <Map docs={docsLocation} />
-                  <Outlet />
+                  <Map docs={docsLocation}></Map>
                 </>
-              }
-            >
+              }>
               <Route
                 path="add"
                 element={
                   user && user.role === Role.UrbanPlanner ? (
-                    <AddDocumentPage />
+                    <AddDocumentPage fetchDocuments={fetchDocuments} />
                   ) : (
                     <Navigate to="/auth" />
                   )
@@ -103,16 +113,52 @@ function App() {
                 }
               />
               <Route
+                path=":id"
+                element={
+                  <>
+                    <DocumentCard />
+                    <Outlet></Outlet>
+                  </>
+                }>
+                <Route
+                  path="resources"
+                  element={
+                    user && user.role === Role.UrbanPlanner ? (
+                      <AttachmentsPage></AttachmentsPage>
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+                <Route
+                  path="georeference"
+                  element={
+                    user && user.role === Role.UrbanPlanner ? (
+                      <GeoreferencePage></GeoreferencePage>
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+              </Route>
+              <Route
                 path="documents"
                 element={
-                  user ? <DocumentList open={true} onClose={() => {}} /> : <Navigate to="/auth" />
+                  user ? (
+                    <DocumentList open={true} onClose={() => {}} />
+                  ) : (
+                    <Navigate to="/auth" />
+                  )
                 }
               />
               <Route
                 path="municipality"
                 element={
                   user ? (
-                    <ListMunicipality open={true} onClose={() => navigate("/map")} />
+                    <ListMunicipality
+                      open={true}
+                      onClose={() => navigate("/map")}
+                    />
                   ) : (
                     <Navigate to="/auth" />
                   )
@@ -121,7 +167,10 @@ function App() {
               <Route path="search" element={<AdvancedSearchPage />} />
             </Route>
           </Route>
-          <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+          <Route
+            path="*"
+            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+          />
         </Routes>
       </DisabledInputContext.Provider>
     </UserContext.Provider>

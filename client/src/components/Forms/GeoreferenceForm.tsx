@@ -1,35 +1,32 @@
 import {
-  Divider,
+  Button,
   FormControl,
   FormControlLabel,
-  Link,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from "@mui/material";
+import PlaceIcon from "@mui/icons-material/Place";
 import { useContext, useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
-function GeoreferenceForm({ setDocument, document, setModalOpen }) {
+function GeoreferenceForm({ setDocument, document, docLocation = undefined }) {
   const [georeferenceModality, setGeoreferenceModality] = useState(0);
 
   const { setDisabledInput } = useContext(DisabledInputContext);
 
-  const handlePointPicking = () => {
-    setModalOpen(false);
-    setDisabledInput(true);
-  };
-
   return (
     <Grid
       container
+      component={docLocation === undefined ? "div" : "form"}
       sx={{
         width: "100%",
         display: "flex",
         py: 2,
       }}
+      //onSubmit={} Handle form standalone, not in addDocument
       size={6}
       spacing={2}>
       <Grid
@@ -39,7 +36,9 @@ function GeoreferenceForm({ setDocument, document, setModalOpen }) {
           alignItems: "center",
         }}
         size={12}>
-        <Typography variant="h6">Georeference Modality</Typography>
+        <Typography variant="h6" fontWeight={"bold"}>
+          Georeference Modality
+        </Typography>
       </Grid>
       <Grid
         sx={{
@@ -96,6 +95,7 @@ function GeoreferenceForm({ setDocument, document, setModalOpen }) {
           }}
           size={{ xs: 12, md: 6 }}>
           <TextField
+            size="small"
             fullWidth
             label="Lat"
             variant="outlined"
@@ -129,6 +129,7 @@ function GeoreferenceForm({ setDocument, document, setModalOpen }) {
           }}
           size={{ xs: 12, md: 6 }}>
           <TextField
+            size="small"
             fullWidth
             label="Lng"
             variant="outlined"
@@ -154,17 +155,30 @@ function GeoreferenceForm({ setDocument, document, setModalOpen }) {
             }}
           />
         </Grid>
-        <Divider>Or</Divider>
         <Grid
           sx={{
             display: georeferenceModality === 1 ? "flex" : "none",
             justifyContent: "center",
           }}
           size={12}>
-          <Link component="button" variant="body2" onClick={handlePointPicking}>
-            Button Link
-          </Link>
+          <Button
+            onClick={() => setDisabledInput(true)}
+            variant="outlined"
+            size="small"
+            startIcon={<PlaceIcon />}>
+            Pick on the map
+          </Button>
         </Grid>
+      </Grid>
+      <Grid
+        sx={{
+          width: "100%",
+          display: docLocation ? "flex" : "none",
+          justifyContent: "space-between",
+          py: 2,
+        }}>
+        <Button color="error">Close</Button>
+        <Button type={"submit"}>Save</Button>
       </Grid>
     </Grid>
   );

@@ -1,13 +1,17 @@
 import {
   Autocomplete,
+  Badge,
   Box,
+  Button,
   Checkbox,
   FormControl,
+  IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
   Select,
   TextField,
+  Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { Document } from "../../models/Document";
@@ -15,6 +19,8 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { StakeHolder } from "../../models/StakeHolders";
 import { useMemo, useState } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { AddCircleOutlined } from "@mui/icons-material";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -30,7 +36,9 @@ const languages = [
 
 function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
   const [dateError, setDateError] = useState("");
-  const [scaleModality, setScaleModality] = useState(null);
+  const [scaleError, setScaleError] = useState("");
+  const [scaleModality, setScaleModality] = useState<number>(0);
+  const [sourcesPages, setSourcesPages] = useState<string[]>([""]);
 
   const scaleLabels = [
     "Blueprints/material effects",
@@ -86,10 +94,24 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
     }
   };
 
+  const handleScaleChange = (scale: string) => {
+    setScaleError("");
+    const validChars = /^[0-9]*$/;
+    if (!validChars.test(scale)) {
+      setScaleError("You can only enter numbers");
+      return;
+    }
+    setDocument((prevDocument) => ({
+      ...prevDocument,
+      scale: scale,
+    }));
+  };
+
   return (
     <>
       <Grid sx={{ display: "flex", flexDirection: "column" }} size={12}>
         <TextField
+          size="small"
           label="Title"
           variant="outlined"
           value={document.title}
@@ -105,6 +127,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
       <Grid sx={{ display: "flex", flexDirection: "column" }} size={12}>
         <TextField
           fullWidth
+          size="small"
           label="Description"
           variant="outlined"
           minRows={2}
@@ -123,6 +146,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         sx={{ display: "flex", flexDirection: "column" }}
         size={{ xs: 12, md: 6 }}>
         <Autocomplete
+          size="small"
           options={types}
           getOptionLabel={(option) => option.name}
           id="typeSelect"
@@ -142,6 +166,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         sx={{ display: "flex", flexDirection: "column" }}
         size={{ xs: 12, md: 6 }}>
         <Autocomplete
+          size="small"
           fullWidth
           id="languages"
           options={languages}
@@ -194,6 +219,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         sx={{ display: "flex", flexDirection: "column" }}
         size={{ xs: 12, md: 6 }}>
         <Autocomplete
+          size="small"
           multiple
           id="stakeholdersSelect"
           options={stakeholders}
@@ -221,7 +247,6 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
             <TextField
               {...params}
               label="Stakeholders"
-              placeholder="Stakeholders"
               slotProps={{
                 htmlInput: {
                   ...params.inputProps,
@@ -237,16 +262,17 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         sx={{ display: "flex", flexDirection: "column" }}
         size={{ xs: 12, md: 6 }}>
         <TextField
+          size="small"
           fullWidth
           label="Issue Date"
           variant="outlined"
-          onBlur={() => setDateError("")}
           value={document.issueDate}
           onChange={(event) => {
             handleIssueDateChange(event.target.value);
           }}
           error={!!dateError}
           helperText={dateError ? dateError : "YYYY/MM/DD or YYYY/MM or YYYY"}
+          onBlur={() => setDateError("")}
           required
           slotProps={{
             htmlInput: {
@@ -263,6 +289,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         <FormControl required>
           <InputLabel id="scaleModality">Scale type</InputLabel>
           <Select
+            size="small"
             required
             variant="outlined"
             labelId="scaleModality"
@@ -270,7 +297,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
             value={scaleModality}
             label="Scale type"
             onChange={(event) => {
-              const newMod = event.target.value;
+              const newMod = Number(event.target.value);
               setScaleModality(newMod);
               setDocument((prevDocument) => ({
                 ...prevDocument,
@@ -278,7 +305,11 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
               }));
             }}>
             {scaleLabels.map((mod, index) => {
-              return <MenuItem value={index}>{mod}</MenuItem>;
+              return (
+                <MenuItem key={index} value={index}>
+                  {mod}
+                </MenuItem>
+              );
             })}
           </Select>
         </FormControl>
@@ -290,10 +321,13 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         }}
         size={{ xs: 12, md: 6 }}>
         <TextField
+          size="small"
           fullWidth
-          type="number"
           label="Architectural scale"
           variant="outlined"
+          error={!!scaleError}
+          helperText={scaleError && scaleError}
+          onBlur={() => setScaleError("")}
           slotProps={{
             input: {
               startAdornment: (
@@ -302,16 +336,89 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
             },
           }}
           value={scaleModality !== 3 ? "" : document.scale}
-          onChange={(event) =>
-            setDocument((prevDocument) => ({
-              ...prevDocument,
-              scale: event.target.value,
-            }))
-          }
+          onChange={(event) => {
+            handleScaleChange(event.target.value);
+          }}
           placeholder="1000"
           required={scaleModality === 3}
           disabled={scaleModality !== 3}
         />
+      </Grid>
+      <Grid size={12} sx={{ textAlign: "center" }}>
+        <Typography variant="h6">Pages</Typography>
+      </Grid>
+      {sourcesPages.map((source, index) => {
+        return (
+          <Grid
+            sx={{ textAlign: "center" }}
+            size={{ xs: 6, md: 3 }}
+            key={index}>
+            <Badge
+              sx={{
+                "& .MuiBadge-badge": {
+                  right: 4,
+                  top: 8,
+                  padding: "0 4px",
+                },
+              }}
+              badgeContent={
+                index >= 1 ? (
+                  <IconButton
+                    size="small"
+                    sx={{ mt: -2 }}
+                    color="error"
+                    onClick={() => {
+                      const newSourcesPages = sourcesPages.filter(
+                        (_, i) => i !== index
+                      );
+                      setSourcesPages(newSourcesPages);
+                      setDocument((prevDocument) => ({
+                        ...prevDocument,
+                        pages: newSourcesPages.join("-"),
+                      }));
+                    }}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseUp={(event) => event.preventDefault()}
+                    edge="end">
+                    {<DeleteIcon fontSize="small" />}
+                  </IconButton>
+                ) : (
+                  0
+                )
+              }>
+              <TextField
+                size="small"
+                type="number"
+                label={`Source ${index + 1}`}
+                variant="outlined"
+                value={source}
+                onChange={(event) => {
+                  const newSourcesPages = [...sourcesPages];
+                  newSourcesPages[index] = event.target.value;
+                  setSourcesPages(newSourcesPages);
+                  setDocument((prevDocument) => ({
+                    ...prevDocument,
+                    pages: newSourcesPages.join("-"),
+                  }));
+                }}
+              />
+            </Badge>
+          </Grid>
+        );
+      })}
+      <Grid size={12} sx={{ display: "flex", justifyContent: "center" }}>
+        <Button
+          disabled={sourcesPages[sourcesPages.length - 1] === ""}
+          variant="outlined"
+          color="success"
+          size="small"
+          startIcon={<AddCircleOutlined />}
+          onClick={() => {
+            const newSourcesPages = [...sourcesPages, ""];
+            setSourcesPages(newSourcesPages);
+          }}>
+          Add source
+        </Button>
       </Grid>
     </>
   );
