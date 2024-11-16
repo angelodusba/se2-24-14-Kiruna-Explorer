@@ -167,7 +167,7 @@ Retrieves all the locations of the documents in the database.
 
 - Request Parameters: None
 - Request Body Content: None
-- Response Body Content: An array of DocumentLocationResponse objects, each containing a document's ID, type, and location coordinates (if available):
+- Response Body Content: An array of **DocumentLocationResponse** objects, each containing a document's ID, type, and location coordinates (if available):
   - Example:
 
 ```JSON
@@ -239,14 +239,122 @@ Retrieves all the names and ids of the documents in the database.
 ]
 ```
 
+#### GET `kirunaexplorer/documents/municipality`
+
+Retrieves all the documents that belong to the municipality area.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **Document** objects, each representing a document:
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "title": "Document 1",
+        "description": "Description 1",
+        "type": {
+            "id": 1,
+            "name": "Design"
+        },
+        "issue_date": "22/07/1980",
+        "scale": "blueprints/effects",
+        "location": [],
+        "language": "en",
+        "pages": "10"
+    },
+    {
+        "id": 3,
+        "title": "Document 3",
+        "description": "Description 3",
+        "type": {
+            "id": 1,
+            "name": "Design"
+        },
+        "issue_date": "2022",
+        "scale": "blueprints/effects",
+        "location": [],
+        "language": "it",
+        "pages": "45"
+    }
+]
+```
+
+#### GET `kirunaexplorer/documents/card/:id`
+
+Retrieves all the information of the requested document to be displayed in a card.
+
+- Request Parameters:
+  - `id`: an integer greater than 0
+- Request Body Content: None
+- Response Body Content: A **DocumentCardResponse** object representing a document:
+  - Example:
+
+```JSON
+{
+	"id": 5,
+	"title": "Paris",
+	"description": "Capital of France",
+	"type": {
+		"id": 1,
+		"name": "Design"
+	},
+	"issue_date": "22/07/1980",
+	"scale": "1:8000",
+	"location": [
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		},
+		{
+			"lng": 12.5,
+			"lat": 46.5
+		},
+		{
+			"lng": 12.5,
+			"lat": 42.5
+		},
+		{
+			"lng": 7.5,
+			"lat": 42.5
+		},
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		}
+	],
+	"language": "french",
+	"pages": "60",
+    "conn_count": 3,
+    "stakeholders": ["LKAB", "Municipality"],
+    "attachments": [
+        {
+            "id": 1,
+            "document_id": 5,
+            "type": "png",
+            "original": true,
+            "path": "doc5/att_photo.png"
+        },
+        {
+            "id": 2,
+            "document_id": 5,
+            "type": "pdf",
+            "original": false,
+            "path": "doc5/att_plan.pdf"
+        }
+    ]
+}
+```
+
 #### GET `kirunaexplorer/documents/:id`
 
 Retrieves all the information of the requested document.
 
 - Request Parameters:
-  - id: an integer greater than 0
+  - `id`: an integer greater than 0
 - Request Body Content: None
-- Response Body Content: A Document object representing a document:
+- Response Body Content: A **Document** object representing a document:
   - Example:
 
 ```JSON
