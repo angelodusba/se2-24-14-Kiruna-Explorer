@@ -7,7 +7,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Modal,
+  Paper,
   Typography,
 } from "@mui/material";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
@@ -15,6 +15,7 @@ import Grid from "@mui/material/Grid2";
 import {
   AspectRatioOutlined,
   AutoStoriesOutlined,
+  CloseOutlined,
   EditOutlined,
   LinkOutlined,
   LocationOnOutlined,
@@ -22,12 +23,14 @@ import {
   TodayOutlined,
   TranslateOutlined,
 } from "@mui/icons-material";
+import { useNavigate, useParams } from "react-router-dom";
 
 const style = {
   position: "absolute",
+  zIndex: 401,
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -50%)",
+  transform: { xs: "translate(-50%, -50%)", lg: "translate(-100%, -50%)" },
   width: "500px",
   maxHeight: "80%",
   minHeight: "60%",
@@ -53,14 +56,12 @@ const style = {
   scrollbarWidth: "none",
 };
 
-function DocumentCard(props) {
+function DocumentCard() {
+  const navigate = useNavigate();
+  const docId = useParams();
+
   return (
-    <Modal
-      open={true}
-      disableAutoFocus
-      onClose={() => props.setOperation(undefined)}
-      aria-labelledby="CardModal"
-      aria-describedby="CardModal">
+    <Paper variant="outlined">
       <Box sx={style}>
         <Grid
           container
@@ -74,25 +75,29 @@ function DocumentCard(props) {
               alignItems: "center",
               mb: 1,
             }}>
-            <Grid size={2}>
+            <Grid size={2} sx={{ marginLeft: "8px", paddingLeft: 2 }}>
               <img
                 src={KirunaLogo}
                 width="40px"
                 height="48px"
                 alt="Kiruna Explorer"
-                style={{ marginLeft: "8px" }}
               />
             </Grid>
-            <Grid size={10} sx={{ display: "flex", justifyContent: "start" }}>
+            <Grid size={9} sx={{ display: "flex", justifyContent: "start" }}>
               <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                 Title
               </Typography>
             </Grid>
+            <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
+              <IconButton size="small" onClick={() => navigate("/map")}>
+                {<CloseOutlined fontSize="small" />}
+              </IconButton>
+            </Grid>
           </Grid>
-          <Divider variant="middle" />
+          <Divider />
           <Grid container>
             <Grid
-              size={{ sm: 12, md: 7 }}
+              size={{ sm: 12, md: 6 }}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -106,7 +111,7 @@ function DocumentCard(props) {
                   maxWidth: 360,
                   bgcolor: "background.paper",
                   display: "grid",
-                  gap: 2,
+                  gap: 1,
                   gridTemplateColumns: "repeat(2, 1fr)",
                 }}>
                 <ListItem sx={{ alignItems: "start" }}>
@@ -270,12 +275,24 @@ function DocumentCard(props) {
                     }}
                     secondary="Casa"
                   />
+                  <IconButton
+                    aria-label="delete"
+                    size="small"
+                    onClick={() => {
+                      navigate(`/map/${docId.id}/georeference`);
+                    }}>
+                    <EditOutlined fontSize="inherit" />
+                  </IconButton>
                 </ListItem>
               </List>
             </Grid>
-            <Divider orientation="vertical" flexItem sx={{ marginRight: -1 }} />
+            <Divider
+              sx={{ display: { xs: "none", md: "flex" }, marginRight: -1 }}
+              orientation="vertical"
+              flexItem
+            />
             <Grid
-              size={{ sm: 12, md: 5 }}
+              size={{ sm: 12, md: 6 }}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -302,7 +319,10 @@ function DocumentCard(props) {
                 fontWeight="bold"
                 sx={{ mt: 1, mr: 2 }}>
                 Original resources
-                <IconButton aria-label="delete" size="small">
+                <IconButton
+                  aria-label="delete"
+                  size="small"
+                  onClick={() => navigate(`/map/${docId.id}/resources`)}>
                   <EditOutlined fontSize="inherit" />
                 </IconButton>
               </Typography>
@@ -310,7 +330,7 @@ function DocumentCard(props) {
           </Grid>
         </Grid>
       </Box>
-    </Modal>
+    </Paper>
   );
 }
 

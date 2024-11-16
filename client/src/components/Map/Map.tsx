@@ -9,7 +9,7 @@ import Dial from "../Dial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -22,15 +22,14 @@ const bounds = L.latLngBounds(
   [67.9658, 20.4253] // Northeast coordinates (adjust to set the limit)
 );
 
-const handleDocumentShow = (id) => {
-  //FetchDocByID and set docCard to that
-  return;
-};
-
 function Map(props) {
+  const navigate = useNavigate();
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
-  //const [docCard, setDocCard] = useState(undefined);
+
+  const handleCardShow = (id) => {
+    navigate(`/map/${id}`);
+  };
 
   return (
     <>
@@ -45,7 +44,7 @@ function Map(props) {
         touchZoom
         doubleClickZoom
         attributionControl={true}
-        zoomControl={true}
+        zoomControl={false}
         scrollWheelZoom={false} // Needed to enable smooth zoom
         style={{
           height: "100vh",
@@ -71,7 +70,7 @@ function Map(props) {
                     key={doc.id}
                     eventHandlers={{
                       click: () => {
-                        handleDocumentShow(doc.id);
+                        handleCardShow(doc.id);
                       },
                     }}
                     icon={customIcon}
@@ -84,7 +83,7 @@ function Map(props) {
                     riseOnHover
                     eventHandlers={{
                       click: () => {
-                        handleDocumentShow(doc.id);
+                        handleCardShow(doc.id);
                       },
                     }}
                     key={doc.id}

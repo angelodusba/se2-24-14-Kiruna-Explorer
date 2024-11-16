@@ -12,7 +12,7 @@ import { useContext, useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
-function GeoreferenceForm({ setDocument, document }) {
+function GeoreferenceForm({ setDocument, document, docLocation = undefined }) {
   const [georeferenceModality, setGeoreferenceModality] = useState(0);
 
   const { setDisabledInput } = useContext(DisabledInputContext);
@@ -20,11 +20,13 @@ function GeoreferenceForm({ setDocument, document }) {
   return (
     <Grid
       container
+      component={docLocation === undefined ? "div" : "form"}
       sx={{
         width: "100%",
         display: "flex",
         py: 2,
       }}
+      //onSubmit={} Handle form standalone, not in addDocument
       size={6}
       spacing={2}>
       <Grid
@@ -34,7 +36,9 @@ function GeoreferenceForm({ setDocument, document }) {
           alignItems: "center",
         }}
         size={12}>
-        <Typography variant="h6">Georeference Modality</Typography>
+        <Typography variant="h6" fontWeight={"bold"}>
+          Georeference Modality
+        </Typography>
       </Grid>
       <Grid
         sx={{
@@ -91,6 +95,7 @@ function GeoreferenceForm({ setDocument, document }) {
           }}
           size={{ xs: 12, md: 6 }}>
           <TextField
+            size="small"
             fullWidth
             label="Lat"
             variant="outlined"
@@ -124,6 +129,7 @@ function GeoreferenceForm({ setDocument, document }) {
           }}
           size={{ xs: 12, md: 6 }}>
           <TextField
+            size="small"
             fullWidth
             label="Lng"
             variant="outlined"
@@ -163,6 +169,16 @@ function GeoreferenceForm({ setDocument, document }) {
             Pick on the map
           </Button>
         </Grid>
+      </Grid>
+      <Grid
+        sx={{
+          width: "100%",
+          display: docLocation ? "flex" : "none",
+          justifyContent: "space-between",
+          py: 2,
+        }}>
+        <Button color="error">Close</Button>
+        <Button type={"submit"}>Save</Button>
       </Grid>
     </Grid>
   );

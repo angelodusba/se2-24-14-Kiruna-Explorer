@@ -14,11 +14,11 @@ import { DisabledInputContext } from "../contexts/DisabledInputContext";
 const steps = [
   { label: "General info", optional: false },
   { label: "Georeference", optional: false },
-  { label: "Attachments", optional: false },
+  { label: "Original resources", optional: false },
   { label: "Linking", optional: true },
 ];
 
-function AddDocumentPage() {
+function AddDocumentPage({ fetchDocuments }) {
   const navigate = useNavigate();
   const { disabledInput } = useContext(DisabledInputContext);
 
@@ -34,7 +34,7 @@ function AddDocumentPage() {
     pages: "",
     coordinates: [],
     issueDate: "",
-    scale: "",
+    scale: "Blueprints/ material effects",
     language: "",
   });
   // LinkDocumentForm data
@@ -48,16 +48,21 @@ function AddDocumentPage() {
   >([]);
 
   const handleSubmit = async (document: Document) => {
-    if (activeStep === steps.length - 2) {
+    if (activeStep === steps.length - 3) {
       //Insert DOC
-
+      console.log(document);
       const id = await DocumentAPI.sendDocument(document);
       setConnectionsList({
         starting_document_id: id,
         connections: [{ document_id: undefined, connection_types: [] }],
       });
     }
+    if (activeStep === steps.length - 1) {
+      handleLinkSubmit();
+      return;
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    fetchDocuments();
   };
 
   const handleLinkSubmit = async () => {

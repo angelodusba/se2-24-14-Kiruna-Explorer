@@ -48,7 +48,7 @@ function AddDocumentForm({
     ) : activeStep === 1 ? (
       <GeoreferenceForm document={document} setDocument={setDocument} />
     ) : activeStep === 2 ? (
-      <AttachmentsForm></AttachmentsForm>
+      <AttachmentsForm docId={insertedDocumentId}></AttachmentsForm>
     ) : (
       <LinkDocumentForm
         docId={insertedDocumentId}
@@ -154,7 +154,7 @@ function AddDocumentForm({
           )}
           <Box sx={{ flex: "1 1 auto" }} />
           <Button type={"submit"}>
-            {activeStep === steps.length - 2 ? "Create" : "Next"}
+            {activeStep === steps.length - 3 ? "Create" : "Next"}
           </Button>
         </Grid>
       )}

@@ -12,6 +12,8 @@ import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
 import DocumentCard from "./components/Map/DocumentCard";
+import AttachmentsPage from "./pages/AttachmentsPage";
+import GeoreferencePage from "./pages/GeoreferencePage";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -32,6 +34,14 @@ function App() {
     navigate("/");
   };
 
+  const fetchDocuments = () => {
+    DocumentAPI.getDocumentsLocation()
+      .then((response) => {
+        setDocsLocation(response);
+      })
+      .catch((err) => console.log(err));
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -41,11 +51,7 @@ function App() {
         setUser(undefined);
       }
     };
-    DocumentAPI.getDocumentsLocation()
-      .then((response) => {
-        setDocsLocation(response);
-      })
-      .catch((err) => console.log(err));
+    fetchDocuments();
     checkAuth();
   }, []);
 
@@ -77,14 +83,13 @@ function App() {
               element={
                 <>
                   <Map docs={docsLocation}></Map>
-                  <DocumentCard></DocumentCard>
                 </>
               }>
               <Route
                 path="add"
                 element={
                   user && user.role === Role.UrbanPlanner ? (
-                    <AddDocumentPage />
+                    <AddDocumentPage fetchDocuments={fetchDocuments} />
                   ) : (
                     <Navigate to="/auth" />
                   )
@@ -100,6 +105,35 @@ function App() {
                   )
                 }
               />
+              <Route
+                path=":id"
+                element={
+                  <>
+                    <DocumentCard />
+                    <Outlet></Outlet>
+                  </>
+                }>
+                <Route
+                  path="resources"
+                  element={
+                    user && user.role === Role.UrbanPlanner ? (
+                      <AttachmentsPage></AttachmentsPage>
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+                <Route
+                  path="georeference"
+                  element={
+                    user && user.role === Role.UrbanPlanner ? (
+                      <GeoreferencePage></GeoreferencePage>
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+              </Route>
             </Route>
           </Route>
           <Route
