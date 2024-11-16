@@ -13,8 +13,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  Menu,
 } from "@mui/material";
 import DocumentAPI from "../../API/DocumentAPI";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { MenuItem } from "@mui/material";
 
 interface Document {
   id: number;
@@ -33,6 +37,10 @@ const DocumentList: React.FC<{ open: boolean; onClose: () => void }> = ({
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
+  //this is for filtering options
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortField, setSortField] = useState<"id" | "pages" >("id");
 
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -48,9 +56,59 @@ const DocumentList: React.FC<{ open: boolean; onClose: () => void }> = ({
     fetchDocuments();
   }, []);
 
+  //this is for sorting the table
+  const handleSort = (field: "id" | "pages") => {
+     const sortedDocuments = [...documents].sort((a, b) => {
+    if (sortOrder === "asc") {
+      return a[field] > b[field] ? 1 : -1;
+    }else{
+      return a[field] < b[field] ? 1 : -1;
+    }
+  });
+  setDocuments(sortedDocuments);
+  setSortField(field);
+  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  setAnchorEl(null);
+  }
+
+  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  }
+  const handleFilterClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>Document List</DialogTitle>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          paddingRight: "25px",
+        }}
+      >
+        <IconButton
+          aria-label="filter list"
+          onClick={handleFilterClick}
+          sx={{ float: "right" }}
+        >
+          <FilterListIcon />
+        </IconButton>
+      </div>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleFilterClose}
+      >
+        <MenuItem onClick={() => handleSort("id")}>
+          Sort by ID ({sortOrder === "asc" ? "Ascending" : "Descending"})
+        </MenuItem>
+        <MenuItem onClick={() => handleSort("pages")}>
+          Sort by page number (
+          {sortOrder === "asc" ? "Ascending" : "Descending"})
+        </MenuItem>
+      </Menu>
       <DialogContent>
         {error ? (
           <Typography color="error" align="center">
