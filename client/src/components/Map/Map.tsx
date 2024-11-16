@@ -4,7 +4,7 @@ import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Dial from "../Dial";
 import DocumentDial from "../DocumentDial";
 import UserContext from "../../contexts/UserContext";

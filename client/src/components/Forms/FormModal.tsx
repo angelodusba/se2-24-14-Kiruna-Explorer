@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { Box, Modal } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
-import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
 const style = {
   display: "flex",
