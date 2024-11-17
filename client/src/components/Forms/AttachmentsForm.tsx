@@ -29,7 +29,7 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 function AttachmentsForm({ docId = undefined }) {
-  // const [originalResources, setOriginalResources] = useState([]);
+  const [originalResources, setOriginalResources] = useState([]);
   const navigate = useNavigate();
   const param = useParams();
 
