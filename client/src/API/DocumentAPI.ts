@@ -156,7 +156,7 @@ async function changeDocumentLocation(id: number, location: Point[]) {
  *
  */
 
-async function getFilteredDocuments(filter: SearchFilter): Promise<{docs: 
+async function getFilteredDocuments(filter: SearchFilter, page?: number, size?:number, sort?:string): Promise<{docs: 
   {
     id: number,
     title: string,
@@ -169,7 +169,17 @@ async function getFilteredDocuments(filter: SearchFilter): Promise<{docs:
     pages: number,
   }[]
 }> {
-  const response = await fetch(baseURL + "documents/filtered", {
+
+  const params = {
+    page: page? page.toString() : undefined,
+    size: size? size.toString() : undefined,
+    sort: sort? sort : undefined,
+  };
+  // Remove undefined values
+  Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+  let url = baseURL + "documents/filtered/";
+  const query = new URLSearchParams(params).toString();
+  const response = await fetch(`${url}?${query}`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -187,6 +197,7 @@ async function getFilteredDocuments(filter: SearchFilter): Promise<{docs:
     throw new Error("Error. Please reload the page");
   }
 }
+
 
 const DocumentAPI = {
   sendDocument,

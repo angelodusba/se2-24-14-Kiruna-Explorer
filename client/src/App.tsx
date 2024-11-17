@@ -46,6 +46,11 @@ function App() {
   };
 
   const filterDocuments = async (filter) => {
+    // If the filter is empty, only text as "", fetch all documents
+    if (filter.title === "") {
+      fetchDocuments();
+      return;
+    }
     const filtered = await DocumentAPI.getFilteredDocuments(filter);
     // Format as the documents returned by getDocumentsLocation
     const temp = filtered.docs.map((doc) => {
