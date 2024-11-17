@@ -437,11 +437,15 @@ Retrieves all the information of the documents matching the specified filters.
 }
 ```
 
-- Response Body Content: An array of objects, each representing a document:
+- Response Body Content: An object with three fields:
+  - `docs` (Document[]) - An array of filtered documents.
+  - `totalRows` (number) - Total number of rows found in the db for the selected filtering criteria.
+  - `totalPages` (number) - Maximum number of pages the client can request for the selected filtering criteria.
   - Example:
 
 ```JSON
-[
+{
+  "docs": [
     {
       "id": 1,
       "title": "Doc title",
@@ -461,7 +465,10 @@ Retrieves all the information of the documents matching the specified filters.
     {
       ...
     }
-]
+  ],
+  "totalRows": 24,
+  "totalPages": 3
+}
 ```
 
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
