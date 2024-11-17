@@ -148,3 +148,6 @@ dist
 # Env files
 .env
 .env.test
+
+# Public files
+*/public/docs/
