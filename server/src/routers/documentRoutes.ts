@@ -277,21 +277,23 @@ class DocumentRoutes {
         .withMessage("All elements in stakeholders must be integers."),
       this.errorHandler.validateRequest,
       (req: Request, res: Response, next: NextFunction) => {
+        console.log(req.body);
         this.controller
           .getFilteredDocuments(
-            Number(req.query.page),
-            Number(req.query.size),
-            req.query.sort as string,
-            req.body.title,
-            req.body.description,
-            req.body.start_year,
-            req.body.end_year,
-            req.body.scale,
-            req.body.type,
-            req.body.language,
-            req.body.stakeholders
+            Number(req.query.page) || undefined,
+            Number(req.query.size) || undefined,
+            req.query.sort as string || undefined,
+            req.body.title || undefined,
+            req.body.description || undefined,
+            req.body.start_year || undefined,
+            req.body.end_year || undefined,
+            req.body.scale  || undefined,
+            req.body.types || undefined,
+            req.body.language || undefined,
+            req.body.stakeholders || undefined
           )
-          .then((documents) => res.status(200).json(documents))
+          .then((documents) => {  console.log(documents);
+            res.status(200).json(documents)})
           .catch((err: any) => {
             next(err);
           });

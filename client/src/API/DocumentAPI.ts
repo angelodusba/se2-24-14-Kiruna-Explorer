@@ -149,21 +149,33 @@ async function changeDocumentLocation(id: number, location: Point[]) {
 /** ------------------- Filtered Documents APIs ------------------------ */
 /** Get documents based on the filter:
  * @param {SearchFilter} params - parameters of the fiter to be applied
- * @returns {Document[]} - array of documents that match the filter
+ * @returns {} - object with property docs that is an array of documents that match the filter
  * @throws {Error} - error message
  * @example
  * const documents = await getFilteredDocument(filter: Filter);
  *
  */
 
-async function getFilteredDocuments(filter: SearchFilter): Promise<Document[]> {
-  const response = await fetch(baseURL + "documents/filter", {
-    method: "GET",
+async function getFilteredDocuments(filter: SearchFilter): Promise<{docs: 
+  {
+    id: number,
+    title: string,
+    description: string,
+    type: Type,
+    issue_date: string,
+    scale: string,
+    location: Point[],
+    language: string,
+    pages: number,
+  }[]
+}> {
+  const response = await fetch(baseURL + "documents/filtered", {
+    method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ filter }),
+    body: JSON.stringify(filter),
   });
   if (response.ok) {
     const documents = await response.json();

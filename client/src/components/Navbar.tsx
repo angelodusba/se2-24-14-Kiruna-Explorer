@@ -115,7 +115,7 @@ function Navbar(props) {
   const handleSearch = (search: string) => {
     // Maybe props.fetchData(filter)
     const filters: SearchFilter = { title: search };
-    console.log(filters);
+    props.onSearch(filters);
   };
 
   const renderAccountMenu = (
