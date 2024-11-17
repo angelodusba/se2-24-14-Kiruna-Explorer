@@ -12,7 +12,7 @@ function AdvancedSearchPage({ onSearch }) {
     { code: "GB", label: "English" },
     {
       code: "SE",
-      label: "Sweden",
+      label: "Swedish",
     },
   ];
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
@@ -35,7 +35,7 @@ function AdvancedSearchPage({ onSearch }) {
   const handleSubmit = () => {
     // Remove null values from filters
     Object.keys(filters).forEach((key) => filters[key] == null && delete filters[key]);
-    console.log(filters)
+    console.log(filters);
     onSearch(filters);
   };
 
