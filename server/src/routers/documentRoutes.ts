@@ -1,6 +1,6 @@
-import express, { Router } from "express";
+import express, { NextFunction, Request, Response, Router } from "express";
 import DocumentController from "../controllers/documentController";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import ErrorHandler from "../helper";
 import Authenticator from "./auth";
 
@@ -85,7 +85,7 @@ class DocumentRoutes {
         .isArray({ min: 1 })
         .withMessage("Stakeholders must be an array of integers with at least one ID."),
       this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) => {
+      (req: Request, res: Response, next: NextFunction) => {
         this.controller
           .createDocument(
             req.body.title,
@@ -105,7 +105,7 @@ class DocumentRoutes {
       }
     );
 
-    this.router.get("/names", (req: any, res: any, next: any) => {
+    this.router.get("/names", (req: Request, res: Response, next: NextFunction) => {
       this.controller
         .getDocumentsNames()
         .then((documents) => res.status(200).json(documents))
@@ -114,7 +114,7 @@ class DocumentRoutes {
         });
     });
 
-    this.router.get("/location", (req: any, res: any, next: any) => {
+    this.router.get("/location", (req: Request, res: Response, next: NextFunction) => {
       this.controller
         .getDocumentsLocation()
         .then((docsLocation) => res.status(200).json(docsLocation))
@@ -123,7 +123,7 @@ class DocumentRoutes {
         });
     });
 
-    this.router.get("/municipality", (req: any, res: any, next: any) => {
+    this.router.get("/municipality", (req: Request, res: Response, next: NextFunction) => {
       this.controller
         .getMunicipalityDocuments()
         .then((docs) => res.status(200).json(docs))
@@ -158,7 +158,7 @@ class DocumentRoutes {
           return true; // Indicates the validation passed
         }),
       this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) => {
+      (req: Request, res: Response, next: NextFunction) => {
         this.controller
           .updateDocumentLocation(req.body.id, req.body.location)
           .then(() => res.status(200).end())
@@ -177,9 +177,9 @@ class DocumentRoutes {
         .isInt({ gt: 0 })
         .withMessage("Param id must be a number greater than 0."),
       this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) => {
+      (req: Request, res: Response, next: NextFunction) => {
         this.controller
-          .getDocumentCard(req.params.id)
+          .getDocumentCard(Number(req.params.id))
           .then((document) => res.status(200).json(document))
           .catch((err: any) => {
             next(err);
@@ -196,10 +196,102 @@ class DocumentRoutes {
         .isInt({ gt: 0 })
         .withMessage("Param id must be a number greater than 0."),
       this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) => {
+      (req: Request, res: Response, next: NextFunction) => {
         this.controller
-          .getDocumentById(req.params.id)
+          .getDocumentById(Number(req.params.id))
           .then((document) => res.status(200).json(document))
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
+
+    /**
+     * Retrieves filtered documents based on query parameters (pagination and sorting) and request body filters
+     */
+    this.router.post(
+      "/filtered",
+      // Query params validation
+      query("page")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Page must be a positive integer.")
+        .toInt(),
+      query("size")
+        .optional()
+        .isInt({ min: 1, max: 20 })
+        .withMessage("Size must be an integer between 1 and 20.")
+        .toInt(),
+      query("sort")
+        .optional()
+        .matches(/^(title|description|type|issue_date|scale|language|pages):(asc|desc)$/)
+        .withMessage(
+          'Sort must be in the format "attribute:order", where order is "asc" or "desc".'
+        ),
+      // Body params validation
+      body("title").optional().isString().withMessage("Title must be a string."),
+      body("description").optional().isString().withMessage("Description must be a string."),
+      body("start_year")
+        .optional()
+        .isString()
+        .matches(/^\d{4}$/)
+        .withMessage("Start year must be a string in YYYY format."),
+      body("end_year")
+        .optional()
+        .isString()
+        .matches(/^\d{4}$/)
+        .withMessage("End year must be a string in YYYY format."),
+      body("scales")
+        .optional()
+        .isArray()
+        .withMessage("Scales must be an array of strings.")
+        .bail()
+        .custom((array) =>
+          array.every(
+            (item: any) =>
+              ["Blueprints/material effects", "Text", "Concept"].includes(item) ||
+              /^1:\d+$/.test(item)
+          )
+        )
+        .withMessage("Scales must be one of the allowed values."),
+      body("types")
+        .optional()
+        .isArray()
+        .withMessage("Type must be an array of numbers.")
+        .bail()
+        .custom((array) => array.every((item: any) => Number.isInteger(item)))
+        .withMessage("All elements in type must be integers."),
+      body("languages")
+        .optional()
+        .isArray()
+        .withMessage("Languages must be an array of strings.")
+        .bail()
+        .custom((array) => array.every((item: any) => ["English", "Swedish"].includes(item)))
+        .withMessage("Language must be either 'English' or 'Swedish'."),
+      body("stakeholders")
+        .optional()
+        .isArray()
+        .withMessage("Stakeholders must be an array of numbers.")
+        .bail()
+        .custom((array) => array.every((item: any) => Number.isInteger(item)))
+        .withMessage("All elements in stakeholders must be integers."),
+      this.errorHandler.validateRequest,
+      (req: Request, res: Response, next: NextFunction) => {
+        this.controller
+          .getFilteredDocuments(
+            Number(req.query.page),
+            Number(req.query.size),
+            req.query.sort as string,
+            req.body.title,
+            req.body.description,
+            req.body.start_year,
+            req.body.end_year,
+            req.body.scale,
+            req.body.type,
+            req.body.language,
+            req.body.stakeholders
+          )
+          .then((documents) => res.status(200).json(documents))
           .catch((err: any) => {
             next(err);
           });

@@ -2,6 +2,7 @@ import DocumentDAO from "../dao/documentDAO";
 import Document from "../models/document";
 import DocumentCardResponse from "../response/documentCardResponse";
 import DocumentLocationResponse from "../response/documentLocationResponse";
+import FilteredDocumentsResponse from "../response/filteredDocumentsResponse";
 
 /**
  * Represents a controller for managing documents.
@@ -108,6 +109,34 @@ class DocumentController {
 
   async getDocumentCard(id: number): Promise<DocumentCardResponse> {
     return this.dao.getDocumentCard(id);
+  }
+
+  async getFilteredDocuments(
+    page?: number,
+    size?: number,
+    sort?: string,
+    title?: string,
+    description?: string,
+    start_year?: string,
+    end_year?: string,
+    scales?: string[],
+    types?: number[],
+    languages?: string[],
+    stakeholders?: number[]
+  ): Promise<FilteredDocumentsResponse> {
+    return this.dao.getFilteredDocuments(
+      page,
+      size,
+      sort,
+      title,
+      description,
+      start_year,
+      end_year,
+      scales,
+      types,
+      languages,
+      stakeholders
+    );
   }
 }
 

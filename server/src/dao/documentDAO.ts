@@ -6,6 +6,7 @@ import Document from "../models/document";
 import Type from "../models/type";
 import DocumentCardResponse from "../response/documentCardResponse";
 import DocumentLocationResponse from "../response/documentLocationResponse";
+import FilteredDocumentsResponse from "../response/filteredDocumentsResponse";
 
 class DocumentDAO {
   /**
@@ -158,9 +159,6 @@ class DocumentDAO {
                   FROM documents D, types T WHERE D.type_id=T.id
                   ORDER BY D.id`;
       const res = await db.query(sql);
-      if (!res || res.rows.length === 0) {
-        return [];
-      }
       const response = res.rows.map((doc) => {
         return new DocumentLocationResponse(
           doc.id,
@@ -308,6 +306,107 @@ class DocumentDAO {
         stakeholders,
         attachments
       );
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  async getFilteredDocuments(
+    page: number = 1,
+    size: number = 10,
+    sort: string = "title:asc",
+    title?: string,
+    description?: string,
+    start_year?: string,
+    end_year?: string,
+    scales?: string[],
+    types?: number[],
+    languages?: string[],
+    stakeholders?: number[]
+  ): Promise<FilteredDocumentsResponse> {
+    try {
+      let params: any[] = [];
+      let sql = `SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name,
+                      D.issue_date, D.scale, D.language, D.pages, ARRAY_AGG(S.name) AS stakeholders,
+                    CASE 
+                      WHEN location IS NULL THEN NULL
+                      WHEN ST_GeometryType(location) = 'ST_Point' THEN 
+                        substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
+                      WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
+                        substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
+                    END AS location,
+                    COUNT(*) OVER () AS total_rows -- Count of all matching rows (ignores LIMIT and OFFSET)
+                  FROM documents D, types T, documents_stakeholders DS, stakeholders S
+                  WHERE D.type_id=T.id AND D.id=DS.document_id AND S.id=DS.stakeholder_id
+      `;
+      // Add filters to the WHERE clause if parameters are provided
+      if (title) {
+        params.push(title);
+        sql += ` AND D.title ILIKE '%' || $${params.length} || '%'`; // Case-insensitive partial match
+      }
+      if (description) {
+        params.push(description);
+        sql += ` AND D.description ILIKE '%' || $${params.length} || '%'`; // Case-insensitive partial match
+      }
+      // Extract the first 4 characters of the issue_date for year-based comparison
+      if (start_year) {
+        params.push(Number(start_year));
+        sql += ` AND substring(D.issue_date FROM 1 FOR 4) >= $${params.length}`; // Extract year and filter
+      }
+      if (end_year) {
+        params.push(end_year);
+        sql += ` AND substring(D.issue_date FROM 1 FOR 4) <= $${params.length}`; // Extract year and filter
+      }
+      if (scales && scales.length > 0) {
+        params.push(scales);
+        sql += ` AND D.scale = ANY($${params.length})`; // Filter documents by scale, using array
+      }
+      if (types && types.length > 0) {
+        params.push(types);
+        sql += ` AND D.type_id = ANY($${params.length})`; // Filter documents by type, using array
+      }
+      if (languages && languages.length > 0) {
+        params.push(languages);
+        sql += ` AND D.language = ANY($${params.length})`; // Filter documents by language, using array
+      }
+      if (stakeholders && stakeholders.length > 0) {
+        params.push(stakeholders);
+        sql += ` AND S.id = ANY($${params.length})`;
+      }
+      // Add group by clause
+      sql += ` GROUP BY D.id, D.title, D.description, D.type_id, T.name, D.issue_date, 
+                D.scale, D.language, D.pages`;
+      // Sorting logic
+      const [sortField, sortOrder] = sort.split(":");
+      sql += ` ORDER BY D.${sortField} ${sortOrder.toUpperCase()}`;
+      // Pagination logic (LIMIT and OFFSET)
+      const offset = (page - 1) * size; // Calculate offset based on page number
+      params.push(size);
+      sql += ` LIMIT $${params.length} OFFSET ${offset}`;
+
+      const res = await db.query(sql, params);
+      const totalRows: number = res.rows.length > 0 ? res.rows[0].total_rows : 0;
+      const totalPages: number = Math.ceil(totalRows / size);
+      const docs: Document[] = res.rows.map(
+        (doc) =>
+          new Document(
+            doc.id,
+            doc.title,
+            doc.description,
+            new Type(doc.type_id, doc.type_name),
+            doc.issue_date,
+            doc.scale,
+            doc.location
+              ? doc.location.split(",").map((coords: string) => {
+                  const [lng, lat] = coords.split(" ").map(Number);
+                  return new Coordinates(lng, lat);
+                })
+              : [],
+            doc.language,
+            doc.pages
+          )
+      );
+      return new FilteredDocumentsResponse(docs, totalRows, totalPages);
     } catch (err: any) {
       throw err;
     }

@@ -414,13 +414,13 @@ Retrieves all the information of the documents matching the specified filters.
   - `description` (string) - Documents' description.
   - `start_year` (string) - Documents' issue year must be after this value.
   - `end_year` (string) - Documents' issue year must be before or within this value.
-  - `scale` (string) - Documents' scale, it accepts the following values:
+  - `scales` (string[]) - Documents' scales, it accepts the following values:
     - "Blueprints/material effects"
     - "Text"
     - "Concept"
     - "1:NUMBER" (architectural scale)
-  - `type` (number[]) - List of document types ids.
-  - `language` (string) - Documents' language, it can be either "English" or "Swedish".
+  - `types` (number[]) - List of document types ids.
+  - `languages` (string[]) - Documents' languages, it can be either "English" or "Swedish".
   - `stakeholders` (number[]) - List of stakeholders ids related to the documents.
   - Example:
 
@@ -430,9 +430,9 @@ Retrieves all the information of the documents matching the specified filters.
   "description": "descr",
   "start_year": "2020",
   "end_year": "2022",
-  "scale": "Concept",
-  "type": [1,2],
-  "language": "English",
+  "scales": ["Concept"],
+  "types": [1,2],
+  "languages": ["English"],
   "stakeholders": [3,5,7]
 }
 ```

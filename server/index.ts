@@ -25,11 +25,16 @@ const corsOptions = {
   optionsSuccessStatus: 200,
   credentials: true,
 };
-console.log(corsOptions.origin);
 app.use(cors(corsOptions));
 app.use(morgan("dev")); // Log requests to the console
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ limit: "25mb", extended: true }));
+
+if (process.env.NODE_ENV !== "prod") {
+  app.use(morgan("dev")); // Detailed logging for development
+} else {
+  app.use(morgan("combined")); // Less verbose logging for production
+}
 
 /* INIT */
 db.init(); // Test db connection on startup
