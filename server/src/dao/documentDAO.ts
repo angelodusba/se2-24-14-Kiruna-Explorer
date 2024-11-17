@@ -82,6 +82,49 @@ class DocumentDAO {
   }
 
   /**
+   * Fetches all the saved documents.
+   * @returns A Promise that resolves to an array of Document objects.
+   */
+  async getAllDocuments(): Promise<Document[]> {
+    try {
+      const sql = `SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name,
+                    D.issue_date, D.scale, D.language, D.pages,
+                  CASE 
+                    WHEN location IS NULL THEN NULL
+                    WHEN ST_GeometryType(location) = 'ST_Point' THEN 
+                      substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
+                    WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
+                      substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
+                  END AS location
+                  FROM documents D, types T
+                  WHERE D.type_id=T.id
+      `;
+      const res = await db.query(sql);
+      const response = res.rows.map((doc) => {
+        return new Document(
+          doc.id,
+          doc.title,
+          doc.description,
+          new Type(doc.type_id, doc.type_name),
+          doc.issue_date,
+          doc.scale,
+          doc.location
+            ? doc.location.split(",").map((coords: string) => {
+                const [lng, lat] = coords.split(" ").map(Number);
+                return new Coordinates(lng, lat);
+              })
+            : [],
+          doc.language,
+          doc.pages
+        );
+      });
+      return response;
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
    * Get all documents ids and titles.
    * @returns A Promise that resolves to an array of documents.
    * @throws An error if the documents cannot be retrieved.

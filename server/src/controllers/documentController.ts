@@ -56,6 +56,14 @@ class DocumentController {
   }
 
   /**
+   * Fetches all the saved documents.
+   * @returns A Promise that resolves to an array of Document objects.
+   */
+  async getAllDocuments(): Promise<Document[]> {
+    return this.dao.getAllDocuments();
+  }
+
+  /**
    * Retrieves all documents ids and titles.
    * @returns A Promise that resolves to an array of documents.
    * @throws Error if the documents cannot be retrieved.
