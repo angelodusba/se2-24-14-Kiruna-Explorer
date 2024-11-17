@@ -26,7 +26,7 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-app.use(morgan("dev")); // Log requests to the console
+app.use(express.static("public")); // Serve static files inside public folder
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ limit: "25mb", extended: true }));
 

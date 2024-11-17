@@ -103,7 +103,7 @@ function LinkDocumentsPage() {
   return (
     <>
       <FormModal>
-        {/*<LinkDocumentForm
+        <LinkDocumentForm
           connectionTypes={connectionTypes}
           documentsList={documentsList}
           connectionsList={connectionsList}
@@ -114,8 +114,7 @@ function LinkDocumentsPage() {
           handleDeleteConnection={handleDeleteConnection}
           handleSelectLinkedDocument={handleSelectLinkedDocument}
           handleSelectConnectionTypes={handleSelectConnectionTypes}
-        />*/}
-        <AttachmentsForm></AttachmentsForm>
+        />
       </FormModal>
     </>
   );

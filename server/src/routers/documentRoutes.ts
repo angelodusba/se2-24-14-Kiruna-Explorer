@@ -105,6 +105,17 @@ class DocumentRoutes {
       }
     );
 
+    // Retrieve all the documents
+    this.router.get("/", (req: Request, res: Response, next: NextFunction) => {
+      this.controller
+        .getAllDocuments()
+        .then((documents) => res.status(200).json(documents))
+        .catch((err: any) => {
+          next(err);
+        });
+    });
+
+    // Get documents' names
     this.router.get("/names", (req: Request, res: Response, next: NextFunction) => {
       this.controller
         .getDocumentsNames()
