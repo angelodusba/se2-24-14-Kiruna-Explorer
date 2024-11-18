@@ -1,4 +1,5 @@
 import * as db from "../db/db";
+import { AttachmentNotFoundError } from "../errors/attachmentErrors";
 import Attachment from "../models/attachment";
 
 class AttachmentDAO {
@@ -41,6 +42,49 @@ class AttachmentDAO {
       return res.rows.map(
         (row) => new Attachment(row.id, row.document_id, row.type, row.original, row.path)
       );
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieve a specific attachment.
+   * @param attachment_id Attachment id.
+   * @return A Promise that resolves to an array of attachments.
+   */
+  async getAttachment(attachment_id: number): Promise<Attachment> {
+    try {
+      const sql = `SELECT * FROM attachments WHERE id=$1`;
+      const res = await db.query(sql, [attachment_id]);
+      if (res.rows.length === 0) {
+        throw new AttachmentNotFoundError();
+      }
+      const attachment = res.rows[0];
+      return new Attachment(
+        attachment.id,
+        attachment.document_id,
+        attachment.type,
+        attachment.original,
+        attachment.path
+      );
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
+   * Delete a single attachment related to a document.
+   * @param attachment_id - The ID of the attachment to delete.
+   * @returns A Promise that resolves to a boolean if the operation has been correctly completed.
+   * */
+  async deleteAttachment(attachment_id: number): Promise<boolean> {
+    try {
+      const sql = `DELETE FROM attachments WHERE id=$1`;
+      const res = await db.query(sql, [attachment_id]);
+      if (res.rowCount === 0) {
+        throw new AttachmentNotFoundError();
+      }
+      return true;
     } catch (err: any) {
       throw err;
     }

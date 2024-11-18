@@ -31,3 +31,7 @@ Thumbs.db
 # Miscellaneous
 .env
 .env.*
+
+# Ignore all files in the public/docs folder except the ".gitkeep"
+public/docs/*
+!public/docs/.gitkeep
