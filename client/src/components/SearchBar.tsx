@@ -18,15 +18,17 @@ function SearchBar({ onSearch }) {
   return (
     <Paper
       component="form"
-      onSubmit={() => {
+      onSubmit={(event) => {
+        event.preventDefault();
         onSearch(search);
       }}
       sx={{
         p: "0px 4px",
         display: "flex",
+        flexGrow: 1,
         alignItems: "center",
         minWidth: 200,
-        maxHeight: "50px",
+        maxHeight: "48px",
         borderRadius: "50px",
       }}
     >
@@ -39,7 +41,7 @@ function SearchBar({ onSearch }) {
           setSearch(e.target.value);
         }}
       />
-      <IconButton type="button" sx={{ p: "10px" }} aria-label="search" onClick={() => onSearch(search)}>
+      <IconButton type="submit" sx={{ p: "10px" }} aria-label="search">
         <SearchIcon />
       </IconButton>
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
