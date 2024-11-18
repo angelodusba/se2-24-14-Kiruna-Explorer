@@ -355,8 +355,8 @@ class DocumentDAO {
   }
 
   async getFilteredDocuments(
-    page: number = 1,
-    size: number = 10,
+    page?: number,
+    size?: number,
     sort: string = "title:asc",
     title?: string,
     description?: string,
@@ -419,17 +419,21 @@ class DocumentDAO {
       // Add group by clause
       sql += ` GROUP BY D.id, D.title, D.description, D.type_id, T.name, D.issue_date, 
                 D.scale, D.language, D.pages`;
+
       // Sorting logic
       const [sortField, sortOrder] = sort.split(":");
       sql += ` ORDER BY D.${sortField} ${sortOrder.toUpperCase()}`;
-      // Pagination logic (LIMIT and OFFSET)
-      const offset = (page - 1) * size; // Calculate offset based on page number
-      params.push(size);
-      sql += ` LIMIT $${params.length} OFFSET ${offset}`;
 
+      // Pagination logic (LIMIT and OFFSET)
+      if (page && size) {
+        const offset = (page - 1) * size; // Calculate offset based on page number
+        params.push(size);
+        sql += ` LIMIT $${params.length} OFFSET ${offset}`;
+      }
+      // Retrieve results
       const res = await db.query(sql, params);
       const totalRows: number = res.rows.length > 0 ? res.rows[0].total_rows : 0;
-      const totalPages: number = Math.ceil(totalRows / size);
+      const totalPages: number = size ? Math.ceil(totalRows / size) : 1;
       const docs: Document[] = res.rows.map(
         (doc) =>
           new Document(
