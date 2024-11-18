@@ -6,8 +6,7 @@ import { SearchFilter } from "../models/SearchFilter";
 import { DocumentCard } from "../models/DocumentCard";
 import { Attachment } from "../models/Attachment";
 
-const baseURL =
-  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 async function sendDocument(document: Document): Promise<number> {
@@ -202,9 +201,7 @@ async function getFilteredDocuments(
     sort: sort ? sort : undefined,
   };
   // Remove undefined values
-  Object.keys(params).forEach(
-    (key) => params[key] === undefined && delete params[key]
-  );
+  Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
   const url = baseURL + "documents/filtered";
   const query = new URLSearchParams(params).toString();
   const response = await fetch(`${url}?${query}`, {
@@ -228,6 +225,9 @@ async function getFilteredDocuments(
 }
 
 /** ------------------- Files APIs ------------------------ */
+
+const getResourcesBaseURL = () => "http://localhost:3001/docs/";
+
 async function uploadFile(id, file) {
   const response = await fetch(`${baseURL}attachments/${id}`, {
     method: "POST",
@@ -270,6 +270,7 @@ const DocumentAPI = {
   changeDocumentLocation,
   getDocumentCard,
   getFilteredDocuments,
+  getResourcesBaseURL,
   uploadFile,
   deleteFile,
 };
