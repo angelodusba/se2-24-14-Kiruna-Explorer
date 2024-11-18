@@ -146,7 +146,7 @@ class AttachmentRoutes {
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller
-          .getAttachments(req.params.document_id)
+          .getAttachments(Number(req.params.document_id))
           .then((response) => res.status(200).json(response))
           .catch((err: any) => {
             next(err);
@@ -157,8 +157,8 @@ class AttachmentRoutes {
     // Get all attachments of a document
     this.router.delete(
       "/:attachment_id",
-      // this.authService.isLoggedIn,
-      // this.authService.isUrbanPlanner,
+      this.authService.isLoggedIn,
+      this.authService.isUrbanPlanner,
       param("attachment_id")
         .isInt({ gt: 0 })
         .withMessage("Attachment ID must be a positive integer."),
