@@ -73,7 +73,6 @@ function App() {
     setDocsLocation(temp);
   };
 
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -106,10 +105,14 @@ function App() {
             path="/"
             element={
               <>
-                <Navbar
-                  logout={doLogout}
-                  onSearch={filterDocuments}
-                />
+                {!disabledInput && (
+                  <Navbar
+                    logout={doLogout}
+                    docsLocation={docsLocation}
+                    setDocsLocation={docsLocation}
+                    onSearch={filterDocuments}
+                  />
+                )}
                 <Outlet />
               </>
             }>
@@ -140,14 +143,7 @@ function App() {
                   )
                 }
               />
-              <Route
-                path=":id"
-                element={
-                  <>
-                    <DocumentCard />
-                    <Outlet></Outlet>
-                  </>
-                }>
+              <Route path=":id" element={<DocumentCard />}>
                 <Route
                   path="resources"
                   element={
@@ -162,7 +158,8 @@ function App() {
                   path="georeference"
                   element={
                     user && user.role === Role.UrbanPlanner ? (
-                      <GeoreferencePage></GeoreferencePage>
+                      <GeoreferencePage
+                        fetchDocuments={fetchDocuments}></GeoreferencePage>
                     ) : (
                       <Navigate to="/auth" />
                     )
@@ -182,7 +179,10 @@ function App() {
                   )
                 }
               />
-              <Route path="search" element={<AdvancedSearchPage onSearch={filterDocuments}/>} />
+              <Route
+                path="search"
+                element={<AdvancedSearchPage onSearch={filterDocuments} />}
+              />
             </Route>
           </Route>
           <Route

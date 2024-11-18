@@ -5,7 +5,6 @@ import ConnectionAPI from "../API/ConnectionApi";
 import DocumentAPI from "../API/DocumentAPI";
 import { useEffect, useState } from "react";
 import { ConnectionList, HalfConnection } from "../models/Connection";
-import AttachmentsForm from "../components/Forms/AttachmentsForm";
 
 function LinkDocumentsPage() {
   const navigate = useNavigate();

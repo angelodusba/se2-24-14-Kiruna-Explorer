@@ -46,9 +46,6 @@ function Map({docs, currentFilter}) {
 
   return (
     <>
-      {user && user.role === Role.UrbanPlanner && (
-        <Dial onOpenDocuments={handleOpenDocuments} />
-      )}
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
         <Dial onOpenDocuments={handleOpenDocuments} />
       )}

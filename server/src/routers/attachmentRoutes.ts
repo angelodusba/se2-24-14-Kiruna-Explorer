@@ -6,7 +6,7 @@ import {
   AttachmentAlreadyExistsError,
   AttachmentNotAllowedError,
 } from "../errors/attachmentErrors";
-import { body } from "express-validator";
+import { param } from "express-validator";
 import ErrorHandler from "../helper";
 import Authenticator from "./auth";
 import path from "path";
@@ -15,7 +15,7 @@ import path from "path";
  * Handles the file upload process for a document. This function sets up
  * the storage destination and file naming conventions for uploaded files,
  * ensuring file names are sanitized and only allowed MIME types are accepted.
- * 
+ *
  * The uploaded file is stored in a directory specific to the document ID,
  * and errors are handled appropriately if the file already exists or if the
  * file type is not allowed.
@@ -38,7 +38,7 @@ const handleFileUpload = (req: any, res: any, next: any) => {
       .replace(/\-+/g, "-"); // Replace multiple hyphens with a single hyphen
 
     return `${sanitizedBaseName}${extension}`;
-  }
+  };
 
   const allowedMimeTypes = [
     "image/jpeg",
@@ -59,12 +59,10 @@ const handleFileUpload = (req: any, res: any, next: any) => {
       if (fs.existsSync(`${destDir}/${sanitizeName(file.originalname)}`)) {
         cb(new AttachmentAlreadyExistsError(), destDir);
       }
-
       // Check if the file's MIME type is allowed
       if (!allowedMimeTypes.includes(file.mimetype)) {
         return cb(new AttachmentNotAllowedError(), destDir);
       }
-
       // If the folder does not exist, create it
       if (!fs.existsSync(destDir)) {
         fs.mkdirSync(destDir);
@@ -86,7 +84,6 @@ const handleFileUpload = (req: any, res: any, next: any) => {
     } else {
       req.body.original = false;
     }
-
     return next(err);
   });
 };
@@ -119,12 +116,18 @@ class AttachmentRoutes {
       "/:document_id",
       this.authService.isLoggedIn,
       this.authService.isUrbanPlanner,
+      param("document_id")
+        .notEmpty()
+        .withMessage("Param document_id must not be empty.")
+        .bail()
+        .isInt({ gt: 0 })
+        .withMessage("Param document_id must be a number greater than 0."),
+      this.errorHandler.validateRequest,
       handleFileUpload,
       (req: any, res: any, next: any) => {
-        console.log(req.file.filename); // Log the sanitized file name of the attachment uploaded, we now pass this name to the controller
         this.controller
           .addAttachment(
-            req.params.document_id,
+            Number(req.params.document_id),
             req.file.mimetype,
             req.body.original,
             `doc${req.params.document_id}/${req.file.filename}`
@@ -137,14 +140,24 @@ class AttachmentRoutes {
     );
 
     // Get all attachments of a document
-    this.router.get("/:document_id", (req: any, res: any, next: any) => {
-      this.controller
-        .getAttachments(req.params.document_id)
-        .then((response) => res.status(200).json(response))
-        .catch((err: any) => {
-          next(err);
-        });
-    });
+    this.router.get(
+      "/:document_id",
+      param("document_id")
+        .notEmpty()
+        .withMessage("Param document_id must not be empty.")
+        .bail()
+        .isInt({ gt: 0 })
+        .withMessage("Param document_id must be a number greater than 0."),
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .getAttachments(Number(req.params.document_id))
+          .then((response) => res.status(200).json(response))
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
   }
 }
 export default AttachmentRoutes;

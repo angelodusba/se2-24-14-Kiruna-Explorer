@@ -34,7 +34,7 @@ function AddDocumentPage({ fetchDocuments }) {
     pages: "",
     coordinates: [],
     issueDate: "",
-    scale: "Blueprints/ material effects",
+    scale: "Blueprints/material effects",
     language: "",
   });
   // LinkDocumentForm data
@@ -48,18 +48,18 @@ function AddDocumentPage({ fetchDocuments }) {
   >([]);
 
   const handleSubmit = async (document: Document) => {
+    console.log(document);
     if (activeStep === steps.length - 3) {
       //Insert DOC
+      if (!isNaN(Number(document.scale))) {
+        document.scale = `1:${document.scale}`;
+      }
       console.log(document);
       const id = await DocumentAPI.sendDocument(document);
       setConnectionsList({
         starting_document_id: id,
         connections: [{ document_id: undefined, connection_types: [] }],
       });
-    }
-    if (activeStep === steps.length - 1) {
-      handleLinkSubmit();
-      return;
     }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     fetchDocuments();

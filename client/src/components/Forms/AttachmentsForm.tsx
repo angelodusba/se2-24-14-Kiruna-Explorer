@@ -13,8 +13,9 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import DocumentAPI from "../../API/DocumentAPI";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -28,25 +29,43 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-function AttachmentsForm({ docId = undefined }) {
-  const [originalResources, setOriginalResources] = useState([]);
+function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
+  const [originalResources, setOriginalResources] = useState(originalRes);
   const navigate = useNavigate();
   const param = useParams();
 
-  // Fetch initial data
+  /* Fetch initial data
   useEffect(() => {
-    //Fetch already existing attachments for docId
-  }, []);
+    Fetch already existing attachments for docId
+    Now made with outlet context but can be made taking data by the server
+  }, []);*/
 
   const handleCloseOrSubmit = (event) => {
     event.preventDefault();
-    navigate(`/map/${param.id}`);
+    fetchCardInfo(Number(param.id));
+    navigate(-1);
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("original", "true");
+
+    DocumentAPI.uploadFile(Number(param.id), formData)
+      .then(() => {
+        setOriginalResources((prevResources) => [
+          ...prevResources,
+          { name: file.name },
+        ]);
+      })
+      .catch();
   };
 
   return (
     <Grid
       container
-      component={docId === undefined ? "form" : "div"}
+      component={fetchCardInfo !== undefined ? "form" : "div"}
       onSubmit={handleCloseOrSubmit}
       sx={{
         width: "100%",
@@ -84,7 +103,8 @@ function AttachmentsForm({ docId = undefined }) {
               }
               alignItems="center"
               height="100%"
-              gap={2}>
+              gap={2}
+              sx={{ py: 2 }}>
               {originalResources.length === 0 ? (
                 <>
                   <Typography variant="subtitle1">
@@ -99,7 +119,7 @@ function AttachmentsForm({ docId = undefined }) {
                     <VisuallyHiddenInput
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                       type="file"
-                      onChange={(event) => console.log(event.target.files)}
+                      onChange={handleFileUpload}
                     />
                     Upload
                   </Button>
@@ -135,7 +155,7 @@ function AttachmentsForm({ docId = undefined }) {
                       <VisuallyHiddenInput
                         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                         type="file"
-                        onChange={(event) => console.log(event.target.files)}
+                        onChange={handleFileUpload}
                       />
                       Upload
                     </Button>
@@ -148,7 +168,7 @@ function AttachmentsForm({ docId = undefined }) {
         <Grid
           sx={{
             width: "100%",
-            display: !docId ? "flex" : "none",
+            display: fetchCardInfo !== undefined ? "flex" : "none",
             justifyContent: "space-between",
             py: 2,
           }}>

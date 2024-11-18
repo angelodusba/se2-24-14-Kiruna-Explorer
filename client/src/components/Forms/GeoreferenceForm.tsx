@@ -12,21 +12,28 @@ import { useContext, useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
-function GeoreferenceForm({ setDocument, document, docLocation = undefined }) {
-  const [georeferenceModality, setGeoreferenceModality] = useState(0);
+function GeoreferenceForm({
+  setDocument,
+  document,
+  handleSubmit = undefined,
+  handleClose = undefined,
+}) {
+  const [georeferenceModality, setGeoreferenceModality] = useState(
+    document.coordinates.length === 0 ? 0 : 1
+  );
 
   const { setDisabledInput } = useContext(DisabledInputContext);
 
   return (
     <Grid
       container
-      component={docLocation === undefined ? "div" : "form"}
+      component={handleSubmit === undefined ? "div" : "form"}
       sx={{
         width: "100%",
         display: "flex",
         py: 2,
       }}
-      //onSubmit={} Handle form standalone, not in addDocument
+      onSubmit={handleSubmit}
       size={6}
       spacing={2}>
       <Grid
@@ -173,11 +180,12 @@ function GeoreferenceForm({ setDocument, document, docLocation = undefined }) {
       <Grid
         sx={{
           width: "100%",
-          display: docLocation ? "flex" : "none",
+          display: handleSubmit ? "flex" : "none",
           justifyContent: "space-between",
-          py: 2,
         }}>
-        <Button color="error">Close</Button>
+        <Button color="error" onClick={handleClose}>
+          Close
+        </Button>
         <Button type={"submit"}>Save</Button>
       </Grid>
     </Grid>
