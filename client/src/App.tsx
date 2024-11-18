@@ -17,11 +17,13 @@ import AttachmentsPage from "./pages/AttachmentsPage";
 import GeoreferencePage from "./pages/GeoreferencePage";
 import ListMunicipality from "./components/Map/ListMunicipality";
 import AdvancedSearchPage from "./pages/AdvancedSearchPage";
+import { SearchFilter } from "./models/SearchFilter";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [disabledInput, setDisabledInput] = useState(false);
   const [docsLocation, setDocsLocation] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState<SearchFilter>(undefined);
 
   const navigate = useNavigate();
 
@@ -47,11 +49,19 @@ function App() {
 
   const filterDocuments = async (filter) => {
     // If the filter is empty, only text as "", fetch all documents
-    if (filter.title === "") {
-      fetchDocuments();
-      return;
+    // if filter only has title property
+    if(!filter.types && !filter.start_year && !filter.end_year && !filter.scales && !filter.languages && !filter.stakeholders && !filter.description)
+    {
+      if (filter.title === "") {
+        fetchDocuments();
+        setCurrentFilter(undefined);
+        console.log("Filter is empty, fetching all documents");
+        return;
+      }
     }
     const filtered = await DocumentAPI.getFilteredDocuments(filter);
+    console.log("Filtering documents with:", filter);
+    setCurrentFilter({ ...filter });
     // Format as the documents returned by getDocumentsLocation
     const temp = filtered.docs.map((doc) => {
       return {
@@ -107,7 +117,7 @@ function App() {
               path="/map"
               element={
                 <>
-                  <Map docs={docsLocation}></Map>
+                  <Map docs={docsLocation} currentFilter={currentFilter}></Map>
                 </>
               }>
               <Route
@@ -159,16 +169,6 @@ function App() {
                   }
                 />
               </Route>
-              <Route
-                path="documents"
-                element={
-                  user ? (
-                    <DocumentList open={true} onClose={() => {}} />
-                  ) : (
-                    <Navigate to="/auth" />
-                  )
-                }
-              />
               <Route
                 path="municipality"
                 element={

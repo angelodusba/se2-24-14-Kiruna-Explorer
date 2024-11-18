@@ -19,6 +19,7 @@ import {
 import DocumentAPI from "../../API/DocumentAPI";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { MenuItem } from "@mui/material";
+import { SearchFilter } from "../../models/SearchFilter";
 
 interface Document {
   id: number;
@@ -31,10 +32,7 @@ interface Document {
   pages: number;
 }
 
-const DocumentList: React.FC<{ open: boolean; onClose: () => void }> = ({
-  open,
-  onClose,
-}) => {
+function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose: () => void; currentFilter: SearchFilter }) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
   //this is for filtering options
@@ -42,11 +40,37 @@ const DocumentList: React.FC<{ open: boolean; onClose: () => void }> = ({
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [sortField, setSortField] = useState<"id" | "pages" >("id");
 
+
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const documentsList = await DocumentAPI.getAllDocumentsNames();
-        setDocuments(documentsList);
+        if (!currentFilter) {
+          const documentsList = await DocumentAPI.getDocumentsLocation();
+          const formatted = documentsList.map((doc) => {
+            return {
+              id: doc.id,
+              title: doc.title,
+              description: doc.description,
+              type: doc.type.name,
+              issue_date: doc.issue_date,
+              scale: doc.scale,
+            }});
+          setDocuments(formatted);
+          return;
+        }
+        const documentsList = await DocumentAPI.getFilteredDocuments(currentFilter);
+        const formatted = documentsList.docs.map((doc) => {
+          return {
+            id: doc.id,
+            title: doc.title,
+            description: doc.description,
+            type: doc.type.name,
+            issue_date: doc.issue_date,
+            scale: doc.scale,
+            language: doc.language,
+            pages: doc.pages,
+          }});
+        setDocuments(formatted);
       } catch (err) {
         setError("Error fetching documents");
         console.error("Error:", err);
@@ -54,7 +78,7 @@ const DocumentList: React.FC<{ open: boolean; onClose: () => void }> = ({
     };
 
     fetchDocuments();
-  }, []);
+  }, [currentFilter]);
 
   //this is for sorting the table
   const handleSort = (field: "id" | "pages") => {

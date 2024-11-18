@@ -12,7 +12,6 @@ import { Role } from "../../models/User";
 import DocumentList from "../listDocument/DocumentList";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import { Outlet, useNavigate } from "react-router-dom";
-import SearchBar from "../SearchBarOld.old";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -25,7 +24,7 @@ const bounds = L.latLngBounds(
   [67.9658, 20.4253] // Northeast coordinates (adjust to set the limit)
 );
 
-function Map(props) {
+function Map({docs, currentFilter}) {
   const navigate = useNavigate();
   const user = useContext(UserContext);
   // const [docCard, setDocCard] = useState(undefined);
@@ -83,7 +82,7 @@ function Map(props) {
         />
         <MarkerClusterGroup>
           {!disabledInput &&
-            props.docs.map((doc) => {
+            docs.map((doc) => {
               if (!doc) return null;
               if (doc.location.length === 1) {
                 return (
@@ -117,7 +116,7 @@ function Map(props) {
         </MarkerClusterGroup>
         <Outlet></Outlet>
       </MapContainer>
-      <DocumentList open={openDocuments} onClose={handleCloseDocuments} />
+      <DocumentList open={openDocuments} onClose={handleCloseDocuments} currentFilter={currentFilter} />
     </>
   );
 }
