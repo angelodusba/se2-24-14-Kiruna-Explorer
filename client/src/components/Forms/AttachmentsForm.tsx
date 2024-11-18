@@ -141,56 +141,56 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
                   </Button>
                 </>
               ) : (
-                <List dense={false} sx={{ width: "100%", pt: 0 }}>
-                  {originalResources.map((attachment) => {
-                    const icon =
-                      attachment.type == "pdf" ? (
+                <>
+                  <List dense={false} sx={{ width: "100%", pt: 0 }}>
+                    {originalResources.map((attachment) => {
+                      const icon = attachment.type.includes("pdf") ? (
                         <PictureAsPdfOutlined
                           sx={{ color: "black" }}></PictureAsPdfOutlined>
-                      ) : attachment.type == "doc" ||
-                        attachment.type == "docx" ? (
+                      ) : attachment.type.includes("doc") ? (
                         <ArticleOutlined
                           sx={{ color: "black" }}></ArticleOutlined>
                       ) : (
                         <PhotoOutlined sx={{ color: "black" }}></PhotoOutlined>
                       );
-                    return (
-                      <>
-                        <ListItem
-                          key={attachment.id}
-                          secondaryAction={
-                            <IconButton
-                              edge="end"
-                              color="error"
-                              aria-label="delete"
-                              onClick={() => handleFileDelete(attachment.id)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          }>
-                          <ListItemIcon>{icon}</ListItemIcon>
-                          <ListItemText primary={attachment.name} />
-                        </ListItem>
-                        <Divider />
-                      </>
-                    );
-                  })}
-                  <ListItem>
-                    <Button
-                      sx={{ pt: 2 }}
-                      component="label"
-                      variant="outlined"
-                      color="success"
-                      size="small"
-                      startIcon={<UploadFileOutlined />}>
-                      <VisuallyHiddenInput
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                        type="file"
-                        onChange={handleFileUpload}
-                      />
-                      Upload
-                    </Button>
-                  </ListItem>
-                </List>
+                      return (
+                        <>
+                          <ListItem
+                            key={attachment.id}
+                            secondaryAction={
+                              <IconButton
+                                edge="end"
+                                color="error"
+                                aria-label="delete"
+                                onClick={() => handleFileDelete(attachment.id)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            }>
+                            <ListItemIcon>{icon}</ListItemIcon>
+                            <ListItemText
+                              primary={attachment.path.split("/").pop()}
+                            />
+                          </ListItem>
+                          <Divider />
+                        </>
+                      );
+                    })}
+                  </List>
+                  <Button
+                    sx={{ pt: 2 }}
+                    component="label"
+                    variant="outlined"
+                    color="success"
+                    size="small"
+                    startIcon={<UploadFileOutlined />}>
+                    <VisuallyHiddenInput
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      type="file"
+                      onChange={handleFileUpload}
+                    />
+                    Upload
+                  </Button>
+                </>
               )}
             </Box>
           </Paper>

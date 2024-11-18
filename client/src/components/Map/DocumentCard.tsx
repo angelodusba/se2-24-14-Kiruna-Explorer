@@ -30,9 +30,11 @@ import {
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import type { DocumentCard } from "../../models/DocumentCard";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import DocumentAPI from "../../API/DocumentAPI";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
+import UserContext from "../../contexts/UserContext";
+import L from "leaflet";
 
 const style = {
   position: "absolute",
@@ -68,7 +70,9 @@ const style = {
 function DocumentCard() {
   const navigate = useNavigate();
   const docId = useParams();
+  const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
+  const cardRef = useRef(null);
 
   const [documentCard, setDocumentCard] = useState<DocumentCard | null>({
     id: 0,
@@ -97,13 +101,15 @@ function DocumentCard() {
   };
 
   useEffect(() => {
+    L.DomEvent.disableScrollPropagation(cardRef.current);
+    L.DomEvent.disableClickPropagation(cardRef.current);
     fetchCardInfo(Number(docId.id));
   }, [docId]);
 
   return (
     <>
       {!disabledInput && (
-        <Paper variant="outlined">
+        <Paper variant="outlined" ref={cardRef}>
           <Box sx={style}>
             <Grid
               container
@@ -315,14 +321,16 @@ function DocumentCard() {
                               variant="subtitle2">
                               Location
                             </Typography>
-                            <IconButton
-                              aria-label="delete"
-                              size="small"
-                              onClick={() => {
-                                navigate(`/map/${docId.id}/georeference`);
-                              }}>
-                              <EditOutlined fontSize="inherit" />
-                            </IconButton>
+                            {user && (
+                              <IconButton
+                                aria-label="delete"
+                                size="small"
+                                onClick={() => {
+                                  navigate(`/map/${docId.id}/georeference`);
+                                }}>
+                                <EditOutlined fontSize="inherit" />
+                              </IconButton>
+                            )}
                           </Box>
                         }
                         secondaryTypographyProps={{
@@ -366,12 +374,14 @@ function DocumentCard() {
                     <Typography color="#003d8f" fontWeight="bold">
                       Original resources
                     </Typography>
-                    <IconButton
-                      aria-label="delete"
-                      size="small"
-                      onClick={() => navigate(`/map/${docId.id}/resources`)}>
-                      <EditOutlined fontSize="inherit" />
-                    </IconButton>
+                    {user && (
+                      <IconButton
+                        aria-label="delete"
+                        size="small"
+                        onClick={() => navigate(`/map/${docId.id}/resources`)}>
+                        <EditOutlined fontSize="inherit" />
+                      </IconButton>
+                    )}
                   </Box>
                   {documentCard.attachments.length === 0 ? (
                     <Typography
@@ -450,7 +460,7 @@ function DocumentCard() {
         context={
           window.location.pathname.includes("/resources")
             ? {
-                OriginalRes: documentCard.attachments,
+                originalRes: documentCard.attachments,
                 fetchCardInfo: fetchCardInfo,
               }
             : {
