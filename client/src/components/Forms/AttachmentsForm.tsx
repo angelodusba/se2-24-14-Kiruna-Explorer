@@ -143,7 +143,7 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
               ) : (
                 <>
                   <List dense={false} sx={{ width: "100%", pt: 0 }}>
-                    {originalResources.map((attachment) => {
+                    {originalResources.map((attachment, index) => {
                       const icon = attachment.type.includes("pdf") ? (
                         <PictureAsPdfOutlined
                           sx={{ color: "black" }}></PictureAsPdfOutlined>
@@ -156,7 +156,7 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
                       return (
                         <>
                           <ListItem
-                            key={attachment.id}
+                            key={index}
                             secondaryAction={
                               <IconButton
                                 edge="end"
@@ -177,7 +177,7 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
                     })}
                   </List>
                   <Button
-                    sx={{ pt: 2 }}
+                    sx={{ mt: 2 }}
                     component="label"
                     variant="outlined"
                     color="success"

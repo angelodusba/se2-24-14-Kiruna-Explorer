@@ -251,8 +251,7 @@ async function deleteFile(id) {
     credentials: "include",
   });
   if (response.ok) {
-    const res = await response.json();
-    return res;
+    return;
   } else {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
