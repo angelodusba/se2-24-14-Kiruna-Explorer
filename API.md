@@ -332,14 +332,14 @@ Retrieves all the information of the requested document to be displayed in a car
         {
             "id": 1,
             "document_id": 5,
-            "type": "png",
+            "type": "image/png",
             "original": true,
             "path": "doc5/att_photo.png"
         },
         {
             "id": 2,
             "document_id": 5,
-            "type": "pdf",
+            "type": "application/pdf",
             "original": false,
             "path": "doc5/att_plan.pdf"
         }
@@ -525,26 +525,59 @@ Retrieves all the node types in the database.
 
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
-### Scale APIs
+### Attachment APIs
 
-#### GET `kirunaexplorer/scales`
+#### POST `kirunaexplorer/attachments/:document_id`
 
-Retrieves all the scales in the database.
+Uploads an attachment for a specific document.
 
-- Request Parameters: None
+- Request Parameters:
+  - `document_id`: an integer greater than 0
+- Request Body Content: An object with one field:
+  - `original` - A boolean value to indicate if the attachment is original or not.
+- Additional Requirements:
+  - The user must have uploaded a file whose extension is one of the following: 
+    `jpeg`, `png`, `gif`, `pdf`, `doc`, `docx`, `xls`, `xlsx`.
+- Response Body Content: An **Attachment** object that represents the uploaded attachment:
+  - Example:
+
+```JSON
+{
+    "id": 1,
+    "document_id": 2,
+    "type": "image/jpeg",
+    "original": true,
+    "path": "doc2/file1.jpg"
+}
+```
+
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+
+#### GET `kirunaexplorer/attachments/:document_id`
+
+Retrieves all the attachments for a specific document.
+
+- Request Parameters:
+  - `document_id`: an integer greater than 0
 - Request Body Content: None
-- Response Body Content: An array of **Scale** objects, each representing a node type:
+- Response Body Content: An array of **Attachment** objects, each representing an attachment belonging to the document:
   - Example:
 
 ```JSON
 [
     {
         "id": 1,
-        "name": "Scale 1"
+        "document_id": 2,
+        "type": "image/jpeg",
+        "original": true,
+        "path": "doc2/file1.jpg"
     },
     {
         "id": 2,
-        "name": "Scale 2"
+        "document_id": 2,
+        "type": "application/pdf",
+        "original": false,
+        "path": "doc2/file2.pdf"
     }
 ]
 ```
