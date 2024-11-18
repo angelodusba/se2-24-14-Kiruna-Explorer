@@ -105,6 +105,17 @@ class DocumentRoutes {
       }
     );
 
+    // Retrieve all the documents
+    this.router.get("/", (req: Request, res: Response, next: NextFunction) => {
+      this.controller
+        .getAllDocuments()
+        .then((documents) => res.status(200).json(documents))
+        .catch((err: any) => {
+          next(err);
+        });
+    });
+
+    // Get documents' names
     this.router.get("/names", (req: Request, res: Response, next: NextFunction) => {
       this.controller
         .getDocumentsNames()
@@ -212,16 +223,11 @@ class DocumentRoutes {
     this.router.post(
       "/filtered",
       // Query params validation
-      query("page")
-        .optional()
-        .isInt({ min: 1 })
-        .withMessage("Page must be a positive integer.")
-        .toInt(),
+      query("page").optional().isInt({ min: 1 }).withMessage("Page must be a positive integer."),
       query("size")
         .optional()
         .isInt({ min: 1, max: 20 })
-        .withMessage("Size must be an integer between 1 and 20.")
-        .toInt(),
+        .withMessage("Size must be an integer between 1 and 20."),
       query("sort")
         .optional()
         .matches(/^(title|description|type|issue_date|scale|language|pages):(asc|desc)$/)
@@ -277,17 +283,18 @@ class DocumentRoutes {
         .withMessage("All elements in stakeholders must be integers."),
       this.errorHandler.validateRequest,
       (req: Request, res: Response, next: NextFunction) => {
+        console.log(req.body);
         this.controller
           .getFilteredDocuments(
-            Number(req.query.page),
-            Number(req.query.size),
+            req.query.page ? Number(req.query.page) : undefined,
+            req.query.size ? Number(req.query.size) : undefined,
             req.query.sort as string,
             req.body.title,
             req.body.description,
             req.body.start_year,
             req.body.end_year,
             req.body.scale,
-            req.body.type,
+            req.body.types,
             req.body.language,
             req.body.stakeholders
           )

@@ -45,6 +45,24 @@ function App() {
       .catch((err) => console.log(err));
   };
 
+  const filterDocuments = async (filter) => {
+    // If the filter is empty, only text as "", fetch all documents
+    if (filter.title === "") {
+      fetchDocuments();
+      return;
+    }
+    const filtered = await DocumentAPI.getFilteredDocuments(filter);
+    // Format as the documents returned by getDocumentsLocation
+    const temp = filtered.docs.map((doc) => {
+      return {
+        id: doc.id,
+        type: doc.type,
+        location: doc.location,
+      };
+    });
+    setDocsLocation(temp);
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -82,6 +100,7 @@ function App() {
                     logout={doLogout}
                     docsLocation={docsLocation}
                     setDocsLocation={docsLocation}
+                    onSearch={filterDocuments}
                   />
                 )}
                 <Outlet />
@@ -160,7 +179,10 @@ function App() {
                   )
                 }
               />
-              <Route path="search" element={<AdvancedSearchPage />} />
+              <Route
+                path="search"
+                element={<AdvancedSearchPage onSearch={filterDocuments} />}
+              />
             </Route>
           </Route>
           <Route

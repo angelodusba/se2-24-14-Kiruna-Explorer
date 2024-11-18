@@ -6,9 +6,15 @@ import { StakeHolder } from "../models/StakeHolders";
 import { useNavigate } from "react-router-dom";
 import AdvancedSearchForm from "../components/Forms/AdvancedSearchForm";
 
-function AdvancedSearchPage() {
+function AdvancedSearchPage({ onSearch }) {
   const navigate = useNavigate();
-  const languages = ["English", "Swedish"];
+  const languages = [
+    { code: "GB", label: "English" },
+    {
+      code: "SE",
+      label: "Swedish",
+    },
+  ];
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
   const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
   const [filters, setFilters] = useState<SearchFilter>({
@@ -27,7 +33,10 @@ function AdvancedSearchPage() {
   };
 
   const handleSubmit = () => {
+    // Remove null values from filters
+    Object.keys(filters).forEach((key) => filters[key] == null && delete filters[key]);
     console.log(filters);
+    onSearch(filters);
   };
 
   useEffect(() => {

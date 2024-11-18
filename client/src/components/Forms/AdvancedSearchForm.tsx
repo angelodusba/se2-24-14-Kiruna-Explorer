@@ -45,31 +45,32 @@ function AdvancedSearchForm({
             />
           </Grid>
           {/* Type */}
-          <Grid size={12}>
+            <Grid size={12}>
             <Autocomplete
+              multiple
               options={documentTypes}
               getOptionLabel={(option) => option.name}
-              value={filters.types || null}
+              value={documentTypes.filter((type) => filters.types?.includes(type.id)) || []}
               onChange={(e, newValue) =>
-                setFilters({
-                  ...filters,
-                  type: newValue,
-                })
+              setFilters({
+                ...filters,
+                types: newValue.map((option) => option.id),
+              })
               }
               renderInput={(params) => <TextField {...params} label="Type" />}
             />
-          </Grid>
+            </Grid>
           {/* Stakeholders */}
           <Grid size={12}>
             <Autocomplete
               multiple
               options={stakeholders}
               getOptionLabel={(option) => option.name}
-              value={filters.stakeholders || []}
+              value={stakeholders.filter((stakeholder) => filters.stakeholders?.includes(stakeholder.id)) || []}
               onChange={(_e, newValue) =>
                 setFilters({
                   ...filters,
-                  stakeholders: newValue,
+                  stakeholders: newValue.map((option) => option.id),
                 })
               }
               renderInput={(params) => <TextField {...params} label="Stakeholders" />}
