@@ -21,7 +21,7 @@ class AttachmentController {
     type: string,
     original: boolean,
     path: string
-  ): Promise<{ id: number }> {
+  ): Promise<Attachment> {
     //console.log(document_id, type, original, path);
     return this.dao.addAttachment(document_id, type, original, path);
   }

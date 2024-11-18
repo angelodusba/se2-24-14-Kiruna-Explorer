@@ -59,12 +59,10 @@ const handleFileUpload = (req: any, res: any, next: any) => {
       if (fs.existsSync(`${destDir}/${sanitizeName(file.originalname)}`)) {
         cb(new AttachmentAlreadyExistsError(), destDir);
       }
-
       // Check if the file's MIME type is allowed
       if (!allowedMimeTypes.includes(file.mimetype)) {
         return cb(new AttachmentNotAllowedError(), destDir);
       }
-
       // If the folder does not exist, create it
       if (!fs.existsSync(destDir)) {
         fs.mkdirSync(destDir);
@@ -86,7 +84,6 @@ const handleFileUpload = (req: any, res: any, next: any) => {
     } else {
       req.body.original = false;
     }
-
     return next(err);
   });
 };
@@ -121,7 +118,6 @@ class AttachmentRoutes {
       this.authService.isUrbanPlanner,
       handleFileUpload,
       (req: any, res: any, next: any) => {
-        console.log(req.file.filename); // Log the sanitized file name of the attachment uploaded, we now pass this name to the controller
         this.controller
           .addAttachment(
             req.params.document_id,

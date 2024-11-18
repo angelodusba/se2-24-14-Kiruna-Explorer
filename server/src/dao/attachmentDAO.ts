@@ -15,7 +15,7 @@ class AttachmentDAO {
     type: string,
     original: boolean,
     path: string
-  ): Promise<{ id: number }> {
+  ): Promise<Attachment> {
     try {
       const sql = `INSERT INTO attachments (document_id, type, original, path) VALUES ($1, $2, $3, $4) RETURNING id`;
       const res = await db.query(sql, [document_id, type, original, path]);
@@ -23,7 +23,7 @@ class AttachmentDAO {
       if (!res.rows || res.rows.length === 0)
         throw new Error("Unable to add the attachment right now, try again later");
       const attachment_id = res.rows[0].id;
-      return { id: attachment_id };
+      return new Attachment(Number(attachment_id), document_id, type, original, path);
     } catch (err: any) {
       throw err;
     }

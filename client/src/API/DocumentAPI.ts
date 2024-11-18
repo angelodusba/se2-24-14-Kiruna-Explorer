@@ -216,6 +216,7 @@ async function getFilteredDocuments(
   });
   if (response.ok) {
     const documents = await response.json();
+    console.log(documents);
     return documents;
   } else {
     const errDetail = await response.json();
