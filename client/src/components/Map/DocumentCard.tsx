@@ -89,6 +89,7 @@ function DocumentCard() {
     DocumentAPI.getDocumentCard(id)
       .then((card) => {
         setDocumentCard(card);
+        console.log(card);
       })
       .catch((err) => {
         console.log(err);
@@ -387,15 +388,13 @@ function DocumentCard() {
                     </Typography>
                   ) : (
                     documentCard.attachments.map((attachment) => {
-                      const icon =
-                        attachment.type == "pdf" ? (
-                          <PictureAsPdfOutlined></PictureAsPdfOutlined>
-                        ) : attachment.type == "doc" ||
-                          attachment.type == "docx" ? (
-                          <ArticleOutlined></ArticleOutlined>
-                        ) : (
-                          <PhotoOutlined></PhotoOutlined>
-                        );
+                      const icon = attachment.type.includes("pdf") ? (
+                        <PictureAsPdfOutlined></PictureAsPdfOutlined>
+                      ) : attachment.type.includes("doc") ? (
+                        <ArticleOutlined></ArticleOutlined>
+                      ) : (
+                        <PhotoOutlined></PhotoOutlined>
+                      );
 
                       return (
                         attachment.original && (
@@ -425,14 +424,15 @@ function DocumentCard() {
                                   flex: 1,
                                   minWidth: 0,
                                 }}>
-                                {attachment.path}
+                                {attachment.path.split("/").pop()}
                               </Typography>
                             </Box>
+
                             <IconButton
+                              download
+                              href={`http://localhost:3001/docs/${attachment.path}`}
                               aria-label="delete"
-                              size="small"
-                              href={`http://localhost:3001/kirunaexplorer/`}
-                              download>
+                              size="small">
                               <FileDownload fontSize="inherit" />
                             </IconButton>
                           </Box>

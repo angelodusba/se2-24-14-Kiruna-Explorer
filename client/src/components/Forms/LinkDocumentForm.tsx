@@ -66,11 +66,12 @@ export function LinkDocumentForm({
           {docId ? `Document to link: ${getTitleById(docId)}` : "Manage Links"}
         </Typography>{" "}
         {!docId && (
-          <FormControl required>
+          <FormControl required size="small">
             <InputLabel id="document1">Document to link</InputLabel>
             <Select
               labelId="document1"
               id="document1"
+              size="small"
               value={connectionsList.starting_document_id || ""}
               label="Document to link"
               onChange={(event) => {
@@ -113,10 +114,12 @@ export function LinkDocumentForm({
                     sx={{ display: "flex", flexDirection: "column" }}
                     size={{ xs: 12, md: 6 }}>
                     <FormControl
+                      size="small"
                       required
                       disabled={!connectionsList.starting_document_id}>
                       <InputLabel id="document">Linked document</InputLabel>
                       <Select
+                        size="small"
                         labelId="document"
                         id="document"
                         value={connection.document_id || ""}
@@ -125,16 +128,22 @@ export function LinkDocumentForm({
                           const documentId = Number(event.target.value);
                           handleSelectLinkedDocument(index, documentId);
                         }}>
-                        {documentsList
-                          .filter(
-                            (doc) =>
-                              doc.id !== connectionsList.starting_document_id
-                          )
-                          .map((doc) => (
+                        {documentsList.map((doc) => {
+                          if (
+                            doc.id === connectionsList.starting_document_id ||
+                            (connectionsList.connections.some(
+                              (conn) => conn.document_id === doc.id
+                            ) &&
+                              connection.document_id !== doc.id)
+                          ) {
+                            return;
+                          }
+                          return (
                             <MenuItem key={doc.id} value={doc.id}>
                               {doc.title}
                             </MenuItem>
-                          ))}
+                          );
+                        })}
                       </Select>
                     </FormControl>
                   </Grid>
@@ -142,11 +151,12 @@ export function LinkDocumentForm({
                   <Grid
                     sx={{ display: "flex", flexDirection: "column" }}
                     size={{ xs: 12, md: 6 }}>
-                    <FormControl required>
+                    <FormControl required size="small">
                       <InputLabel id="connectionType">
                         Connection types
                       </InputLabel>
                       <Select
+                        size="small"
                         labelId="connectionType"
                         id="connectionType"
                         multiple
@@ -170,7 +180,7 @@ export function LinkDocumentForm({
                               gap: 0.5,
                             }}>
                             {selected.map((value, ind) => (
-                              <Chip key={ind} label={value} />
+                              <Chip size="small" key={ind} label={value} />
                             ))}
                           </Box>
                         )}>
@@ -195,17 +205,20 @@ export function LinkDocumentForm({
       </Grid>
       <Grid size={12} sx={{ display: "flex", alignItems: "center" }}>
         {/* ADD LINK BUTTON */}
-        {connectionsList.connections.length > 0 &&
-          connectionsList.connections.at(-1).document_id &&
-          connectionsList.connections.at(-1).connection_types.length > 0 && (
-            <Button
-              variant="outlined"
-              color="success"
-              startIcon={<AddCircleOutlined />}
-              onClick={handleAddConnection}>
-              Add link
-            </Button>
-          )}
+        {((connectionsList.connections.length === 0 &&
+          connectionsList.starting_document_id) ||
+          (connectionsList.connections.length > 0 &&
+            connectionsList.connections.at(-1).document_id &&
+            connectionsList.connections.at(-1).connection_types.length >
+              0)) && (
+          <Button
+            variant="outlined"
+            color="success"
+            startIcon={<AddCircleOutlined />}
+            onClick={handleAddConnection}>
+            Add link
+          </Button>
+        )}
       </Grid>
       <Grid
         sx={{

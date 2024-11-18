@@ -1,4 +1,9 @@
-import { UploadFileOutlined } from "@mui/icons-material";
+import {
+  ArticleOutlined,
+  PhotoOutlined,
+  PictureAsPdfOutlined,
+  UploadFileOutlined,
+} from "@mui/icons-material";
 import {
   Typography,
   Button,
@@ -10,6 +15,7 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  ListItemIcon,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -51,15 +57,25 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("original", "true");
-
     DocumentAPI.uploadFile(Number(param.id), formData)
-      .then(() => {
-        setOriginalResources((prevResources) => [
-          ...prevResources,
-          { name: file.name },
-        ]);
+      .then((attachment) => {
+        setOriginalResources((prevResources) => [...prevResources, attachment]);
       })
-      .catch();
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleFileDelete = (id) => {
+    DocumentAPI.deleteFile(id)
+      .then(() => {
+        setOriginalResources((prevResources) =>
+          prevResources.filter((resource) => resource.id !== id)
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -126,20 +142,33 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
                 </>
               ) : (
                 <List dense={false} sx={{ width: "100%", pt: 0 }}>
-                  {originalResources.map((attachment, index) => {
+                  {originalResources.map((attachment) => {
+                    const icon =
+                      attachment.type == "pdf" ? (
+                        <PictureAsPdfOutlined
+                          sx={{ color: "black" }}></PictureAsPdfOutlined>
+                      ) : attachment.type == "doc" ||
+                        attachment.type == "docx" ? (
+                        <ArticleOutlined
+                          sx={{ color: "black" }}></ArticleOutlined>
+                      ) : (
+                        <PhotoOutlined sx={{ color: "black" }}></PhotoOutlined>
+                      );
                     return (
                       <>
                         <ListItem
-                          key={index}
+                          key={attachment.id}
                           secondaryAction={
                             <IconButton
                               edge="end"
                               color="error"
-                              aria-label="delete">
+                              aria-label="delete"
+                              onClick={() => handleFileDelete(attachment.id)}>
                               <DeleteIcon />
                             </IconButton>
                           }>
-                          <ListItemText inset primary={attachment.name} />
+                          <ListItemIcon>{icon}</ListItemIcon>
+                          <ListItemText primary={attachment.name} />
                         </ListItem>
                         <Divider />
                       </>
@@ -147,6 +176,7 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
                   })}
                   <ListItem>
                     <Button
+                      sx={{ pt: 2 }}
                       component="label"
                       variant="outlined"
                       color="success"
