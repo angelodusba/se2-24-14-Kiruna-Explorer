@@ -283,7 +283,6 @@ class DocumentRoutes {
         .withMessage("All elements in stakeholders must be integers."),
       this.errorHandler.validateRequest,
       (req: Request, res: Response, next: NextFunction) => {
-        console.log(req.body);
         this.controller
           .getFilteredDocuments(
             req.query.page ? Number(req.query.page) : undefined,
