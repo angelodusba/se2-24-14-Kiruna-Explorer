@@ -12,7 +12,6 @@ import { Role } from "../../models/User";
 import DocumentList from "../listDocument/DocumentList";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import { Outlet, useNavigate } from "react-router-dom";
-import SearchBar from "../SearchBarOld.old";
 
 const customIcon = new L.Icon({
   iconUrl: KirunaLogo,
@@ -47,9 +46,6 @@ function Map(props) {
 
   return (
     <>
-      {user && user.role === Role.UrbanPlanner && (
-        <Dial onOpenDocuments={handleOpenDocuments} />
-      )}
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
         <Dial onOpenDocuments={handleOpenDocuments} />
       )}

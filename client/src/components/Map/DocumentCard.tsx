@@ -13,17 +13,26 @@ import {
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
 import {
+  ArticleOutlined,
   AspectRatioOutlined,
   AutoStoriesOutlined,
   CloseOutlined,
   EditOutlined,
+  FileDownload,
   LinkOutlined,
   LocationOnOutlined,
+  PhotoOutlined,
+  PictureAsPdfOutlined,
   SupervisorAccountOutlined,
   TodayOutlined,
   TranslateOutlined,
+  TypeSpecimenOutlined,
 } from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
+import type { DocumentCard } from "../../models/DocumentCard";
+import { useContext, useEffect, useState } from "react";
+import DocumentAPI from "../../API/DocumentAPI";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
 const style = {
   position: "absolute",
@@ -59,278 +68,398 @@ const style = {
 function DocumentCard() {
   const navigate = useNavigate();
   const docId = useParams();
+  const { disabledInput } = useContext(DisabledInputContext);
+
+  const [documentCard, setDocumentCard] = useState<DocumentCard | null>({
+    id: 0,
+    title: "",
+    description: "",
+    type: { id: 0, name: "" },
+    stakeholders: [""],
+    pages: "",
+    location: [],
+    issue_date: "",
+    scale: "",
+    language: "",
+    conn_count: 0,
+    attachments: [],
+  });
+
+  const fetchCardInfo = (id: number) => {
+    DocumentAPI.getDocumentCard(id)
+      .then((card) => {
+        setDocumentCard(card);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    fetchCardInfo(Number(docId.id));
+  }, [docId]);
 
   return (
-    <Paper variant="outlined">
-      <Box sx={style}>
-        <Grid
-          container
-          width={"100%"}
-          sx={{ display: "flex", flexDirection: "column" }}>
-          <Grid
-            size={12}
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              mb: 1,
-            }}>
-            <Grid size={2} sx={{ marginLeft: "8px", paddingLeft: 2 }}>
-              <img
-                src={KirunaLogo}
-                width="40px"
-                height="48px"
-                alt="Kiruna Explorer"
-              />
-            </Grid>
-            <Grid size={9} sx={{ display: "flex", justifyContent: "start" }}>
-              <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                Title
-              </Typography>
-            </Grid>
-            <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
-              <IconButton size="small" onClick={() => navigate("/map")}>
-                {<CloseOutlined fontSize="small" />}
-              </IconButton>
-            </Grid>
-          </Grid>
-          <Divider />
-          <Grid container>
+    <>
+      {!disabledInput && (
+        <Paper variant="outlined">
+          <Box sx={style}>
             <Grid
-              size={{ sm: 12, md: 6 }}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "start",
-                pl: 1,
-                mt: 2,
-              }}>
-              <List
+              container
+              width={"100%"}
+              sx={{ display: "flex", flexDirection: "column" }}>
+              <Grid
+                size={12}
                 sx={{
-                  width: "100%",
-                  maxWidth: 360,
-                  bgcolor: "background.paper",
-                  display: "grid",
-                  gap: 1,
-                  gridTemplateColumns: "repeat(2, 1fr)",
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  mb: 1,
                 }}>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <SupervisorAccountOutlined></SupervisorAccountOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Stakeholders"
-                    primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
-                      variant: "subtitle2",
-                    }}
-                    secondary="LKAB"
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
+                <Grid size={2} sx={{ marginLeft: "8px", paddingLeft: 2 }}>
+                  <img
+                    src={KirunaLogo}
+                    width="40px"
+                    height="48px"
+                    alt="Kiruna Explorer"
                   />
-                </ListItem>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <AspectRatioOutlined></AspectRatioOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Scale"
-                    primaryTypographyProps={{
-                      sx: { fontWeight: "bold", color: "#003d8f" },
-                      variant: "subtitle2",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
-                    secondary="1:1000"
-                  />
-                </ListItem>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <TodayOutlined></TodayOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Issue date"
-                    primaryTypographyProps={{
-                      sx: {
-                        fontWeight: "bold",
-                        color: "#003d8f",
-                      },
-                      variant: "subtitle2",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
-                    secondary="12/12/2012"
-                  />
-                </ListItem>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <TodayOutlined></TodayOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Type"
-                    primaryTypographyProps={{
-                      sx: {
-                        fontWeight: "bold",
-                        color: "#003d8f",
-                      },
-                      variant: "subtitle2",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
-                    secondary="Material effect"
-                  />
-                </ListItem>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <LinkOutlined></LinkOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Connections"
-                    primaryTypographyProps={{
-                      sx: {
-                        fontWeight: "bold",
-                        color: "#003d8f",
-                      },
-                      variant: "subtitle2",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
-                    secondary="3"
-                  />
-                </ListItem>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <TranslateOutlined></TranslateOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Language"
-                    primaryTypographyProps={{
-                      sx: {
-                        fontWeight: "bold",
-                        color: "#003d8f",
-                      },
-                      variant: "subtitle2",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
-                    secondary="Italian"
-                  />
-                </ListItem>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <AutoStoriesOutlined></AutoStoriesOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Pages"
-                    primaryTypographyProps={{
-                      sx: {
-                        fontWeight: "bold",
-                        color: "#003d8f",
-                      },
-                      variant: "subtitle2",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
-                    secondary="100"
-                  />
-                </ListItem>
-                <ListItem sx={{ alignItems: "start" }}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <LocationOnOutlined></LocationOnOutlined>
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Location"
-                    primaryTypographyProps={{
-                      sx: {
-                        fontWeight: "bold",
-                        color: "#003d8f",
-                      },
-                      variant: "subtitle2",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                    }}
-                    secondary="Casa"
-                  />
-                  <IconButton
-                    aria-label="delete"
-                    size="small"
-                    onClick={() => {
-                      navigate(`/map/${docId.id}/georeference`);
-                    }}>
-                    <EditOutlined fontSize="inherit" />
+                </Grid>
+                <Grid
+                  size={9}
+                  sx={{ display: "flex", justifyContent: "start" }}>
+                  <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                    {documentCard.title}
+                  </Typography>
+                </Grid>
+                <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
+                  <IconButton size="small" onClick={() => navigate("/map")}>
+                    {<CloseOutlined fontSize="small" />}
                   </IconButton>
-                </ListItem>
-              </List>
+                </Grid>
+              </Grid>
+              <Divider />
+              <Grid container>
+                <Grid
+                  size={{ sm: 12, md: 8 }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "start",
+                    pl: 1,
+                    mt: 2,
+                  }}>
+                  <List
+                    sx={{
+                      width: "100%",
+                      bgcolor: "background.paper",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, 1fr)",
+                    }}>
+                    <ListItem sx={{ alignItems: "start" }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <SupervisorAccountOutlined></SupervisorAccountOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary="Stakeholders"
+                        primaryTypographyProps={{
+                          sx: { fontWeight: "bold", color: "#003d8f" },
+                          variant: "subtitle2",
+                        }}
+                        secondary={documentCard.stakeholders}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                        }}
+                      />
+                    </ListItem>
+                    <ListItem
+                      sx={{ alignItems: "start", maxWidth: "50%", pr: 0 }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <AspectRatioOutlined></AspectRatioOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary="Scale"
+                        primaryTypographyProps={{
+                          sx: { fontWeight: "bold", color: "#003d8f" },
+                          variant: "subtitle2",
+                        }}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                          sx: {
+                            whiteSpace: "normal",
+                          },
+                        }}
+                        secondary={documentCard.scale}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ alignItems: "start" }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <TodayOutlined></TodayOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary="Issue date"
+                        primaryTypographyProps={{
+                          sx: {
+                            fontWeight: "bold",
+                            color: "#003d8f",
+                          },
+                          variant: "subtitle2",
+                        }}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                        }}
+                        secondary={documentCard.issue_date}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ alignItems: "start" }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <TypeSpecimenOutlined></TypeSpecimenOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary="Type"
+                        primaryTypographyProps={{
+                          sx: {
+                            fontWeight: "bold",
+                            color: "#003d8f",
+                          },
+                          variant: "subtitle2",
+                        }}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                        }}
+                        secondary={documentCard.type.name}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ alignItems: "start" }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <LinkOutlined></LinkOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary="Connections"
+                        primaryTypographyProps={{
+                          sx: {
+                            fontWeight: "bold",
+                            color: "#003d8f",
+                          },
+                          variant: "subtitle2",
+                        }}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                        }}
+                        secondary={documentCard.conn_count}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ alignItems: "start" }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <TranslateOutlined></TranslateOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary="Language"
+                        primaryTypographyProps={{
+                          sx: {
+                            fontWeight: "bold",
+                            color: "#003d8f",
+                          },
+                          variant: "subtitle2",
+                        }}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                        }}
+                        secondary={documentCard.language || "-"}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ alignItems: "start" }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <AutoStoriesOutlined></AutoStoriesOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary="Pages"
+                        primaryTypographyProps={{
+                          sx: {
+                            fontWeight: "bold",
+                            color: "#003d8f",
+                          },
+                          variant: "subtitle2",
+                        }}
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                        }}
+                        secondary={documentCard.pages || "-"}
+                      />
+                    </ListItem>
+                    <ListItem sx={{ alignItems: "start" }}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <LocationOnOutlined></LocationOnOutlined>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Typography
+                              sx={{ fontWeight: "bold", color: "#003d8f" }}
+                              variant="subtitle2">
+                              Location
+                            </Typography>
+                            <IconButton
+                              aria-label="delete"
+                              size="small"
+                              onClick={() => {
+                                navigate(`/map/${docId.id}/georeference`);
+                              }}>
+                              <EditOutlined fontSize="inherit" />
+                            </IconButton>
+                          </Box>
+                        }
+                        secondaryTypographyProps={{
+                          variant: "caption",
+                        }}
+                        secondary={
+                          documentCard.location.length === 0
+                            ? "Entire municipality"
+                            : `${documentCard.location[0].lat} N, ${documentCard.location[0].lng} E`
+                        }
+                      />
+                    </ListItem>
+                  </List>
+                </Grid>
+                <Divider
+                  sx={{ display: { xs: "none", md: "flex" }, marginRight: -1 }}
+                  orientation="vertical"
+                  flexItem
+                />
+                <Grid
+                  size={{ sm: 12, md: 4 }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    mt: 2,
+                    gap: 1,
+                    pl: 2,
+                  }}>
+                  <Typography color="#003d8f" fontWeight="bold">
+                    Description
+                  </Typography>
+                  <Typography>{documentCard.description}</Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                    }}>
+                    <Typography color="#003d8f" fontWeight="bold">
+                      Original resources
+                    </Typography>
+                    <IconButton
+                      aria-label="delete"
+                      size="small"
+                      onClick={() => navigate(`/map/${docId.id}/resources`)}>
+                      <EditOutlined fontSize="inherit" />
+                    </IconButton>
+                  </Box>
+                  {documentCard.attachments.length === 0 ? (
+                    <Typography
+                      variant="caption"
+                      color="textDisabled"
+                      sx={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        flex: 1,
+                        minWidth: 0,
+                      }}>
+                      No original resources available
+                    </Typography>
+                  ) : (
+                    documentCard.attachments.map((attachment) => {
+                      const icon =
+                        attachment.type == "pdf" ? (
+                          <PictureAsPdfOutlined></PictureAsPdfOutlined>
+                        ) : attachment.type == "doc" ||
+                          attachment.type == "docx" ? (
+                          <ArticleOutlined></ArticleOutlined>
+                        ) : (
+                          <PhotoOutlined></PhotoOutlined>
+                        );
+
+                      return (
+                        attachment.original && (
+                          <Box
+                            key={attachment.id}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              width: "100%",
+                            }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                flex: 1,
+                                minWidth: 0,
+                              }}>
+                              {icon}
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  textOverflow: "ellipsis",
+                                  overflow: "hidden",
+                                  whiteSpace: "nowrap",
+                                  flex: 1,
+                                  minWidth: 0,
+                                }}>
+                                {attachment.path}
+                              </Typography>
+                            </Box>
+                            <IconButton
+                              aria-label="delete"
+                              size="small"
+                              href={`http://localhost:3001/kirunaexplorer/`}
+                              download>
+                              <FileDownload fontSize="inherit" />
+                            </IconButton>
+                          </Box>
+                        )
+                      );
+                    })
+                  )}
+                </Grid>
+              </Grid>
             </Grid>
-            <Divider
-              sx={{ display: { xs: "none", md: "flex" }, marginRight: -1 }}
-              orientation="vertical"
-              flexItem
-            />
-            <Grid
-              size={{ sm: 12, md: 6 }}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                mt: 2,
-                gap: 1,
-                pl: 2,
-              }}>
-              <Typography color="#003d8f" fontWeight="bold">
-                Description
-              </Typography>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do
-                eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrum exercitationem ullamco
-                laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute
-                irure reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non
-                proident, sunt in culpa qui officia deserunt mollit anim id est
-                laborum
-              </Typography>
-              <Typography
-                color="#003d8f"
-                fontWeight="bold"
-                sx={{ mt: 1, mr: 2 }}>
-                Original resources
-                <IconButton
-                  aria-label="delete"
-                  size="small"
-                  onClick={() => navigate(`/map/${docId.id}/resources`)}>
-                  <EditOutlined fontSize="inherit" />
-                </IconButton>
-              </Typography>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Box>
-    </Paper>
+          </Box>
+        </Paper>
+      )}
+      <Outlet
+        context={
+          window.location.pathname.includes("/resources")
+            ? {
+                OriginalRes: documentCard.attachments,
+                fetchCardInfo: fetchCardInfo,
+              }
+            : {
+                location: documentCard.location,
+                fetchCardInfo: fetchCardInfo,
+              }
+        }
+      />
+    </>
   );
 }
 

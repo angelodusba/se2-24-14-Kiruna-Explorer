@@ -3,8 +3,10 @@ import { Type } from "../models/Type";
 import { StakeHolder } from "../models/StakeHolders";
 import { Point } from "../models/Document";
 import { SearchFilter } from "../models/SearchFilter";
+import { DocumentCard } from "../models/DocumentCard";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL =
+  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 async function sendDocument(document: Document): Promise<number> {
@@ -146,6 +148,25 @@ async function changeDocumentLocation(id: number, location: Point[]) {
   }
 }
 
+async function getDocumentCard(id: number) {
+  const response = await fetch(`${baseURL}documents/card/${id}`, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    const documentCard: DocumentCard = await response.json();
+    return documentCard;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+    throw new Error("Error. Please reload the page");
+  }
+}
+
 /** ------------------- Filtered Documents APIs ------------------------ */
 /** Get documents based on the filter:
  * @param {SearchFilter} params - parameters of the fiter to be applied
@@ -158,7 +179,7 @@ async function changeDocumentLocation(id: number, location: Point[]) {
 
 async function getFilteredDocuments(filter: SearchFilter): Promise<Document[]> {
   const response = await fetch(baseURL + "documents/filter", {
-    method: "GET",
+    method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
@@ -176,6 +197,24 @@ async function getFilteredDocuments(filter: SearchFilter): Promise<Document[]> {
   }
 }
 
+/** ------------------- Files APIs ------------------------ */
+async function uploadFile(id, file) {
+  const response = await fetch(`${baseURL}attachments/${id}`, {
+    method: "POST",
+    credentials: "include",
+    body: file,
+  });
+  if (response.ok) {
+    const res = await response.json();
+    return res;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+    throw new Error("Error. Please reload the page");
+  }
+}
+
 const DocumentAPI = {
   sendDocument,
   getDocumentsLocation,
@@ -184,6 +223,8 @@ const DocumentAPI = {
   getStakeholders,
   getMunicipalityDocuments,
   changeDocumentLocation,
+  getDocumentCard,
   getFilteredDocuments,
+  uploadFile,
 };
 export default DocumentAPI;
