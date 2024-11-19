@@ -147,7 +147,12 @@ class DocumentRoutes {
       "/location",
       this.authService.isLoggedIn,
       this.authService.isUrbanPlanner,
-      body("id").isInt().withMessage("Document ID must be an integer."),
+      body("id")
+        .notEmpty()
+        .withMessage("Document id must not be empty.")
+        .bail()
+        .isInt({ gt: 0 })
+        .withMessage("Document id must be a number greater than 0."),
       body("location")
         .isArray()
         .withMessage("Location must be an array.")

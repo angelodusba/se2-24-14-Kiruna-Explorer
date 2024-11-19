@@ -164,7 +164,10 @@ describe("POST kirunaexplorer/documents", () => {
           },
         ],
       })
-      .expect(200);
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.id).toBeGreaterThan(0);          
+      })
   });
 
   test("POST /kirunaexplorer/documents - unauthorized", async () => {
@@ -335,5 +338,124 @@ describe("GET /kirunaexplorer/documents/:id", () => {
       .get(`${routePath}/documents/-5`)
       .set("Cookie", urbanPlannerCookie)
       .expect(422);
+  });
+});
+
+describe("PUT /kirunaexplorer/documents/location", () => {
+  test("PUT /kirunaexplorer/documents/location - success", async () => {
+    const test_obj = await retrieveInitialData();
+    await request(app)
+      .get(`${routePath}/documents/${test_obj.document1.id}`)
+      .set("Cookie", urbanPlannerCookie)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.location).toEqual([]);
+      });
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", urbanPlannerCookie)
+      .send({
+        id: test_obj.document1.id,
+        location: [{ lat: 5.0, lng: 8.0 }],
+      })
+      .expect(200);
+    await request(app)
+      .get(`${routePath}/documents/${test_obj.document1.id}`)
+      .set("Cookie", urbanPlannerCookie)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.location).toEqual([{ lat: 5.0, lng: 8.0 }]);
+      });
+  });
+
+  test("PUT /kirunaexplorer/documents/location - not found", async () => {
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", urbanPlannerCookie)
+      .send({
+        id: 99999,
+        location: [{ lat: 5.0, lng: 8.0 }],
+      })
+      .expect(404);
+  });
+
+  test("PUT /kirunaexplorer/documents/location - empty id", async () => {
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", urbanPlannerCookie)
+      .send({
+        id: "",
+        location: [{ lat: 5.0, lng: 8.0 }],
+      })
+      .expect(422);
+  });
+
+  test("PUT /kirunaexplorer/documents/location - invalid id", async () => {
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", urbanPlannerCookie)
+      .send({
+        id: "invalid_id",
+        location: [{ lat: 5.0, lng: 8.0 }],
+      })
+      .expect(422);
+  });
+
+  test("PUT /kirunaexplorer/documents/location - invalid numeric id", async () => {
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", urbanPlannerCookie)
+      .send({
+        id: -5,
+        location: [{ lat: 5.0, lng: 8.0 }],
+      })
+      .expect(422);
+  });
+
+  test("PUT /kirunaexplorer/documents/location - invalid location", async () => {
+    const test_obj = await retrieveInitialData();
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", urbanPlannerCookie)
+      .send({
+        id: test_obj.document1.id,
+        location: "invalid_location",
+      })
+      .expect(422);
+  });
+
+  test("PUT /kirunaexplorer/documents/location - invalid location format", async () => {
+    const test_obj = await retrieveInitialData();
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", urbanPlannerCookie)
+      .send({
+        id: test_obj.document1.id,
+        location: [{ lat: 5.0, lng: "no" }],
+      })
+      .expect(422);
+  });
+
+  test("PUT /kirunaexplorer/documents/location - not logged in", async () => {
+    const test_obj = await retrieveInitialData();
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .send({
+        id: test_obj.document1.id,
+        location: [{ lat: 5.0, lng: 8.0 }],
+      })
+      .expect(401);
+  });
+
+  test("PUT /kirunaexplorer/documents/location - unauthorized", async () => {
+    const test_obj = await retrieveInitialData();
+    await request(app)
+      .put(`${routePath}/documents/location`)
+      .set("Cookie", residentCookie)
+      .send({
+        id: test_obj.document1.id,
+        location: [{ lat: 5.0, lng: 8.0 }],
+      })
+      .expect(401);
   });
 });
