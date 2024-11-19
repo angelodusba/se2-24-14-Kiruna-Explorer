@@ -286,6 +286,7 @@ class DocumentRoutes {
         .bail()
         .custom((array) => array.every((item: any) => Number.isInteger(item)))
         .withMessage("All elements in stakeholders must be integers."),
+      body("municipality").optional().isBoolean().withMessage("Municipality must be a boolean."),
       this.errorHandler.validateRequest,
       (req: Request, res: Response, next: NextFunction) => {
         this.controller
@@ -300,7 +301,8 @@ class DocumentRoutes {
             req.body.scale,
             req.body.types,
             req.body.language,
-            req.body.stakeholders
+            req.body.stakeholders,
+            req.body.municipality == "true" ? true : false
           )
           .then((documents) => res.status(200).json(documents))
           .catch((err: any) => {

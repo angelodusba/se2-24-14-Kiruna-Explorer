@@ -365,7 +365,8 @@ class DocumentDAO {
     scales?: string[],
     types?: number[],
     languages?: string[],
-    stakeholders?: number[]
+    stakeholders?: number[],
+    municipality?: boolean
   ): Promise<FilteredDocumentsResponse> {
     try {
       let params: any[] = [];
@@ -417,6 +418,9 @@ class DocumentDAO {
       if (stakeholders && stakeholders.length > 0) {
         params.push(stakeholders);
         sql += ` AND S.id = ANY($${params.length})`;
+      }
+      if (municipality) {
+        sql += ` AND D.location IS NULL`;
       }
       // Add group by clause
       sql += ` GROUP BY D.id, D.title, D.description, D.type_id, T.name, D.issue_date, 
