@@ -136,14 +136,10 @@ async function changeDocumentLocation(id: number, location: Point[]) {
       location: location,
     }),
   });
-  if (response.ok) {
-    const res = await response.json();
-    return res;
-  } else {
+  if (!response.ok) {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
     if (errDetail.message) throw errDetail.message;
-
     throw new Error("Something went wrong");
   }
 }
