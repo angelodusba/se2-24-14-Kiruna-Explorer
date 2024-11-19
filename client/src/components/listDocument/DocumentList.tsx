@@ -26,7 +26,7 @@ interface Document {
   id: number;
   title: string;
   description: string;
-  type: string;
+  type_name: string;
   issue_date: string;
   scale: string;
   language: string;
@@ -75,7 +75,7 @@ function DocumentList({ open, onClose, currentFilter, handleCardShow }: { open: 
             id: doc.id,
             title: doc.title,
             description: doc.description,
-            type: doc.type.name,
+            type_name: doc.type.name,
             issue_date: doc.issue_date,
             scale: doc.scale,
             language: doc.language,
@@ -137,6 +137,9 @@ function DocumentList({ open, onClose, currentFilter, handleCardShow }: { open: 
           Sort by page number (
           {sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
+        <MenuItem onClick={() => handleSort({field: "type_name"})}>
+            Sort by type ({sortOrder === "asc" ? "asc" : "desc"})
+        </MenuItem>
         <MenuItem onClick={() => handleSort({field: "issue_date"})}>
           Sort by issue date (
           {sortOrder === "asc" ? "Ascending" : "Descending"})
@@ -177,7 +180,7 @@ function DocumentList({ open, onClose, currentFilter, handleCardShow }: { open: 
                   <TableRow key={document.id}>
                     <TableCell>{document.title}</TableCell>
                     <TableCell>{document.description}</TableCell>
-                    <TableCell>{document.type}</TableCell>
+                    <TableCell>{document.type_name}</TableCell>
                     <TableCell>{document.issue_date}</TableCell>
                     <TableCell>{document.scale}</TableCell>
                     <TableCell>{document.language}</TableCell>

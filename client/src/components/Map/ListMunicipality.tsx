@@ -4,12 +4,13 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, Ta
 import DocumentAPI from '../../API/DocumentAPI';
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FormModal from '../Forms/FormModal';
+import { useNavigate } from 'react-router-dom';
 
 interface Document {
   id: number;
   title: string;
   description: string;
-  type: string;
+  type_name: string;
   issue_date: string;
   scale: string;
   language: string;
@@ -20,7 +21,9 @@ interface SortField {
   field: keyof Document;
 }
 
-function ListMunicipality({ open, onClose, currentFilter, docs }) {
+
+
+function ListMunicipality({ open, onClose, currentFilter, docs, handleCardShow }) {
   
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +35,7 @@ function ListMunicipality({ open, onClose, currentFilter, docs }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [totalRows, setTotalRows] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const navigate = useNavigate();
 
   const fetchDocuments = async (sortField, sortOrder, pageImmediate=null) => {
     const sort = sortField.field + ":" + sortOrder;
@@ -56,7 +60,7 @@ function ListMunicipality({ open, onClose, currentFilter, docs }) {
         id: doc.id,
         title: doc.title,
         description: doc.description,
-        type: doc.type.name,
+        type_name: doc.type.name,
         issue_date: doc.issue_date,
         scale: doc.scale,
         language: doc.language,
@@ -140,6 +144,9 @@ function ListMunicipality({ open, onClose, currentFilter, docs }) {
             Sort by page number (
               {sortOrder === "asc" ? "asc" : "desc"})
           </MenuItem>
+          <MenuItem onClick={() => handleSort({field: "type_name"})}>
+            Sort by type ({sortOrder === "asc" ? "asc" : "desc"})
+          </MenuItem>
           <MenuItem onClick={() => handleSort({field: "issue_date"})}>
             Sort by issue date (
               {sortOrder === "asc" ? "asc" : "desc"})
@@ -179,11 +186,22 @@ function ListMunicipality({ open, onClose, currentFilter, docs }) {
                     <TableRow key={document.id}>
                       <TableCell>{document.title}</TableCell>
                       <TableCell>{document.description}</TableCell>
-                      <TableCell>{document.type.name}</TableCell>
+                      <TableCell>{document.type_name}</TableCell>
                       <TableCell>{document.issue_date}</TableCell>
                       <TableCell>{document.scale}</TableCell>
                       <TableCell>{document.language}</TableCell>
                       <TableCell>{document.pages}</TableCell>
+                      <TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                          handleCardShow(document.id);
+                        }}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -211,7 +229,4 @@ function ListMunicipality({ open, onClose, currentFilter, docs }) {
 
 export default ListMunicipality;
 
-function setAnchorEl(arg0: null) {
-  throw new Error('Function not implemented.');
-}
 

@@ -72,6 +72,10 @@ function App() {
     setDocsLocation(temp);
   };
 
+  const handleCardShow = (id) => {
+    navigate(`/map/${id}`);
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -174,6 +178,7 @@ function App() {
                       onClose={() => navigate("/map")}
                       currentFilter={currentFilter}
                       docs = {docsLocation}
+                      handleCardShow={handleCardShow}
                     />
                   ) : (
                     <Navigate to="/auth" />
