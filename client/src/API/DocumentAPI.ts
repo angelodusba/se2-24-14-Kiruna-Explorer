@@ -4,6 +4,7 @@ import { StakeHolder } from "../models/StakeHolders";
 import { Point } from "../models/Document";
 import { SearchFilter } from "../models/SearchFilter";
 import { DocumentCard } from "../models/DocumentCard";
+import { Attachment } from "../models/Attachment";
 
 const baseURL =
   import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
@@ -136,14 +137,10 @@ async function changeDocumentLocation(id: number, location: Point[]) {
       location: location,
     }),
   });
-  if (response.ok) {
-    const res = await response.json();
-    return res;
-  } else {
+  if (!response.ok) {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
     if (errDetail.message) throw errDetail.message;
-
     throw new Error("Something went wrong");
   }
 }
@@ -229,6 +226,9 @@ async function getFilteredDocuments(
 }
 
 /** ------------------- Files APIs ------------------------ */
+
+const getResourcesBaseURL = () => "http://localhost:3001/docs/";
+
 async function uploadFile(id, file) {
   const response = await fetch(`${baseURL}attachments/${id}`, {
     method: "POST",
@@ -236,8 +236,23 @@ async function uploadFile(id, file) {
     body: file,
   });
   if (response.ok) {
-    const res = await response.json();
-    return res;
+    const attachment: Attachment = await response.json();
+    return attachment;
+  } else {
+    const errDetail = await response.json();
+    if (errDetail.error) throw errDetail.error;
+    if (errDetail.message) throw errDetail.message;
+    throw new Error("Error. Please reload the page");
+  }
+}
+
+async function deleteFile(id) {
+  const response = await fetch(`${baseURL}attachments/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (response.ok) {
+    return;
   } else {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
@@ -256,6 +271,8 @@ const DocumentAPI = {
   changeDocumentLocation,
   getDocumentCard,
   getFilteredDocuments,
+  getResourcesBaseURL,
   uploadFile,
+  deleteFile,
 };
 export default DocumentAPI;

@@ -1,4 +1,9 @@
-import { UploadFileOutlined } from "@mui/icons-material";
+import {
+  ArticleOutlined,
+  PhotoOutlined,
+  PictureAsPdfOutlined,
+  UploadFileOutlined,
+} from "@mui/icons-material";
 import {
   Typography,
   Button,
@@ -10,6 +15,7 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  ListItemIcon,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,7 +35,11 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
+function AttachmentsForm({
+  originalRes = [],
+  fetchCardInfo = undefined,
+  docId = undefined,
+}) {
   const [originalResources, setOriginalResources] = useState(originalRes);
   const navigate = useNavigate();
   const param = useParams();
@@ -40,33 +50,44 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
     Now made with outlet context but can be made taking data by the server
   }, []);*/
 
-  const handleCloseOrSubmit = (event) => {
+  const handleClose = (event) => {
     event.preventDefault();
     fetchCardInfo(Number(param.id));
     navigate(-1);
   };
 
   const handleFileUpload = (event) => {
+    const id = docId ? Number(docId) : Number(param.id);
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
     formData.append("original", "true");
-
-    DocumentAPI.uploadFile(Number(param.id), formData)
-      .then(() => {
-        setOriginalResources((prevResources) => [
-          ...prevResources,
-          { name: file.name },
-        ]);
+    DocumentAPI.uploadFile(id, formData)
+      .then((attachment) => {
+        setOriginalResources((prevResources) => [...prevResources, attachment]);
       })
-      .catch();
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleFileDelete = (id) => {
+    DocumentAPI.deleteFile(id)
+      .then(() => {
+        setOriginalResources((prevResources) =>
+          prevResources.filter((resource) => resource.id !== id)
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
     <Grid
       container
       component={fetchCardInfo !== undefined ? "form" : "div"}
-      onSubmit={handleCloseOrSubmit}
+      onSubmit={handleClose}
       sx={{
         width: "100%",
         minHeight: "80%",
@@ -125,42 +146,56 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
                   </Button>
                 </>
               ) : (
-                <List dense={false} sx={{ width: "100%", pt: 0 }}>
-                  {originalResources.map((attachment, index) => {
-                    return (
-                      <>
-                        <ListItem
-                          key={index}
-                          secondaryAction={
-                            <IconButton
-                              edge="end"
-                              color="error"
-                              aria-label="delete">
-                              <DeleteIcon />
-                            </IconButton>
-                          }>
-                          <ListItemText inset primary={attachment.name} />
-                        </ListItem>
-                        <Divider />
-                      </>
-                    );
-                  })}
-                  <ListItem>
-                    <Button
-                      component="label"
-                      variant="outlined"
-                      color="success"
-                      size="small"
-                      startIcon={<UploadFileOutlined />}>
-                      <VisuallyHiddenInput
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                        type="file"
-                        onChange={handleFileUpload}
-                      />
-                      Upload
-                    </Button>
-                  </ListItem>
-                </List>
+                <>
+                  <List dense={false} sx={{ width: "100%", pt: 0 }}>
+                    {originalResources.map((attachment, index) => {
+                      const icon = attachment.type.includes("pdf") ? (
+                        <PictureAsPdfOutlined
+                          sx={{ color: "black" }}></PictureAsPdfOutlined>
+                      ) : attachment.type.includes("doc") ? (
+                        <ArticleOutlined
+                          sx={{ color: "black" }}></ArticleOutlined>
+                      ) : (
+                        <PhotoOutlined sx={{ color: "black" }}></PhotoOutlined>
+                      );
+                      return (
+                        <>
+                          <ListItem
+                            key={index}
+                            secondaryAction={
+                              <IconButton
+                                edge="end"
+                                color="error"
+                                aria-label="delete"
+                                onClick={() => handleFileDelete(attachment.id)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            }>
+                            <ListItemIcon>{icon}</ListItemIcon>
+                            <ListItemText
+                              primary={attachment.path.split("/").pop()}
+                            />
+                          </ListItem>
+                          <Divider />
+                        </>
+                      );
+                    })}
+                  </List>
+                  <Button
+                    sx={{ mt: 2 }}
+                    component="label"
+                    variant="outlined"
+                    color="success"
+                    size="small"
+                    startIcon={<UploadFileOutlined />}>
+                    <VisuallyHiddenInput
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      type="file"
+                      onChange={handleFileUpload}
+                    />
+                    Upload
+                  </Button>
+                </>
               )}
             </Box>
           </Paper>
@@ -169,13 +204,10 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
           sx={{
             width: "100%",
             display: fetchCardInfo !== undefined ? "flex" : "none",
-            justifyContent: "space-between",
+            justifyContent: "end",
             py: 2,
           }}>
-          <Button onClick={handleCloseOrSubmit} color="error">
-            Close
-          </Button>
-          <Button type={"submit"}>Save</Button>
+          <Button type={"submit"}>Close</Button>
         </Grid>
       </Grid>
     </Grid>

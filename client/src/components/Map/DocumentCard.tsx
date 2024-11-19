@@ -30,9 +30,11 @@ import {
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import type { DocumentCard } from "../../models/DocumentCard";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import DocumentAPI from "../../API/DocumentAPI";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
+import UserContext from "../../contexts/UserContext";
+import L from "leaflet";
 
 const style = {
   position: "absolute",
@@ -68,7 +70,9 @@ const style = {
 function DocumentCard() {
   const navigate = useNavigate();
   const docId = useParams();
+  const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
+  const cardRef = useRef(null);
 
   const [documentCard, setDocumentCard] = useState<DocumentCard | null>({
     id: 0,
@@ -89,6 +93,7 @@ function DocumentCard() {
     DocumentAPI.getDocumentCard(id)
       .then((card) => {
         setDocumentCard(card);
+        console.log(card);
       })
       .catch((err) => {
         console.log(err);
@@ -96,13 +101,17 @@ function DocumentCard() {
   };
 
   useEffect(() => {
+    if (!disabledInput) {
+      L.DomEvent.disableScrollPropagation(cardRef.current);
+      L.DomEvent.disableClickPropagation(cardRef.current);
+    }
     fetchCardInfo(Number(docId.id));
-  }, [docId]);
+  }, [docId, disabledInput]);
 
   return (
     <>
       {!disabledInput && (
-        <Paper variant="outlined">
+        <Paper variant="outlined" ref={cardRef}>
           <Box sx={style}>
             <Grid
               container
@@ -365,12 +374,14 @@ function DocumentCard() {
                     <Typography color="#003d8f" fontWeight="bold">
                       Original resources
                     </Typography>
-                    <IconButton
-                      aria-label="delete"
-                      size="small"
-                      onClick={() => navigate(`/map/${docId.id}/resources`)}>
-                      <EditOutlined fontSize="inherit" />
-                    </IconButton>
+                    {user && (
+                      <IconButton
+                        aria-label="delete"
+                        size="small"
+                        onClick={() => navigate(`/map/${docId.id}/resources`)}>
+                        <EditOutlined fontSize="inherit" />
+                      </IconButton>
+                    )}
                   </Box>
                   {documentCard.attachments.length === 0 ? (
                     <Typography
@@ -387,15 +398,13 @@ function DocumentCard() {
                     </Typography>
                   ) : (
                     documentCard.attachments.map((attachment) => {
-                      const icon =
-                        attachment.type == "pdf" ? (
-                          <PictureAsPdfOutlined></PictureAsPdfOutlined>
-                        ) : attachment.type == "doc" ||
-                          attachment.type == "docx" ? (
-                          <ArticleOutlined></ArticleOutlined>
-                        ) : (
-                          <PhotoOutlined></PhotoOutlined>
-                        );
+                      const icon = attachment.type.includes("pdf") ? (
+                        <PictureAsPdfOutlined></PictureAsPdfOutlined>
+                      ) : attachment.type.includes("doc") ? (
+                        <ArticleOutlined></ArticleOutlined>
+                      ) : (
+                        <PhotoOutlined></PhotoOutlined>
+                      );
 
                       return (
                         attachment.original && (
@@ -425,14 +434,17 @@ function DocumentCard() {
                                   flex: 1,
                                   minWidth: 0,
                                 }}>
-                                {attachment.path}
+                                {attachment.path.split("/").pop()}
                               </Typography>
                             </Box>
                             <IconButton
-                              aria-label="delete"
-                              size="small"
-                              href={`http://localhost:3001/kirunaexplorer/`}
-                              download>
+                              download={attachment.path.split("/").pop()}
+                              href={`${DocumentAPI.getResourcesBaseURL()}${
+                                attachment.path
+                              }`}
+                              target="_blank"
+                              aria-label="download"
+                              size="small">
                               <FileDownload fontSize="inherit" />
                             </IconButton>
                           </Box>
@@ -450,7 +462,7 @@ function DocumentCard() {
         context={
           window.location.pathname.includes("/resources")
             ? {
-                OriginalRes: documentCard.attachments,
+                originalRes: documentCard.attachments,
                 fetchCardInfo: fetchCardInfo,
               }
             : {
