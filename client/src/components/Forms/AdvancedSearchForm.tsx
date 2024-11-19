@@ -45,28 +45,32 @@ function AdvancedSearchForm({
             />
           </Grid>
           {/* Type */}
-            <Grid size={12}>
+          <Grid size={12}>
             <Autocomplete
               multiple
               options={documentTypes}
               getOptionLabel={(option) => option.name}
               value={documentTypes.filter((type) => filters.types?.includes(type.id)) || []}
               onChange={(e, newValue) =>
-              setFilters({
-                ...filters,
-                types: newValue.map((option) => option.id),
-              })
+                setFilters({
+                  ...filters,
+                  types: newValue.map((option) => option.id),
+                })
               }
               renderInput={(params) => <TextField {...params} label="Type" />}
             />
-            </Grid>
+          </Grid>
           {/* Stakeholders */}
           <Grid size={12}>
             <Autocomplete
               multiple
               options={stakeholders}
               getOptionLabel={(option) => option.name}
-              value={stakeholders.filter((stakeholder) => filters.stakeholders?.includes(stakeholder.id)) || []}
+              value={
+                stakeholders.filter((stakeholder) =>
+                  filters.stakeholders?.includes(stakeholder.id)
+                ) || []
+              }
               onChange={(_e, newValue) =>
                 setFilters({
                   ...filters,
@@ -114,7 +118,7 @@ function AdvancedSearchForm({
               options={languages}
               getOptionLabel={(option) => option.label}
               value={languages.find((lang) => lang.code === filters.language) || null}
-              onChange={(e, newValue) => setFilters({ ...filters, language: newValue.code })}
+              onChange={(_e, newValue) => setFilters({ ...filters, language: newValue.code })}
               renderOption={(props, option) => {
                 const { key, ...optionProps } = props;
                 return (
@@ -153,7 +157,14 @@ function AdvancedSearchForm({
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSubmit}>Search</Button>
+        <Button
+          onClick={() => {
+            handleClose();
+            handleSubmit();
+          }}
+        >
+          Search
+        </Button>
       </DialogActions>
     </Dialog>
   );

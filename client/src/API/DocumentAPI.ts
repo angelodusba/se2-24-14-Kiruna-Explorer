@@ -9,6 +9,7 @@ import { Attachment } from "../models/Attachment";
 const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
+
 async function sendDocument(document: Document): Promise<number> {
   const response = await fetch(baseURL + "documents", {
     method: "POST",
@@ -164,6 +165,7 @@ async function getDocumentCard(id: number) {
 }
 
 /** ------------------- Filtered Documents APIs ------------------------ */
+
 /** Get documents based on the filter:
  * @param {SearchFilter} params - parameters of the fiter to be applied
  * @returns {} - object with property docs that is an array of documents that match the filter
@@ -172,7 +174,6 @@ async function getDocumentCard(id: number) {
  * const documents = await getFilteredDocument(filter: Filter);
  *
  */
-
 async function getFilteredDocuments(
   filter: SearchFilter,
   page?: number,
@@ -193,7 +194,6 @@ async function getFilteredDocuments(
   totalRows: number;
   totalPages: number;
 }> {
-  console.log(page);
   const params = {
     page: page ? page.toString() : undefined,
     size: size ? size.toString() : undefined,
@@ -203,7 +203,6 @@ async function getFilteredDocuments(
   Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
   const url = baseURL + "documents/filtered";
   const query = new URLSearchParams(params).toString();
-  console.log(`${url}?${query}`);
   const response = await fetch(`${url}?${query}`, {
     method: "POST",
     credentials: "include",

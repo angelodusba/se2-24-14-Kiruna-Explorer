@@ -76,7 +76,7 @@ function App() {
         location: doc.location,
       };
     });
-    setDocsLocation(temp);
+    setDocsLocation(filteredDocs);
   };
 
   const handleCardShow = (id) => {

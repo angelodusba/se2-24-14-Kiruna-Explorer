@@ -382,6 +382,7 @@ class DocumentDAO {
                   FROM documents D INNER JOIN types T ON D.type_id=T.id
                     LEFT JOIN documents_stakeholders DS ON D.id=DS.document_id
                     LEFT JOIN stakeholders S ON S.id=DS.stakeholder_id
+                  WHERE 1=1
       `;
       // Add filters to the WHERE clause if parameters are provided
       if (title) {
@@ -431,7 +432,6 @@ class DocumentDAO {
         params.push(size);
         sql += ` LIMIT $${params.length} OFFSET ${offset}`;
       }
-      console.log(sql);
       // Retrieve results
       const res = await db.query(sql, params);
       const totalRows: number = res.rows.length > 0 ? res.rows[0].total_rows : 0;

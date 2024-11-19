@@ -35,7 +35,6 @@ function AdvancedSearchPage({ onSearch }) {
   const handleSubmit = () => {
     // Remove null values from filters
     Object.keys(filters).forEach((key) => filters[key] == null && delete filters[key]);
-    console.log(filters);
     onSearch(filters);
   };
 
