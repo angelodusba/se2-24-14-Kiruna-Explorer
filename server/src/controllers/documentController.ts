@@ -130,7 +130,8 @@ class DocumentController {
     scales?: string[],
     types?: number[],
     languages?: string[],
-    stakeholders?: number[]
+    stakeholders?: number[],
+    municipality?: boolean
   ): Promise<FilteredDocumentsResponse> {
     return this.dao.getFilteredDocuments(
       page,
@@ -143,7 +144,8 @@ class DocumentController {
       scales,
       types,
       languages,
-      stakeholders
+      stakeholders,
+      municipality
     );
   }
 }
