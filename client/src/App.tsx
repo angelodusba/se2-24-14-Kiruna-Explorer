@@ -57,24 +57,6 @@ function App() {
   };
 
   const filterDocuments = async (filter) => {
-    // If the filter is empty, only text as "", fetch all documents
-    // if filter only has title property
-    console.log(filter);
-    // if (
-    //   !filter.types &&
-    //   !filter.start_year &&
-    //   !filter.end_year &&
-    //   !filter.scales &&
-    //   !filter.languages &&
-    //   !filter.stakeholders &&
-    //   !filter.description &&
-    //   filter.title === ""
-    // ) {
-    //   fetchDocuments();
-    //   setCurrentFilter(undefined);
-    //   return;
-    // }
-    console.log("prima di filtrare");
     try {
       const result = await DocumentAPI.getFilteredDocuments(filter);
       setCurrentFilter({ ...filter });
