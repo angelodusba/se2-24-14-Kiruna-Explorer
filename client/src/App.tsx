@@ -10,16 +10,16 @@ import AccessAPI from "./API/AccessAPI";
 import DocumentAPI from "./API/DocumentAPI";
 import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
-import DocumentList from "./components/listDocument/DocumentList";
+import DocumentList from "./components/listDocument/DocumentsList";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
 import DocumentCard from "./components/Map/DocumentCard";
 import AttachmentsPage from "./pages/AttachmentsPage";
 import GeoreferencePage from "./pages/GeoreferencePage";
 import ListMunicipality from "./components/Map/ListMunicipality";
-import AdvancedSearchPage from "./pages/AdvancedSearchPage";
 import { SearchFilter } from "./models/SearchFilter";
 import { ErrorContext } from "./contexts/ErrorContext";
 import { Snackbar, Alert } from "@mui/material";
+import DocumentsListPage from "./pages/DocumentsListPage";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -56,7 +56,7 @@ function App() {
       });
   };
 
-  const filterDocuments = async (filter) => {
+  const filterDocuments = async (filter: SearchFilter) => {
     try {
       const result = await DocumentAPI.getFilteredDocuments(filter);
       setCurrentFilter({ ...filter });
@@ -110,14 +110,7 @@ function App() {
                 </>
               }
             >
-              <Route
-                path="/map"
-                element={
-                  <>
-                    <Map docs={docsLocation} currentFilter={currentFilter}></Map>
-                  </>
-                }
-              >
+              <Route path="/map" element={<Map docs={docsLocation} />}>
                 <Route
                   path="add"
                   element={
@@ -176,8 +169,16 @@ function App() {
                     )
                   }
                 />
-                <Route path="search" element={<AdvancedSearchPage onSearch={filterDocuments} />} />
               </Route>
+              <Route
+                path="/list"
+                element={
+                  <DocumentsListPage
+                    currentFilter={currentFilter}
+                    handleCardShow={handleCardShow}
+                  />
+                }
+              />
             </Route>
             <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
           </Routes>

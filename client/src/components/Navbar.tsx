@@ -13,7 +13,7 @@ import {
   ListItemIcon,
   Popover,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
@@ -245,27 +245,40 @@ function Navbar({ onSearch, handleLogout }) {
               <Grid
                 size="grow"
                 sx={{
-                  justifyContent: "start",
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
                   marginTop: "8px",
                 }}
               >
-                <img
-                  src={KirunaLogo}
-                  width="40px"
-                  height="48px"
-                  alt="Kiruna Explorer"
-                  style={{ marginRight: "8px" }}
-                />
-                <Typography
-                  variant="h5"
-                  component="div"
-                  sx={{ display: { sm: "block", xs: "none" } }}
+                <Link
+                  to={"/"}
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                    justifyContent: "start",
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
                 >
-                  Kiruna Explorer
-                </Typography>
+                  <img
+                    src={KirunaLogo}
+                    width="40px"
+                    height="48px"
+                    alt="Kiruna Explorer"
+                    style={{ marginRight: "8px" }}
+                  />
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{
+                      display: { sm: "block", xs: "none" },
+                      fontWeight: 500,
+                      letterSpacing: "0.5px", // Slight spacing
+                      textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
+                    }}
+                  >
+                    Kiruna Explorer
+                  </Typography>
+                </Link>
               </Grid>
               <Grid
                 size={6}
@@ -343,7 +356,6 @@ function Navbar({ onSearch, handleLogout }) {
         </Toolbar>
       </AppBar>
       {user && renderAccountMenu}
-      {/* <DocumentList open={openDocuments} onClose={handleCloseDocuments} /> */}
     </Box>
   );
 }

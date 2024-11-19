@@ -1,9 +1,9 @@
-import { AddLinkOutlined, NoteAddOutlined, ListAltOutlined } from "@mui/icons-material";
+import { AddLinkOutlined, NoteAddOutlined } from "@mui/icons-material";
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Dial({ onOpenDocuments }) {
+function Dial() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -21,12 +21,6 @@ function Dial({ onOpenDocuments }) {
       icon: <AddLinkOutlined />,
       name: "Link documents",
       url: "/map/link",
-    },
-    {
-      id: 3,
-      icon: <ListAltOutlined />,
-      name: "Documents List",
-      action: onOpenDocuments,
     },
   ];
 
@@ -56,9 +50,9 @@ function Dial({ onOpenDocuments }) {
           tooltipTitle={action.name}
           tooltipOpen
           onClick={() => {
-            if (action.url){
-            navigate(action.url);
-            }else if(action.action){
+            if (action.url) {
+              navigate(action.url);
+            } else if (action.action) {
               action.action();
             }
             handleClose();

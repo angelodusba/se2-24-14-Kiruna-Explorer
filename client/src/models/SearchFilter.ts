@@ -7,4 +7,5 @@ export interface SearchFilter {
   scales?: string[];
   languages?: string[];
   stakeholders?: number[];
+  municipality?: boolean;
 }
