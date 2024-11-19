@@ -113,7 +113,7 @@ function Map({docs, currentFilter}) {
         </MarkerClusterGroup>
         <Outlet></Outlet>
       </MapContainer>
-      <DocumentList open={openDocuments} onClose={handleCloseDocuments} currentFilter={currentFilter} />
+      <DocumentList open={openDocuments} onClose={handleCloseDocuments} currentFilter={currentFilter} handleCardShow={handleCardShow}/>
     </>
   );
 }

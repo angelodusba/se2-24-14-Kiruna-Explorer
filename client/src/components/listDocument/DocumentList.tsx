@@ -33,7 +33,11 @@ interface Document {
   pages: number;
 }
 
-function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose: () => void; currentFilter: SearchFilter }) {
+interface SortField {
+  field: keyof Document;
+}
+
+function DocumentList({ open, onClose, currentFilter, handleCardShow }: { open: boolean; onClose: () => void; currentFilter: SearchFilter, handleCardShow: (id: number) => void }) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [totalRows, setTotalRows] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -41,56 +45,29 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
   //this is for filtering options
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [sortField, setSortField] = useState<"title" | "pages" >("title");
+  const [sortField, setSortField] = useState<SortField>({ field: "title" });
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(1);
 
   const handleChangePage = async (event: React.ChangeEvent<unknown>, value: number) => {
     if (totalRows >= (value-1) * rowsPerPage) {
-      const sort = sortField + ":" + sortOrder;
       setPage(value);
-      const documentsList = await DocumentAPI.getFilteredDocuments(currentFilter, value, rowsPerPage, sort);
-      const formatted = documentsList.docs.map((doc) => {
-        return {
-            id: doc.id,
-            title: doc.title,
-            description: doc.description,
-            type: doc.type.name,
-            issue_date: doc.issue_date,
-            scale: doc.scale,
-            language: doc.language,
-            pages: doc.pages,
-        }});
-      console.log("New page", value);
-      setDocuments(formatted);
+      await fetchDocuments(sortField, sortOrder, value);
     }
     else{
       return;
     }
   }
 
-      const fetchDocuments = async (sortField, sortOrder) => {
+      const fetchDocuments = async (sortField, sortOrder, pageImmediate = null) => {
       try {
-        const sort = sortField + ":" + sortOrder;
-        if (!currentFilter) {
-          const documentsList = await DocumentAPI.getFilteredDocuments({title: ""}, page, rowsPerPage, sort);
-          const formatted = documentsList.docs.map((doc) => {
-            return {
-              id: doc.id,
-              title: doc.title,
-              description: doc.description,
-              type: doc.type.name,
-              issue_date: doc.issue_date,
-              scale: doc.scale,
-              language: doc.language,
-              pages: doc.pages,
-            }});
-          setTotalRows(documentsList.totalRows);
-          setTotalPages(documentsList.totalPages);
-          setDocuments(formatted);
-          return;
+        const sort = sortField.field + ":" + sortOrder;
+        let filter = currentFilter;
+        if (!currentFilter){
+          filter = { title: ""}
         }
-        const documentsList = await DocumentAPI.getFilteredDocuments(currentFilter, page, rowsPerPage, sort);
+        let fetchPage = pageImmediate ? pageImmediate : page;
+        const documentsList = await DocumentAPI.getFilteredDocuments(filter, fetchPage, rowsPerPage, sort);
         setTotalRows(documentsList.totalRows);
         setTotalPages(documentsList.totalPages);
         const formatted = documentsList.docs.map((doc) => {
@@ -116,7 +93,7 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
   }, [currentFilter]);
 
   //this is for sorting the table
-  const handleSort = (field: "title" | "pages") => {
+  const handleSort = (field: SortField) => {
   setSortField(field);
   setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   fetchDocuments(field, sortOrder === "asc" ? "desc" : "asc");
@@ -153,11 +130,25 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
         open={Boolean(anchorEl)}
         onClose={handleFilterClose}
       >
-        <MenuItem onClick={() => handleSort("title")}>
+        <MenuItem onClick={() => handleSort({field: "title"})}>
           Sort by Title ({sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
-        <MenuItem onClick={() => handleSort("pages")}>
+        <MenuItem onClick={() => handleSort({field: "pages"})}>
           Sort by page number (
+          {sortOrder === "asc" ? "Ascending" : "Descending"})
+        </MenuItem>
+        <MenuItem onClick={() => handleSort({field: "issue_date"})}>
+          Sort by issue date (
+          {sortOrder === "asc" ? "Ascending" : "Descending"})
+        </MenuItem>
+        <MenuItem onClick={() => handleSort({field: "language"})}>
+          Sort by language ({sortOrder === "asc" ? "Ascending" : "Descending"})
+        </MenuItem>
+        <MenuItem onClick={() => handleSort({field: "scale"})}>
+          Sort by scale ({sortOrder === "asc" ? "Ascending" : "Descending"})
+        </MenuItem>
+        <MenuItem onClick={() => handleSort({field: "description"})}>
+          Sort by description (
           {sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
       </Menu>
@@ -171,7 +162,6 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
             <Table aria-label="document table">
               <TableHead>
                 <TableRow>
-                  <TableCell>ID</TableCell>
                   <TableCell>Title</TableCell>
                   <TableCell>Description</TableCell>
                   <TableCell>Type</TableCell>
@@ -179,6 +169,7 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
                   <TableCell>Scale</TableCell>
                   <TableCell>Language</TableCell>
                   <TableCell>Pages</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -191,6 +182,18 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
                     <TableCell>{document.scale}</TableCell>
                     <TableCell>{document.language}</TableCell>
                     <TableCell>{document.pages}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                          handleCardShow(document.id);
+                          onClose();
+                        }}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

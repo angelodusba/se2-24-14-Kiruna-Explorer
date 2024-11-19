@@ -41,8 +41,9 @@ const style = {
   zIndex: 401,
   top: "50%",
   left: "50%",
-  transform: { xs: "translate(-50%, -50%)", lg: "translate(-100%, -50%)" },
-  width: "500px",
+  transform: "translate(-50%, -50%)",
+  width: "90%",
+  maxWidth: "700px",
   maxHeight: "80%",
   minHeight: "60%",
   bgcolor: "background.paper",
@@ -50,15 +51,7 @@ const style = {
   boxShadow: 24,
   p: 1,
   overflowY: "auto",
-  maxWidth: {
-    xs: "90%",
-    sm: "700px",
-  },
-  minWidth: {
-    xs: "80%",
-    sm: "700px",
-  },
-  //Hide scrollbar but allow scrolling
+  // Hide scrollbar but allow scrolling
   "&::-webkit-scrollbar": {
     width: "0px",
     background: "transparent",
@@ -67,7 +60,7 @@ const style = {
   scrollbarWidth: "none",
 };
 
-function DocumentCard() {
+function DocumentCard(props) {
   const navigate = useNavigate();
   const docId = useParams();
   const user = useContext(UserContext);
@@ -93,7 +86,6 @@ function DocumentCard() {
     DocumentAPI.getDocumentCard(id)
       .then((card) => {
         setDocumentCard(card);
-        console.log(card);
       })
       .catch((err) => {
         console.log(err);
