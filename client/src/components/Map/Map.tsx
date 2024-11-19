@@ -24,10 +24,9 @@ const bounds = L.latLngBounds(
   [67.9658, 20.4253] // Northeast coordinates (adjust to set the limit)
 );
 
-function Map({docs, currentFilter}) {
+function Map({ docs, currentFilter }) {
   const navigate = useNavigate();
   const user = useContext(UserContext);
-  // const [docCard, setDocCard] = useState(undefined);
   const [openDocuments, setOpenDocuments] = useState(false);
 
   const handleOpenDocuments = () => {
@@ -47,10 +46,10 @@ function Map({docs, currentFilter}) {
   return (
     <>
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
-        <Dial onOpenDocuments={handleOpenDocuments} />
-      )}
-      {!disabledInput && user && user.role === Role.UrbanPlanner && (
-        <DocumentDial />
+        <>
+          <Dial onOpenDocuments={handleOpenDocuments} />
+          <DocumentDial /> {/* Municipality documents button */}
+        </>
       )}
       <MapContainer
         center={[67.85572, 20.22513]}
@@ -67,7 +66,8 @@ function Map({docs, currentFilter}) {
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
-        }}>
+        }}
+      >
         <TileLayer
           keepBuffer={100}
           attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
@@ -81,6 +81,7 @@ function Map({docs, currentFilter}) {
           {!disabledInput &&
             docs.map((doc) => {
               if (!doc) return null;
+              // Single point documents
               if (doc.location.length === 1) {
                 return (
                   <Marker
@@ -92,9 +93,11 @@ function Map({docs, currentFilter}) {
                       },
                     }}
                     icon={customIcon}
-                    position={L.latLng(doc.location[0])}></Marker>
+                    position={L.latLng(doc.location[0])}
+                  />
                 );
               }
+              // Municipality documents
               if (doc.location.length === 0) {
                 return (
                   <Marker
@@ -106,14 +109,20 @@ function Map({docs, currentFilter}) {
                     }}
                     key={doc.id}
                     icon={customIcon}
-                    position={[67.85572, 20.22513]}></Marker>
+                    position={[67.85572, 20.22513]}
+                  />
                 );
               }
             })}
         </MarkerClusterGroup>
-        <Outlet></Outlet>
+        <Outlet />
       </MapContainer>
-      <DocumentList open={openDocuments} onClose={handleCloseDocuments} currentFilter={currentFilter} handleCardShow={handleCardShow}/>
+      <DocumentList
+        open={openDocuments}
+        onClose={handleCloseDocuments}
+        currentFilter={currentFilter}
+        handleCardShow={handleCardShow}
+      />
     </>
   );
 }

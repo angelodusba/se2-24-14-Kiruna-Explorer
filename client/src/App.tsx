@@ -50,19 +50,26 @@ function App() {
   const filterDocuments = async (filter) => {
     // If the filter is empty, only text as "", fetch all documents
     // if filter only has title property
-    if(!filter.types && !filter.start_year && !filter.end_year && !filter.scales && !filter.languages && !filter.stakeholders && !filter.description)
-    {
-      if (filter.title === "") {
-        fetchDocuments();
-        setCurrentFilter(undefined);
-        return;
-      }
-    }
-    const filtered = await DocumentAPI.getFilteredDocuments(filter);
-    console.log("Filtering documents with:", filter);
+    console.log(filter);
+    // if (
+    //   !filter.types &&
+    //   !filter.start_year &&
+    //   !filter.end_year &&
+    //   !filter.scales &&
+    //   !filter.languages &&
+    //   !filter.stakeholders &&
+    //   !filter.description &&
+    //   filter.title === ""
+    // ) {
+    //   fetchDocuments();
+    //   setCurrentFilter(undefined);
+    //   return;
+    // }
+    console.log("prima di filtrare");
+    const result = await DocumentAPI.getFilteredDocuments(filter);
     setCurrentFilter({ ...filter });
     // Format as the documents returned by getDocumentsLocation
-    const temp = filtered.docs.map((doc) => {
+    const filteredDocs = result.docs.map((doc) => {
       return {
         id: doc.id,
         type: doc.type,
@@ -91,41 +98,30 @@ function App() {
 
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider
-        value={{ disabledInput, setDisabledInput }}>
+      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
         <Routes>
-          <Route
-            path="/"
-            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-          />
+          <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
           <Route
             path="/auth"
-            element={
-              user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
-            }
+            element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
           />
           <Route
             path="/"
             element={
               <>
-                {!disabledInput && (
-                  <Navbar
-                    logout={doLogout}
-                    docsLocation={docsLocation}
-                    setDocsLocation={docsLocation}
-                    onSearch={filterDocuments}
-                  />
-                )}
+                {!disabledInput && <Navbar handleLogout={doLogout} onSearch={filterDocuments} />}
                 <Outlet />
               </>
-            }>
+            }
+          >
             <Route
               path="/map"
               element={
                 <>
                   <Map docs={docsLocation} currentFilter={currentFilter}></Map>
                 </>
-              }>
+              }
+            >
               <Route
                 path="add"
                 element={
@@ -151,7 +147,7 @@ function App() {
                   path="resources"
                   element={
                     user && user.role === Role.UrbanPlanner ? (
-                      <AttachmentsPage></AttachmentsPage>
+                      <AttachmentsPage />
                     ) : (
                       <Navigate to="/auth" />
                     )
@@ -161,8 +157,7 @@ function App() {
                   path="georeference"
                   element={
                     user && user.role === Role.UrbanPlanner ? (
-                      <GeoreferencePage
-                        fetchDocuments={fetchDocuments}></GeoreferencePage>
+                      <GeoreferencePage fetchDocuments={fetchDocuments} />
                     ) : (
                       <Navigate to="/auth" />
                     )
@@ -177,7 +172,7 @@ function App() {
                       open={true}
                       onClose={() => navigate("/map")}
                       currentFilter={currentFilter}
-                      docs = {docsLocation}
+                      docs={docsLocation}
                       handleCardShow={handleCardShow}
                     />
                   ) : (
@@ -185,16 +180,10 @@ function App() {
                   )
                 }
               />
-              <Route
-                path="search"
-                element={<AdvancedSearchPage onSearch={filterDocuments} />}
-              />
+              <Route path="search" element={<AdvancedSearchPage onSearch={filterDocuments} />} />
             </Route>
           </Route>
-          <Route
-            path="*"
-            element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-          />
+          <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
         </Routes>
       </DisabledInputContext.Provider>
     </UserContext.Provider>

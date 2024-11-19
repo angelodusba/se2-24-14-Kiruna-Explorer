@@ -93,13 +93,13 @@ const AccountMenu = styled((props: MenuProps) => (
   },
 }));
 
-function Navbar(props) {
+function Navbar({ onSearch, handleLogout }) {
   const user = React.useContext(UserContext);
   const { disabledInput } = React.useContext(DisabledInputContext);
   const navigate = useNavigate();
   const [accountAnchorEl, setAccountAnchorEl] = React.useState<null | HTMLElement>(null);
   const accountOpen = Boolean(accountAnchorEl);
-  const [openDocuments, setOpenDocuments] = React.useState(false);
+  // const [openDocuments, setOpenDocuments] = React.useState(false);
 
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAccountAnchorEl(event.currentTarget);
@@ -108,14 +108,14 @@ function Navbar(props) {
     setAccountAnchorEl(null);
   };
 
-  const handleCloseDocuments = () => {
-    setOpenDocuments(false);
-  };
+  // const handleCloseDocuments = () => {
+  //   setOpenDocuments(false);
+  // };
 
   const handleSearch = (search: string) => {
     // Maybe props.fetchData(filter)
     const filters: SearchFilter = { title: search };
-    props.onSearch(filters);
+    onSearch(filters);
   };
 
   const renderAccountMenu = (
@@ -141,7 +141,7 @@ function Navbar(props) {
       <MenuItem
         onClick={() => {
           handleAccountMenuClose();
-          props.logout();
+          handleLogout();
         }}
         disableRipple
         sx={{ color: "error.main" }}
@@ -243,7 +243,7 @@ function Navbar(props) {
         </Toolbar>
       </AppBar>
       {user && renderAccountMenu}
-      <DocumentList open={openDocuments} onClose={handleCloseDocuments} />
+      {/* <DocumentList open={openDocuments} onClose={handleCloseDocuments} /> */}
     </Box>
   );
 }

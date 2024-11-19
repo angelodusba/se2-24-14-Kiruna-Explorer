@@ -379,8 +379,9 @@ class DocumentDAO {
                         substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
                     END AS location,
                     COUNT(*) OVER () AS total_rows -- Count of all matching rows (ignores LIMIT and OFFSET)
-                  FROM documents D, types T, documents_stakeholders DS, stakeholders S
-                  WHERE D.type_id=T.id AND D.id=DS.document_id AND S.id=DS.stakeholder_id
+                  FROM documents D INNER JOIN types T ON D.type_id=T.id
+                    LEFT JOIN documents_stakeholders DS ON D.id=DS.document_id
+                    LEFT JOIN stakeholders S ON S.id=DS.stakeholder_id
       `;
       // Add filters to the WHERE clause if parameters are provided
       if (title) {
@@ -425,11 +426,12 @@ class DocumentDAO {
       sql += ` ORDER BY D.${sortField} ${sortOrder.toUpperCase()}`;
 
       // Pagination logic (LIMIT and OFFSET)
-      if (page && size) {
+      if (page !== undefined && size !== undefined) {
         const offset = (page - 1) * size; // Calculate offset based on page number
         params.push(size);
         sql += ` LIMIT $${params.length} OFFSET ${offset}`;
       }
+      console.log(sql);
       // Retrieve results
       const res = await db.query(sql, params);
       const totalRows: number = res.rows.length > 0 ? res.rows[0].total_rows : 0;
