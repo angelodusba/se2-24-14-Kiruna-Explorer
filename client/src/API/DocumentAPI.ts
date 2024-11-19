@@ -203,6 +203,7 @@ async function getFilteredDocuments(
   Object.keys(params).forEach(
     (key) => params[key] === undefined && delete params[key]
   );
+  
   const url = baseURL + "documents/filtered";
   const query = new URLSearchParams(params).toString();
   const response = await fetch(`${url}?${query}`, {
@@ -215,7 +216,6 @@ async function getFilteredDocuments(
   });
   if (response.ok) {
     const documents = await response.json();
-    console.log(documents);
     return documents;
   } else {
     const errDetail = await response.json();

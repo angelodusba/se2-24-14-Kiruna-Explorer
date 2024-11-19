@@ -172,6 +172,8 @@ function App() {
                     <ListMunicipality
                       open={true}
                       onClose={() => navigate("/map")}
+                      currentFilter={currentFilter}
+                      docs = {docsLocation}
                     />
                   ) : (
                     <Navigate to="/auth" />

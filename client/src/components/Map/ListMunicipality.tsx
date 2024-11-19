@@ -4,21 +4,27 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, Ta
 import DocumentAPI from '../../API/DocumentAPI';
 import FormModal from '../Forms/FormModal';
 
-function ListMunicipality({ open, onClose }) {
+function ListMunicipality({ open, onClose, currentFilter, docs }) {
   
   const [documents, setDocuments] = useState([]);
   const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchDocuments = async () => {
-        const response = await DocumentAPI.getMunicipalityDocuments();
-        setDocuments(response);
-          if (response.length === 0) {
+        // Add to current filter location = null
+        const newFilter = { ...currentFilter}
+        const response = await DocumentAPI.getFilteredDocuments(newFilter);
+        // fiter for location = null
+        const filtered = docs.filter(doc => doc.location.length === 0);
+        // get the documents that are present both in filtered and in response.docs
+        const final = response.docs.filter(doc => filtered.some(f => f.id === doc.id));
+        setDocuments(final);
+          if (response.docs.length === 0) {
               setError("No documents found");
           }
         };
         fetchDocuments();
-    }, []);
+    }, [docs]);
 
     return (
       <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth

@@ -57,6 +57,36 @@ INSERT INTO "documents" (title, description, type_id, issue_date, scale, languag
     '32'
 );
 
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages) VALUES (
+    'Document with noa', 
+    'This document has no specificocation.', 
+    1, -- type_id
+    '2020', 
+    '1:8000', 
+    'English', 
+    '32'
+);
+
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages) VALUES (
+    'Document wit area', 
+    'This document has noecific location.', 
+    1, -- type_id
+    '2020', 
+    '1:8000', 
+    'English', 
+    '32'
+);
+
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages) VALUES (
+    'Document no area', 
+    'This document has no specific location.', 
+    1, -- type_id
+    '2020', 
+    '1:8000', 
+    'English', 
+    '32'
+);
+
 -- 3. Document with an area location
 INSERT INTO "documents"  (title, description, type_id, issue_date, scale, location) VALUES (
     'Italy Outline', 
@@ -77,6 +107,12 @@ INSERT INTO "documents"  (title, description, type_id, issue_date, scale, locati
         6.3391 41.0717,
         6.6235 36.6192
     ))'), 4326));  -- Simplified outline of Italy
+
+
+
+
+
+
 
 -----------------------
 -- Connections table --
@@ -99,4 +135,8 @@ INSERT INTO "stakeholders" (name) VALUES ('Others');
 -- Documents_stakeholders table --
 ----------------------------------
 INSERT INTO "documents_stakeholders" (document_id, stakeholder_id) VALUES (1, 1);
-
+INSERT INTO "documents_stakeholders" (document_id, stakeholder_id) VALUES (2, 2);
+INSERT INTO "documents_stakeholders" (document_id, stakeholder_id) VALUES (3, 3);
+INSERT INTO "documents_stakeholders" (document_id, stakeholder_id) VALUES (4, 4);
+INSERT INTO "documents_stakeholders" (document_id, stakeholder_id) VALUES (5, 5);
+INSERT INTO "documents_stakeholders" (document_id, stakeholder_id) VALUES (6, 3);
