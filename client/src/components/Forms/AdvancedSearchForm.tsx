@@ -1,34 +1,36 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
   TextField,
   Autocomplete,
   Box,
-  DialogActions,
   Button,
+  Card,
+  CardHeader,
+  CardContent,
+  CardActions,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 function AdvancedSearchForm({
   handleClose,
   handleSubmit,
+  handleReset,
   filters,
   setFilters,
   stakeholders,
   documentTypes,
-  languages,
 }) {
+  const languages = [
+    { code: "GB", label: "English" },
+    {
+      code: "SE",
+      label: "Swedish",
+    },
+  ];
+
   return (
-    <Dialog open={true} onClose={handleClose} fullWidth>
-      <DialogTitle>Advanced Search</DialogTitle>
-      <DialogContent
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
+    <Card sx={{ padding: 1, maxWidth: "600px" }}>
+      <CardHeader title="Advanced Search" />
+      <CardContent>
         <Grid container spacing={2}>
           {/* Title */}
           <Grid size={12}>
@@ -45,9 +47,10 @@ function AdvancedSearchForm({
             />
           </Grid>
           {/* Type */}
-          <Grid size={12}>
+          <Grid size={6}>
             <Autocomplete
               multiple
+              disableCloseOnSelect
               options={documentTypes}
               getOptionLabel={(option) => option.name}
               value={documentTypes.filter((type) => filters.types?.includes(type.id)) || []}
@@ -60,65 +63,17 @@ function AdvancedSearchForm({
               renderInput={(params) => <TextField {...params} label="Type" />}
             />
           </Grid>
-          {/* Stakeholders */}
-          <Grid size={12}>
+          {/* Language */}
+          <Grid size={6}>
             <Autocomplete
               multiple
-              options={stakeholders}
-              getOptionLabel={(option) => option.name}
-              value={
-                stakeholders.filter((stakeholder) =>
-                  filters.stakeholders?.includes(stakeholder.id)
-                ) || []
-              }
-              onChange={(_e, newValue) =>
-                setFilters({
-                  ...filters,
-                  stakeholders: newValue.map((option) => option.id),
-                })
-              }
-              renderInput={(params) => <TextField {...params} label="Stakeholders" />}
-            />
-          </Grid>
-          {/* Start Year */}
-          <Grid size={6}>
-            <TextField
-              label="Start Date"
-              value={filters.start_year || ""}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  start_year: e.target.value,
-                })
-              }
-              fullWidth
-              // error={dateError !== ""}
-              // helperText={dateError}
-            />
-          </Grid>
-          {/* End Year */}
-          <Grid size={6}>
-            <TextField
-              label="End Date"
-              value={filters.end_year || ""}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  end_year: e.target.value,
-                })
-              }
-              fullWidth
-              // error={dateError !== ""}
-              // helperText={dateError}
-            />
-          </Grid>
-          {/* Language */}
-          <Grid size={12}>
-            <Autocomplete
+              disableCloseOnSelect
               options={languages}
               getOptionLabel={(option) => option.label}
-              value={languages.find((lang) => lang.code === filters.language) || null}
-              onChange={(_e, newValue) => setFilters({ ...filters, language: newValue.code })}
+              value={languages.filter((lang) => filters.languages?.includes(lang.label)) || null}
+              onChange={(_e, newValue) =>
+                setFilters({ ...filters, languages: newValue.map((option) => option.label) })
+              }
               renderOption={(props, option) => {
                 const { key, ...optionProps } = props;
                 return (
@@ -153,20 +108,108 @@ function AdvancedSearchForm({
               )}
             />
           </Grid>
+          {/* Start Year */}
+          <Grid size={6}>
+            <TextField
+              label="Start Date"
+              value={filters.start_year || ""}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  start_year: e.target.value,
+                })
+              }
+              slotProps={{
+                htmlInput: {
+                  pattern: "\\d{4}", // Regex for exactly 4 digits
+                  maxLength: 4,
+                  onInput: (e: React.ChangeEvent<HTMLInputElement>) => {
+                    const value = e.target.value.replace(".", "-");
+                    if (isNaN(Number(value))) {
+                      e.target.value = value.slice(0, -1);
+                    }
+                  },
+                },
+              }}
+              fullWidth
+              // error={dateError !== ""}
+              // helperText={dateError}
+            />
+          </Grid>
+          {/* End Year */}
+          <Grid size={6}>
+            <TextField
+              label="End Date"
+              value={filters.end_year || ""}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  end_year: e.target.value,
+                })
+              }
+              slotProps={{
+                htmlInput: {
+                  pattern: "\\d{4}", // Regex for exactly 4 digits
+                  maxLength: 4,
+                  onInput: (e: React.ChangeEvent<HTMLInputElement>) => {
+                    const value = e.target.value.replace(".", "-");
+                    if (isNaN(Number(value))) {
+                      e.target.value = value.slice(0, -1);
+                    }
+                  },
+                },
+              }}
+              fullWidth
+              // error={dateError !== ""}
+              // helperText={dateError}
+            />
+          </Grid>
+          {/* Stakeholders */}
+          <Grid size={12}>
+            <Autocomplete
+              multiple
+              disableCloseOnSelect
+              options={stakeholders}
+              getOptionLabel={(option) => option.name}
+              value={
+                stakeholders.filter((stakeholder) =>
+                  filters.stakeholders?.includes(stakeholder.id)
+                ) || []
+              }
+              onChange={(_e, newValue) =>
+                setFilters({
+                  ...filters,
+                  stakeholders: newValue.map((option) => option.id),
+                })
+              }
+              renderInput={(params) => <TextField {...params} label="Stakeholders" />}
+            />
+          </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          onClick={() => {
-            handleClose();
-            handleSubmit();
-          }}
-        >
-          Search
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </CardContent>
+      <CardActions sx={{ justifyContent: "space-between", paddingX: 2 }}>
+        <Grid>
+          <Button color="error" onClick={handleReset}>
+            Reset
+          </Button>
+        </Grid>
+        <Grid>
+          <Button color="inherit" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            sx={{ backgroundColor: "#003d8f", ml: 2 }}
+            variant="contained"
+            onClick={() => {
+              handleSubmit();
+              handleClose();
+            }}
+          >
+            Search
+          </Button>
+        </Grid>
+      </CardActions>
+    </Card>
   );
 }
 

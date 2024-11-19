@@ -254,7 +254,7 @@ class DocumentRoutes {
         .withMessage("End year must be a string in YYYY format."),
       body("scales")
         .optional()
-        .isArray()
+        .isArray({ min: 1 })
         .withMessage("Scales must be an array of strings.")
         .bail()
         .custom((array) =>
@@ -267,21 +267,21 @@ class DocumentRoutes {
         .withMessage("Scales must be one of the allowed values."),
       body("types")
         .optional()
-        .isArray()
+        .isArray({ min: 1 })
         .withMessage("Type must be an array of numbers.")
         .bail()
         .custom((array) => array.every((item: any) => Number.isInteger(item)))
         .withMessage("All elements in type must be integers."),
       body("languages")
         .optional()
-        .isArray()
+        .isArray({ min: 1 })
         .withMessage("Languages must be an array of strings.")
         .bail()
         .custom((array) => array.every((item: any) => ["English", "Swedish"].includes(item)))
         .withMessage("Language must be either 'English' or 'Swedish'."),
       body("stakeholders")
         .optional()
-        .isArray()
+        .isArray({ min: 1 })
         .withMessage("Stakeholders must be an array of numbers.")
         .bail()
         .custom((array) => array.every((item: any) => Number.isInteger(item)))

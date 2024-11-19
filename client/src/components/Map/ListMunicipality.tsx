@@ -41,17 +41,17 @@ interface SortField {
 }
 
 function ListMunicipality({ open, onClose, currentFilter, docs, handleCardShow }) {
+  // const navigate = useNavigate();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [sortField, setSortField] = useState<SortField>({ field: "title" });
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(1);
-  //this is for filtering options
+  //this is for pagination
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [totalRows, setTotalRows] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const navigate = useNavigate();
 
   const fetchDocuments = async (sortField, sortOrder, pageImmediate = null) => {
     const sort = sortField.field + ":" + sortOrder;
@@ -59,7 +59,7 @@ function ListMunicipality({ open, onClose, currentFilter, docs, handleCardShow }
     if (!currentFilter) {
       filter = { title: "" };
     }
-    let fetchPage = pageImmediate ? pageImmediate : page;
+    const fetchPage = pageImmediate ? pageImmediate : page;
     const response = await DocumentAPI.getFilteredDocuments(filter, undefined, undefined, sort);
     // fiter for location = null
     const filtered = docs.filter((doc) => doc.location.length === 0);
@@ -188,29 +188,28 @@ function ListMunicipality({ open, onClose, currentFilter, docs, handleCardShow }
                 </TableRow>
               </TableHead>
               <TableBody>
-                {documents &&
-                  documents.map((document) => (
-                    <TableRow key={document.id}>
-                      <TableCell>{document.title}</TableCell>
-                      <TableCell>{document.description}</TableCell>
-                      <TableCell>{document.type_name}</TableCell>
-                      <TableCell>{document.issue_date}</TableCell>
-                      <TableCell>{document.scale}</TableCell>
-                      <TableCell>{document.language}</TableCell>
-                      <TableCell>{document.pages}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => {
-                            handleCardShow(document.id);
-                          }}
-                        >
-                          View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {documents.map((document) => (
+                  <TableRow key={document.id}>
+                    <TableCell>{document.title}</TableCell>
+                    <TableCell>{document.description}</TableCell>
+                    <TableCell>{document.type_name}</TableCell>
+                    <TableCell>{document.issue_date}</TableCell>
+                    <TableCell>{document.scale}</TableCell>
+                    <TableCell>{document.language}</TableCell>
+                    <TableCell>{document.pages}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                          handleCardShow(document.id);
+                        }}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>

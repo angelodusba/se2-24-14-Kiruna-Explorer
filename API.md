@@ -422,6 +422,7 @@ Retrieves all the information of the documents matching the specified filters.
   - `types` (number[]) - List of document types ids.
   - `languages` (string[]) - Documents' languages, it can be either "English" or "Swedish".
   - `stakeholders` (number[]) - List of stakeholders ids related to the documents.
+  - `municipality` (boolean) - If true, it will return only documents related to the all municipality area.
   - Example:
 
 ```JSON
@@ -433,7 +434,8 @@ Retrieves all the information of the documents matching the specified filters.
   "scales": ["Concept"],
   "types": [1,2],
   "languages": ["English"],
-  "stakeholders": [3,5,7]
+  "stakeholders": [3,5,7],
+  "municipality": true
 }
 ```
 
@@ -536,7 +538,7 @@ Uploads an attachment for a specific document.
 - Request Body Content: An object with one field:
   - `original` - A boolean value to indicate if the attachment is original or not.
 - Additional Requirements:
-  - The user must have uploaded a file whose extension is one of the following: 
+  - The user must have uploaded a file whose extension is one of the following:
     `jpeg`, `png`, `gif`, `pdf`, `doc`, `docx`, `xls`, `xlsx`.
 - Response Body Content: An **Attachment** object that represents the uploaded attachment:
   - Example:

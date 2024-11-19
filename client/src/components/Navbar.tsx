@@ -11,7 +11,7 @@ import {
   Fab,
   Avatar,
   ListItemIcon,
-  Button,
+  Popover,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
@@ -20,10 +20,14 @@ import Grid from "@mui/material/Grid2";
 import UserContext from "../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
-import DocumentList from "./listDocument/DocumentList";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 import SearchBar from "./SearchBar";
 import { SearchFilter } from "../models/SearchFilter";
+import { useContext, useEffect, useState } from "react";
+import AdvancedSearchForm from "./Forms/AdvancedSearchForm";
+import { StakeHolder } from "../models/StakeHolders";
+import { Type } from "../models/Type";
+import DocumentAPI from "../API/DocumentAPI";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -94,28 +98,78 @@ const AccountMenu = styled((props: MenuProps) => (
 }));
 
 function Navbar({ onSearch, handleLogout }) {
-  const user = React.useContext(UserContext);
-  const { disabledInput } = React.useContext(DisabledInputContext);
   const navigate = useNavigate();
-  const [accountAnchorEl, setAccountAnchorEl] = React.useState<null | HTMLElement>(null);
+  const user = useContext(UserContext);
+  const { disabledInput } = useContext(DisabledInputContext);
+  /* User account panel */
+  const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(null);
   const accountOpen = Boolean(accountAnchorEl);
-  // const [openDocuments, setOpenDocuments] = React.useState(false);
+  /* Advanced search panel */
+  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const advancedSearchOpen = Boolean(advancedSearchAnchorEl); //
+  const advancedSearchId = advancedSearchOpen ? "advancedSearch" : undefined;
+  /*  */
+  const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
+  const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
+  const [filters, setFilters] = useState<SearchFilter>({
+    title: "",
+    types: [],
+    start_year: "",
+    end_year: "",
+    scales: [],
+    languages: [],
+    stakeholders: [],
+  });
+
+  const handleResetFilters = () => {
+    setFilters({
+      title: "",
+      types: [],
+      start_year: "",
+      end_year: "",
+      scales: [],
+      languages: [],
+      stakeholders: [],
+    });
+  };
 
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAccountAnchorEl(event.currentTarget);
   };
+
   const handleAccountMenuClose = () => {
     setAccountAnchorEl(null);
   };
 
-  // const handleCloseDocuments = () => {
-  //   setOpenDocuments(false);
-  // };
+  const handleSimpleSearch = (search: string) => {
+    const filter: SearchFilter = { title: search };
+    onSearch(filter);
+  };
 
-  const handleSearch = (search: string) => {
-    // Maybe props.fetchData(filter)
-    const filters: SearchFilter = { title: search };
-    onSearch(filters);
+  const handleAdvancedSearch = () => {
+    // Filter out empty or default values
+    const nonEmptyFilters = Object.fromEntries(
+      Object.entries(filters).filter(([, value]) => {
+        if (Array.isArray(value)) {
+          // Keep arrays only if they have at least one element
+          return value.length > 0;
+        } else {
+          // Keep strings only if they are not empty
+          return value !== "";
+        }
+      })
+    );
+    onSearch(nonEmptyFilters);
+  };
+
+  const handleAdvacedSearchPanelOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAdvancedSearchAnchorEl(event.currentTarget);
+  };
+
+  const handleAdvacedSearchPanelClose = () => {
+    setAdvancedSearchAnchorEl(null);
   };
 
   const renderAccountMenu = (
@@ -153,6 +207,25 @@ function Navbar({ onSearch, handleLogout }) {
       </MenuItem>
     </AccountMenu>
   );
+
+  useEffect(() => {
+    // Fetch document types
+    DocumentAPI.getTypes()
+      .then((types: Type[]) => {
+        setDocumentTypes(types);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    // Fetch stakeholders
+    DocumentAPI.getStakeholders()
+      .then((stakeholders: StakeHolder[]) => {
+        setStakeholders(stakeholders);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -200,10 +273,37 @@ function Navbar({ onSearch, handleLogout }) {
                   justifyContent: "center",
                   alignItems: "center",
                   display: "flex",
-                  flexDirection: "column",
                 }}
               >
-                <SearchBar onSearch={handleSearch} />
+                <SearchBar
+                  aria-describedby={advancedSearchId}
+                  onSearch={handleSimpleSearch}
+                  handleFilterPanelOpen={handleAdvacedSearchPanelOpen}
+                />
+                <Popover
+                  id={advancedSearchId}
+                  open={advancedSearchOpen}
+                  anchorEl={advancedSearchAnchorEl}
+                  onClose={handleAdvacedSearchPanelClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                >
+                  <AdvancedSearchForm
+                    handleClose={handleAdvacedSearchPanelClose}
+                    handleSubmit={handleAdvancedSearch}
+                    handleReset={handleResetFilters}
+                    filters={filters}
+                    setFilters={setFilters}
+                    stakeholders={stakeholders}
+                    documentTypes={documentTypes}
+                  />
+                </Popover>
               </Grid>
               <Grid
                 size="grow"

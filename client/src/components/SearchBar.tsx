@@ -4,16 +4,10 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-function SearchBar({ onSearch }) {
-  const navigate = useNavigate();
+function SearchBar({ onSearch, handleFilterPanelOpen }) {
   const [search, setSearch] = useState("");
-
-  const showFilters = () => {
-    navigate("/map/search");
-  };
 
   return (
     <Paper
@@ -23,12 +17,13 @@ function SearchBar({ onSearch }) {
         onSearch(search);
       }}
       sx={{
-        p: "0px 4px",
+        p: "1px 4px",
         display: "flex",
         flexGrow: 1,
         alignItems: "center",
         minWidth: 200,
-        maxHeight: "48px",
+        maxWidth: 600,
+        maxHeight: "50px",
         borderRadius: "50px",
       }}
     >
@@ -45,7 +40,16 @@ function SearchBar({ onSearch }) {
         <SearchIcon />
       </IconButton>
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-      <IconButton sx={{ p: "10px" }} aria-label="directions" onClick={showFilters}>
+      <IconButton
+        sx={{ p: "10px" }}
+        aria-label="directions"
+        onClick={(event) => {
+          handleFilterPanelOpen({
+            ...event,
+            currentTarget: event.currentTarget.closest("form") as HTMLElement,
+          });
+        }}
+      >
         <FilterAltIcon />
       </IconButton>
     </Paper>
