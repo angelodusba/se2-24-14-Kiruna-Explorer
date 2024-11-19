@@ -66,8 +66,7 @@ function Map({ docs, currentFilter }) {
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
-        }}
-      >
+        }}>
         <TileLayer
           keepBuffer={100}
           attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
@@ -117,12 +116,12 @@ function Map({ docs, currentFilter }) {
         </MarkerClusterGroup>
         <Outlet />
       </MapContainer>
-      <DocumentList
+      {/* <DocumentList
         open={openDocuments}
         onClose={handleCloseDocuments}
         currentFilter={currentFilter}
         handleCardShow={handleCardShow}
-      />
+      />*/}
     </>
   );
 }

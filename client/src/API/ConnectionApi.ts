@@ -1,6 +1,7 @@
 import { ConnectionList, HalfConnection } from "../models/Connection";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL =
+  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Links APIs ------------------------ */
 
@@ -23,8 +24,9 @@ async function sendConnections(connectionsList: ConnectionList) {
     return;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -48,8 +50,9 @@ async function getConnections() {
     return connections;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -72,8 +75,9 @@ async function getConnectionsByDocumentId(id) {
     return halfConnections;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -94,8 +98,9 @@ async function getTypeOfConnections() {
     });
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 

@@ -10,6 +10,7 @@ import ConnectionAPI from "../API/ConnectionApi";
 import { ConnectionList, HalfConnection } from "../models/Connection";
 import MapPicker from "../components/Map/MapPicker";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
+import { ErrorContext } from "../contexts/ErrorContext";
 
 const steps = [
   { label: "General info", optional: false },
@@ -21,6 +22,7 @@ const steps = [
 function AddDocumentPage({ fetchDocuments }) {
   const navigate = useNavigate();
   const { disabledInput } = useContext(DisabledInputContext);
+  const { setError } = useContext(ErrorContext);
 
   // AddDocumentForm data
   const [activeStep, setActiveStep] = useState<number>(0);
@@ -48,26 +50,32 @@ function AddDocumentPage({ fetchDocuments }) {
   >([]);
 
   const handleSubmit = async (document: Document) => {
-    console.log(document);
     if (activeStep === steps.length - 3) {
       //Insert DOC
-      if (!isNaN(Number(document.scale))) {
-        document.scale = `1:${document.scale}`;
+      try {
+        if (!isNaN(Number(document.scale))) {
+          document.scale = `1:${document.scale}`;
+        }
+        const id = await DocumentAPI.sendDocument(document);
+        setConnectionsList({
+          starting_document_id: id,
+          connections: [{ document_id: undefined, connection_types: [] }],
+        });
+      } catch (err) {
+        setError(err.message);
       }
-      console.log(document);
-      const id = await DocumentAPI.sendDocument(document);
-      setConnectionsList({
-        starting_document_id: id,
-        connections: [{ document_id: undefined, connection_types: [] }],
-      });
     }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     fetchDocuments();
   };
 
   const handleLinkSubmit = async () => {
-    await ConnectionAPI.sendConnections(connectionsList);
-    handleClose();
+    try {
+      await ConnectionAPI.sendConnections(connectionsList);
+      handleClose();
+    } catch (err) {
+      setError(err);
+    }
   };
 
   const handleClose = () => {
@@ -136,7 +144,7 @@ function AddDocumentPage({ fetchDocuments }) {
           setDocumentTypes(types);
         })
         .catch((error) => {
-          console.log(error);
+          setError(error.message);
         });
       // Fetch stakeholders
       DocumentAPI.getStakeholders()
@@ -144,7 +152,7 @@ function AddDocumentPage({ fetchDocuments }) {
           setStakeholders(stakeholders);
         })
         .catch((error) => {
-          console.log(error);
+          setError(error.message);
         });
     }
     if (activeStep === steps.length - 1) {
@@ -154,7 +162,7 @@ function AddDocumentPage({ fetchDocuments }) {
           setConnectionTypes(connTypes);
         })
         .catch((error) => {
-          console.log(error);
+          setError(error.message);
         });
       // Fetch documents names
       DocumentAPI.getAllDocumentsNames()
@@ -162,10 +170,10 @@ function AddDocumentPage({ fetchDocuments }) {
           setDocumentsList(docs);
         })
         .catch((error) => {
-          console.log(error);
+          setError(error.message);
         });
     }
-  }, [activeStep]);
+  }, [activeStep, setError]);
 
   return (
     <>

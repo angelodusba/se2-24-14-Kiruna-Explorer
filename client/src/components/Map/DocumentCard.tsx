@@ -35,13 +35,14 @@ import DocumentAPI from "../../API/DocumentAPI";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import UserContext from "../../contexts/UserContext";
 import L from "leaflet";
+import { ErrorContext } from "../../contexts/ErrorContext";
 
 const style = {
   position: "absolute",
   zIndex: 401,
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -50%)",
+  transform: { xs: "translate(-50%, -50%)", lg: "translate(-100%, -50%)" },
   width: "90%",
   maxWidth: "700px",
   maxHeight: "80%",
@@ -60,11 +61,12 @@ const style = {
   scrollbarWidth: "none",
 };
 
-function DocumentCard(props) {
+function DocumentCard() {
   const navigate = useNavigate();
   const docId = useParams();
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
+  const { setError } = useContext(ErrorContext);
   const cardRef = useRef(null);
 
   const [documentCard, setDocumentCard] = useState<DocumentCard | null>({
@@ -88,7 +90,7 @@ function DocumentCard(props) {
         setDocumentCard(card);
       })
       .catch((err) => {
-        console.log(err);
+        setError(err.message);
       });
   };
 

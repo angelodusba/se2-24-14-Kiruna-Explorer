@@ -6,7 +6,8 @@ import { SearchFilter } from "../models/SearchFilter";
 import { DocumentCard } from "../models/DocumentCard";
 import { Attachment } from "../models/Attachment";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL =
+  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 
@@ -34,10 +35,9 @@ async function sendDocument(document: Document): Promise<number> {
     return res.id;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-
-    throw new Error("Something went wrong");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -51,9 +51,9 @@ async function getDocumentsLocation() {
     return documents;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -70,8 +70,9 @@ async function getTypes(): Promise<Type[]> {
     return types;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -88,8 +89,9 @@ async function getStakeholders() {
     return stakeholders;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -103,9 +105,9 @@ async function getAllDocumentsNames() {
     return documents;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -119,9 +121,9 @@ async function getMunicipalityDocuments() {
     return documents;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -139,9 +141,9 @@ async function changeDocumentLocation(id: number, location: Point[]) {
   });
   if (!response.ok) {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Something went wrong");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -158,9 +160,9 @@ async function getDocumentCard(id: number) {
     return documentCard;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -200,7 +202,9 @@ async function getFilteredDocuments(
     sort: sort ? sort : undefined,
   };
   // Remove undefined values
-  Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+  Object.keys(params).forEach(
+    (key) => params[key] === undefined && delete params[key]
+  );
   const url = baseURL + "documents/filtered";
   const query = new URLSearchParams(params).toString();
   const response = await fetch(`${url}?${query}`, {
@@ -216,9 +220,9 @@ async function getFilteredDocuments(
     return documents;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -237,9 +241,9 @@ async function uploadFile(id, file) {
     return attachment;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -252,9 +256,9 @@ async function deleteFile(id) {
     return;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
-    throw new Error("Error. Please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 

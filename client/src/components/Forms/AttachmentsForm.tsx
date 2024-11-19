@@ -19,9 +19,10 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentAPI from "../../API/DocumentAPI";
+import { ErrorContext } from "../../contexts/ErrorContext";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -43,6 +44,7 @@ function AttachmentsForm({
   const [originalResources, setOriginalResources] = useState(originalRes);
   const navigate = useNavigate();
   const param = useParams();
+  const { setError } = useContext(ErrorContext);
 
   /* Fetch initial data
   useEffect(() => {
@@ -67,7 +69,7 @@ function AttachmentsForm({
         setOriginalResources((prevResources) => [...prevResources, attachment]);
       })
       .catch((err) => {
-        console.log(err);
+        setError(err.message);
       });
   };
 
@@ -79,7 +81,7 @@ function AttachmentsForm({
         );
       })
       .catch((err) => {
-        console.log(err);
+        setError(err.message);
       });
   };
 

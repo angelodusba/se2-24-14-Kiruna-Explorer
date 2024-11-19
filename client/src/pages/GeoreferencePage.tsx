@@ -6,6 +6,7 @@ import DocumentAPI from "../API/DocumentAPI";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 import MapPicker from "../components/Map/MapPicker";
+import { ErrorContext } from "../contexts/ErrorContext";
 
 interface OutletContext {
   location: { lat: number; lng: number }[];
@@ -15,9 +16,9 @@ interface OutletContext {
 function GeoreferencePage({ fetchDocuments }) {
   const params = useParams();
   const navigate = useNavigate();
-  const { location, fetchCardInfo } = useOutletContext<OutletContext>();
-
+  const { setError } = useContext(ErrorContext);
   const { disabledInput } = useContext(DisabledInputContext);
+  const { location, fetchCardInfo } = useOutletContext<OutletContext>();
 
   const [document, setDocument] = useState<Document>({
     title: "",
@@ -38,7 +39,9 @@ function GeoreferencePage({ fetchDocuments }) {
         fetchCardInfo(Number(params.id));
         fetchDocuments();
       })
-      .catch()
+      .catch((err) => {
+        setError(err.message);
+      })
       .finally(() => {
         navigate(-1);
       });

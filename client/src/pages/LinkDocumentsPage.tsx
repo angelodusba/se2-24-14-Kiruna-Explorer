@@ -3,11 +3,14 @@ import FormModal from "../components/Forms/FormModal";
 import LinkDocumentForm from "../components/Forms/LinkDocumentForm";
 import ConnectionAPI from "../API/ConnectionApi";
 import DocumentAPI from "../API/DocumentAPI";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ConnectionList, HalfConnection } from "../models/Connection";
+import { ErrorContext } from "../contexts/ErrorContext";
 
 function LinkDocumentsPage() {
   const navigate = useNavigate();
+  const { setError } = useContext(ErrorContext);
+
   const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
   const [documentsList, setDocumentsList] = useState<
     { id: number; title: string }[]
@@ -22,19 +25,25 @@ function LinkDocumentsPage() {
   };
 
   const handleLinkSubmit = async (connectionList) => {
-    await ConnectionAPI.sendConnections(connectionList);
-    handleClose();
+    try {
+      await ConnectionAPI.sendConnections(connectionList);
+      handleClose();
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const handleSelectDocument = (docId: number) => {
-    ConnectionAPI.getConnectionsByDocumentId(docId).then(
-      (halfConnections: HalfConnection[]) => {
+    ConnectionAPI.getConnectionsByDocumentId(docId)
+      .then((halfConnections: HalfConnection[]) => {
         setConnectionsList({
           starting_document_id: docId,
           connections: halfConnections,
         });
-      }
-    );
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
   };
 
   const handleDeleteConnection = (document_id: number) => {
@@ -89,15 +98,21 @@ function LinkDocumentsPage() {
 
   // Fetch initial data
   useEffect(() => {
-    ConnectionAPI.getTypeOfConnections().then((connTypes: string[]) => {
-      setConnectionTypes(connTypes);
-    });
-    DocumentAPI.getAllDocumentsNames().then(
-      (docs: { id: number; title: string }[]) => {
+    ConnectionAPI.getTypeOfConnections()
+      .then((connTypes: string[]) => {
+        setConnectionTypes(connTypes);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+    DocumentAPI.getAllDocumentsNames()
+      .then((docs: { id: number; title: string }[]) => {
         setDocumentsList(docs);
-      }
-    );
-  }, []);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+  }, [setError]);
 
   return (
     <>
