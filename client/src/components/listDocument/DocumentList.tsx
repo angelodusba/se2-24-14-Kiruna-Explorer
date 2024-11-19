@@ -20,6 +20,7 @@ import DocumentAPI from "../../API/DocumentAPI";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { MenuItem } from "@mui/material";
 import { SearchFilter } from "../../models/SearchFilter";
+import Pagination from "@mui/material/Pagination";
 
 interface Document {
   id: number;
@@ -34,12 +35,37 @@ interface Document {
 
 function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose: () => void; currentFilter: SearchFilter }) {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [totalRows, setTotalRows] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   //this is for filtering options
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [sortField, setSortField] = useState<"id" | "pages" >("id");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = useState(1);
 
+  const handleChangePage = async (event: React.ChangeEvent<unknown>, value: number) => {
+    if (totalRows >= (value-1) * rowsPerPage) {
+      setPage(value);
+      const documentsList = await DocumentAPI.getFilteredDocuments(currentFilter, value, rowsPerPage);
+      const formatted = documentsList.docs.map((doc) => {
+        return {
+          id: doc.id,
+            title: doc.title,
+            description: doc.description,
+            type: doc.type.name,
+            issue_date: doc.issue_date,
+            scale: doc.scale,
+            language: doc.language,
+            pages: doc.pages,
+        }});
+      setDocuments(formatted);
+    }
+    else{
+      return;
+    }
+  }
 
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -58,7 +84,9 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
           setDocuments(formatted);
           return;
         }
-        const documentsList = await DocumentAPI.getFilteredDocuments(currentFilter);
+        const documentsList = await DocumentAPI.getFilteredDocuments(currentFilter, page, rowsPerPage);
+        setTotalRows(documentsList.totalRows);
+        setTotalPages(documentsList.totalPages);
         const formatted = documentsList.docs.map((doc) => {
           return {
             id: doc.id,
@@ -79,6 +107,8 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
 
     fetchDocuments();
   }, [currentFilter]);
+
+
 
   //this is for sorting the table
   const handleSort = (field: "id" | "pages") => {
@@ -172,6 +202,11 @@ function DocumentList({ open, onClose, currentFilter }: { open: boolean; onClose
         )}
       </DialogContent>
       <DialogActions>
+        <Pagination
+          count={Math.ceil(totalRows / rowsPerPage)}
+          page={page}
+          onChange={handleChangePage}
+        />
         <Button onClick={onClose} color="error">
           Close
         </Button>

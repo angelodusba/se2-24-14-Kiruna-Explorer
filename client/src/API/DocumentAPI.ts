@@ -193,7 +193,9 @@ async function getFilteredDocuments(
     location: Point[];
     language: string;
     pages: number;
-  }[];
+  }[],
+  totalRows: number,
+  totalPages: number,
 }> {
   const params = {
     page: page ? page.toString() : undefined,

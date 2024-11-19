@@ -55,7 +55,6 @@ function App() {
       if (filter.title === "") {
         fetchDocuments();
         setCurrentFilter(undefined);
-        console.log("Filter is empty, fetching all documents");
         return;
       }
     }
