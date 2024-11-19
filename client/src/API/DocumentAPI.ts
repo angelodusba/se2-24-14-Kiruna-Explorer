@@ -6,7 +6,8 @@ import { SearchFilter } from "../models/SearchFilter";
 import { DocumentCard } from "../models/DocumentCard";
 import { Attachment } from "../models/Attachment";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL =
+  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 async function sendDocument(document: Document): Promise<number> {
@@ -137,8 +138,7 @@ async function changeDocumentLocation(id: number, location: Point[]) {
     }),
   });
   if (response.ok) {
-    const res = await response.json();
-    return res;
+    return;
   } else {
     const errDetail = await response.json();
     if (errDetail.error) throw errDetail.error;
@@ -201,7 +201,9 @@ async function getFilteredDocuments(
     sort: sort ? sort : undefined,
   };
   // Remove undefined values
-  Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+  Object.keys(params).forEach(
+    (key) => params[key] === undefined && delete params[key]
+  );
   const url = baseURL + "documents/filtered";
   const query = new URLSearchParams(params).toString();
   const response = await fetch(`${url}?${query}`, {

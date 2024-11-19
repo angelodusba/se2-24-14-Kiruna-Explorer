@@ -46,7 +46,7 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
     Now made with outlet context but can be made taking data by the server
   }, []);*/
 
-  const handleCloseOrSubmit = (event) => {
+  const handleClose = (event) => {
     event.preventDefault();
     fetchCardInfo(Number(param.id));
     navigate(-1);
@@ -82,7 +82,7 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
     <Grid
       container
       component={fetchCardInfo !== undefined ? "form" : "div"}
-      onSubmit={handleCloseOrSubmit}
+      onSubmit={handleClose}
       sx={{
         width: "100%",
         minHeight: "80%",
@@ -199,13 +199,10 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
           sx={{
             width: "100%",
             display: fetchCardInfo !== undefined ? "flex" : "none",
-            justifyContent: "space-between",
+            justifyContent: "end",
             py: 2,
           }}>
-          <Button onClick={handleCloseOrSubmit} color="error">
-            Close
-          </Button>
-          <Button type={"submit"}>Save</Button>
+          <Button type={"submit"}>Close</Button>
         </Grid>
       </Grid>
     </Grid>
