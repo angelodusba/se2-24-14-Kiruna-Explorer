@@ -35,7 +35,11 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
+function AttachmentsForm({
+  originalRes = [],
+  fetchCardInfo = undefined,
+  docId = undefined,
+}) {
   const [originalResources, setOriginalResources] = useState(originalRes);
   const navigate = useNavigate();
   const param = useParams();
@@ -53,11 +57,12 @@ function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined }) {
   };
 
   const handleFileUpload = (event) => {
+    const id = docId ? Number(docId) : Number(param.id);
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
     formData.append("original", "true");
-    DocumentAPI.uploadFile(Number(param.id), formData)
+    DocumentAPI.uploadFile(id, formData)
       .then((attachment) => {
         setOriginalResources((prevResources) => [...prevResources, attachment]);
       })
