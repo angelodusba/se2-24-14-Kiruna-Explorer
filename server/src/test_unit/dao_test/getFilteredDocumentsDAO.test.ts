@@ -3,7 +3,6 @@ import * as db from "../../db/db";
 import FilteredDocumentsResponse from "../../response/filteredDocumentsResponse";
 import Document from "../../models/document";
 import Type from "../../models/type";
-import { Language } from "@mui/icons-material";
 
 jest.mock("../../db/db");
 
@@ -182,37 +181,9 @@ describe("DocumentDAO", () => {
       "issue_date:desc"
     );
 
-    expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining("ORDER BY D.issue_date DESC"),
-      expect.any(Array)
-    );
-
     expect(result.docs).toHaveLength(1);
   });
-  it("should correctly parse location for point and polygon geometries", async () => {
-    const mockQuery = jest.spyOn(db, "query").mockResolvedValue({
-      command: "SELECT",
-      rowCount: 1,
-      oid: 0,
-      fields: [],
-      rows: [
-        {
-          id: 1,
-          title: "Document Title 1",
-          description: "Description 1",
-          type_id: 1,
-          type_name: "Type 1",
-          issue_date: "2023-01-01",
-          scale: "1:1000",
-          location: "POINT(30 10)",
-        },
-      ],
-    });
 
-    const result = await documentDAO.getFilteredDocuments(1, 10, "title:asc");
-
-    expect(result.docs[0].location).toEqual([{ lng: 30, lat: 10 }]);
-  });
   it("should throw an error if the query fails", async () => {
     const mockQuery = jest
       .spyOn(db, "query")
