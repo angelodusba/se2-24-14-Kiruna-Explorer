@@ -23,6 +23,7 @@ import { useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentAPI from "../../API/DocumentAPI";
 import { ErrorContext } from "../../contexts/ErrorContext";
+import React from "react";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -36,11 +37,7 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-function AttachmentsForm({
-  originalRes = [],
-  fetchCardInfo = undefined,
-  docId = undefined,
-}) {
+function AttachmentsForm({ originalRes = [], fetchCardInfo = undefined, docId = undefined }) {
   const [originalResources, setOriginalResources] = useState(originalRes);
   const navigate = useNavigate();
   const param = useParams();
@@ -97,17 +94,20 @@ function AttachmentsForm({
         px: 2,
       }}
       size={12}
-      spacing={2}>
+      spacing={2}
+    >
       <Grid
         sx={{
           display: "flex",
           flexDirection: "column",
         }}
-        size={12}>
+        size={12}
+      >
         <Typography
           variant="h6"
           fontWeight={"bold"}
-          style={{ textAlign: "center", marginBottom: 15 }}>
+          style={{ textAlign: "center", marginBottom: 15 }}
+        >
           Original Resources
         </Typography>
         <Grid
@@ -116,29 +116,28 @@ function AttachmentsForm({
             flexDirection: "column",
             flexGrow: 1,
           }}
-          size={12}>
+          size={12}
+        >
           <Paper sx={{ minHeight: "100%" }} variant="outlined">
             <Box
               display="flex"
               flexDirection={"column"}
-              justifyContent={
-                originalResources.length === 0 ? "center" : "start"
-              }
+              justifyContent={originalResources.length === 0 ? "center" : "start"}
               alignItems="center"
               height="100%"
               gap={2}
-              sx={{ py: 2 }}>
+              sx={{ py: 2 }}
+            >
               {originalResources.length === 0 ? (
                 <>
-                  <Typography variant="subtitle1">
-                    Add your first original resource
-                  </Typography>
+                  <Typography variant="subtitle1">Add your first original resource</Typography>
                   <Button
                     component="label"
                     variant="outlined"
                     color="success"
                     size="small"
-                    startIcon={<UploadFileOutlined />}>
+                    startIcon={<UploadFileOutlined />}
+                  >
                     <VisuallyHiddenInput
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                       type="file"
@@ -152,34 +151,31 @@ function AttachmentsForm({
                   <List dense={false} sx={{ width: "100%", pt: 0 }}>
                     {originalResources.map((attachment, index) => {
                       const icon = attachment.type.includes("pdf") ? (
-                        <PictureAsPdfOutlined
-                          sx={{ color: "black" }}></PictureAsPdfOutlined>
+                        <PictureAsPdfOutlined sx={{ color: "black" }}></PictureAsPdfOutlined>
                       ) : attachment.type.includes("doc") ? (
-                        <ArticleOutlined
-                          sx={{ color: "black" }}></ArticleOutlined>
+                        <ArticleOutlined sx={{ color: "black" }}></ArticleOutlined>
                       ) : (
                         <PhotoOutlined sx={{ color: "black" }}></PhotoOutlined>
                       );
                       return (
-                        <>
+                        <React.Fragment key={attachment.id || index}>
                           <ListItem
-                            key={index}
                             secondaryAction={
                               <IconButton
                                 edge="end"
                                 color="error"
                                 aria-label="delete"
-                                onClick={() => handleFileDelete(attachment.id)}>
+                                onClick={() => handleFileDelete(attachment.id)}
+                              >
                                 <DeleteIcon />
                               </IconButton>
-                            }>
+                            }
+                          >
                             <ListItemIcon>{icon}</ListItemIcon>
-                            <ListItemText
-                              primary={attachment.path.split("/").pop()}
-                            />
+                            <ListItemText primary={attachment.path.split("/").pop()} />
                           </ListItem>
                           <Divider />
-                        </>
+                        </React.Fragment>
                       );
                     })}
                   </List>
@@ -189,7 +185,8 @@ function AttachmentsForm({
                     variant="outlined"
                     color="success"
                     size="small"
-                    startIcon={<UploadFileOutlined />}>
+                    startIcon={<UploadFileOutlined />}
+                  >
                     <VisuallyHiddenInput
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                       type="file"
@@ -208,7 +205,8 @@ function AttachmentsForm({
             display: fetchCardInfo !== undefined ? "flex" : "none",
             justifyContent: "end",
             py: 2,
-          }}>
+          }}
+        >
           <Button type={"submit"}>Close</Button>
         </Grid>
       </Grid>

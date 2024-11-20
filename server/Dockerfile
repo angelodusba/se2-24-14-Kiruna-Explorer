@@ -30,6 +30,9 @@ WORKDIR /app
 COPY --from=build /app/dist ./
 COPY --from=build /app/package*.json ./
 
+# Create attachments folder
+# RUN mkdir -p public/docs
+
 # Install only production dependencies
 RUN npm install --production
 
