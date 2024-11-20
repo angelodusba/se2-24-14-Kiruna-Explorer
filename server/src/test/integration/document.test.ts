@@ -76,9 +76,9 @@ const retrieveInitialData = async () => {
     "description1",
     type1.id,
     "2022-01-01",
-    "scale1",
+    "Text",
     null as any,
-    "language1",
+    "English",
     "pages1",
     [stakeholder1.id]
   );
@@ -87,9 +87,9 @@ const retrieveInitialData = async () => {
     "description2",
     type2.id,
     "2022-01-02",
-    "scale2",
+    "Blueprints/material effects",
     null as any,
-    "language2",
+    "Swedish",
     "pages2",
     [stakeholder2.id]
   );
@@ -457,5 +457,157 @@ describe("PUT /kirunaexplorer/documents/location", () => {
         location: [{ lat: 5.0, lng: 8.0 }],
       })
       .expect(401);
+  });
+});
+
+describe("POST kirunaexplorer/documents/filtered", () => {
+  test("POST /kirunaexplorer/documents/filtered - success", async () => {
+    await db.query("DELETE FROM documents_stakeholders");
+    await db.query("DELETE FROM documents");
+    const test_obj = await retrieveInitialData();
+    const doc1 = await request(app)
+      .get(`${routePath}/documents/${test_obj.document1.id}`)
+      .set("Cookie", urbanPlannerCookie);
+    const doc2 = await request(app)
+      .get(`${routePath}/documents/${test_obj.document2.id}`)
+      .set("Cookie", urbanPlannerCookie);
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        title: "title",
+        municipality: true,
+        start_year: "2022",
+        end_year: "2022"
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(Number(res.body.totalRows)).toBe(2);
+        expect(Number(res.body.totalPages)).toBe(1);
+        expect(res.body.docs).toHaveLength(2);
+        expect(res.body.docs).toContainEqual(doc1.body);
+        expect(res.body.docs).toContainEqual(doc2.body);
+      });
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        description: "description2",
+        languages: ["Swedish"],
+        stakeholders: [test_obj.stakeholder2],
+        start_year: "2022",
+        end_year: "2022"
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(Number(res.body.totalRows)).toBe(1);
+        expect(Number(res.body.totalPages)).toBe(1);
+        expect(res.body.docs).toHaveLength(1);
+        expect(res.body.docs).toContainEqual(doc2.body);
+      });
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        types: [test_obj.type1],
+        scales: ["Text"],
+        stakeholders: [test_obj.stakeholder1],
+        start_year: "2022",
+        end_year: "2022"
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(Number(res.body.totalRows)).toBe(1);
+        expect(Number(res.body.totalPages)).toBe(1);
+        expect(res.body.docs).toHaveLength(1);
+        expect(res.body.docs).toContainEqual(doc1.body);
+      });
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid page", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=invalid&size=5&sort=title%3Aasc`)
+      .send({})
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - negative page", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=-1&size=5&sort=title%3Aasc`)
+      .send({})
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid size", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=invalid&sort=title%3Aasc`)
+      .send({})
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - too big size", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=22&sort=title%3Aasc`)
+      .send({})
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid sort", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=invalid`)
+      .send({})
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid year", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        start_year: "202",
+        end_year: "2022"          
+      })
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid scales", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        scales: ["invalid"]
+      })
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid types", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        types: ["invalid"]
+      })
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid languages", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        languages: ["invalid"]
+      })
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid stakeholders", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        stakeholders: ["invalid"]
+      })
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid municipality", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        municipality: "invalid"
+      })
+      .expect(422);
   });
 });
