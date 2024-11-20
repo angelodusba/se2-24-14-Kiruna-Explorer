@@ -10,7 +10,6 @@ import AccessAPI from "./API/AccessAPI";
 import DocumentAPI from "./API/DocumentAPI";
 import AddDocumentPage from "./pages/AddDocumentPage";
 import LinkDocumentsPage from "./pages/LinkDocumentsPage";
-import DocumentList from "./components/listDocument/DocumentsList";
 import { DisabledInputContext } from "./contexts/DisabledInputContext";
 import DocumentCard from "./components/Map/DocumentCard";
 import AttachmentsPage from "./pages/AttachmentsPage";
@@ -93,23 +92,33 @@ function App() {
 
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
+      <DisabledInputContext.Provider
+        value={{ disabledInput, setDisabledInput }}>
         <ErrorContext.Provider value={{ error, setError }}>
           <Routes>
-            <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+            <Route
+              path="/"
+              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+            />
             <Route
               path="/auth"
-              element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
+              element={
+                user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
+              }
             />
             <Route
               path="/"
               element={
                 <>
-                  {!disabledInput && <Navbar handleLogout={doLogout} onSearch={filterDocuments} />}
+                  {!disabledInput && (
+                    <Navbar
+                      handleLogout={doLogout}
+                      onSearch={filterDocuments}
+                    />
+                  )}
                   <Outlet />
                 </>
-              }
-            >
+              }>
               <Route path="/map" element={<Map docs={docsLocation} />}>
                 <Route
                   path="add"
@@ -180,20 +189,21 @@ function App() {
                 }
               />
             </Route>
-            <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+            <Route
+              path="*"
+              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+            />
           </Routes>
           <Snackbar
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             open={!!error}
             autoHideDuration={3500}
-            onClose={() => setError("")}
-          >
+            onClose={() => setError("")}>
             <Alert
               onClose={() => setError("")}
               severity="error"
               variant="filled"
-              sx={{ width: "100%" }}
-            >
+              sx={{ width: "100%" }}>
               {error}
             </Alert>
           </Snackbar>
