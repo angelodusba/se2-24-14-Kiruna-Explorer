@@ -52,8 +52,6 @@ function Dial() {
           onClick={() => {
             if (action.url) {
               navigate(action.url);
-            } else if (action.action) {
-              action.action();
             }
             handleClose();
           }}

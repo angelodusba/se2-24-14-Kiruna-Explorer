@@ -54,7 +54,7 @@ function AdvancedSearchForm({
               options={documentTypes}
               getOptionLabel={(option) => option.name}
               value={documentTypes.filter((type) => filters.types?.includes(type.id)) || []}
-              onChange={(e, newValue) =>
+              onChange={(_, newValue) =>
                 setFilters({
                   ...filters,
                   types: newValue.map((option) => option.id),
