@@ -61,6 +61,18 @@ const style = {
   scrollbarWidth: "none",
 };
 
+function CoordstoDMS(coordinate: number, isLat: boolean): string {
+  const absolute = Math.abs(coordinate);
+  const degrees = Math.floor(absolute);
+  const minutesNotTruncated = (absolute - degrees) * 60;
+  const minutes = Math.floor(minutesNotTruncated);
+  const seconds = Math.floor((minutesNotTruncated - minutes) * 60);
+
+  const direction = coordinate >= 0 ? (isLat ? "N" : "E") : isLat ? "S" : "W";
+
+  return `${degrees}°${minutes}'${seconds}" ${direction}`;
+}
+
 function DocumentCard() {
   const navigate = useNavigate();
   const docId = useParams();
@@ -343,7 +355,13 @@ function DocumentCard() {
                         secondary={
                           documentCard.location.length === 0
                             ? "Entire municipality"
-                            : `${documentCard.location[0].lat} N \n${documentCard.location[0].lng} E`
+                            : `${CoordstoDMS(
+                                documentCard.location[0].lat,
+                                true
+                              )}\n${CoordstoDMS(
+                                documentCard.location[0].lng,
+                                false
+                              )}`
                         }
                       />
                     </ListItem>
