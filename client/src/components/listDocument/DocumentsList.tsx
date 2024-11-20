@@ -38,7 +38,7 @@ function DocumentsList({
   handleChangePage,
 }) {
   return (
-    <Card sx={{ width: "100%" }}>
+    <Card sx={{ width: "100%", maxHeight: "92vh", display: "flex", flexDirection: "column" }}>
       <CardHeader title="Document List" />
       <div
         style={{
@@ -74,7 +74,7 @@ function DocumentsList({
           Sort by description ({sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
       </Menu>
-      <CardContent>
+      <CardContent sx={{ overflowY: "auto", display: "flex", flexGrow: 0 }}>
         {error ? (
           <Typography color="error" align="center">
             {error}
@@ -123,7 +123,7 @@ function DocumentsList({
           </TableContainer>
         )}
       </CardContent>
-      <CardActions>
+      <CardActions sx={{ marginBottom: 2 }}>
         <Typography variant="body2" color="textSecondary" style={{ marginRight: "auto" }}>
           Documents {documents.length + rowsPerPage * (page - 1)} / {totalRows}
         </Typography>

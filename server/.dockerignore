@@ -15,10 +15,10 @@ coverage
 *.test.ts
 *.spec.js
 *.spec.ts
-test
-test/*
-test_unit
-test_unit/*
+src/test
+src/test/*
+src/test_unit
+src/test_unit/*
 jest.config.js
 jest.setup.js
 

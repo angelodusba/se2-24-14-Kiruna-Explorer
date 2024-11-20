@@ -406,7 +406,7 @@ Retrieves all the information of the documents matching the specified filters.
   - `page` (number) - Page number to visualize.
   - `size` (number) - Number of elements in a page (1 <= size <= 20).
   - `sort` (string) - Sort results for one of the following fields in asc or desc order:
-    - `title`, `description`, `type`, `issue_date`, `scale`, `language`, `pages`.
+    - `title`, `description`, `type_name`, `issue_date`, `scale`, `language`, `pages`.
   - The format is: `attribute:asc` or `attribute:desc`.
   - Example: `http://localhost:3001/kirunaexplorer/documents/filtered?page=2&size=10&sort=title:desc`.
 - Request Body Content: An object that can contain one or more of the following filter parameters:
