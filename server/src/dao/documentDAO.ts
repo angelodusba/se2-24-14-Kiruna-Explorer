@@ -428,7 +428,7 @@ class DocumentDAO {
 
       // Sorting logic
       const [sortField, sortOrder] = sort.split(":");
-      sql += ` ORDER BY D.${sortField} ${sortOrder.toUpperCase()}`;
+      sql += ` ORDER BY ${sortField} ${sortOrder.toUpperCase()}`;
 
       // Pagination logic (LIMIT and OFFSET)
       if (page !== undefined && size !== undefined) {

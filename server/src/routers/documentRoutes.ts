@@ -235,7 +235,7 @@ class DocumentRoutes {
         .withMessage("Size must be an integer between 1 and 20."),
       query("sort")
         .optional()
-        .matches(/^(title|description|type|issue_date|scale|language|pages):(asc|desc)$/)
+        .matches(/^(title|description|type_name|issue_date|scale|language|pages):(asc|desc)$/)
         .withMessage(
           'Sort must be in the format "attribute:order", where order is "asc" or "desc".'
         ),
@@ -298,9 +298,9 @@ class DocumentRoutes {
             req.body.description,
             req.body.start_year,
             req.body.end_year,
-            req.body.scale,
+            req.body.scales,
             req.body.types,
-            req.body.language,
+            req.body.languages,
             req.body.stakeholders,
             req.body.municipality == "true" ? true : false
           )
