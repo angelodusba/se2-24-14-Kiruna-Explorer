@@ -388,11 +388,15 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
               }>
               <TextField
                 size="small"
-                type="number"
                 label={`Source ${index + 1}`}
                 variant="outlined"
                 value={source}
                 onChange={(event) => {
+                  event.preventDefault();
+                  const validChars = /^[0-9]*$/;
+                  if (!validChars.test(event.target.value)) {
+                    return;
+                  }
                   const newSourcesPages = [...sourcesPages];
                   newSourcesPages[index] = event.target.value;
                   setSourcesPages(newSourcesPages);

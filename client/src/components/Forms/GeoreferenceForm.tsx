@@ -107,7 +107,12 @@ function GeoreferenceForm({
             label="Lat"
             variant="outlined"
             value={document.coordinates[0] ? document.coordinates[0].lat : ""}
-            onChange={(event) =>
+            onChange={(event) => {
+              event.preventDefault();
+              const regex = /^-?\d*\.?\d*$/;
+              if (!regex.test(event.target.value)) {
+                return;
+              }
               setDocument((prevDocument) => ({
                 ...prevDocument,
                 coordinates: [
@@ -116,8 +121,8 @@ function GeoreferenceForm({
                     lat: event.target.value,
                   },
                 ],
-              }))
-            }
+              }));
+            }}
             required={georeferenceModality === 1}
             disabled={georeferenceModality !== 1}
             slotProps={{
@@ -141,7 +146,12 @@ function GeoreferenceForm({
             label="Lng"
             variant="outlined"
             value={document.coordinates[0] ? document.coordinates[0].lng : ""}
-            onChange={(event) =>
+            onChange={(event) => {
+              event.preventDefault();
+              const regex = /^-?\d*\.?\d*$/;
+              if (!regex.test(event.target.value)) {
+                return;
+              }
               setDocument((prevDocument) => ({
                 ...prevDocument,
                 coordinates: [
@@ -150,8 +160,8 @@ function GeoreferenceForm({
                     lng: event.target.value,
                   },
                 ],
-              }))
-            }
+              }));
+            }}
             required={georeferenceModality === 1}
             disabled={georeferenceModality !== 1}
             slotProps={{
