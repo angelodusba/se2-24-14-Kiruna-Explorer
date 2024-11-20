@@ -13,7 +13,7 @@ function DocumentDial() {
     {
       id: 1,
       icon: <Folder />,
-      name: "Show municipal area documents",
+      name: "Whole municipality documents",
       url: "/map/municipality",
     },
     {
@@ -41,8 +41,7 @@ function DocumentDial() {
       icon={<Description />}
       onClose={handleClose}
       onOpen={handleOpen}
-      open={open}
-    >
+      open={open}>
       {actions.map((action) => (
         <SpeedDialAction
           key={action.id}

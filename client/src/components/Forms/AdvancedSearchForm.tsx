@@ -35,6 +35,7 @@ function AdvancedSearchForm({
           {/* Title */}
           <Grid size={12}>
             <TextField
+              size="small"
               label="Title"
               value={filters.title || ""}
               onChange={(e) =>
@@ -49,11 +50,16 @@ function AdvancedSearchForm({
           {/* Type */}
           <Grid size={6}>
             <Autocomplete
+              size="small"
               multiple
               disableCloseOnSelect
               options={documentTypes}
               getOptionLabel={(option) => option.name}
-              value={documentTypes.filter((type) => filters.types?.includes(type.id)) || []}
+              value={
+                documentTypes.filter((type) =>
+                  filters.types?.includes(type.id)
+                ) || []
+              }
               onChange={(_, newValue) =>
                 setFilters({
                   ...filters,
@@ -66,13 +72,21 @@ function AdvancedSearchForm({
           {/* Language */}
           <Grid size={6}>
             <Autocomplete
+              size="small"
               multiple
               disableCloseOnSelect
               options={languages}
               getOptionLabel={(option) => option.label}
-              value={languages.filter((lang) => filters.languages?.includes(lang.label)) || null}
+              value={
+                languages.filter((lang) =>
+                  filters.languages?.includes(lang.label)
+                ) || null
+              }
               onChange={(_e, newValue) =>
-                setFilters({ ...filters, languages: newValue.map((option) => option.label) })
+                setFilters({
+                  ...filters,
+                  languages: newValue.map((option) => option.label),
+                })
               }
               renderOption={(props, option) => {
                 const { key, ...optionProps } = props;
@@ -81,8 +95,7 @@ function AdvancedSearchForm({
                     key={key}
                     component="li"
                     sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
-                    {...optionProps}
-                  >
+                    {...optionProps}>
                     <img
                       loading="lazy"
                       width="20"
@@ -96,6 +109,7 @@ function AdvancedSearchForm({
               }}
               renderInput={(params) => (
                 <TextField
+                  size="small"
                   {...params}
                   label="Language"
                   slotProps={{
@@ -111,7 +125,8 @@ function AdvancedSearchForm({
           {/* Start Year */}
           <Grid size={6}>
             <TextField
-              label="Start Date"
+              size="small"
+              label="Start Year"
               value={filters.start_year || ""}
               onChange={(e) =>
                 setFilters({
@@ -139,6 +154,7 @@ function AdvancedSearchForm({
           {/* End Year */}
           <Grid size={6}>
             <TextField
+              size="small"
               label="End Date"
               value={filters.end_year || ""}
               onChange={(e) =>
@@ -167,6 +183,7 @@ function AdvancedSearchForm({
           {/* Stakeholders */}
           <Grid size={12}>
             <Autocomplete
+              size="small"
               multiple
               disableCloseOnSelect
               options={stakeholders}
@@ -182,7 +199,9 @@ function AdvancedSearchForm({
                   stakeholders: newValue.map((option) => option.id),
                 })
               }
-              renderInput={(params) => <TextField {...params} label="Stakeholders" />}
+              renderInput={(params) => (
+                <TextField {...params} label="Stakeholders" />
+              )}
             />
           </Grid>
         </Grid>
@@ -203,8 +222,7 @@ function AdvancedSearchForm({
             onClick={() => {
               handleSubmit();
               handleClose();
-            }}
-          >
+            }}>
             Search
           </Button>
         </Grid>
