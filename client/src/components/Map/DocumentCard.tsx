@@ -170,9 +170,14 @@ function DocumentCard() {
                           sx: { fontWeight: "bold", color: "#003d8f" },
                           variant: "subtitle2",
                         }}
-                        secondary={documentCard.stakeholders}
+                        secondary={documentCard.stakeholders.join("\n")}
                         secondaryTypographyProps={{
                           variant: "caption",
+                          sx: {
+                            wordBreak: "break-word",
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "break-word",
+                          },
                         }}
                       />
                     </ListItem>
@@ -329,11 +334,16 @@ function DocumentCard() {
                         }
                         secondaryTypographyProps={{
                           variant: "caption",
+                          sx: {
+                            wordBreak: "break-word",
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "break-word",
+                          },
                         }}
                         secondary={
                           documentCard.location.length === 0
                             ? "Entire municipality"
-                            : `${documentCard.location[0].lat} N, ${documentCard.location[0].lng} E`
+                            : `${documentCard.location[0].lat} N \n${documentCard.location[0].lng} E`
                         }
                       />
                     </ListItem>
