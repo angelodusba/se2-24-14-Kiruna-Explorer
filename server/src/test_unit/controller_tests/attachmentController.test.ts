@@ -25,8 +25,7 @@ describe("AttachmentController", () => {
   describe("addAttachment", () => {
     it("should add a new attachment successfully", async () => {
       // Mock the addAttachment method to resolve to an object with an ID
-      mockAttachmentDAO.addAttachment.mockResolvedValue({ id: 1 });
-
+      mockAttachmentDAO.addAttachment.mockResolvedValue({ id: 1, document_id: 1, type: "type1", original: true, path: "/path/to/attachment" });
       const attachmentData = {
         document_id: 1,
         type: "type1",
@@ -41,7 +40,7 @@ describe("AttachmentController", () => {
             attachmentData.path
         );
 
-        expect(result).toStrictEqual({ id: 1 });
+        expect(result).toStrictEqual({ id: 1, document_id: 1, type: "type1", original: true, path: "/path/to/attachment" });
         expect(mockAttachmentDAO.addAttachment).toHaveBeenCalledWith(
             attachmentData.document_id,
             attachmentData.type,

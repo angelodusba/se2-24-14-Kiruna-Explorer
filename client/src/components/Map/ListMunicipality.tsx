@@ -103,7 +103,7 @@ function ListMunicipality({ open, onClose, currentFilter, docs, handleCardShow }
     setAnchorEl(null);
   };
 
-  const handleChangePage = async (event: React.ChangeEvent<unknown>, value: number) => {
+  const handleChangePage = async (_: React.ChangeEvent<unknown>, value: number) => {
     if (totalRows >= (value - 1) * rowsPerPage) {
       setPage(value);
       await fetchDocuments(sortField, sortOrder, value);
