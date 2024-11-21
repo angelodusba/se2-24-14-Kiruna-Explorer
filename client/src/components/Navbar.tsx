@@ -6,36 +6,39 @@ import {
   MenuItem,
   Menu,
   AppBar,
-  Stack,
   Divider,
   MenuProps,
   Fab,
   Avatar,
   ListItemIcon,
+  Popover,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
 import UserContext from "../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
+import { DisabledInputContext } from "../contexts/DisabledInputContext";
+import SearchBar from "./SearchBar";
+import { SearchFilter } from "../models/SearchFilter";
+import { useContext, useEffect, useState } from "react";
+import AdvancedSearchForm from "./Forms/AdvancedSearchForm";
+import { StakeHolder } from "../models/StakeHolders";
+import { Type } from "../models/Type";
+import DocumentAPI from "../API/DocumentAPI";
 
 function stringToColor(string: string) {
   let hash = 0;
-  let i;
-
-  for (i = 0; i < string.length; i += 1) {
+  for (let i = 0; i < string.length; i += 1) {
     hash = string.charCodeAt(i) + ((hash << 5) - hash);
   }
-
   let color = "#";
-
-  for (i = 0; i < 3; i += 1) {
+  for (let i = 0; i < 3; i += 1) {
     const value = (hash >> (i * 8)) & 0xff;
     color += `00${value.toString(16)}`.slice(-2);
   }
-
   return color;
 }
 
@@ -85,10 +88,7 @@ const AccountMenu = styled((props: MenuProps) => (
         marginRight: theme.spacing(1.5),
       },
       "&:active": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.selectedOpacity
-        ),
+        backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
       },
     },
     ...theme.applyStyles("dark", {
@@ -97,22 +97,82 @@ const AccountMenu = styled((props: MenuProps) => (
   },
 }));
 
-function Navbar(props) {
-  const user = React.useContext(UserContext);
+function Navbar({ onSearch, handleLogout }) {
   const navigate = useNavigate();
-
-  const [accountAnchorEl, setAccountAnchorEl] =
-    React.useState<null | HTMLElement>(null);
+  const user = useContext(UserContext);
+  const { disabledInput } = useContext(DisabledInputContext);
+  /* User account panel */
+  const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(null);
   const accountOpen = Boolean(accountAnchorEl);
+  /* Advanced search panel */
+  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const advancedSearchOpen = Boolean(advancedSearchAnchorEl); //
+  const advancedSearchId = advancedSearchOpen ? "advancedSearch" : undefined;
+  /*  */
+  const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
+  const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
+  const [filters, setFilters] = useState<SearchFilter>({
+    title: "",
+    types: [],
+    start_year: "",
+    end_year: "",
+    scales: [],
+    languages: [],
+    stakeholders: [],
+  });
+
+  const handleResetFilters = () => {
+    setFilters({
+      title: "",
+      types: [],
+      start_year: "",
+      end_year: "",
+      scales: [],
+      languages: [],
+      stakeholders: [],
+    });
+  };
 
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAccountAnchorEl(event.currentTarget);
   };
+
   const handleAccountMenuClose = () => {
     setAccountAnchorEl(null);
   };
 
-  const renderAccountMenu = user && (
+  const handleSimpleSearch = (search: string) => {
+    const filter: SearchFilter = { title: search };
+    onSearch(filter);
+  };
+
+  const handleAdvancedSearch = () => {
+    // Filter out empty or default values
+    const nonEmptyFilters = Object.fromEntries(
+      Object.entries(filters).filter(([, value]) => {
+        if (Array.isArray(value)) {
+          // Keep arrays only if they have at least one element
+          return value.length > 0;
+        } else {
+          // Keep strings only if they are not empty
+          return value !== "";
+        }
+      })
+    );
+    onSearch(nonEmptyFilters);
+  };
+
+  const handleAdvacedSearchPanelOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAdvancedSearchAnchorEl(event.currentTarget);
+  };
+
+  const handleAdvacedSearchPanelClose = () => {
+    setAdvancedSearchAnchorEl(null);
+  };
+
+  const renderAccountMenu = (
     <AccountMenu
       id="accountMenu"
       MenuListProps={{
@@ -120,24 +180,26 @@ function Navbar(props) {
       }}
       anchorEl={accountAnchorEl}
       open={accountOpen}
-      onClose={handleAccountMenuClose}>
+      onClose={handleAccountMenuClose}
+    >
       <Typography variant="h5" fontWeight="bold" align="center">
-        Hi {user.username}
+        Hi {user?.username}
       </Typography>
       <MenuItem disableRipple>
         <ListItemIcon sx={{ color: "#003d8f" }}>
           <MailOutline fontSize="small" color="inherit" />
         </ListItemIcon>
-        {user.email}
+        {user?.email}
       </MenuItem>
       <Divider sx={{ my: 0.5 }} />
       <MenuItem
         onClick={() => {
           handleAccountMenuClose();
-          props.logout();
+          handleLogout();
         }}
         disableRipple
-        sx={{ color: "error.main" }}>
+        sx={{ color: "error.main" }}
+      >
         <ListItemIcon>
           <Logout fontSize="small" color="error" />
         </ListItemIcon>
@@ -145,6 +207,25 @@ function Navbar(props) {
       </MenuItem>
     </AccountMenu>
   );
+
+  useEffect(() => {
+    // Fetch document types
+    DocumentAPI.getTypes()
+      .then((types: Type[]) => {
+        setDocumentTypes(types);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    // Fetch stakeholders
+    DocumentAPI.getStakeholders()
+      .then((stakeholders: StakeHolder[]) => {
+        setStakeholders(stakeholders);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -154,45 +235,88 @@ function Navbar(props) {
         sx={{
           boxShadow: "none",
           border: "none",
-          zIndex: 1000000,
+          zIndex: 1000,
           color: "white",
-        }}>
+        }}
+      >
         <Toolbar sx={{ flexGrow: 1 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Grid container>
               <Grid
                 size="grow"
                 sx={{
-                  justifyContent: "start",
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
                   marginTop: "8px",
-                }}>
-                <img
-                  src={KirunaLogo}
-                  width="40px"
-                  height="48px"
-                  alt="Kiruna Explorer"
-                  style={{ marginRight: "8px" }}
-                />
-                <Typography
-                  variant="h5"
-                  component="div"
-                  sx={{ display: { sm: "block", xs: "none" } }}>
-                  Kiruna Explorer
-                </Typography>
+                }}
+              >
+                <Link
+                  to={"/"}
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                    justifyContent: "start",
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={KirunaLogo}
+                    width="40px"
+                    height="48px"
+                    alt="Kiruna Explorer"
+                    style={{ marginRight: "8px" }}
+                  />
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{
+                      display: { sm: "block", xs: "none" },
+                      fontWeight: 500,
+                      letterSpacing: "0.5px", // Slight spacing
+                      textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
+                    }}
+                  >
+                    Kiruna Explorer
+                  </Typography>
+                </Link>
               </Grid>
               <Grid
                 size={6}
                 sx={{
                   justifyContent: "center",
-                  display: { xs: "none", sm: "flex" },
-                }}>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ margin: "auto" }}></Stack>
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <SearchBar
+                  aria-describedby={advancedSearchId}
+                  onSearch={handleSimpleSearch}
+                  handleFilterPanelOpen={handleAdvacedSearchPanelOpen}
+                />
+                <Popover
+                  id={advancedSearchId}
+                  open={advancedSearchOpen}
+                  anchorEl={advancedSearchAnchorEl}
+                  onClose={handleAdvacedSearchPanelClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                >
+                  <AdvancedSearchForm
+                    handleClose={handleAdvacedSearchPanelClose}
+                    handleSubmit={handleAdvancedSearch}
+                    handleReset={handleResetFilters}
+                    filters={filters}
+                    setFilters={setFilters}
+                    stakeholders={stakeholders}
+                    documentTypes={documentTypes}
+                  />
+                </Popover>
               </Grid>
               <Grid
                 size="grow"
@@ -200,28 +324,29 @@ function Navbar(props) {
                   justifyContent: "end",
                   alignItems: "center",
                   display: { xs: "flex", sm: "flex" },
-                }}>
+                }}
+              >
                 {!user ? (
                   <Fab
+                    disabled={disabledInput}
                     variant="extended"
                     size="medium"
                     className="customButton"
-                    onClick={() => navigate("/auth")}>
+                    onClick={() => navigate("/auth")}
+                  >
                     <AccountCircleOutlined sx={{ mr: 1 }} />
                     Login
                   </Fab>
                 ) : (
                   <Fab
+                    disabled={disabledInput}
                     size="medium"
                     id="accountMenu"
                     aria-controls={accountOpen ? "accountMenu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={accountOpen ? "true" : undefined}
-                    onClick={
-                      accountOpen
-                        ? handleAccountMenuClose
-                        : handleAccountMenuOpen
-                    }>
+                    onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
+                  >
                     <Avatar {...stringAvatar(user.username)} />
                   </Fab>
                 )}

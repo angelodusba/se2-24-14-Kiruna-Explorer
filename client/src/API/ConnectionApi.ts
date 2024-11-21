@@ -1,6 +1,7 @@
-import { ConnectionList, halfConnection } from "../models/Connection";
+import { ConnectionList, HalfConnection } from "../models/Connection";
 
-const baseURL = "http://localhost:3001/kirunaexplorer/";
+const baseURL =
+  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Links APIs ------------------------ */
 
@@ -23,8 +24,9 @@ async function sendConnections(connectionsList: ConnectionList) {
     return;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -48,8 +50,9 @@ async function getConnections() {
     return connections;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -62,7 +65,7 @@ async function getConnectionsByDocumentId(id) {
     },
   });
   if (response.ok) {
-    const halfConnections: halfConnection[] = await response.json();
+    const halfConnections: HalfConnection[] = await response.json();
     halfConnections.forEach((conn) => {
       conn.connection_types = conn.connection_types.map((type) => {
         const parts = type.split("_");
@@ -72,8 +75,9 @@ async function getConnectionsByDocumentId(id) {
     return halfConnections;
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -94,8 +98,9 @@ async function getTypeOfConnections() {
     });
   } else {
     const errDetail = await response.json();
-    if (errDetail.error) throw errDetail.error;
-    if (errDetail.message) throw errDetail.message;
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 

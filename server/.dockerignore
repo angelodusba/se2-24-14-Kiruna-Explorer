@@ -1,0 +1,43 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build artifacts
+dist
+build
+
+# Test files and directories
+coverage
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+src/test
+src/test/*
+src/test_unit
+src/test_unit/*
+jest.config.js
+jest.setup.js
+
+# IDE/editor files
+.vscode
+.idea
+*.swp
+*.swo
+*.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
+.directory
+
+# Miscellaneous
+.env
+.env.*
+
+# Ignore all files in the public/docs folder except the ".gitkeep"
+public/docs/*
+!public/docs/.gitkeep

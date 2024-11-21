@@ -1,5 +1,5 @@
-import UserDAO from "../../dao/userDAO";
-import * as db from "../../db/db";
+import UserDAO from "../dao/userDAO";
+import * as db from "../db/db";
 
 describe("Test DB", () => {
   let userDAO: UserDAO;

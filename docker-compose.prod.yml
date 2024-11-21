@@ -1,0 +1,54 @@
+services:
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3001/kirunaexplorer/
+    container_name: kiruna-explorer-app
+    environment:
+      # Explicitly pass the API_URL environment variable from .env.prod to build args
+      API_URL: http://localhost:3001/kirunaexplorer/
+    restart: "always"
+    ports:
+      - "8080:3000"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: kiruna-explorer-server
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_SERVICE: ${POSTGRES_SERVICE}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      CORS_ORIGIN: http://localhost:8080
+      SECRET: ${SECRET}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    volumes:
+      - ./prova:/app/public/docs
+
+  db:
+    build:
+      context: ./server/src/db/
+      dockerfile: Dockerfile.dev
+    restart: always
+    container_name: kiruna-explorer-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - kiruna_explorer_data:/var/lib/postgresql/data # Persistent storage for db data
+
+volumes:
+  kiruna_explorer_data: # Persistent named volume for db data

@@ -1,4 +1,5 @@
 import {
+  Button,
   FormControl,
   FormControlLabel,
   Radio,
@@ -6,27 +7,33 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import PlaceIcon from "@mui/icons-material/Place";
+import { useContext, useState } from "react";
 import Grid from "@mui/material/Grid2";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
-function GeoreferenceForm(props) {
-  const [georeferenceModality, setGeoreferenceModality] = useState(0);
-  const [scaleModality, setScaleModality] = useState(0);
+function GeoreferenceForm({
+  setDocument,
+  document,
+  handleSubmit = undefined,
+  handleClose = undefined,
+}) {
+  const [georeferenceModality, setGeoreferenceModality] = useState(
+    document.coordinates.length === 0 ? 0 : 1
+  );
 
-  const scaleLabels = {
-    0: "Blueprints/material effects",
-    1: "Text",
-    2: "Concept",
-  };
+  const { setDisabledInput } = useContext(DisabledInputContext);
 
   return (
     <Grid
       container
+      component={handleSubmit === undefined ? "div" : "form"}
       sx={{
         width: "100%",
         display: "flex",
         py: 2,
       }}
+      onSubmit={handleSubmit}
       size={6}
       spacing={2}>
       <Grid
@@ -36,11 +43,17 @@ function GeoreferenceForm(props) {
           alignItems: "center",
         }}
         size={12}>
-        <Typography variant="h6">Georeference Modality</Typography>
+        <Typography variant="h6" fontWeight={"bold"}>
+          Georeference Modality
+        </Typography>
       </Grid>
       <Grid
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={{ xs: 12, md: 6 }}>
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+        size={{ xs: 12, md: georeferenceModality === 1 ? 6 : 12 }}>
         <FormControl>
           <RadioGroup
             aria-labelledby="georeferenceModality"
@@ -49,12 +62,12 @@ function GeoreferenceForm(props) {
             onChange={(event) => {
               setGeoreferenceModality(Number(event.target.value));
               if (Number(event.target.value) === 0) {
-                props.setDocument((prevDocument) => ({
+                setDocument((prevDocument) => ({
                   ...prevDocument,
                   coordinates: [],
                 }));
               } else if (Number(event.target.value) === 1) {
-                props.setDocument((prevDocument) => ({
+                setDocument((prevDocument) => ({
                   ...prevDocument,
                   coordinates: [{ lat: "", lng: "" }],
                 }));
@@ -73,149 +86,117 @@ function GeoreferenceForm(props) {
           </RadioGroup>
         </FormControl>
       </Grid>
-      <Grid
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-        size={{ xs: 6, md: 3 }}>
-        <TextField
-          fullWidth
-          label="Lat"
-          variant="outlined"
-          value={
-            props.document.coordinates[0]
-              ? props.document.coordinates[0].lat
-              : ""
-          }
-          onChange={(event) =>
-            props.setDocument((prevDocument) => ({
-              ...prevDocument,
-              coordinates: [
-                {
-                  ...prevDocument.coordinates[0],
-                  lat: event.target.value,
-                },
-              ],
-            }))
-          }
-          required={georeferenceModality === 1}
-          disabled={georeferenceModality !== 1}
-          slotProps={{
-            htmlInput: {
-              step: "any",
-              pattern: "[0-9]*[.,]?[0-9]*",
-            },
-          }}
-        />
-      </Grid>
-      <Grid
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-        size={{ xs: 6, md: 3 }}>
-        <TextField
-          fullWidth
-          label="Lng"
-          variant="outlined"
-          value={
-            props.document.coordinates[0]
-              ? props.document.coordinates[0].lng
-              : ""
-          }
-          onChange={(event) =>
-            props.setDocument((prevDocument) => ({
-              ...prevDocument,
-              coordinates: [
-                {
-                  ...prevDocument.coordinates[0],
-                  lng: event.target.value,
-                },
-              ],
-            }))
-          }
-          required={georeferenceModality === 1}
-          disabled={georeferenceModality !== 1}
-          slotProps={{
-            htmlInput: {
-              step: "any",
-              pattern: "[0-9]*[.,]?[0-9]*",
-            },
-          }}
-        />
-      </Grid>
 
       <Grid
+        container
         sx={{
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
         }}
-        size={12}>
-        <Typography variant="h6">Scale</Typography>
-      </Grid>
-      <Grid
-        sx={{ display: "flex", flexDirection: "column" }}
-        size={{ xs: 12, md: 6 }}>
-        <FormControl>
-          <RadioGroup
-            aria-labelledby="scaleModality"
-            name="scaleModality"
-            value={scaleModality}
+        size={6}>
+        <Grid
+          sx={{
+            display: georeferenceModality === 1 ? "flex" : "none",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+          size={{ xs: 12, md: 6 }}>
+          <TextField
+            size="small"
+            fullWidth
+            label="Lat"
+            variant="outlined"
+            value={document.coordinates[0] ? document.coordinates[0].lat : ""}
             onChange={(event) => {
-              setScaleModality(Number(event.target.value));
-              if (Number(event.target.value) !== 3) {
-                props.setDocument((prevDocument) => ({
-                  ...prevDocument,
-                  scale: scaleLabels[Number(event.target.value)],
-                }));
-              } else {
-                props.setDocument((prevDocument) => ({
-                  ...prevDocument,
-                  scale: "",
-                }));
+              event.preventDefault();
+              const regex = /^-?\d*\.?\d*$/;
+              if (!regex.test(event.target.value)) {
+                return;
               }
-            }}>
-            <FormControlLabel
-              value={0}
-              control={<Radio />}
-              label="Blueprints/material effects"
-            />
-            <FormControlLabel value={1} control={<Radio />} label="Text" />
-            <FormControlLabel value={2} control={<Radio />} label="Concept" />
-            <FormControlLabel
-              value={3}
-              control={<Radio />}
-              label="Architectural scale"
-            />
-          </RadioGroup>
-        </FormControl>
+              setDocument((prevDocument) => ({
+                ...prevDocument,
+                coordinates: [
+                  {
+                    ...prevDocument.coordinates[0],
+                    lat: event.target.value,
+                  },
+                ],
+              }));
+            }}
+            required={georeferenceModality === 1}
+            disabled={georeferenceModality !== 1}
+            slotProps={{
+              htmlInput: {
+                step: "any",
+                pattern: "[0-9]*[.,]?[0-9]*",
+              },
+            }}
+          />
+        </Grid>
+        <Grid
+          sx={{
+            display: georeferenceModality === 1 ? "flex" : "none",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+          size={{ xs: 12, md: 6 }}>
+          <TextField
+            size="small"
+            fullWidth
+            label="Lng"
+            variant="outlined"
+            value={document.coordinates[0] ? document.coordinates[0].lng : ""}
+            onChange={(event) => {
+              event.preventDefault();
+              const regex = /^-?\d*\.?\d*$/;
+              if (!regex.test(event.target.value)) {
+                return;
+              }
+              setDocument((prevDocument) => ({
+                ...prevDocument,
+                coordinates: [
+                  {
+                    ...prevDocument.coordinates[0],
+                    lng: event.target.value,
+                  },
+                ],
+              }));
+            }}
+            required={georeferenceModality === 1}
+            disabled={georeferenceModality !== 1}
+            slotProps={{
+              htmlInput: {
+                step: "any",
+                pattern: "[0-9]*[.,]?[0-9]*",
+              },
+            }}
+          />
+        </Grid>
+        <Grid
+          sx={{
+            display: georeferenceModality === 1 ? "flex" : "none",
+            justifyContent: "center",
+          }}
+          size={12}>
+          <Button
+            onClick={() => setDisabledInput(true)}
+            variant="outlined"
+            size="small"
+            startIcon={<PlaceIcon />}>
+            Pick on the map
+          </Button>
+        </Grid>
       </Grid>
       <Grid
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-        size={{ xs: 12, md: 6 }}>
-        <TextField
-          fullWidth
-          label="Architectural scale"
-          variant="outlined"
-          value={scaleModality !== 3 ? "" : props.document.scale}
-          onChange={(event) =>
-            props.setDocument((prevDocument) => ({
-              ...prevDocument,
-              scale: event.target.value,
-            }))
-          }
-          placeholder="1:1000"
-          required={scaleModality === 3}
-          disabled={scaleModality !== 3}
-        />
+          width: "100%",
+          display: handleSubmit ? "flex" : "none",
+          justifyContent: "space-between",
+        }}>
+        <Button color="error" onClick={handleClose}>
+          Close
+        </Button>
+        <Button type={"submit"}>Save</Button>
       </Grid>
     </Grid>
   );

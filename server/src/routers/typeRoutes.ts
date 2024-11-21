@@ -33,7 +33,7 @@ class TypeRoutes {
      * It requires the user to be logged in and to be an urban planner.
      * It returns an array of types.
      */
-    this.router.get("/", this.authService.isUrbanPlanner, (req: any, res: any, next: any) =>
+    this.router.get("/", (req: any, res: any, next: any) =>
       this.controller
         .getTypes()
         .then((types) => res.status(200).json(types))

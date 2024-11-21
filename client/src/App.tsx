@@ -4,27 +4,39 @@ import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import LoginPage from "./components/Login/LoginPage";
 import { useEffect, useState } from "react";
-import User from "./models/User";
+import User, { Role } from "./models/User";
 import UserContext from "./contexts/UserContext";
 import AccessAPI from "./API/AccessAPI";
-import Dial from "./components/Dial";
-import FormModal from "./components/Forms/FormModal";
-import AddDocumentForm from "./components/Forms/AddDocumentForm";
 import DocumentAPI from "./API/DocumentAPI";
-import LinkDocumentForm from "./components/Forms/LinkDocumentForm";
+import AddDocumentPage from "./pages/AddDocumentPage";
+import LinkDocumentsPage from "./pages/LinkDocumentsPage";
+import { DisabledInputContext } from "./contexts/DisabledInputContext";
 import DocumentCard from "./components/Map/DocumentCard";
+import AttachmentsPage from "./pages/AttachmentsPage";
+import GeoreferencePage from "./pages/GeoreferencePage";
+import ListMunicipality from "./components/Map/ListMunicipality";
+import { SearchFilter } from "./models/SearchFilter";
+import { ErrorContext } from "./contexts/ErrorContext";
+import { Snackbar, Alert } from "@mui/material";
+import DocumentsListPage from "./pages/DocumentsListPage";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
-  const [selectedOperation, setSelectedOperation] = useState(undefined); //Manages the forms modal
+  const [disabledInput, setDisabledInput] = useState(false);
+  const [error, setError] = useState("");
   const [docsLocation, setDocsLocation] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState<SearchFilter>(undefined);
 
   const navigate = useNavigate();
 
   const doLogin = async (email: string, password: string) => {
-    const user = await AccessAPI.login(email, password);
-    setUser(user);
-    navigate("/map");
+    try {
+      const user = await AccessAPI.login(email, password);
+      setUser(user);
+      navigate("/map");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const doLogout = async () => {
@@ -33,68 +45,170 @@ function App() {
     navigate("/");
   };
 
-  useEffect(() => {
-    if (selectedOperation !== undefined) {
-      return;
-    }
-    const checkAuth = async () => {
-      try {
-        const u = await AccessAPI.getUserInfo();
-        setUser(u);
-      } catch {
-        setUser(undefined);
-      }
-    };
+  const fetchDocuments = () => {
     DocumentAPI.getDocumentsLocation()
       .then((response) => {
         setDocsLocation(response);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        setError(err.message);
+      });
+  };
+
+  const filterDocuments = async (filter: SearchFilter) => {
+    try {
+      const result = await DocumentAPI.getFilteredDocuments(filter);
+      setCurrentFilter({ ...filter });
+      // Format as the documents returned by getDocumentsLocation
+      const filteredDocs = result.docs.map((doc) => {
+        return {
+          id: doc.id,
+          type: doc.type,
+          location: doc.location,
+        };
+      });
+      setDocsLocation(filteredDocs);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleCardShow = (id) => {
+    navigate(`/map/${id}`);
+  };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await AccessAPI.getUserInfo();
+        setUser(user);
+      } catch {
+        setUser(undefined);
+      }
+    };
+    fetchDocuments();
     checkAuth();
-  }, [selectedOperation]);
+  }, []);
+
   return (
     <UserContext.Provider value={user}>
-      <Routes>
-        <Route
-          path="/"
-          element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-        />
-        <Route
-          path="/auth"
-          element={<LoginPage login={doLogin}></LoginPage>}></Route>
-        <Route
-          path="/"
-          element={
-            <>
-              <Navbar logout={doLogout}></Navbar>
-              <Outlet />
-              {user && user.role == "Urban Planner" && (
-                <Dial setOperation={setSelectedOperation}></Dial>
-              )}
-              <FormModal
-                operation={selectedOperation}
-                setOperation={setSelectedOperation}>
-                {selectedOperation === 1 ? (
-                  <AddDocumentForm></AddDocumentForm>
-                ) : (
-                  selectedOperation === 2 && (
-                    <LinkDocumentForm></LinkDocumentForm>
-                  )
-                )}
-              </FormModal>
-              <DocumentCard></DocumentCard>
-            </>
-          }>
-          <Route
-            path="/map"
-            element={
-              <>
-                <Map docs={docsLocation}></Map>
-              </>
-            }
-          />
-        </Route>
-      </Routes>
+      <DisabledInputContext.Provider
+        value={{ disabledInput, setDisabledInput }}>
+        <ErrorContext.Provider value={{ error, setError }}>
+          <Routes>
+            <Route
+              path="/"
+              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+            />
+            <Route
+              path="/auth"
+              element={
+                user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <>
+                  {!disabledInput && (
+                    <Navbar
+                      handleLogout={doLogout}
+                      onSearch={filterDocuments}
+                    />
+                  )}
+                  <Outlet />
+                </>
+              }>
+              <Route path="/map" element={<Map docs={docsLocation} />}>
+                <Route
+                  path="add"
+                  element={
+                    user && user.role === Role.UrbanPlanner ? (
+                      <AddDocumentPage fetchDocuments={fetchDocuments} />
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+                <Route
+                  path="link"
+                  element={
+                    user && user.role === Role.UrbanPlanner ? (
+                      <LinkDocumentsPage />
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+                <Route path=":id" element={<DocumentCard />}>
+                  <Route
+                    path="resources"
+                    element={
+                      user && user.role === Role.UrbanPlanner ? (
+                        <AttachmentsPage />
+                      ) : (
+                        <Navigate to="/auth" />
+                      )
+                    }
+                  />
+                  <Route
+                    path="georeference"
+                    element={
+                      user && user.role === Role.UrbanPlanner ? (
+                        <GeoreferencePage fetchDocuments={fetchDocuments} />
+                      ) : (
+                        <Navigate to="/auth" />
+                      )
+                    }
+                  />
+                </Route>
+                <Route
+                  path="municipality"
+                  element={
+                    user ? (
+                      <ListMunicipality
+                        open={true}
+                        onClose={() => navigate("/map")}
+                        currentFilter={currentFilter}
+                        docs={docsLocation}
+                        handleCardShow={handleCardShow}
+                      />
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+              </Route>
+              <Route
+                path="/list"
+                element={
+                  <DocumentsListPage
+                    currentFilter={currentFilter}
+                    handleCardShow={handleCardShow}
+                  />
+                }
+              />
+            </Route>
+            <Route
+              path="*"
+              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+            />
+          </Routes>
+          <Snackbar
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            open={!!error}
+            autoHideDuration={3500}
+            onClose={() => setError("")}>
+            <Alert
+              onClose={() => setError("")}
+              severity="error"
+              variant="filled"
+              sx={{ width: "100%" }}>
+              {error}
+            </Alert>
+          </Snackbar>
+        </ErrorContext.Provider>
+      </DisabledInputContext.Provider>
     </UserContext.Provider>
   );
 }

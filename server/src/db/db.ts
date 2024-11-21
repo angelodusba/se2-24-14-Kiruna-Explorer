@@ -1,13 +1,11 @@
 import pg, { QueryResult } from "pg";
 
-const container = process.env.CONTAINER ? true : false;
-
 const { Pool } = pg;
 
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
-  host: container ? process.env.POSTGRES_SERVICE : "localhost",
+  host: process.env.POSTGRES_SERVICE || "localhost",
   port: Number(process.env.POSTGRES_PORT),
   database: process.env.POSTGRES_DB,
 });
@@ -20,7 +18,10 @@ const init = async () => {
     client.release();
   } catch (err: any) {
     console.error("Error connecting to PostGIS database", err.stack);
-    throw new Error(err);
+    if (process.env.POSTGRES_SERVICE) {
+      // In production retry the connection
+      setTimeout(init, 3000); // Retry after 3 seconds
+    } else throw new Error(err);
   }
 };
 

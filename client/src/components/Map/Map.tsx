@@ -1,37 +1,50 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Popup, Marker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
-import KirunaLogo from "../../assets/KirunaLogo.svg";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import { useState } from "react";
+import { useContext } from "react";
+import Dial from "../Dial";
+import DocumentDial from "../DocumentDial";
+import UserContext from "../../contexts/UserContext";
+import { Role } from "../../models/User";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
+import { Outlet } from "react-router-dom";
+import DocumentMarker from "./DocumentMarker";
 
-const customIcon = new L.Icon({
-  iconUrl: KirunaLogo,
-  iconSize: [26.4, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-});
+const bounds = L.latLngBounds(
+  [67.5458, 19.8253], // Southwest coordinates
+  [68.1658, 20.6253] // Northeast coordinates
+);
 
-const handleDocumentShow = (id) => {
-  //FetchDocByID and set docCard to that
-  return;
-};
-
-function Map(props) {
-  const [docCard, setDocCard] = useState(undefined);
+function Map({ docs }) {
+  const user = useContext(UserContext);
+  const { disabledInput } = useContext(DisabledInputContext);
 
   return (
     <>
+      {!disabledInput && user && user.role === Role.UrbanPlanner && (
+        <>
+          <Dial /> {/* Add documents and links button */}
+          <DocumentDial /> {/* Municipality documents button */}
+        </>
+      )}
       <MapContainer
-        className="map"
         center={[67.85572, 20.22513]}
         minZoom={12}
         zoom={13}
-        attributionControl={false}
+        bounds={bounds}
+        maxBounds={bounds}
+        maxBoundsViscosity={1.0}
+        touchZoom
+        doubleClickZoom
+        attributionControl={true}
         zoomControl={false}
         scrollWheelZoom={false} // Needed to enable smooth zoom
-        style={{ height: "100vh" }}>
+        style={{
+          height: "100vh",
+          cursor: disabledInput ? "crosshair" : "auto",
+        }}>
         <TileLayer
           keepBuffer={100}
           attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
@@ -42,40 +55,34 @@ function Map(props) {
           url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
         />
         <MarkerClusterGroup>
-          {props.docs.map((doc) => {
-            if (!doc) return null;
-            if (doc.location.length === 1) {
-              return (
-                <Marker
-                  key={doc.id}
-                  eventHandlers={{
-                    click: () => {
-                      handleDocumentShow(doc.id);
-                    },
-                  }}
-                  icon={customIcon}
-                  position={L.latLng(doc.location[0])}></Marker>
-              );
-            }
-            if (doc.location.length === 0) {
-              return (
-                <Marker
-                  eventHandlers={{
-                    click: () => {
-                      handleDocumentShow(doc.id);
-                    },
-                  }}
-                  key={doc.id}
-                  icon={customIcon}
-                  position={[67.85572, 20.22513]}></Marker>
-              );
-              return null;
-            }
-          })}
+          {!disabledInput &&
+            docs.map((doc) => {
+              if (!doc) return null;
+              // Single point documents
+              if (doc.location.length === 1) {
+                return (
+                  <DocumentMarker
+                    key={doc.id}
+                    id={doc.id}
+                    position={L.latLng(doc.location[0])}
+                  />
+                );
+              }
+              // Municipality documents
+              if (doc.location.length === 0) {
+                return (
+                  <DocumentMarker
+                    key={doc.id}
+                    id={doc.id}
+                    position={[67.85572, 20.22513]}
+                  />
+                );
+              }
+            })}
         </MarkerClusterGroup>
+        <Outlet />
       </MapContainer>
     </>
   );
 }
-
 export default Map;

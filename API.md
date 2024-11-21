@@ -99,7 +99,6 @@ Adds a new document to the database.
   - `language`: a string that can be empty
   - `pages`: a string that can be empty
   - `stakeholders`: an array of integers that must not be empty, representing the ids of the stakeholders of the document
-  - `connections`: an array of objects that can be empty, representing the connections to other documents
   - Example:
 
 ```JSON
@@ -115,17 +114,7 @@ Adds a new document to the database.
     ],
     "language": "",
     "pages": {},
-    "stakeholders": [1, 2],
-    "connections": [
-        {
-            "connected_document_id": 1,
-            "connection_name": "direct_conn"
-        },
-        {
-            "connected_document_id": 2,
-            "connection_name": "prevision_conn"
-        }
-    ]
+    "stakeholders": [1, 2]
 }
 ```
 
@@ -144,7 +133,89 @@ Adds a new document to the database.
   - It should return a `404` error if the type of the document does not exist in the database
   - It should return a `404` error if at least one of the stakeholder does not exist in the database
   - It should return a `404` error if the scale does not exist in the database
-  - It should return a `404` error if at least one of the connected documents does not exist in the database
+
+#### PUT `kirunaexplorer/documents/location`
+
+Updates the location of a document in the database.
+
+- Request Parameters: None
+- Request Body Content: An object that represents the document to be updated. The object must have the following attributes:
+  - `id`: an integer that must not be empty, representing the id of the document to be updated
+  - `location`: an array of objects that can be empty, representing the coordinates (logitude, latitude) of the document, can be a single point or a polygon (if empty, it represents the entire municipality area)
+  - Example:
+
+```JSON
+{
+    "id": 1,
+    "location": [
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		}
+    ]
+}
+```
+
+- Response Body Content: None
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `404` error if the document does not exist in the database
+
+#### GET `kirunaexplorer/documents/location`
+
+Retrieves all the locations of the documents in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **DocumentLocationResponse** objects, each containing a document's ID, type, and location coordinates (if available):
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "type":  {
+            "id": 1,
+            "name": "Design"
+        },
+        "location": [
+            {
+                "lng": 19.5,
+                "lat": 48.5
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "type":  {
+            "id": 1,
+            "name": "Design"
+        },
+        "location": [
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            }
+        ]
+    }
+]
+```
 
 #### GET `kirunaexplorer/documents/names`
 
@@ -168,14 +239,122 @@ Retrieves all the names and ids of the documents in the database.
 ]
 ```
 
+#### GET `kirunaexplorer/documents/municipality`
+
+Retrieves all the documents that belong to the municipality area.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **Document** objects, each representing a document:
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "title": "Document 1",
+        "description": "Description 1",
+        "type": {
+            "id": 1,
+            "name": "Design"
+        },
+        "issue_date": "22/07/1980",
+        "scale": "blueprints/effects",
+        "location": [],
+        "language": "en",
+        "pages": "10"
+    },
+    {
+        "id": 3,
+        "title": "Document 3",
+        "description": "Description 3",
+        "type": {
+            "id": 1,
+            "name": "Design"
+        },
+        "issue_date": "2022",
+        "scale": "blueprints/effects",
+        "location": [],
+        "language": "it",
+        "pages": "45"
+    }
+]
+```
+
+#### GET `kirunaexplorer/documents/card/:id`
+
+Retrieves all the information of the requested document to be displayed in a card.
+
+- Request Parameters:
+  - `id`: an integer greater than 0
+- Request Body Content: None
+- Response Body Content: A **DocumentCardResponse** object representing a document:
+  - Example:
+
+```JSON
+{
+	"id": 5,
+	"title": "Paris",
+	"description": "Capital of France",
+	"type": {
+		"id": 1,
+		"name": "Design"
+	},
+	"issue_date": "22/07/1980",
+	"scale": "1:8000",
+	"location": [
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		},
+		{
+			"lng": 12.5,
+			"lat": 46.5
+		},
+		{
+			"lng": 12.5,
+			"lat": 42.5
+		},
+		{
+			"lng": 7.5,
+			"lat": 42.5
+		},
+		{
+			"lng": 7.5,
+			"lat": 46.5
+		}
+	],
+	"language": "french",
+	"pages": "60",
+    "conn_count": 3,
+    "stakeholders": ["LKAB", "Municipality"],
+    "attachments": [
+        {
+            "id": 1,
+            "document_id": 5,
+            "type": "image/png",
+            "original": true,
+            "path": "doc5/att_photo.png"
+        },
+        {
+            "id": 2,
+            "document_id": 5,
+            "type": "application/pdf",
+            "original": false,
+            "path": "doc5/att_plan.pdf"
+        }
+    ]
+}
+```
+
 #### GET `kirunaexplorer/documents/:id`
 
 Retrieves all the information of the requested document.
 
 - Request Parameters:
-  - id: an integer greater than 0
+  - `id`: an integer greater than 0
 - Request Body Content: None
-- Response Body Content: A Document object representing a document:
+- Response Body Content: A **Document** object representing a document:
   - Example:
 
 ```JSON
@@ -217,6 +396,84 @@ Retrieves all the information of the requested document.
 ```
 
 - TODO: Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+
+#### POST `kirunaexplorer/documents/filtered`
+
+Retrieves all the information of the documents matching the specified filters.
+
+- Request Parameters: None
+- Query parameters:
+  - `page` (number) - Page number to visualize.
+  - `size` (number) - Number of elements in a page (1 <= size <= 20).
+  - `sort` (string) - Sort results for one of the following fields in asc or desc order:
+    - `title`, `description`, `type_name`, `issue_date`, `scale`, `language`, `pages`.
+  - The format is: `attribute:asc` or `attribute:desc`.
+  - Example: `http://localhost:3001/kirunaexplorer/documents/filtered?page=2&size=10&sort=title:desc`.
+- Request Body Content: An object that can contain one or more of the following filter parameters:
+  - `title` (string) - Documents' title.
+  - `description` (string) - Documents' description.
+  - `start_year` (string) - Documents' issue year must be after this value.
+  - `end_year` (string) - Documents' issue year must be before or within this value.
+  - `scales` (string[]) - Documents' scales, it accepts the following values:
+    - "Blueprints/material effects"
+    - "Text"
+    - "Concept"
+    - "1:NUMBER" (architectural scale)
+  - `types` (number[]) - List of document types ids.
+  - `languages` (string[]) - Documents' languages, it can be either "English" or "Swedish".
+  - `stakeholders` (number[]) - List of stakeholders ids related to the documents.
+  - `municipality` (boolean) - If true, it will return only documents related to the all municipality area.
+  - Example:
+
+```JSON
+{
+  "title": "doc1",
+  "description": "descr",
+  "start_year": "2020",
+  "end_year": "2022",
+  "scales": ["Concept"],
+  "types": [1,2],
+  "languages": ["English"],
+  "stakeholders": [3,5,7],
+  "municipality": true
+}
+```
+
+- Response Body Content: An object with three fields:
+  - `docs` (Document[]) - An array of filtered documents.
+  - `totalRows` (number) - Total number of rows found in the db for the selected filtering criteria.
+  - `totalPages` (number) - Maximum number of pages the client can request for the selected filtering criteria.
+  - Example:
+
+```JSON
+{
+  "docs": [
+    {
+      "id": 1,
+      "title": "Doc title",
+      "description": "Doc description",
+      "type": {
+        "id": 5,
+        "name": "Prescriptive"
+      },
+      "issue_date": "1980",
+      "scale": "Text",
+      "location": [
+        {"lat": 20.94, "lng": 33.21}
+      ],
+      "language": "English",
+      "pages": "32"
+    },
+    {
+      ...
+    }
+  ],
+  "totalRows": 24,
+  "totalPages": 3
+}
+```
+
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
 ### Stakeholder APIs
 
@@ -270,26 +527,59 @@ Retrieves all the node types in the database.
 
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 
-### Scale APIs
+### Attachment APIs
 
-#### GET `kirunaexplorer/scales`
+#### POST `kirunaexplorer/attachments/:document_id`
 
-Retrieves all the scales in the database.
+Uploads an attachment for a specific document.
 
-- Request Parameters: None
+- Request Parameters:
+  - `document_id`: an integer greater than 0
+- Request Body Content: An object with one field:
+  - `original` - A boolean value to indicate if the attachment is original or not.
+- Additional Requirements:
+  - The user must have uploaded a file whose extension is one of the following:
+    `jpeg`, `png`, `gif`, `pdf`, `doc`, `docx`, `xls`, `xlsx`.
+- Response Body Content: An **Attachment** object that represents the uploaded attachment:
+  - Example:
+
+```JSON
+{
+    "id": 1,
+    "document_id": 2,
+    "type": "image/jpeg",
+    "original": true,
+    "path": "doc2/file1.jpg"
+}
+```
+
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+
+#### GET `kirunaexplorer/attachments/:document_id`
+
+Retrieves all the attachments for a specific document.
+
+- Request Parameters:
+  - `document_id`: an integer greater than 0
 - Request Body Content: None
-- Response Body Content: An array of **Scale** objects, each representing a node type:
+- Response Body Content: An array of **Attachment** objects, each representing an attachment belonging to the document:
   - Example:
 
 ```JSON
 [
     {
         "id": 1,
-        "name": "Scale 1"
+        "document_id": 2,
+        "type": "image/jpeg",
+        "original": true,
+        "path": "doc2/file1.jpg"
     },
     {
         "id": 2,
-        "name": "Scale 2"
+        "document_id": 2,
+        "type": "application/pdf",
+        "original": false,
+        "path": "doc2/file2.pdf"
     }
 ]
 ```

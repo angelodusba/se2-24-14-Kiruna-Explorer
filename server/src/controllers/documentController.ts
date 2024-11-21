@@ -1,6 +1,8 @@
 import DocumentDAO from "../dao/documentDAO";
 import Document from "../models/document";
+import DocumentCardResponse from "../response/documentCardResponse";
 import DocumentLocationResponse from "../response/documentLocationResponse";
+import FilteredDocumentsResponse from "../response/filteredDocumentsResponse";
 
 /**
  * Represents a controller for managing documents.
@@ -54,6 +56,14 @@ class DocumentController {
   }
 
   /**
+   * Fetches all the saved documents.
+   * @returns A Promise that resolves to an array of Document objects.
+   */
+  async getAllDocuments(): Promise<Document[]> {
+    return this.dao.getAllDocuments();
+  }
+
+  /**
    * Retrieves all documents ids and titles.
    * @returns A Promise that resolves to an array of documents.
    * @throws Error if the documents cannot be retrieved.
@@ -78,6 +88,65 @@ class DocumentController {
    */
   async getDocumentsLocation(): Promise<DocumentLocationResponse[]> {
     return this.dao.getDocumentsLocation();
+  }
+
+  /**
+   * Retrieve all the documents that belong to the municipality area.
+   * @returns A Promise that resolves to an array of Document objects.
+   */
+  async getMunicipalityDocuments(): Promise<Document[]> {
+    return this.dao.getMunicipalityDocuments();
+  }
+
+  /**
+   * Updates the location of a document.
+   * @param id - The unique identifier of the document to update.
+   * @param location - An array of objects representing the new coordinates of the document,
+   *                   can be a single point or a polygon. If empty, it represents the entire municipality area.
+   * @returns A promise that resolves to true if the document's location has been successfully updated.
+   * @throws DocumentNotFoundError if the document does not exist.
+   */
+  async updateDocumentLocation(
+    id: number,
+    location: { lat: number; lng: number }[]
+  ): Promise<boolean> {
+    // Convert object array into a comma separated string of coordinates
+    const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
+    return this.dao.updateDocumentLocation(id, locationStr);
+  }
+
+  async getDocumentCard(id: number): Promise<DocumentCardResponse> {
+    return this.dao.getDocumentCard(id);
+  }
+
+  async getFilteredDocuments(
+    page?: number,
+    size?: number,
+    sort?: string,
+    title?: string,
+    description?: string,
+    start_year?: string,
+    end_year?: string,
+    scales?: string[],
+    types?: number[],
+    languages?: string[],
+    stakeholders?: number[],
+    municipality?: boolean
+  ): Promise<FilteredDocumentsResponse> {
+    return this.dao.getFilteredDocuments(
+      page,
+      size,
+      sort,
+      title,
+      description,
+      start_year,
+      end_year,
+      scales,
+      types,
+      languages,
+      stakeholders,
+      municipality
+    );
   }
 }
 

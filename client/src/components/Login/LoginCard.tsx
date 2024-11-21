@@ -44,9 +44,7 @@ function LoginCard(props) {
       return;
     }
 
-    props.login(email, password).catch(() => {
-      // TODO Set the error on the form or visualize general error in app (maybe preferred to centralize errors visualization)
-    });
+    props.login(email, password);
   };
 
   const validateInputs = () => {
