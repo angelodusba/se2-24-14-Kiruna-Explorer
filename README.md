@@ -1,6 +1,16 @@
-# se2-24-14-Kiruna-Explorer
+# Kiruna Explorer
 
-Repository for the main project of the Software Engineering 2 (2024) course at Politecnico di Torino
+Repository for the main project of the Software Engineering 2 (2024) course at Politecnico di Torino.
+
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=flat&logo=react&logoColor=white)](https://reactjs.org/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-v1.9.4-199900?style=flat&logo=leaflet&logoColor=white)](https://leafletjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6.2-blue?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+![Node.js v20 LTS](https://img.shields.io/badge/Node.js-v20%20LTS-brightgreen?style=flat&logo=node.js&logoColor=white)
+[![Express](https://img.shields.io/badge/Express-4.19.2-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
+[![PostGIS](https://img.shields.io/badge/PostGIS-17--3.5-008000?style=flat&logo=postgresql&logoColor=white)](https://postgis.net/)
+
+[![Static Badge](https://img.shields.io/badge/View_on_DockerHub-white?style=for-the-badge&logo=docker&logoSize=auto)]([https://hub.docker.com/](https://hub.docker.com/repository/docker/fpalazz/se2-24-14-kiruna-explorer/general))
+
 
 ## Getting started
 
@@ -10,7 +20,6 @@ In order to get the system up and running you need to:
 
 ```
 SECRET=kirunaProdSecret
-
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=admin
 POSTGRES_DB=kiruna-db
@@ -39,6 +48,11 @@ If you want to both stop the services and erase all data, append the `-v` flag:
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env.prod down -v
 ```
+### Default users
+There are two default users:
+
+- John, a `Urban Planner` (email: `john@kiruna.com`, password: `12345`)
+- Kevin, a `Resident` (email: `kevin@kiruna.com`, password: `12345`)
 
 ## Development environment setup
 
@@ -48,7 +62,6 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod down -v
 
 ```
 SECRET=kirunasecret
-
 POSTGRES_USER=kiruna
 POSTGRES_PASSWORD=explorer
 POSTGRES_DB=kiruna-db
@@ -71,7 +84,6 @@ PGADMIN_PASSWORD=kiruna
 
 ```
 SECRET=kirunasecret
-
 POSTGRES_USER=kiruna
 POSTGRES_PASSWORD=explorer
 POSTGRES_DB=kiruna-db
