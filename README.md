@@ -11,6 +11,13 @@ Repository for the main project of the Software Engineering 2 (2024) course at P
 
 [![Static Badge](https://img.shields.io/badge/View_on_DockerHub-white?style=for-the-badge&logo=docker&logoSize=auto)]([https://hub.docker.com/](https://hub.docker.com/repository/docker/fpalazz/se2-24-14-kiruna-explorer/general))
 
+<img src="Screenshots/screen_map.png" alt="screen_map" style="zoom: 50%;" />
+
+<img src="Screenshots/screen_links.png" alt="screen_links" style="zoom:50%;" />
+
+<img src="Screenshots/screen_card.png" alt="screen_card" style="zoom:50%;" />
+
+<img src="Screenshots/screen_doc_list.png" alt="screen_doc_list" style="zoom:50%;" />
 
 ## Getting started
 
