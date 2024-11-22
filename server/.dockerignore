@@ -17,8 +17,6 @@ coverage
 *.spec.ts
 src/test
 src/test/*
-src/test_unit
-src/test_unit/*
 jest.config.js
 jest.setup.js
 
@@ -38,6 +36,5 @@ Thumbs.db
 .env
 .env.*
 
-# Ignore all files in the public/docs folder except the ".gitkeep"
+# Ignore all files in the public/docs folder
 public/docs/*
-!public/docs/.gitkeep
