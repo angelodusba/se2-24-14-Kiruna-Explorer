@@ -1,8 +1,8 @@
-import DocumentDAO from "../../dao/documentDAO";
-import * as db from "../../db/db";
-import { DocumentNotFoundError } from "../../errors/documentErrors";
+import DocumentDAO from "../../../dao/documentDAO";
+import * as db from "../../../db/db";
+import { DocumentNotFoundError } from "../../../errors/documentErrors";
 
-jest.mock("../../db/db");
+jest.mock("../../../db/db");
 
 describe("DocumentDAO", () => {
   let documentDAO: DocumentDAO;

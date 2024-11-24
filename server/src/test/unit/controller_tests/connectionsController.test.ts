@@ -1,11 +1,11 @@
-import ConnectionController from "../../controllers/connectionController";
+import ConnectionController from "../../../controllers/connectionController";
 import {
   InvalidConnectionTypeError,
   ConnectionAlreadyExistsError,
-} from "../../errors/connectionErrors";
-import { DocumentNotFoundError } from "../../errors/documentErrors";
+} from "../../../errors/connectionErrors";
+import { DocumentNotFoundError } from "../../../errors/documentErrors";
 
-jest.mock("../../dao/connectionDAO", () => {
+jest.mock("../../../dao/connectionDAO", () => {
   return jest.fn().mockImplementation(() => {
     return {
       createConnection: jest.fn().mockImplementation((id: any) => {

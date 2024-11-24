@@ -1,12 +1,12 @@
 import { describe, test, expect, beforeAll, afterAll } from "@jest/globals";
 import request from "supertest";
-import { app } from "../../../index";
-import * as db from "../../db/db";
-import DocumentDAO from "../../dao/documentDAO";
-import StakeholderDAO from "../../dao/stakeholderDAO";
-import TypeDAO from "../../dao/typeDAO";
-import Type from "../../models/type";
-import Stakeholder from "../../models/stakeholder";
+import { app } from "../../../../index";
+import * as db from "../../../db/db";
+import DocumentDAO from "../../../dao/documentDAO";
+import StakeholderDAO from "../../../dao/stakeholderDAO";
+import TypeDAO from "../../../dao/typeDAO";
+import Type from "../../../models/type";
+import Stakeholder from "../../../models/stakeholder";
 import dotenv from "dotenv";
 
 const routePath = "/kirunaexplorer";

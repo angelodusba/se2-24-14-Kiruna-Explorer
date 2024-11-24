@@ -1,8 +1,8 @@
-import DocumentController from "../../controllers/documentController";
-import DocumentDAO from "../../dao/documentDAO";
-import { DocumentNotFoundError } from "../../errors/documentErrors";
+import DocumentController from "../../../controllers/documentController";
+import DocumentDAO from "../../../dao/documentDAO";
+import { DocumentNotFoundError } from "../../../errors/documentErrors";
 
-jest.mock("../../dao/documentDAO");
+jest.mock("../../../dao/documentDAO");
 
 describe("DocumentController", () => {
   let documentController: DocumentController;

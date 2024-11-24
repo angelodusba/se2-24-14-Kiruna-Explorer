@@ -1,10 +1,9 @@
-import DocumentDAO from "../../dao/documentDAO";
-import * as db from "../../db/db";
-import FilteredDocumentsResponse from "../../response/filteredDocumentsResponse";
-import Document from "../../models/document";
-import Type from "../../models/type";
+import DocumentDAO from "../../../dao/documentDAO";
+import * as db from "../../../db/db";
+import FilteredDocumentsResponse from "../../../response/filteredDocumentsResponse";
+import Document from "../../../models/document";
 
-jest.mock("../../db/db");
+jest.mock("../../../db/db");
 
 describe("DocumentDAO", () => {
   let documentDAO: DocumentDAO;
