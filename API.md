@@ -499,33 +499,113 @@ Retrieves all the stakeholders in the database.
 ]
 ```
 
+#### POST `kirunaexplorer/stakeholders`
+
+Creates a new stakeholder in the database.
+
+- Request Parameters: None
+- Request Body Content: An object with one field:
+  - `name` (string) - The name of the stakeholder, it cannot be empty.
+  - Example:
+
+```JSON
+{
+    "name": "Stakeholder 1"
+}
+```
+
+- Response Body Content: None
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `409` error if a stakeholder with the same name already exists in the database.
 
 ### Type APIs
 
 #### GET `kirunaexplorer/types`
 
-Retrieves all the node types in the database.
+Retrieves all the types in the database.
 
 - Request Parameters: None
 - Request Body Content: None
-- Response Body Content: An array of **Type** objects, each representing a node type:
+- Response Body Content: An array of **Type** objects, each representing a type:
   - Example:
 
 ```JSON
 [
     {
         "id": 1,
-        "name": "Node type 1"
+        "name": "Type 1"
     },
     {
         "id": 2,
-        "name": "Node type 2"
+        "name": "Type 2"
     }
 ]
 ```
 
+#### POST `kirunaexplorer/types`
+
+Creates a new type in the database.
+
+- Request Parameters: None
+- Request Body Content: An object with one field:
+  - `name` (string) - The name of the type, it cannot be empty.
+  - Example:
+
+```JSON
+{
+    "name": "Type 1"
+}
+```
+
+- Response Body Content: None
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `409` error if a type with the same name already exists in the database.
+
+### Scale APIs
+
+#### GET `kirunaexplorer/scales`
+
+Retrieves all the scales in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **Scale** objects, each representing a scale:
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "name": "Scale 1"
+    },
+    {
+        "id": 2,
+        "name": "Scale 2"
+    }
+]
+```
+
+#### POST `kirunaexplorer/scales`
+
+Creates a new scale in the database.
+
+- Request Parameters: None
+- Request Body Content: An object with one field:
+  - `name` (string) - The name of the scale, it cannot be empty.
+  - Example:
+
+```JSON
+{
+    "name": "Scale 1"
+}
+```
+
+- Response Body Content: None
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `409` error if a scale with the same name already exists in the database.
 
 ### Attachment APIs
 
