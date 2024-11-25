@@ -122,6 +122,7 @@ function Navbar({ onSearch, handleLogout }) {
     languages: [],
     stakeholders: [],
   });
+  const [filterNumber, setFilterNumber] = useState<number>(0);
 
   const handleResetFilters = () => {
     setFilters({
@@ -132,6 +133,7 @@ function Navbar({ onSearch, handleLogout }) {
       scales: [],
       languages: [],
       stakeholders: [],
+      municipality: undefined,
     });
   };
 
@@ -146,6 +148,7 @@ function Navbar({ onSearch, handleLogout }) {
   const handleSimpleSearch = (search: string) => {
     const filter: SearchFilter = { title: search };
     onSearch(filter);
+    setFilterNumber(search !== "" && search !== undefined ? 1 : 0);
   };
 
   const handleAdvancedSearch = () => {
@@ -155,12 +158,17 @@ function Navbar({ onSearch, handleLogout }) {
         if (Array.isArray(value)) {
           // Keep arrays only if they have at least one element
           return value.length > 0;
+        } else if (typeof value === "boolean") {
+          // Include boolean values unless they are undefined
+          return value !== undefined;
         } else {
           // Keep strings only if they are not empty
           return value !== "";
         }
       })
     );
+    const filterNum = Object.keys(nonEmptyFilters).length;
+    setFilterNumber(filterNum);
     onSearch(nonEmptyFilters);
   };
 
@@ -292,6 +300,7 @@ function Navbar({ onSearch, handleLogout }) {
                   aria-describedby={advancedSearchId}
                   onSearch={handleSimpleSearch}
                   handleFilterPanelOpen={handleAdvacedSearchPanelOpen}
+                  filterNumber={filterNumber}
                 />
                 <Popover
                   id={advancedSearchId}

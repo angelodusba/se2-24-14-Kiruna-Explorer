@@ -5,8 +5,9 @@ import IconButton from "@mui/material/IconButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
+import { Badge } from "@mui/material";
 
-function SearchBar({ onSearch, handleFilterPanelOpen }) {
+function SearchBar({ onSearch, handleFilterPanelOpen, filterNumber }) {
   const [search, setSearch] = useState("");
 
   return (
@@ -41,7 +42,7 @@ function SearchBar({ onSearch, handleFilterPanelOpen }) {
       </IconButton>
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
       <IconButton
-        sx={{ p: "10px" }}
+        sx={{ p: "10px", marginRight: "5px" }}
         aria-label="directions"
         onClick={(event) => {
           handleFilterPanelOpen({
@@ -50,7 +51,16 @@ function SearchBar({ onSearch, handleFilterPanelOpen }) {
           });
         }}
       >
-        <FilterAltIcon />
+        <Badge
+          badgeContent={filterNumber}
+          color="error"
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          <FilterAltIcon />
+        </Badge>
       </IconButton>
     </Paper>
   );

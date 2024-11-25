@@ -302,7 +302,7 @@ class DocumentRoutes {
             req.body.types,
             req.body.languages,
             req.body.stakeholders,
-            req.body.municipality == "true" ? true : false
+            req.body.municipality
           )
           .then((documents) => res.status(200).json(documents))
           .catch((err: any) => {
