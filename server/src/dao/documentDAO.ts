@@ -419,7 +419,7 @@ class DocumentDAO {
         params.push(stakeholders);
         sql += ` AND S.id = ANY($${params.length})`;
       }
-      if (municipality) {
+      if (municipality === true) {
         sql += ` AND D.location IS NULL`;
       }
       // Add group by clause

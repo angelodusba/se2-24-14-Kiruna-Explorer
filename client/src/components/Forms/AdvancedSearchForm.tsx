@@ -7,6 +7,8 @@ import {
   CardHeader,
   CardContent,
   CardActions,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
@@ -55,11 +57,7 @@ function AdvancedSearchForm({
               disableCloseOnSelect
               options={documentTypes}
               getOptionLabel={(option) => option.name}
-              value={
-                documentTypes.filter((type) =>
-                  filters.types?.includes(type.id)
-                ) || []
-              }
+              value={documentTypes.filter((type) => filters.types?.includes(type.id)) || []}
               onChange={(_, newValue) =>
                 setFilters({
                   ...filters,
@@ -77,11 +75,7 @@ function AdvancedSearchForm({
               disableCloseOnSelect
               options={languages}
               getOptionLabel={(option) => option.label}
-              value={
-                languages.filter((lang) =>
-                  filters.languages?.includes(lang.label)
-                ) || null
-              }
+              value={languages.filter((lang) => filters.languages?.includes(lang.label)) || null}
               onChange={(_e, newValue) =>
                 setFilters({
                   ...filters,
@@ -95,7 +89,8 @@ function AdvancedSearchForm({
                     key={key}
                     component="li"
                     sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
-                    {...optionProps}>
+                    {...optionProps}
+                  >
                     <img
                       loading="lazy"
                       width="20"
@@ -147,15 +142,13 @@ function AdvancedSearchForm({
                 },
               }}
               fullWidth
-              // error={dateError !== ""}
-              // helperText={dateError}
             />
           </Grid>
           {/* End Year */}
           <Grid size={6}>
             <TextField
               size="small"
-              label="End Date"
+              label="End Year"
               value={filters.end_year || ""}
               onChange={(e) =>
                 setFilters({
@@ -176,8 +169,6 @@ function AdvancedSearchForm({
                 },
               }}
               fullWidth
-              // error={dateError !== ""}
-              // helperText={dateError}
             />
           </Grid>
           {/* Stakeholders */}
@@ -199,9 +190,23 @@ function AdvancedSearchForm({
                   stakeholders: newValue.map((option) => option.id),
                 })
               }
-              renderInput={(params) => (
-                <TextField {...params} label="Stakeholders" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Stakeholders" />}
+            />
+          </Grid>
+          <Grid size={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={!!filters.municipality}
+                  onChange={(event) => {
+                    setFilters({
+                      ...filters,
+                      municipality: event.target.checked,
+                    });
+                  }}
+                />
+              }
+              label="Show only municipality documents"
             />
           </Grid>
         </Grid>
@@ -222,7 +227,8 @@ function AdvancedSearchForm({
             onClick={() => {
               handleSubmit();
               handleClose();
-            }}>
+            }}
+          >
             Search
           </Button>
         </Grid>
