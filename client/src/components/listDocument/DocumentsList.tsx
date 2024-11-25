@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,10 +9,6 @@ import {
   Paper,
   Typography,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
   Menu,
   Card,
@@ -37,8 +34,25 @@ function DocumentsList({
   totalRows,
   handleChangePage,
 }) {
+  const [expandedDescriptions, setExpandedDescriptions] = useState<{
+    [key: number]: boolean;
+  }>({});
+
+  const handleViewMoreClick = (id: number) => {
+    setExpandedDescriptions((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
   return (
-    <Card sx={{ width: "100%", maxHeight: "92vh", display: "flex", flexDirection: "column" }}>
+    <Card
+      sx={{
+        width: "100%",
+        maxHeight: "92vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <CardHeader title="Document List" />
       <div
         style={{
@@ -47,22 +61,32 @@ function DocumentsList({
           marginRight: 10,
         }}
       >
-        <IconButton aria-label="filter list" onClick={handleFilterClick} sx={{ float: "right" }}>
+        <IconButton
+          aria-label="filter list"
+          onClick={handleFilterClick}
+          sx={{ float: "right" }}
+        >
           <FilterListIcon />
         </IconButton>
       </div>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleFilterClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleFilterClose}
+      >
         <MenuItem onClick={() => handleSort({ field: "title" })}>
           Sort by Title ({sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
         <MenuItem onClick={() => handleSort({ field: "pages" })}>
-          Sort by page number ({sortOrder === "asc" ? "Ascending" : "Descending"})
+          Sort by page number (
+          {sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
         <MenuItem onClick={() => handleSort({ field: "type_name" })}>
           Sort by type ({sortOrder === "asc" ? "asc" : "desc"})
         </MenuItem>
         <MenuItem onClick={() => handleSort({ field: "issue_date" })}>
-          Sort by issue date ({sortOrder === "asc" ? "Ascending" : "Descending"})
+          Sort by issue date ({sortOrder === "asc" ? "Ascending" : "Descending"}
+          )
         </MenuItem>
         <MenuItem onClick={() => handleSort({ field: "language" })}>
           Sort by language ({sortOrder === "asc" ? "Ascending" : "Descending"})
@@ -71,7 +95,8 @@ function DocumentsList({
           Sort by scale ({sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
         <MenuItem onClick={() => handleSort({ field: "description" })}>
-          Sort by description ({sortOrder === "asc" ? "Ascending" : "Descending"})
+          Sort by description (
+          {sortOrder === "asc" ? "Ascending" : "Descending"})
         </MenuItem>
       </Menu>
       <CardContent sx={{ overflowY: "auto", display: "flex", flexGrow: 0 }}>
@@ -98,7 +123,21 @@ function DocumentsList({
                 {documents.map((document) => (
                   <TableRow key={document.id}>
                     <TableCell>{document.title}</TableCell>
-                    <TableCell>{document.description}</TableCell>
+                    <TableCell>
+                      {expandedDescriptions[document.id]
+                        ? document.description
+                        : `${document.description.substring(0, 50)}...`}
+                      {document.description.length > 50 && (
+                        <Button
+                          size="small"
+                          onClick={() => handleViewMoreClick(document.id)}
+                        >
+                          {expandedDescriptions[document.id]
+                            ? "View Less"
+                            : "View More"}
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell>{document.type_name}</TableCell>
                     <TableCell>{document.issue_date}</TableCell>
                     <TableCell>{document.scale}</TableCell>
@@ -124,7 +163,11 @@ function DocumentsList({
         )}
       </CardContent>
       <CardActions sx={{ marginBottom: 2 }}>
-        <Typography variant="body2" color="textSecondary" style={{ marginRight: "auto" }}>
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          style={{ marginRight: "auto" }}
+        >
           Documents {documents.length + rowsPerPage * (page - 1)} / {totalRows}
         </Typography>
         <Pagination
