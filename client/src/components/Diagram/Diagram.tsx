@@ -11,12 +11,14 @@ import { SearchFilter } from '../../models/SearchFilter';
 interface DocumentForDiagram {
     id: number;
     title: string;
-    date: number;
+    date: string;
 }
 import ZoomNode from './ZoomNode';
+import { Minimize } from '@mui/icons-material';
 const nodeTypes = {
     zoom: ZoomNode,
 };
+
 
 const gridHeight = 200; // Size of the grid cells
 const gridWidth = 400; // Width of the grid
@@ -62,29 +64,47 @@ function Diagram({currentFilter}: DiagramProps) {
             })
         );
     };
-
-    const createNode = (doc: DocumentForDiagram, index: number, yearOffset:number) => {
-        return {
-            id: (doc.id + yearOffset).toString(),
-            type: 'zoom',
-            data: { label: doc.title.substring(0, 100) },
-            position: { x: doc.date * gridWidth, y: Math.floor(index + 2) * gridHeight / 1.9 },
-            style: { width: gridWidth, height: gridHeight/2, backgroundColor: 'blue', borderRadius: 10, color: 'white', 
-                fontSize: gridWidth/10, textAlign: 'center' as TextAlign },
-            draggable: true,
-            connectable: true,
-        };
-    };
-
-    const createNodesForDocument = (docs: DocumentForDiagram[], indexOffset) => {
-        const newNodes = docs.map((doc: DocumentForDiagram, index) => createNode(doc, index, indexOffset));
-        return newNodes;
-    };
-
     const assignX_toDate = (date: string, minYear:number) => {
         const d = dayjs(date);
         return d.year() + d.month()/12 - minYear;
     }
+
+    const createNode = (doc: DocumentForDiagram, index, lastId:number, minYear) => {
+        return {
+            id: (doc.id + lastId).toString(),
+            type: 'zoom',
+            data: { label: doc.title.substring(0, 100) },
+            position: { x: (assignX_toDate(doc.date, minYear)) * gridWidth, y: (index+2) * gridHeight / 1.9 },
+            style: { width: gridWidth, height: gridHeight/2, backgroundColor: 'blue', borderRadius: 10, color: 'white', 
+                fontSize: gridWidth/10, textAlign: 'center' as TextAlign },
+            draggable: false,
+            connectable: true,
+        };
+    };
+
+    const createNodesForDocument = (docs: DocumentForDiagram[], lastId, years, minYear) => {
+        
+        const arrayDocsPerYear: DocumentForDiagram[][] = years.map(year => docs.filter(doc => dayjs(doc.date).year() === year));
+        const fiteredDocsPerYear = arrayDocsPerYear.filter((docs) => docs.length > 0);
+        let pre = 0
+        let lastYear = -1
+        let newNodes = []
+        for (const docsPerYear of fiteredDocsPerYear) {
+            let offset_y = 0;
+            if (lastYear == dayjs(docsPerYear[0].date).year()-1 ) {
+                offset_y += pre;
+            }
+            console.log("Year ", dayjs(docsPerYear[0].date).year(), "Offset ", offset_y);
+            console.log(docsPerYear);
+            const nodesToAdd = docsPerYear.map((doc, index) => createNode(doc, index + offset_y, lastId, minYear));
+            pre = docsPerYear.length + offset_y;
+            lastYear = dayjs(docsPerYear[0].date).year();
+            newNodes = [...newNodes, ...nodesToAdd];
+        }
+        return newNodes;
+    };
+
+
 
     // Fetch docs and create nodes
     useEffect(() => {
@@ -97,7 +117,7 @@ function Diagram({currentFilter}: DiagramProps) {
 
             const minYear = Math.floor(Math.min(...list.map(doc => dayjs(doc.date).year())));
             const maxYear = Math.ceil(Math.max(...list.map(doc => dayjs(doc.date).year())));
-            const adjustedList = list.map(doc => ({ ...doc, date: assignX_toDate(doc.date, minYear) }));
+            const adjustedList = list.map(doc => ({ ...doc, date: doc.date }));
             const years = Array.from({ length: maxYear - minYear + 1 }, (_, k) => k + minYear);
             const initialNodes: Node[] = years.map((year, index) => ({
                 id: (index + 1).toString(),
@@ -108,11 +128,11 @@ function Diagram({currentFilter}: DiagramProps) {
                 connectable: false,
             }));
 
-            const startIndex = initialNodes.length;
+            const lastID = initialNodes.length;
             //sort for date
             const sortedDocs = adjustedList.sort((a, b) => a.date - b.date);
             setDocuments(sortedDocs);
-            const docsNodes = createNodesForDocument(sortedDocs, startIndex+1);
+            const docsNodes = createNodesForDocument(sortedDocs, lastID+1, years, minYear);
             const merge = [...initialNodes, ...docsNodes];
             setNodes(merge);
         };
@@ -131,6 +151,7 @@ function Diagram({currentFilter}: DiagramProps) {
 function Flow({nodes, edges, onNodesChange, onEdgesChange, onConnect, onEdgeClick}) {
 
 
+
     return (
         <ReactFlowProvider>
         <div style={{ height: '100vh', width: '100vw', overflow: 'auto'}}>
@@ -143,8 +164,11 @@ function Flow({nodes, edges, onNodesChange, onEdgesChange, onConnect, onEdgeClic
                 maxZoom={3}
                 panOnScroll
                 panOnDrag
+                panOnScrollMode={PanOnScrollMode.Vertical}
+                fitView
+                attributionPosition="top-right"
             >   
-            <MiniMap zoomable pannable nodeClassName={nodeClassName}/> 
+            <MiniMap zoomable pannable nodeClassName={nodeClassName} /> 
             <Controls />
             <Background gap={gridWidth} variant={BackgroundVariant.Lines} color="#aaa" />
             </ReactFlow>
