@@ -1,5 +1,10 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer } from "react-leaflet";
+import {
+  LayerGroup,
+  LayersControl,
+  MapContainer,
+  TileLayer,
+} from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -45,15 +50,30 @@ function Map({ docs }) {
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
         }}>
-        <TileLayer
-          keepBuffer={100}
-          attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        />
-        <TileLayer
-          attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-        />
+        <LayersControl position="topright">
+          {/* Normal Map */}
+          <LayersControl.BaseLayer checked name="Normal">
+            <TileLayer
+              keepBuffer={100}
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
+          {/* Satellite Map */}
+          <LayersControl.BaseLayer name="Satellite">
+            <LayerGroup>
+              <TileLayer
+                keepBuffer={100}
+                attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              />
+              <TileLayer
+                attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+              />
+            </LayerGroup>
+          </LayersControl.BaseLayer>
+        </LayersControl>
         <MarkerClusterGroup>
           {!disabledInput &&
             docs.map((doc) => {
