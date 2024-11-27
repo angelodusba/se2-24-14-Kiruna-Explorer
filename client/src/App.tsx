@@ -189,7 +189,7 @@ function App() {
                   />
                 }
               />
-              <Route path="/diagram" element={<Diagram/>} />
+              <Route path="/diagram" element={<Diagram currentFilter={currentFilter}/>} />
             </Route>
             <Route
               path="*"
