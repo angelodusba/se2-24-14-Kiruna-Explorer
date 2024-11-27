@@ -16,6 +16,8 @@ import {
   ListItemText,
   Typography,
   Button,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { HalfConnection } from "../../models/Connection.ts";
@@ -113,11 +115,34 @@ export function LinkDocumentForm({
                   <Grid
                     sx={{ display: "flex", flexDirection: "column" }}
                     size={{ xs: 12, md: 6 }}>
-                    <FormControl
+                    <Autocomplete
+                      size="small"
+                      options={documentsList}
+                      getOptionLabel={(option) => option.title}
+                      id="linkAutocomplete"
+                      value={
+                        documentsList.find(
+                          (doc) => doc.id === connection.document_id
+                        ) || null
+                      }
+                      onChange={(_event, newValue) => {
+                        const documentId = Number(newValue.id);
+                        handleSelectLinkedDocument(index, documentId);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Linked document"
+                          variant="outlined"
+                          required
+                        />
+                      )}
+                    />
+                    {/*<FormControl
                       size="small"
                       required
                       disabled={!connectionsList.starting_document_id}>
-                      <InputLabel id="document">Linked document</InputLabel>
+                      <InputLabel id="document">Linked document</InputLabel> 
                       <Select
                         size="small"
                         labelId="document"
@@ -144,8 +169,10 @@ export function LinkDocumentForm({
                             </MenuItem>
                           );
                         })}
-                      </Select>
-                    </FormControl>
+                      </Select> 
+                      </FormControl>
+                      
+                      */}
                   </Grid>
                   {/* CONNECTION TYPES */}
                   <Grid
