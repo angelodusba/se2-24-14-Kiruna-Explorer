@@ -737,3 +737,103 @@ Retrieves all connections between documents
   },
 ]
 ```
+
+### Area APIs
+
+#### GET `kirunaexplorer/areas`
+
+Retrieves all the areas in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **Area** objects, each representing an area:
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "name": "Area 1",
+        "location": [
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Area 2",
+        "location": [
+            {
+                "lng": 5.5,
+                "lat": 45.5
+            },
+            {
+                "lng": 10.5,
+                "lat": 44.5
+            },
+            {
+                "lng": 15.5,
+                "lat": 47.5
+            }
+        ]
+    }
+]
+```
+
+#### POST `kirunaexplorer/areas`
+
+Creates a new area in the database.
+
+- Request Parameters: None
+- Request Body Content: An object with one field:
+  - `name` (string) - The name of the area, it cannot be empty.
+  - `location`: an array of objects that cannot be empty, representing the coordinates (logitude, latitude) of the document, can be only a polygon.
+  - Example:
+
+```JSON
+{
+    "name": "Area 1",
+    "location": [
+        {
+            "lng": 7.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 42.5
+        },
+        {
+            "lng": 7.5,
+            "lat": 42.5
+        }
+    ]
+}
+```
+
+- Response Body Content: None
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `409` error if an area with the same name already exists in the database.
+  - It should return a `409` error if the given area is not a polygon.
