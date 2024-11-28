@@ -334,14 +334,16 @@ function DocumentCard() {
                               variant="subtitle2">
                               Location
                             </Typography>
-                            <IconButton
-                              aria-label="delete"
-                              size="small"
-                              onClick={() => {
-                                navigate(`/map/${docId.id}/georeference`);
-                              }}>
-                              <EditOutlined fontSize="inherit" />
-                            </IconButton>
+                            {user && (
+                              <IconButton
+                                aria-label="delete"
+                                size="small"
+                                onClick={() => {
+                                  navigate(`/map/${docId.id}/georeference`);
+                                }}>
+                                <EditOutlined fontSize="inherit" />
+                              </IconButton>
+                            )}
                           </Box>
                         }
                         secondaryTypographyProps={{

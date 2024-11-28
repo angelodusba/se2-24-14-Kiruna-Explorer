@@ -19,6 +19,7 @@ import { SearchFilter } from "./models/SearchFilter";
 import { ErrorContext } from "./contexts/ErrorContext";
 import { Snackbar, Alert } from "@mui/material";
 import DocumentsListPage from "./pages/DocumentsListPage";
+import Diagram from "./components/Diagram/Diagram";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -188,6 +189,7 @@ function App() {
                   />
                 }
               />
+              <Route path="/diagram" element={<Diagram currentFilter={currentFilter}/>} />
             </Route>
             <Route
               path="*"
