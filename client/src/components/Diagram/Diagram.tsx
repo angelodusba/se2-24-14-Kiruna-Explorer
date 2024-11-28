@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import ReactFlow, { ReactFlowProvider, addEdge, MiniMap, Controls, Background, NodeChange, applyNodeChanges, Node, PanOnScrollMode, BackgroundVariant, EdgeProps, BezierEdge, EdgeChange, applyEdgeChanges, useReactFlow, useViewport, TextAlign } from 'reactflow';
 import { Edge, Connection } from 'reactflow';
 import 'reactflow/dist/style.css';
-import DocumentAPI from '../../API/DocumentAPI';
-import { fontGrid } from '@mui/material/styles/cssUtils';
 import dayjs from 'dayjs';
-import { Search } from 'react-router-dom';
 import { SearchFilter } from '../../models/SearchFilter';
+
+import ConnectionAPI from '../../API/ConnectionApi';
+import DocumentAPI from '../../API/DocumentAPI';
 
 interface DocumentForDiagram {
     id: number;
@@ -14,7 +14,6 @@ interface DocumentForDiagram {
     date: string;
 }
 import ZoomNode from './ZoomNode';
-import { Minimize } from '@mui/icons-material';
 const nodeTypes = {
     zoom: ZoomNode,
 };
@@ -69,12 +68,12 @@ function Diagram({currentFilter}: DiagramProps) {
         return d.year() + d.month()/12 - minYear;
     }
 
-    const createNode = (doc: DocumentForDiagram, index, lastId:number, minYear) => {
+    const createNode = (doc: DocumentForDiagram, index, minYear) => {
         return {
-            id: (doc.id + lastId).toString(),
+            id: (doc.id).toString(),
             type: 'zoom',
             data: { label: doc.title.substring(0, 100) },
-            position: { x: (assignX_toDate(doc.date, minYear)) * gridWidth, y: (index+2) * gridHeight / 1.9 },
+            position: { x: (assignX_toDate(doc.date, minYear)) * gridWidth, y: (index+2) * gridHeight },
             style: { width: gridWidth, height: gridHeight/2, backgroundColor: 'blue', borderRadius: 10, color: 'white', 
                 fontSize: gridWidth/10, textAlign: 'center' as TextAlign },
             draggable: false,
@@ -82,7 +81,7 @@ function Diagram({currentFilter}: DiagramProps) {
         };
     };
 
-    const createNodesForDocument = (docs: DocumentForDiagram[], lastId, years, minYear) => {
+    const createNodesForDocument = (docs: DocumentForDiagram[], years, minYear) => {
         
         const arrayDocsPerYear: DocumentForDiagram[][] = years.map(year => docs.filter(doc => dayjs(doc.date).year() === year));
         const fiteredDocsPerYear = arrayDocsPerYear.filter((docs) => docs.length > 0);
@@ -94,9 +93,7 @@ function Diagram({currentFilter}: DiagramProps) {
             if (lastYear == dayjs(docsPerYear[0].date).year()-1 ) {
                 offset_y += pre;
             }
-            console.log("Year ", dayjs(docsPerYear[0].date).year(), "Offset ", offset_y);
-            console.log(docsPerYear);
-            const nodesToAdd = docsPerYear.map((doc, index) => createNode(doc, index + offset_y, lastId, minYear));
+            const nodesToAdd = docsPerYear.map((doc, index) => createNode(doc, index + offset_y, minYear));
             pre = docsPerYear.length + offset_y;
             lastYear = dayjs(docsPerYear[0].date).year();
             newNodes = [...newNodes, ...nodesToAdd];
@@ -104,12 +101,10 @@ function Diagram({currentFilter}: DiagramProps) {
         return newNodes;
     };
 
-
-
     // Fetch docs and create nodes
     useEffect(() => {
         // Fetch Documents
-        const fetchDocuments = async () => {
+        const fetchDocumentsAndConnections = async () => {
             const response = await DocumentAPI.getFilteredDocuments(currentFilter);
             const list = response.docs.map((doc: any, _: number) => {
                 return { id: doc.id, title: doc.title, date: doc.issue_date };
@@ -119,24 +114,32 @@ function Diagram({currentFilter}: DiagramProps) {
             const maxYear = Math.ceil(Math.max(...list.map(doc => dayjs(doc.date).year())));
             const adjustedList = list.map(doc => ({ ...doc, date: doc.date }));
             const years = Array.from({ length: maxYear - minYear + 1 }, (_, k) => k + minYear);
+            //sort for date
+            const sortedDocs = adjustedList.sort((a, b) => a.date - b.date);
+            setDocuments(sortedDocs);
+            const docsNodes = createNodesForDocument(sortedDocs, years, minYear);
+            const sortedNodesByID = docsNodes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+            const lastID = sortedNodesByID[sortedNodesByID.length - 1].id;
             const initialNodes: Node[] = years.map((year, index) => ({
-                id: (index + 1).toString(),
+                id: (index + lastID + 1).toString(),
                 data: { label: year.toString() },
                 position: {x: (year-minYear) * gridWidth, y: 0  },
                 style: { width: gridWidth, height: gridHeight/2, backgroundColor: "000", borderRadius: 10, fontSize: gridWidth/10, textAlign: 'center' as TextAlign },
                 draggable: false,
                 connectable: false,
             }));
-
-            const lastID = initialNodes.length;
-            //sort for date
-            const sortedDocs = adjustedList.sort((a, b) => a.date - b.date);
-            setDocuments(sortedDocs);
-            const docsNodes = createNodesForDocument(sortedDocs, lastID+1, years, minYear);
             const merge = [...initialNodes, ...docsNodes];
             setNodes(merge);
+
+            //Now fetch connections
+            const connections = await ConnectionAPI.getConnections();
+            const edges = connections.map((conn: any, index) => {
+                return { id: (conn.id_doc1.toString() + "," + conn.id_doc2.toString() ), source: conn.id_doc1.toString(), target: conn.id_doc2.toString(), type: 'red' };
+            });
+            setEdges(edges);
         };
-        fetchDocuments();
+        fetchDocumentsAndConnections();
+        
     }, [currentFilter]);
 
     return (
@@ -149,8 +152,6 @@ function Diagram({currentFilter}: DiagramProps) {
 }
 
 function Flow({nodes, edges, onNodesChange, onEdgesChange, onConnect, onEdgeClick}) {
-
-
 
     return (
         <ReactFlowProvider>
@@ -165,6 +166,7 @@ function Flow({nodes, edges, onNodesChange, onEdgesChange, onConnect, onEdgeClic
                 panOnScroll
                 panOnDrag
                 panOnScrollMode={PanOnScrollMode.Vertical}
+
                 fitView
                 attributionPosition="top-right"
             >   
