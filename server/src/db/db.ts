@@ -42,7 +42,7 @@ const cleanup = async () => {
     await client.query("DELETE FROM stakeholders");
     await client.query("DELETE FROM documents");
     await client.query("DELETE FROM types");
-    await client.query("DELETE FROM areas");
+    await client.query("DELETE FROM areas WHERE id > 1");
     await client.query("COMMIT");
   } catch (err: any) {
     await client.query("ROLLBACK");
