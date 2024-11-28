@@ -24,16 +24,11 @@ const gridHeight = 200; // Size of the grid cells
 const gridWidth = 400; // Width of the grid
 
 const initialEdges: Edge[] = [];
-const DefaultEdge: React.FC<EdgeProps> = (props) => <BezierEdge {...props} />;
-const RedEdge: React.FC<EdgeProps> = (props) => <BezierEdge {...props} style={{ stroke: 'red' }} animated />;
-const BlueEdge: React.FC<EdgeProps> = (props) => <BezierEdge {...props} style={{ stroke: 'blue' }} animated />;
-
+import { AnimatedSVGEdge } from './AnimatedEdge';
 const nodeClassName = (node) => node.type;
 
 const edgeTypes = {
-    default: DefaultEdge,
-    red: RedEdge,
-    blue: BlueEdge,
+    animated: AnimatedSVGEdge,
 };
 
 interface DiagramProps {
@@ -47,6 +42,7 @@ function Diagram({currentFilter}: DiagramProps) {
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>(initialEdges);
     const [documents, setDocuments] = useState<DocumentForDiagram[]>([]);
+    
 
     const onNodesChange = (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds));
     const onEdgesChange = (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds));
@@ -54,15 +50,6 @@ function Diagram({currentFilter}: DiagramProps) {
 
     const onEdgeClick = (event: React.MouseEvent, edge: Edge) => {
         event.stopPropagation();
-        setEdges((eds) =>
-            eds.map((e) => {
-                if (e.id === edge.id) {
-                    const newType = e.type === 'default' ? 'red' : e.type === 'red' ? 'blue' : 'default';
-                    return { ...e, type: newType };
-                }
-                return e;
-            })
-        );
     };
     const assignX_toDate = (date: string, minYear:number) => {
         const d = dayjs(date);
@@ -71,10 +58,10 @@ function Diagram({currentFilter}: DiagramProps) {
 
     const createNode = (doc: DocumentForDiagram, index, minYear) => {
         return {
-            id: (doc.id).toString(),
+            id: doc.id.toString(),
             type: 'zoom',
             data: { label: doc.title.substring(0, 100) },
-            position: { x: (assignX_toDate(doc.date, minYear)) * gridWidth, y: (index+2) * gridHeight },
+            position: { x: (assignX_toDate(doc.date, minYear)) * gridWidth, y: (index+2) * gridHeight*2 },
             style: { width: gridWidth, height: gridHeight/2, borderRadius: 10, background: 'pink',
                 fontSize: gridWidth/10, textAlign: 'center' as TextAlign },
             draggable: false,
@@ -134,17 +121,25 @@ function Diagram({currentFilter}: DiagramProps) {
 
             //Now fetch connections
             const connections = await ConnectionAPI.getConnections();
-            console.log(connections)
             const edges = connections.flatMap((conn: any) => {
                 //compare date of the two docs
                 let id1 = conn.id_doc1.toString();
                 let id2 = conn.id_doc2.toString();
-                if (docsNodes[id1]?.position.x > docsNodes[id2]?.position.x) {
+                let doc1 = docsNodes.find(doc => doc.id === id1);
+                let doc2 = docsNodes.find(doc => doc.id === id2);
+                if (doc1?.position.x > doc2?.position.x) {
                     id1 = conn.id_doc2.toString();
+                    let temp = doc1;
+                    doc1 = doc2;
                     id2 = conn.id_doc1.toString();
+                    doc2 = temp;
                 }
+                console.log(id1, ":", id2);
+                console.log(doc1?.data.label, doc1?.position.x, ":", doc2?.data.label, doc2?.position.x);
                 return conn.connection_types.map((type: string) => {
-                    return { id: (id1 + "," + id2 + ":" + type), source: id1, target: id2, type: 'red', label: type };
+                    return { id: (id1 + "," + id2 + ":" + type), source: id1, target: id2, type: 'animated', label: type
+                            
+                     };
                 });
             });
             setEdges(edges);
