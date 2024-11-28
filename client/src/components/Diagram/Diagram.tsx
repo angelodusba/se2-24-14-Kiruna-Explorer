@@ -7,6 +7,7 @@ import { SearchFilter } from '../../models/SearchFilter';
 
 import ConnectionAPI from '../../API/ConnectionApi';
 import DocumentAPI from '../../API/DocumentAPI';
+import './Diagram.css';
 
 interface DocumentForDiagram {
     id: number;
@@ -74,7 +75,7 @@ function Diagram({currentFilter}: DiagramProps) {
             type: 'zoom',
             data: { label: doc.title.substring(0, 100) },
             position: { x: (assignX_toDate(doc.date, minYear)) * gridWidth, y: (index+2) * gridHeight },
-            style: { width: gridWidth, height: gridHeight/2, backgroundColor: 'blue', borderRadius: 10, color: 'white', 
+            style: { width: gridWidth, height: gridHeight/2, borderRadius: 10, background: 'pink',
                 fontSize: gridWidth/10, textAlign: 'center' as TextAlign },
             draggable: false,
             connectable: true,
@@ -133,8 +134,18 @@ function Diagram({currentFilter}: DiagramProps) {
 
             //Now fetch connections
             const connections = await ConnectionAPI.getConnections();
-            const edges = connections.map((conn: any, index) => {
-                return { id: (conn.id_doc1.toString() + "," + conn.id_doc2.toString() ), source: conn.id_doc1.toString(), target: conn.id_doc2.toString(), type: 'red' };
+            console.log(connections)
+            const edges = connections.flatMap((conn: any) => {
+                //compare date of the two docs
+                let id1 = conn.id_doc1.toString();
+                let id2 = conn.id_doc2.toString();
+                if (docsNodes[id1]?.position.x > docsNodes[id2]?.position.x) {
+                    id1 = conn.id_doc2.toString();
+                    id2 = conn.id_doc1.toString();
+                }
+                return conn.connection_types.map((type: string) => {
+                    return { id: (id1 + "," + id2 + ":" + type), source: id1, target: id2, type: 'red', label: type };
+                });
             });
             setEdges(edges);
         };
