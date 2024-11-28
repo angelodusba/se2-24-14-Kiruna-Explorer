@@ -13,16 +13,9 @@ class AreaController {
    * @returns A Promise that resolves to an array of Area objects.
    */
   async getAreas(): Promise<Area[]> {
-    return this.dao.getAllAreas();
+    return this.dao.getAreas();
   }
-  /**
-   * Retrieves all Areas from the database.
-   * @returns A Promise that resolves to an array of Area objects.
-   */
-  async getAreas():Promise<Area[]>{
-      return this.dao.getAreas();
-  }
-  
+
   /**
    * Creates a new area in the database.
    * @param name - The name of the area, must not be empty.
@@ -34,10 +27,12 @@ class AreaController {
    */
   async createArea(
     name: string,
-    location: { lat: number; lng: number }[],
+    location: { lat: number; lng: number }[]
   ): Promise<boolean> {
     // Convert object array into a comma separated string of coordinates
-    const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
+    const locationStr = location
+      .map((coord) => `${coord.lng} ${coord.lat}`)
+      .join(", ");
     return this.dao.createArea(name, locationStr);
   }
 }
