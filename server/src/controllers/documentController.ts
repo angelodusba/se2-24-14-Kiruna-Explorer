@@ -1,4 +1,6 @@
 import DocumentDAO from "../dao/documentDAO";
+import { InvalidDocumentLocationError } from "../errors/documentErrors";
+import Coordinates from "../models/coordinates";
 import Document from "../models/document";
 import DocumentCardResponse from "../response/documentCardResponse";
 import DocumentLocationResponse from "../response/documentLocationResponse";
@@ -35,11 +37,16 @@ class DocumentController {
     type_id: number,
     issue_date: string,
     scale: string,
-    location: { lat: number; lng: number }[],
+    location: Coordinates[],
     language: string,
     pages: string,
     stakeholderIds: number[]
   ): Promise<{ id: number }> {
+    // Check if all the location points are inside the municipality area
+    const validLocation = await this.dao.validateDocumentLocation(location);
+    if (!validLocation) {
+      throw new InvalidDocumentLocationError();
+    }
     // Convert object array into a comma separated string of coordinates
     const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
     return this.dao.createDocument(

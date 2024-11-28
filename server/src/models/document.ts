@@ -1,6 +1,5 @@
 import Coordinates from "./coordinates";
 import Type from "./type";
-import Attachment from "./attachment";
 
 class Document {
   id: number;
