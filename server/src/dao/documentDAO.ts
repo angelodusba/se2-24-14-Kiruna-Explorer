@@ -82,6 +82,48 @@ class DocumentDAO {
   }
 
   /**
+   * Validates if all points in the given array are within the municipality area.
+   *
+   * @param locations - An array of points with lat/lng properties.
+   * @returns A Promise that resolves to true if all points are within the municipality area, false otherwise.
+   */
+  async validateDocumentLocation(location: Coordinates[]): Promise<boolean> {
+    if (location.length === 0) {
+      // Municipality area documents are always valid
+      return true;
+    }
+    try {
+      // Format the points as a GeoJSON array
+      const pointsGeoJSON = location.map(
+        (point) => `{"type": "Point", "coordinates": [${point.lng}, ${point.lat}]}`
+      );
+      // Prepare the SQL query
+      const sql = `
+      WITH points AS (
+        SELECT ST_SetSRID(ST_GeomFromGeoJSON(geojson), 4326) AS geom
+        FROM unnest($1::text[]) AS geojson
+        -- FROM unnest(ARRAY[${pointsGeoJSON.join(",")}]) AS geojson
+      )
+      SELECT NOT EXISTS (
+        SELECT 1
+        FROM points
+        WHERE NOT ST_Within(geom, (
+          SELECT location
+          FROM areas
+          WHERE id = 1
+        ))
+      ) AS all_within
+    `;
+
+      // Execute the query
+      const result = await db.query(sql, [pointsGeoJSON]);
+      return result.rows[0]?.all_within || false;
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
    * Fetches all the saved documents.
    * @returns A Promise that resolves to an array of Document objects.
    */

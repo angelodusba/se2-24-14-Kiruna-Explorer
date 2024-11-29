@@ -792,6 +792,10 @@ Retrieves all the areas in the database.
             {
                 "lng": 15.5,
                 "lat": 47.5
+            },
+            {
+                "lng": 5.5,
+                "lat": 45.5
             }
         ]
     }
@@ -832,7 +836,34 @@ Creates a new area in the database.
 }
 ```
 
-- Response Body Content: None
+- Response Body Content: An **Area** object that represents the created area
+ - Example:
+
+```JSON
+{
+    "id": 1,
+    "name": "Area 1",
+    "location": [
+        {
+            "lng": 7.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 42.5
+        },
+        {
+            "lng": 7.5,
+            "lat": 42.5
+        }
+    ]
+}
+```
+
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:
   - It should return a `409` error if an area with the same name already exists in the database.
