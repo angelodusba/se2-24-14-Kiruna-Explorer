@@ -114,7 +114,14 @@ function AddDocumentPage({ fetchDocuments }) {
   ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
-      newConnections[connIndex].document_id = documentId;
+      if (documentId === 0) {
+        newConnections[connIndex] = {
+          document_id: undefined,
+          connection_types: [],
+        };
+      } else {
+        newConnections[connIndex].document_id = documentId;
+      }
       return {
         starting_document_id: prevList.starting_document_id,
         connections: newConnections,

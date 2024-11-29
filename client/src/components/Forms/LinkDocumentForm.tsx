@@ -68,24 +68,29 @@ export function LinkDocumentForm({
           {docId ? `Document to link: ${getTitleById(docId)}` : "Manage Links"}
         </Typography>{" "}
         {!docId && (
-          <FormControl required size="small">
-            <InputLabel id="document1">Document to link</InputLabel>
-            <Select
-              labelId="document1"
-              id="document1"
-              size="small"
-              value={connectionsList.starting_document_id || ""}
-              label="Document to link"
-              onChange={(event) => {
-                handleSelectDocument(Number(event.target.value));
-              }}>
-              {documentsList.map((doc) => (
-                <MenuItem key={doc.id} value={doc.id}>
-                  {doc.title}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            size="small"
+            options={documentsList}
+            getOptionLabel={(option) => option.title}
+            id="linkAutocompleteStartDocument"
+            value={
+              documentsList.find(
+                (doc) => doc.id === connectionsList.starting_document_id
+              ) || null
+            }
+            onChange={(_event, newValue) => {
+              const documentId = newValue ? Number(newValue.id) : 0;
+              handleSelectDocument(documentId);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Document to link"
+                variant="outlined"
+                required
+              />
+            )}
+          />
         )}
       </Grid>
       {/* CONNECTIONS LIST */}
@@ -117,7 +122,18 @@ export function LinkDocumentForm({
                     size={{ xs: 12, md: 6 }}>
                     <Autocomplete
                       size="small"
-                      options={documentsList}
+                      options={documentsList.filter((doc) => {
+                        if (
+                          doc.id === connectionsList.starting_document_id ||
+                          (connectionsList.connections.some(
+                            (conn) => conn.document_id === doc.id
+                          ) &&
+                            connection.document_id !== doc.id)
+                        ) {
+                          return false;
+                        }
+                        return true;
+                      })}
                       getOptionLabel={(option) => option.title}
                       id="linkAutocomplete"
                       value={
@@ -126,7 +142,7 @@ export function LinkDocumentForm({
                         ) || null
                       }
                       onChange={(_event, newValue) => {
-                        const documentId = Number(newValue.id);
+                        const documentId = newValue ? Number(newValue.id) : 0;
                         handleSelectLinkedDocument(index, documentId);
                       }}
                       renderInput={(params) => (
@@ -138,41 +154,6 @@ export function LinkDocumentForm({
                         />
                       )}
                     />
-                    {/*<FormControl
-                      size="small"
-                      required
-                      disabled={!connectionsList.starting_document_id}>
-                      <InputLabel id="document">Linked document</InputLabel> 
-                      <Select
-                        size="small"
-                        labelId="document"
-                        id="document"
-                        value={connection.document_id || ""}
-                        label="Document to link"
-                        onChange={(event) => {
-                          const documentId = Number(event.target.value);
-                          handleSelectLinkedDocument(index, documentId);
-                        }}>
-                        {documentsList.map((doc) => {
-                          if (
-                            doc.id === connectionsList.starting_document_id ||
-                            (connectionsList.connections.some(
-                              (conn) => conn.document_id === doc.id
-                            ) &&
-                              connection.document_id !== doc.id)
-                          ) {
-                            return;
-                          }
-                          return (
-                            <MenuItem key={doc.id} value={doc.id}>
-                              {doc.title}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select> 
-                      </FormControl>
-                      
-                      */}
                   </Grid>
                   {/* CONNECTION TYPES */}
                   <Grid

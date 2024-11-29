@@ -34,6 +34,13 @@ function LinkDocumentsPage() {
   };
 
   const handleSelectDocument = (docId: number) => {
+    if (docId === 0) {
+      setConnectionsList({
+        starting_document_id: undefined,
+        connections: [],
+      });
+      return;
+    }
     ConnectionAPI.getConnectionsByDocumentId(docId)
       .then((halfConnections: HalfConnection[]) => {
         setConnectionsList({
@@ -74,7 +81,14 @@ function LinkDocumentsPage() {
   ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
-      newConnections[connIndex].document_id = documentId;
+      if (documentId === 0) {
+        newConnections[connIndex] = {
+          document_id: undefined,
+          connection_types: [],
+        };
+      } else {
+        newConnections[connIndex].document_id = documentId;
+      }
       return {
         starting_document_id: prevList.starting_document_id,
         connections: newConnections,
