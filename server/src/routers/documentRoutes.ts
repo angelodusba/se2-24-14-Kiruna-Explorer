@@ -63,19 +63,19 @@ class DocumentRoutes {
         .isArray()
         .withMessage("Location must be an array.")
         .bail()
-        .custom((value: any) => {
-          if (
-            !value.every(
-              (coord: any) =>
-                typeof coord === "object" &&
-                coord !== null &&
-                !isNaN(Number(coord.lat)) &&
-                !isNaN(Number(coord.lng))
-            )
-          ) {
-            throw new Error(
-              "Each coordinate must be an object with numeric lat and lng properties."
-            );
+        .custom((points: any) => {
+          // Check each point has 'lat' and 'lng'
+          for (const point of points) {
+            if (
+              typeof point.lat !== "number" ||
+              typeof point.lng !== "number" ||
+              point.lat < -90 ||
+              point.lat > 90 ||
+              point.lng < -180 ||
+              point.lng > 180
+            ) {
+              throw new Error("Each point in location must have a valid value of 'lat' and 'lng'");
+            }
           }
           return true; // Indicates the validation passed
         }),

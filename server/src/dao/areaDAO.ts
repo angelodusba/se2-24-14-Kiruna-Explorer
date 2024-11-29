@@ -1,60 +1,63 @@
 import * as db from "../db/db";
 import Area from "../models/area";
 import Coordinates from "../models/coordinates";
-import { AreaAlreadyExistsError, InvalidAreaError } from "../errors/areaErrors";
+import { AreaAlreadyExistsError } from "../errors/areaErrors";
 
-class AreaDAO{
+class AreaDAO {
   /**
    * Fetches all the saved areas
    * @returns A Promise that resolves to an array of Area object.
    */
-  async getAreas():Promise<Area[]>{
+  async getAreas(): Promise<Area[]> {
     try {
-      const sql= `SELECT id, name, 
+      const sql = `SELECT id, name, 
                   substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11)) AS location
                   FROM areas`;
-      const result = await db.query(sql,[]);
-      const areas : Area[] = result.rows.map((row)=>{
+      const result = await db.query(sql, []);
+      const areas: Area[] = result.rows.map((row) => {
         return new Area(
           row.id,
           row.name,
           row.location.split(",").map((coords: string) => {
             const [lng, lat] = coords.split(" ").map(Number);
             return new Coordinates(lng, lat);
-          }));
+          })
+        );
       });
       return areas;
-    } catch(err: any){
-      throw new Error(err); 
+    } catch (err: any) {
+      throw new Error(err);
     }
   }
 
   /**
-   * Creates a new area in the database.
-   * @param name - The name of the area, must not be empty.
-   * @param location - The location of the area as a comma-separated string of coordinates.
-   *                   Must represent a polygon with at least two points.
-   * @returns A Promise that resolves to true if the area has been successfully created.
-   * @throws InvalidAreaError if the location is empty or does not represent a valid polygon.
-   * @throws AreaAlreadyExistsError if an area with the same name already exists.
+   * Create a new named area.
+   * @param name Area name.
+   * @param location Area location (boundaries).
+   * @returns A Promise that resolves to the created area.
    */
-  async createArea(
-    name: string,
-    location: string
-  ): Promise<boolean> {
+  async createArea(name: string, location: string): Promise<Area> {
     try {
-      if (!location || location === "" || location.split(",").length < 2) {
-        throw new InvalidAreaError();
+      const sql = `INSERT INTO areas (name, location) VALUES ($1, 
+                    ST_SetSRID(ST_GeometryFromText('POLYGON((${location}))'), 4326))
+                    RETURNING id
+      `;
+      const result = await db.query(sql, [name]);
+      if (result.rows.length === 0) {
+        throw new Error("An error occurred while creating the area");
       }
-      const sql = `INSERT INTO areas (name, location)
-                   VALUES ($1, ST_SetSRID(ST_GeometryFromText('POLYGON((${location}))'), 4326))`;
-      await db.query(sql, [name]);
-      return true;
+      return new Area(
+        result.rows[0].id,
+        name,
+        location.split(",").map((coords: string) => {
+          const [lng, lat] = coords.trim().split(" ").map(Number);
+          return new Coordinates(lng, lat);
+        })
+      );
     } catch (err: any) {
-      if (err.message.includes("duplicate key value violates unique constraint")) {
+      if (err.message.includes('duplicate key value violates unique constraint "areas_name_key"'))
         throw new AreaAlreadyExistsError();
-      }
-      throw err;
+      throw new Error(err);
     }
   }
 }

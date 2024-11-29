@@ -89,10 +89,6 @@ body {
     border-color: #9E86ED;
 }
  
-.react-flow__edge.selectable:hover .react-flow__edge-path,
-.react-flow__edge.selectable.selected .react-flow__edge-path {
-    stroke: var(--xy-theme-edge-hover);
-}
  
 .react-flow__handle {
     background-color: var(--xy-handle-background-color-default);
@@ -121,4 +117,45 @@ body {
     border-radius: 0;
     width: 5px;
     height: 5px;
+}
+
+.react-flow__edge {
+    stroke-width: 2px;
+    stroke: #b1b1b7;
+}
+
+.react-flow__edge-path {
+    stroke: var(--xy-edge-color, #b1b1b7);
+    stroke-width: 2px;
+}
+
+.react-flow__edge-text {
+    fill: var(--xy-edge-label-color-default);
+    font-size: 12px;
+}
+
+.react-flow__edge-textbg {
+    fill: #f7f9fb;
+    stroke-width: 0;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+    stroke: var(--xy-theme-selected);
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+    stroke: var(--xy-theme-hover);
+}
+
+.react-flow__edge-path {
+    stroke: var(--xy-edge-color, #c60525);
+    stroke-width: 2px;
+    stroke-dasharray: 5, 5; /* This will make the edge dashed */
+    animation: dash-animation 2s linear infinite; /* Adding animation */
+}
+
+@keyframes dash-animation {
+    to {
+        stroke-dashoffset: -10;
+    }
 }

@@ -101,7 +101,8 @@ class DocumentDAO {
       const sql = `
       WITH points AS (
         SELECT ST_SetSRID(ST_GeomFromGeoJSON(geojson), 4326) AS geom
-        FROM unnest(ARRAY[${pointsGeoJSON.join(",")}]) AS geojson
+        FROM unnest($1::text[]) AS geojson
+        -- FROM unnest(ARRAY[${pointsGeoJSON.join(",")}]) AS geojson
       )
       SELECT NOT EXISTS (
         SELECT 1
@@ -111,11 +112,11 @@ class DocumentDAO {
           FROM areas
           WHERE id = 1
         ))
-      ) AS all_within;
+      ) AS all_within
     `;
 
       // Execute the query
-      const result = await db.query(sql);
+      const result = await db.query(sql, [pointsGeoJSON]);
       return result.rows[0]?.all_within || false;
     } catch (err: any) {
       throw err;

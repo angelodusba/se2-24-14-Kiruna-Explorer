@@ -27,8 +27,8 @@ class AreaRoutes {
 
   initRoutes() {
     /**
-     * Route for retrieving all Areas.
-     * It returns an array of Areas.
+     * Route for retrieving all areas.
+     * It returns an array of Area objects.
      */
     this.router.get("/", (req: any, res: any, next: any) =>
       this.controller
@@ -37,43 +37,48 @@ class AreaRoutes {
         .catch((err: any) => next(err))
     );
 
+    /**
+     * Route for registering a new area.
+     */
     this.router.post(
       "/",
       this.authService.isLoggedIn,
       this.authService.isUrbanPlanner,
-      body("name").isString().notEmpty().withMessage("Field 'name' is required"),
+      body("name").isString().notEmpty().withMessage("Name must be a non-empty string"),
       body("location")
-        .isArray()
-        .isLength({ min: 1 })
-        .withMessage("Location must be a non-empty array.")
+        .isArray({ min: 4 })
+        .withMessage("Location must be an array with at least 3 points")
         .bail()
-        .custom((value: any) => {
-          if (
-            !value.every(
-              (coord: any) =>
-                typeof coord === "object" &&
-                coord !== null &&
-                !isNaN(Number(coord.lat)) &&
-                !isNaN(Number(coord.lng))
-            )
-          ) {
-            throw new Error(
-              "Each coordinate must be an object with numeric lat and lng properties."
-            );
+        .custom((points) => {
+          // Check each point has 'lat' and 'lng'
+          for (const point of points) {
+            if (
+              typeof point.lat !== "number" ||
+              typeof point.lng !== "number" ||
+              point.lat < -90 ||
+              point.lat > 90 ||
+              point.lng < -180 ||
+              point.lng > 180
+            ) {
+              throw new Error("Each point in location must have a valid value of 'lat' and 'lng'");
+            }
           }
-          return true; // Indicates the validation passed
+          // Check if first and last points are identical to form a closed polygon
+          const first = points[0];
+          const last = points[points.length - 1];
+          if (first.lat !== last.lat || first.lng !== last.lng) {
+            throw new Error("The polygon must be closed (first and last points must be identical)");
+          }
+          return true;
         }),
       this.errorHandler.validateRequest,
-      (req: any, res: any, next: any) => {
+      (req: any, res: any, next: any) =>
         this.controller
           .createArea(req.body.name, req.body.location)
-          .then(() => res.status(200).end())
-          .catch((err: any) => {
-            next(err);
-          });
-      }
+          .then((area) => res.status(200).json(area))
+          .catch((err: any) => next(err))
     );
-  }  
+  }
 }
 
 export default AreaRoutes;
