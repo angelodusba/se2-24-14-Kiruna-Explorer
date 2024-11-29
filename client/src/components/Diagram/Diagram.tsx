@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import ReactFlow, { ReactFlowProvider, addEdge, MiniMap, Controls, Background, NodeChange, applyNodeChanges, Node, PanOnScrollMode, BackgroundVariant, EdgeProps, BezierEdge, EdgeChange, applyEdgeChanges, useReactFlow, useViewport, TextAlign } from 'reactflow';
+import ReactFlow, { ReactFlowProvider, addEdge, MiniMap, Controls, Background, NodeChange,
+    applyNodeChanges, Node, PanOnScrollMode, BackgroundVariant, EdgeChange, applyEdgeChanges } from 'reactflow';
 import { Edge, Connection } from 'reactflow';
 import 'reactflow/dist/style.css';
 import dayjs from 'dayjs';
@@ -20,8 +21,8 @@ const nodeTypes = {
 };
 
 
-const gridHeight = 200; // Size of the grid cells
-const gridWidth = 400; // Width of the grid
+const gridHeight = 100; // Size of the grid cells
+const gridWidth = 200; // Width of the grid
 
 const initialEdges: Edge[] = [];
 import { AnimatedSVGEdge } from './AnimatedEdge';
