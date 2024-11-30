@@ -11,7 +11,7 @@ class ScaleDAO{
         try{
             const sql = "SELECT * FROM scales"
             const result = await db.query(sql,[])
-            const scales : Scale[] = result.row.map((row) => {
+            const scales : Scale[] = result.rows.map((row) => {
                 return new Scale(row.id,row.name);
             });
             return scales;

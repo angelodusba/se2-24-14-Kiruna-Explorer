@@ -8,6 +8,7 @@ import TypeRoutes from "./routers/typeRoutes";
 import ConnectionRoutes from "./routers/connectionRoutes";
 import AttachmentRoutes from "./routers/attachmentRoutes";
 import AreaRoutes from "./routers/areaRoutes";
+import ScaleRoutes from "./routers/scaleRoutes";
 
 const prefix = "/kirunaexplorer";
 
@@ -35,6 +36,7 @@ function initRoutes(app: express.Application) {
   const connectionRoutes = new ConnectionRoutes(authenticator);
   const attachmentRoutes = new AttachmentRoutes(authenticator);
   const areaRoutes = new AreaRoutes(authenticator);
+  const scaleRoutes = new ScaleRoutes(authenticator);
 
   /**
    * The routes for the user and authentication are defined here.
@@ -47,6 +49,7 @@ function initRoutes(app: express.Application) {
   app.use(`${prefix}/connections`, connectionRoutes.getRouter());
   app.use(`${prefix}/attachments`, attachmentRoutes.getRouter());
   app.use(`${prefix}/areas`, areaRoutes.getRouter());
+  app.use(`${prefix}/scales`, scaleRoutes.getRouter());
 
   // Register global error handler
   ErrorHandler.registerErrorHandler(app);

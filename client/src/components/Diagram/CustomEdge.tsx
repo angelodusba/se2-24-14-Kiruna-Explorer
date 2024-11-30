@@ -272,7 +272,7 @@ const CustomEdge: React.FC<EdgeProps> = ({
                         cursor: "row-resize",
                     }}
                 >
-                                        <div
+                    <div
                         style={{
                             position: "absolute",
                             left: "30px",
@@ -283,7 +283,7 @@ const CustomEdge: React.FC<EdgeProps> = ({
                             pointerEvents: "none",
                         }}
                     >
-                        {label}
+                    {label}
                     </div>
                 </div>
                 <div

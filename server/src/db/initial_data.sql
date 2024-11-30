@@ -20,7 +20,7 @@ INSERT INTO "types" (name) VALUES ('Material Effect');
 
 
 -----------------
--- Types table --
+-- Scales table --
 -----------------
 INSERT INTO "scales" (name) VALUES ('Blueprints/material effects');
 INSERT INTO "scales" (name) VALUES ('Text');

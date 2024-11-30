@@ -262,6 +262,39 @@ async function deleteFile(id) {
   }
 }
 
+/** ------------------- Scales APIs ------------------------ */
+
+import Scale from "../models/Scale";
+
+/** Get all the scale types
+ * @returns {{id: number, name: string}[]} - array of object with id: number and name: string
+ * @throws {Error} - error message
+ * @example
+ * const scales = await getScaleTypes();
+ *
+ */
+
+const getScaleTypes = async () => {
+  const response = await fetch(baseURL + "scales", {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    const scales: Scale[] = await response.json();
+    return scales;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
+  }
+};
+
+/** ------------------- Export ------------------------ */
+
 const DocumentAPI = {
   sendDocument,
   getDocumentsLocation,
@@ -275,5 +308,6 @@ const DocumentAPI = {
   getResourcesBaseURL,
   uploadFile,
   deleteFile,
+  getScaleTypes,
 };
 export default DocumentAPI;
