@@ -1,14 +1,9 @@
 import "leaflet/dist/leaflet.css";
-import {
-  LayerGroup,
-  LayersControl,
-  MapContainer,
-  TileLayer,
-} from "react-leaflet";
+import { LayerGroup, MapContainer, TileLayer } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Dial from "../Dial";
 import DocumentDial from "../DocumentDial";
 import UserContext from "../../contexts/UserContext";
@@ -16,6 +11,7 @@ import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import { Outlet } from "react-router-dom";
 import DocumentMarker from "./DocumentMarker";
+import MapLayersControl from "./MapLayersControl";
 
 const bounds = L.latLngBounds(
   [67.5458, 19.8253], // Southwest coordinates
@@ -25,7 +21,11 @@ const bounds = L.latLngBounds(
 function Map({ docs }) {
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
-
+  const [mapType, setMapType] = useState("satellite");
+  const [layersVisibility, setLayersVisibility] = useState({
+    links: false,
+    areas: false,
+  });
   return (
     <>
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
@@ -50,30 +50,34 @@ function Map({ docs }) {
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
         }}>
-        <LayersControl position="topright">
-          {/* Normal Map */}
-          <LayersControl.BaseLayer checked name="Normal">
+        {!disabledInput && user && user.role === Role.UrbanPlanner && (
+          <MapLayersControl
+            mapType={mapType}
+            setMapType={setMapType}
+            layersVisibility={layersVisibility}
+            setLayersVisibility={setLayersVisibility}
+          />
+        )}
+        {/* Map Tiles */}
+        {mapType == "satellite" ? (
+          <LayerGroup>
             <TileLayer
               keepBuffer={100}
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
-          </LayersControl.BaseLayer>
-          {/* Satellite Map */}
-          <LayersControl.BaseLayer name="Satellite">
-            <LayerGroup>
-              <TileLayer
-                keepBuffer={100}
-                attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              />
-              <TileLayer
-                attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-              />
-            </LayerGroup>
-          </LayersControl.BaseLayer>
-        </LayersControl>
+            <TileLayer
+              attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+            />
+          </LayerGroup>
+        ) : (
+          <TileLayer
+            keepBuffer={100}
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+        )}
         <MarkerClusterGroup>
           {!disabledInput &&
             docs.map((doc) => {
