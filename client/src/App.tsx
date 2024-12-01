@@ -23,7 +23,7 @@ import Diagram from "./components/Diagram/Diagram";
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
-  const [disabledInput, setDisabledInput] = useState(false);
+  const [disabledInput, setDisabledInput] = useState(undefined);
   const [error, setError] = useState("");
   const [docsLocation, setDocsLocation] = useState([]);
   const [currentFilter, setCurrentFilter] = useState<SearchFilter>(undefined);
@@ -189,7 +189,10 @@ function App() {
                   />
                 }
               />
-              <Route path="/diagram" element={<Diagram currentFilter={currentFilter}/>} />
+              <Route
+                path="/diagram"
+                element={<Diagram currentFilter={currentFilter} />}
+              />
             </Route>
             <Route
               path="*"

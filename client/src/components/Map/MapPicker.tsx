@@ -1,17 +1,67 @@
-import { Alert, Button } from "@mui/material";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import * as LDraw from "leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
+import { Alert, Button } from "@mui/material";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useMapEvent } from "react-leaflet";
+import { useMap } from "react-leaflet";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import PlaceIcon from "@mui/icons-material/Place";
 
 function MapPicker({ setDocument }) {
   const [pointMarker, setPointMarker] = useState<L.Marker | null>(null);
-  const { setDisabledInput } = useContext(DisabledInputContext);
+  const { disabledInput, setDisabledInput } = useContext(DisabledInputContext);
+  const [polygon, setPolygon] = useState(null);
   const alertRef = useRef(null);
+  const map = useMap();
 
   useEffect(() => {
     L.DomEvent.disableClickPropagation(alertRef.current);
+    if (disabledInput === "point") {
+      map.on("click", (event) => {
+        if (pointMarker) {
+          map.removeLayer(pointMarker);
+        }
+        const m = L.marker(event.latlng).addTo(map);
+        setPointMarker(m);
+        setDocument((prevDocument) => ({
+          ...prevDocument,
+          coordinates: [event.latlng],
+        }));
+      });
+      return () => {
+        // Cleanup event listener
+        map.off("click");
+      };
+    } else if (disabledInput === "area") {
+      const drawControl = new LDraw.Draw.Polygon(map, {
+        shapeOptions: {
+          color: "#003d8f",
+          weight: 4,
+        },
+        allowIntersection: false, // Prevent intersecting polygons
+      });
+
+      drawControl.enable();
+
+      const handleDrawCreated = (e) => {
+        const layer = e.layer;
+        const latlngs = layer.getLatLngs()[0].map((latlng) => ({
+          lat: latlng.lat,
+          lng: latlng.lng,
+        }));
+
+        setPolygon(latlngs); // Save polygon data for rendering
+      };
+
+      map.on(LDraw.Draw.Event.CREATED, handleDrawCreated);
+
+      return () => {
+        // Cleanup event listener and disable draw control
+        map.off(LDraw.Draw.Event.CREATED, handleDrawCreated);
+        drawControl.disable();
+      };
+    }
   });
 
   const handleClose = (event) => {
@@ -24,27 +74,15 @@ function MapPicker({ setDocument }) {
       map.removeLayer(pointMarker);
       setPointMarker(null);
     }
-    setDisabledInput(false);
+    setDisabledInput(undefined);
   };
 
   const handlePick = (event) => {
     event.stopPropagation();
     map.removeLayer(pointMarker);
     setPointMarker(null);
-    setDisabledInput(false);
+    setDisabledInput(undefined);
   };
-
-  const map = useMapEvent("click", (event) => {
-    if (pointMarker) {
-      map.removeLayer(pointMarker);
-    }
-    const m = L.marker(event.latlng).addTo(map);
-    setPointMarker(m);
-    setDocument((prevDocument) => ({
-      ...prevDocument,
-      coordinates: [event.latlng],
-    }));
-  });
 
   return (
     <>
