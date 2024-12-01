@@ -133,6 +133,11 @@ Adds a new document to the database.
   - It should return a `404` error if the type of the document does not exist in the database
   - It should return a `404` error if at least one of the stakeholder does not exist in the database
   - It should return a `404` error if the scale does not exist in the database
+  - It should return a `422` error if the length of the location array is 2 or 3, i.e. when inserting a polygon at least 4 points are required.
+  - It should return a `422` error if at least one point is not numeric.
+  - It should return a `422` error if at least one point's lat is not between -90 and 90 or if at least one point's lng is not between -180 and 180.
+  - It should return a `422` error if the area is not a closed polygon, i.e. the last point is not equal to the first point.
+  - It should return a `404` error if at least one point is outside the municipality area.
 
 #### PUT `kirunaexplorer/documents/location`
 
@@ -160,6 +165,11 @@ Updates the location of a document in the database.
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:
   - It should return a `404` error if the document does not exist in the database
+  - It should return a `422` error if the length of the location array is 2 or 3, i.e. when inserting a polygon at least 4 points are required.
+  - It should return a `422` error if at least one point is not numeric.
+  - It should return a `422` error if at least one point's lat is not between -90 and 90 or if at least one point's lng is not between -180 and 180.
+  - It should return a `422` error if the area is not a closed polygon, i.e. the last point is not equal to the first point.
+  - It should return a `404` error if at least one point is outside the municipality area.
 
 #### GET `kirunaexplorer/documents/location`
 
@@ -809,7 +819,7 @@ Creates a new area in the database.
 - Request Parameters: None
 - Request Body Content: An object with one field:
   - `name` (string) - The name of the area, it cannot be empty.
-  - `location`: an array of objects that cannot be empty, representing the coordinates (logitude, latitude) of the document, can be only a polygon.
+  - `location`: an array of objects with at least 4 elements, representing the coordinates (logitude, latitude) of the document, can be only a polygon.
   - Example:
 
 ```JSON
@@ -867,4 +877,7 @@ Creates a new area in the database.
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:
   - It should return a `409` error if an area with the same name already exists in the database.
-  - It should return a `409` error if the given area is not a polygon.
+  - It should return a `422` error if at least one point is not numeric.
+  - It should return a `422` error if at least one point's lat is not between -90 and 90 or if at least one point's lng is not between -180 and 180.
+  - It should return a `422` error if the area is not a closed polygon, i.e. the last point is not equal to the first point.
+  - It should return a `404` error if at least one point is outside the municipality area.
