@@ -78,7 +78,6 @@ function GeoreferenceForm({
         py: 2,
       }}
       onSubmit={handleSubmit}
-      size={6}
       spacing={2}>
       <Grid
         sx={{
@@ -97,7 +96,7 @@ function GeoreferenceForm({
           flexDirection: "column",
           alignItems: "center",
         }}
-        size={{ xs: 12, md: georeferenceModality === 1 ? 6 : 12 }}>
+        size={{ xs: 12, md: georeferenceModality === 0 ? 12 : 6 }}>
         <FormControl>
           <RadioGroup
             aria-labelledby="georeferenceModality"
@@ -132,11 +131,7 @@ function GeoreferenceForm({
               control={<Radio />}
               label="Single point"
             />
-            <FormControlLabel
-              value={2}
-              control={<Radio />}
-              label="Choose Existing Area"
-            />
+            <FormControlLabel value={2} control={<Radio />} label="Area" />
           </RadioGroup>
         </FormControl>
       </Grid>
@@ -144,7 +139,7 @@ function GeoreferenceForm({
       <Grid
         container
         sx={{
-          display: "flex",
+          display: georeferenceModality === 1 ? "flex" : "none",
           alignItems: "center",
         }}
         size={6}>
@@ -241,7 +236,52 @@ function GeoreferenceForm({
           </Button>
         </Grid>
       </Grid>
-      {georeferenceModality === 2 && (
+      <Grid
+        container
+        sx={{
+          display: georeferenceModality === 2 ? "flex" : "none",
+          alignItems: "center",
+        }}
+        size={6}>
+        <Grid
+          sx={{
+            display: georeferenceModality === 2 ? "flex" : "none",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+          size={{ xs: 12 }}>
+          <FormControl fullWidth sx={{ maxWidth: 400 }}>
+            <InputLabel id="select-area-label">Select Area</InputLabel>
+            <Select
+              labelId="select-area-label"
+              value={selectedArea}
+              onChange={handleAreaChange}
+              label="Select Area">
+              {areas.map((area) => (
+                <MenuItem key={area.id} value={area.id}>
+                  {area.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid
+          sx={{
+            display: georeferenceModality === 2 ? "flex" : "none",
+            justifyContent: "center",
+          }}
+          size={12}>
+          <Button
+            onClick={() => setDisabledInput("area")}
+            variant="outlined"
+            size="small"
+            startIcon={<PlaceIcon />}>
+            Pick on the map
+          </Button>
+        </Grid>
+      </Grid>
+      {georeferenceModality === 10 && (
         <Grid
           container
           sx={{
