@@ -36,7 +36,6 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
   const [dateError, setDateError] = useState("");
   const [scaleError, setScaleError] = useState("");
   const [scaleModality, setScaleModality] = useState<number>(0);
-  const [sourcesPages, setSourcesPages] = useState<string[]>([""]);
 
   const selectedStakeholders = useMemo(
     () => stakeholders.filter((stakeholder) => document.stakeholderIds.includes(stakeholder.id)),
@@ -327,7 +326,7 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
       <Grid size={12} sx={{ textAlign: "center" }}>
         <Typography variant="h6">Pages</Typography>
       </Grid>
-      {sourcesPages.map((source, index) => {
+      {document.pages.split("-").map((source, index) => {
         return (
           <Grid sx={{ textAlign: "center" }} size={{ xs: 6, md: 3 }} key={index}>
             <Badge
@@ -340,13 +339,15 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
               }}
               badgeContent={
                 index >= 1 ? (
+                  // DELETE SOURCE BUTTON
                   <IconButton
                     size="small"
                     sx={{ mt: -2 }}
                     color="error"
                     onClick={() => {
-                      const newSourcesPages = sourcesPages.filter((_, i) => i !== index);
-                      setSourcesPages(newSourcesPages);
+                      const newSourcesPages = document.pages
+                        .split("-")
+                        .filter((_, i) => i !== index);
                       setDocument((prevDocument) => ({
                         ...prevDocument,
                         pages: newSourcesPages.join("-"),
@@ -369,14 +370,12 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
                 variant="outlined"
                 value={source}
                 onChange={(event) => {
-                  event.preventDefault();
                   const validChars = /^[0-9]*$/;
                   if (!validChars.test(event.target.value)) {
                     return;
                   }
-                  const newSourcesPages = [...sourcesPages];
+                  const newSourcesPages = document.pages.split("-");
                   newSourcesPages[index] = event.target.value;
-                  setSourcesPages(newSourcesPages);
                   setDocument((prevDocument) => ({
                     ...prevDocument,
                     pages: newSourcesPages.join("-"),
@@ -389,14 +388,17 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
       })}
       <Grid size={12} sx={{ display: "flex", justifyContent: "center" }}>
         <Button
-          disabled={sourcesPages[sourcesPages.length - 1] === ""}
+          disabled={document.pages.split("-").pop() === ""}
           variant="outlined"
           color="success"
           size="small"
           startIcon={<AddCircleOutlined />}
           onClick={() => {
-            const newSourcesPages = [...sourcesPages, ""];
-            setSourcesPages(newSourcesPages);
+            const newSourcesPages = [...document.pages.split("-"), ""];
+            setDocument((prevDocument) => ({
+              ...prevDocument,
+              pages: newSourcesPages.join("-"),
+            }));
           }}
         >
           Add source
