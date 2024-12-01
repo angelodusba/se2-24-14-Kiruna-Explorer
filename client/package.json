@@ -17,6 +17,7 @@
     "@mui/material": "^6.1.6",
     "dayjs": "^1.11.13",
     "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4",
     "projektpro-leaflet-smoothwheelzoom": "^0.1.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

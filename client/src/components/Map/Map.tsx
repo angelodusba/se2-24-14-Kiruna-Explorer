@@ -1,4 +1,5 @@
 import "leaflet/dist/leaflet.css";
+import "leaflet-draw/dist/leaflet.draw.css";
 import { LayerGroup, MapContainer, TileLayer } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
@@ -14,8 +15,8 @@ import DocumentMarker from "./DocumentMarker";
 import MapLayersControl from "./MapLayersControl";
 
 const bounds = L.latLngBounds(
-  [67.5458, 19.8253], // Southwest coordinates
-  [68.1658, 20.6253] // Northeast coordinates
+  [67.3458, 19.6253], // Southwest coordinates
+  [68.3658, 20.8253] // Northeast coordinates
 );
 
 function Map({ docs }) {
@@ -50,7 +51,7 @@ function Map({ docs }) {
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
         }}>
-        {!disabledInput && user && user.role === Role.UrbanPlanner && (
+        {user && user.role === Role.UrbanPlanner && !disabledInput && (
           <MapLayersControl
             mapType={mapType}
             setMapType={setMapType}

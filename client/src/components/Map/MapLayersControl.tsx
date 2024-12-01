@@ -18,9 +18,10 @@ function MapLayersControl({
 
   return (
     <>
-      <Control position="topright">
+      <div className="leaflet-control-container leaflet-top leaflet-left leaflet-right">
         <Tooltip title="Layers">
           <Fab
+            className=" leaflet-control"
             size="medium"
             id="layersControl"
             //aria-controls={accountOpen ? "accountMenu" : undefined}
@@ -32,7 +33,7 @@ function MapLayersControl({
             <LayersOutlinedIcon></LayersOutlinedIcon>
           </Fab>
         </Tooltip>
-      </Control>
+      </div>
       <Drawer
         anchor={"bottom"}
         open={drawerOpened}
