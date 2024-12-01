@@ -1,6 +1,6 @@
 import L from "leaflet";
+import "leaflet-draw";
 import "leaflet/dist/leaflet.css";
-import * as LDraw from "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { Alert, Button } from "@mui/material";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -34,7 +34,7 @@ function MapPicker({ setDocument }) {
         map.off("click");
       };
     } else if (disabledInput === "area") {
-      const drawControl = new LDraw.Draw.Polygon(map, {
+      const drawControl = new L.Draw.Polygon(map as L.DrawMap, {
         shapeOptions: {
           color: "#003d8f",
           weight: 4,
@@ -54,11 +54,11 @@ function MapPicker({ setDocument }) {
         setPolygon(latlngs); // Save polygon data for rendering
       };
 
-      map.on(LDraw.Draw.Event.CREATED, handleDrawCreated);
+      map.on(L.Draw.Event.CREATED, handleDrawCreated);
 
       return () => {
         // Cleanup event listener and disable draw control
-        map.off(LDraw.Draw.Event.CREATED, handleDrawCreated);
+        map.off(L.Draw.Event.CREATED, handleDrawCreated);
         drawControl.disable();
       };
     }
