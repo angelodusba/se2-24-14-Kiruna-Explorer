@@ -1,6 +1,5 @@
 import { Box, Divider, Drawer, Fab, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
-import Control from "react-leaflet-custom-control";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import Grid from "@mui/material/Grid2";
 import Satellite from "../../assets/Satellite.png";
