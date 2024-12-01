@@ -25,7 +25,8 @@ const nodeTypes = {
 };
 
 const gridHeight = 200; // Size of the grid cells
-const gridWidth = 200; // Width of the grid
+const gridWidth = 400; // Width of the grid
+const nodeWidth = gridWidth/2;
 
 const initialEdges: Edge[] = [];
 import CustomEdge from './CustomEdge';
@@ -44,6 +45,8 @@ function Diagram({currentFilter}: DiagramProps) {
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>(initialEdges);
     const [yearToShowFirst, setYearToShowFirst] = useState<number>(0);
+    const [refreshViewport, setRefreshViewport] = useState<boolean>(false);
+
     const onNodesChange = (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds));
     const onEdgesChange = (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds));
     const onConnect = (params: Connection) => setEdges((eds) => addEdge(params, eds));
@@ -62,8 +65,8 @@ function Diagram({currentFilter}: DiagramProps) {
             type: 'zoom',
             data: { label: doc.title.substring(0, 100) },
             position: { x: (assignX_toDate(doc.date, minYear)) * gridWidth + gridWidth, y: (index * gridHeight) + offset },
-            style: { width: gridWidth, height: gridHeight/2, borderRadius: 10, background: 'pink',
-                fontSize: gridWidth/10, textAlign: 'center' },
+            style: { width: nodeWidth, height: gridHeight/2, borderRadius: 10, background: 'pink',
+                fontSize: nodeWidth/10, textAlign: 'center' },
             draggable: false,
             connectable: true,
         };
@@ -111,14 +114,15 @@ function Diagram({currentFilter}: DiagramProps) {
         const fetchDocumentsAndConnections = async () => {
             const response = await DocumentAPI.getFilteredDocuments(currentFilter);
             const list = response.docs.map((doc: any, _: number) => {
-                return { id: doc.id, title: doc.title, date: doc.issue_date, scale: doc.scale };
+                return { id: doc.id, title: doc.title, date: doc.issue_date, scale: doc.scale.toLowerCase() };
             });
             const minYear = Math.floor(Math.min(...list.map(doc => dayjs(doc.date).year())));
             const maxYear = Math.ceil(Math.max(...list.map(doc => dayjs(doc.date).year())));
             const years = Array.from({ length: maxYear - minYear + 1 }, (_, k) => k + minYear);
             //Need to calculate the offset for each scale, to position the nodes correctly
             const numberOfDocumentsPerScale = response.docs.reduce((acc, doc) => {
-              acc[doc.scale] = acc[doc.scale] ? acc[doc.scale] + 1 : 1;
+              const scale = doc.scale.toLowerCase();
+              acc[scale] = acc[scale] ? acc[scale] + 1 : 1;
               return acc;
             }, {});
             
@@ -188,6 +192,8 @@ function Diagram({currentFilter}: DiagramProps) {
             //create Edges
             const edges = createEdges(connections, docsNodes);
             setEdges(edges);
+            //refresh viewport via state change
+            setRefreshViewport(!refreshViewport);
         };
         fetchDocumentsAndConnections();
     }, [currentFilter]);
@@ -197,7 +203,7 @@ function Diagram({currentFilter}: DiagramProps) {
             <Flow nodes={nodes} edges={edges} 
                     onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} 
                     onEdgeUpdate={onEdgeUpdate} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
-                    yearToShowFirst = {yearToShowFirst} currentFilter={currentFilter}
+                    yearToShowFirst = {yearToShowFirst} currentFilter={currentFilter} resetViewport={refreshViewport}
             />
         </ReactFlowProvider>
     );
@@ -207,7 +213,8 @@ import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutl
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import { Button, colors, IconButton } from '@mui/material';
 
-function Flow({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onEdgeUpdate, nodeTypes, edgeTypes, yearToShowFirst, currentFilter }) {
+function Flow({ nodes, edges, onNodesChange, onEdgesChange, resetViewport,
+  onConnect, onEdgeUpdate, nodeTypes, edgeTypes, yearToShowFirst, currentFilter }) {
     const { setViewport, getViewport } = useReactFlow(); // Get viewport control methods
 
   
@@ -245,7 +252,7 @@ function Flow({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onEdgeUpd
         const newViewport = { x: (firstNodeX + coveredYearsBefore * gridWidth)*zoom, y: (firstNodeY + gridHeight)*zoom, zoom: zoom};
         setViewport(newViewport);
       }
-    }, [currentFilter, nodes.length, yearToShowFirst]);
+    }, [currentFilter, yearToShowFirst, resetViewport]);
   
     return (
         <div style={{ height: '100vh', width: '100vw', overflow: 'auto' }}>
