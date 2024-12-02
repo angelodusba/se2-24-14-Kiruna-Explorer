@@ -89,6 +89,7 @@ function Map({ docs }) {
                   <DocumentMarker
                     key={doc.id}
                     id={doc.id}
+                    typeName={doc.type.name}
                     position={L.latLng(doc.location[0])}
                   />
                 );
@@ -99,6 +100,7 @@ function Map({ docs }) {
                   <DocumentMarker
                     key={doc.id}
                     id={doc.id}
+                    typeName={doc.type.name}
                     position={[67.85572, 20.22513]}
                   />
                 );
