@@ -39,13 +39,16 @@ function AddDocumentPage({ fetchDocuments }) {
     scale: "Blueprints/material effects",
     language: "",
   });
+  const [areas, setAreas] = useState([]);
   // LinkDocumentForm data
   const [connectionsList, setConnectionsList] = useState<ConnectionList>({
     starting_document_id: undefined,
     connections: [],
   });
   const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
-  const [documentsList, setDocumentsList] = useState<{ id: number; title: string }[]>([]);
+  const [documentsList, setDocumentsList] = useState<
+    { id: number; title: string }[]
+  >([]);
 
   const handleSubmit = async (document: Document) => {
     if (activeStep === 0) {
@@ -107,11 +110,17 @@ function AddDocumentPage({ fetchDocuments }) {
   const handleAddConnection = () => {
     setConnectionsList((prevList) => ({
       starting_document_id: prevList.starting_document_id,
-      connections: [...prevList.connections, { document_id: undefined, connection_types: [] }],
+      connections: [
+        ...prevList.connections,
+        { document_id: undefined, connection_types: [] },
+      ],
     }));
   };
 
-  const handleSelectLinkedDocument = (connIndex: number, documentId: number) => {
+  const handleSelectLinkedDocument = (
+    connIndex: number,
+    documentId: number
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       if (documentId === 0) {
@@ -129,7 +138,10 @@ function AddDocumentPage({ fetchDocuments }) {
     });
   };
 
-  const handleSelectConnectionTypes = (connIndex: number, connection_types: string[]) => {
+  const handleSelectConnectionTypes = (
+    connIndex: number,
+    connection_types: string[]
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       newConnections[connIndex].connection_types = connection_types;
@@ -154,6 +166,16 @@ function AddDocumentPage({ fetchDocuments }) {
       DocumentAPI.getStakeholders()
         .then((stakeholders: StakeHolder[]) => {
           setStakeholders(stakeholders);
+        })
+        .catch((error) => {
+          setError(error.message);
+        });
+    }
+    if (activeStep === 1) {
+      //Fetch areas
+      DocumentAPI.getAllAreas()
+        .then((areas) => {
+          setAreas(areas);
         })
         .catch((error) => {
           setError(error.message);
@@ -203,7 +225,9 @@ function AddDocumentPage({ fetchDocuments }) {
           setDocument={setDocument}
         />
       </FormModal>
-      {disabledInput && <MapPicker setDocument={setDocument}></MapPicker>}
+      {disabledInput && (
+        <MapPicker areas={areas} setDocument={setDocument}></MapPicker>
+      )}
     </>
   );
 }

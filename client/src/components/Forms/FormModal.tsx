@@ -22,7 +22,7 @@ const style = {
   },
   minWidth: {
     xs: "80%",
-    sm: "500px",
+    sm: "80px",
   },
   //Hide scrollbar but allow scrolling
   "&::-webkit-scrollbar": {

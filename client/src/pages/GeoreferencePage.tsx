@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import FormModal from "../components/Forms/FormModal";
 import { Document } from "../models/Document";
 import GeoreferenceForm from "../components/Forms/GeoreferenceForm";
@@ -31,6 +31,17 @@ function GeoreferencePage({ fetchDocuments }) {
     scale: "Blueprints/ material effects",
     language: "",
   });
+  const [areas, setAreas] = useState([]);
+
+  useEffect(() => {
+    DocumentAPI.getAllAreas()
+      .then((areas) => {
+        setAreas(areas);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  }, [setError]);
 
   const handleEditGeoreferenceSubmit = (event) => {
     event.preventDefault();
@@ -60,7 +71,9 @@ function GeoreferencePage({ fetchDocuments }) {
           handleSubmit={handleEditGeoreferenceSubmit}
           handleClose={handleClose}></GeoreferenceForm>
       </FormModal>
-      {disabledInput && <MapPicker setDocument={setDocument}></MapPicker>}
+      {disabledInput && (
+        <MapPicker areas={areas} setDocument={setDocument}></MapPicker>
+      )}
     </>
   );
 }
