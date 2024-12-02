@@ -3,6 +3,10 @@ body {
   overflow-y: hidden;
 }
 
+.sr-only {
+  display: none;
+}
+
 .customButton {
   background-color: white !important;
   color: #003d8f !important;

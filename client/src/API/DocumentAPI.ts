@@ -95,6 +95,46 @@ async function getStakeholders() {
   }
 }
 
+async function getAllAreas() {
+  const response = await fetch(baseURL + "areas", {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    const areas = await response.json();
+    return areas.slice(1);
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
+  }
+}
+
+async function saveArea(name: string, location) {
+  location.push(location[0]);
+  const response = await fetch(baseURL + "areas", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: name,
+      location: location,
+    }),
+  });
+  if (response.ok) {
+    const res = await response.json();
+    return res;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
+  }
+}
+
 async function getAllDocumentsNames() {
   const response = await fetch(baseURL + "documents/names", {
     method: "GET",
@@ -309,5 +349,7 @@ const DocumentAPI = {
   uploadFile,
   deleteFile,
   getScaleTypes,
+  getAllAreas,
+  saveArea,
 };
 export default DocumentAPI;
