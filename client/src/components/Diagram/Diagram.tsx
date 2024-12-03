@@ -70,17 +70,19 @@ function Diagram({ currentFilter }: DiagramProps) {
       setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
     []
   );
-  const assignX_toDate = (date: string, minYear: number) => {
+  const assignX_toDate = (date: string, filteredYears: number[]) => {
     const d = dayjs(date);
-    return d.year() + d.month() / 12 - minYear;
+    //find the index of d.year() in filteredYears
+    const index = filteredYears.findIndex((year) => year === d.year());
+    return index + d.month() / 12 ;
   };
-  const createNode = (doc: DocumentForDiagram, index, offset, minYear) => {
+  const createNode = (doc: DocumentForDiagram, index, offset, filteredYears) => {
     return {
       id: doc.id.toString(),
       type: "zoom",
       data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders },
       position: {
-        x: assignX_toDate(doc.date, minYear) * gridWidth + gridWidth,
+        x: assignX_toDate(doc.date, filteredYears) * gridWidth + gridWidth,
         y: index * nodeHeight + offset,
       },
       draggable: true,
@@ -100,7 +102,7 @@ function Diagram({ currentFilter }: DiagramProps) {
   };
   const createNodesForDocument = (
     fiteredDocsPerYear: DocumentForDiagram[][],
-    minYear,
+    filteredYears: number[],
     offsetYPerScale
   ) => {
     let newNodes = [];
@@ -116,7 +118,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         const docsPerYearPerScale = arrayDocsPerScale[scale];
         const sortedDocs = docsPerYearPerScale.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
         const nodesToAdd = sortedDocs.map((doc, index) =>
-          createNode(doc, index, offsetYPerScale[scale], minYear)
+          createNode(doc, index, offsetYPerScale[scale], filteredYears)
         );
         newNodes = [...newNodes, ...nodesToAdd];
       }
@@ -202,17 +204,20 @@ function Diagram({ currentFilter }: DiagramProps) {
         maxDocsPerScale[scale.name] = max;
         offset += nodeHeight * max;
       });
-
+      //Keep nodes with no documents, used to position docs and years
+      const filteredYears = years.filter((year) => {
+        return fiteredDocsPerYear.find((docs) => docs[0].date.includes(year.toString()));
+      });
       //sort for date
-      const docsNodes = createNodesForDocument(fiteredDocsPerYear, minYear, offsetYPerScale);
+      const docsNodes = createNodesForDocument(fiteredDocsPerYear, filteredYears, offsetYPerScale);
       const sortedNodesByID = docsNodes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
       //Keep track of last year_node id to not overlap
       // Create nodes for years (COLUMNS)
       let lastID = sortedNodesByID[sortedNodesByID.length - 1].id;
-      const yearNodes: Node[] = years.map((year, index) => ({
+      const yearNodes: Node[] = filteredYears.map((year, index) => ({
         id: (index + Number(lastID) + 1).toString(),
         data: { label: year.toString() },
-        position: { x: (year - minYear) * gridWidth + gridWidth, y: 0 },
+        position: { x: index * gridWidth + gridWidth, y: 0 },
         style: {
           width: gridWidth,
           height: gridHeight,
