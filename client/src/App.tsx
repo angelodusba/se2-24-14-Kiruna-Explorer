@@ -27,15 +27,7 @@ function App() {
   const [disabledInput, setDisabledInput] = useState(undefined);
   const [error, setError] = useState("");
   const [docsLocation, setDocsLocation] = useState([]);
-  const [currentFilter, setCurrentFilter] = useState<SearchFilter>({
-    title: "",
-    types: [],
-    start_year: "",
-    end_year: "",
-    scales: [],
-    languages: [],
-    stakeholders: [],
-  });
+  const [currentFilter, setCurrentFilter] = useState<SearchFilter>({});
   const [filterNumber, setFilterNumber] = useState<number>(0);
 
   const doLogin = async (email: string, password: string) => {
@@ -84,15 +76,7 @@ function App() {
   };
 
   const handleResetFilters = () => {
-    setCurrentFilter({
-      title: "",
-      types: [],
-      start_year: "",
-      end_year: "",
-      scales: [],
-      languages: [],
-      stakeholders: [],
-    });
+    setCurrentFilter({});
     setFilterNumber(0);
   };
 
@@ -229,12 +213,8 @@ function App() {
                   />
                 }
               />
-              <Route
-                path="/diagram"
-                element={<Diagram currentFilter={currentFilter} />}
-              >
-                  <Route path=":id" element={<DocumentCard returnHere={"/diagram"}/>}>
-                </Route>
+              <Route path="/diagram" element={<Diagram currentFilter={currentFilter} />}>
+                <Route path=":id" element={<DocumentCard returnHere={"/diagram"} />}></Route>
               </Route>
             </Route>
             <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
