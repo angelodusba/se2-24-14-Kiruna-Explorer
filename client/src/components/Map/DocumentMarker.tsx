@@ -1,46 +1,71 @@
 import { Marker, useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
-import ActionLogo from "../../assets/type_icons/Action.svg";
-import AgreementLogo from "../../assets/type_icons/Agreement.svg";
-import ConflictLogo from "../../assets/type_icons/Conflict.svg";
-import ConsultationLogo from "../../assets/type_icons/Consultation.svg";
-import DesignLogo from "../../assets/type_icons/Design.svg";
-import InformativeLogo from "../../assets/type_icons/Informative.svg";
-import PrescriptiveLogo from "../../assets/type_icons/Prescriptive.svg";
-import TechnicalLogo from "../../assets/type_icons/Technical.svg";
+import ActionIcon from "../../assets/type_icons/Action.tsx";
+import AgreementIcon from "../../assets/type_icons/Agreement.tsx";
+import ConflictIcon from "../../assets/type_icons/Conflict.tsx";
+import ConsultationIcon from "../../assets/type_icons/Consultation.tsx";
+import DesignIcon from "../../assets/type_icons/Design.tsx";
+import InformativeIcon from "../../assets/type_icons/Informative.tsx";
+import PrescriptiveIcon from "../../assets/type_icons/Prescriptive.tsx";
+import TechnicalIcon from "../../assets/type_icons/Technical.tsx";
 import L from "leaflet";
+import { renderToString } from "react-dom/server";
+
+const colors = ["orange", "blue", "green", "red"]; //Hard coded now for testing pruposes, will be replaced by stakeholders of each doc
 
 const typeIcons = {
-  "Action": ActionLogo,
-  "Material Effect": ActionLogo, //Put again here ActionLogo because in the example UI pdf "Material Effect" does not have its icon, and in some example docs "Material Effect" has same icon as "Action"S
-  "Agreement": AgreementLogo,
-  "Conflict": ConflictLogo,
-  "Consultation": ConsultationLogo,
-  "Design": DesignLogo,
-  "Informative": InformativeLogo,
-  "Prescriptive": PrescriptiveLogo,
-  "Technical": TechnicalLogo
+  "Action": renderToString(<ActionIcon colors={colors}/>),
+  "Material Effect": renderToString(<ActionIcon colors={colors}/>), //Put again here ActionLogo because in the example UI pdf "Material Effect" does not have its icon, and in some example docs "Material Effect" has same icon as "Action"S
+  "Agreement": renderToString(<AgreementIcon colors={colors}/>),
+  "Conflict": renderToString(<ConflictIcon colors={colors}/>),
+  "Consultation": renderToString(<ConsultationIcon colors={colors}/>),
+  "Design": renderToString(<DesignIcon colors={colors}/>),
+  "Informative": renderToString(<InformativeIcon colors={colors}/>),
+  "Prescriptive": renderToString(<PrescriptiveIcon colors={colors}/>),
+  "Technical": renderToString(<TechnicalIcon colors={colors}/>),
 };
 
 function createCustomIcon(typeName: string) {
-  const customIcon = new L.Icon({
-    iconUrl: typeIcons[typeName] ?? KirunaLogo, //If type not found, use as default the original KirunaLogo. Using operator: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#nullish-coalescing
-    iconSize: [26.4, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
+  var customIcon: any;
+  if (typeIcons[typeName]) {
+    customIcon = L.divIcon({
+      html: typeIcons[typeName], //If type not found, use as default the original KirunaLogo. Using operator: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#nullish-coalescing
+      className: '',
+      iconSize: [26, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  } else {
+    customIcon = new L.Icon({
+      iconUrl: KirunaLogo,
+      iconSize: [26, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  }
   return customIcon;
 };
 
 function createHighlitedIcon(typeName: string) {
-  const highlitedIcon = new L.Icon({
-    iconUrl: typeIcons[typeName] ?? KirunaLogo,
-    iconSize: [26.4 * 1.5, 32 * 1.5],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
-  return highlitedIcon;
+  var highlightedIcon: any;
+  if (typeIcons[typeName]) {
+    highlightedIcon = L.divIcon({
+      html: typeIcons[typeName], //If type not found, use as default the original KirunaLogo. Using operator: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#nullish-coalescing
+      className: '',
+      iconSize: [26 * 1.5, 32 * 1.5],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  } else {
+    highlightedIcon = new L.Icon({
+      iconUrl: KirunaLogo,
+      iconSize: [26 * 1.5, 32 * 1.5],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  }
+  return highlightedIcon;
 };
 
 function DocumentMarker({ position, id, typeName }) {
