@@ -1,4 +1,5 @@
 import Coordinates from "./coordinates";
+import Stakeholder from "./stakeholder";
 import Type from "./type";
 
 class Document {
@@ -11,6 +12,7 @@ class Document {
   location: Coordinates[];
   language?: string;
   pages?: string;
+  stakeholders: string[];
 
   constructor(
     id: number,
@@ -21,7 +23,8 @@ class Document {
     scale: string,
     location: Coordinates[],
     language: string,
-    pages: string
+    pages: string,
+    stakeholders?: string[]
   ) {
     this.id = id;
     this.title = title;
@@ -32,6 +35,7 @@ class Document {
     this.location = location;
     this.language = language;
     this.pages = pages;
+    this.stakeholders = stakeholders ? stakeholders : [];
   }
 }
 

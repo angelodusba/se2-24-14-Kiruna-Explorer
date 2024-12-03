@@ -131,16 +131,21 @@ class DocumentDAO {
     try {
       const sql = `SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name,
                     D.issue_date, D.scale, D.language, D.pages,
-                  CASE 
-                    WHEN location IS NULL THEN NULL
-                    WHEN ST_GeometryType(location) = 'ST_Point' THEN 
-                      substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
-                    WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
-                      substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
-                  END AS location
-                  FROM documents D, types T
-                  WHERE D.type_id=T.id
-      `;
+                    CASE 
+                      WHEN location IS NULL THEN NULL
+                      WHEN ST_GeometryType(location) = 'ST_Point' THEN 
+                        substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
+                      WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
+                        substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
+                    END AS location,
+                    ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders
+                  FROM documents D
+                    JOIN types T ON D.type_id = T.id
+                    LEFT JOIN documents_stakeholders DS ON D.id = DS.document_id
+                    LEFT JOIN stakeholders S ON DS.stakeholder_id = S.id
+                  GROUP BY D.id, D.title, D.description, D.type_id, T.name, 
+                    D.issue_date, D.scale, D.language, D.pages, D.location
+    `;
       const res = await db.query(sql);
       const response = res.rows.map((doc) => {
         return new Document(
@@ -157,7 +162,8 @@ class DocumentDAO {
               })
             : [],
           doc.language,
-          doc.pages
+          doc.pages,
+          doc.stakeholders
         );
       });
       return response;
@@ -197,9 +203,16 @@ class DocumentDAO {
                       substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
                     WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                       substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
-                  END AS location
-                  FROM documents D, types T
-                  WHERE D.type_id=T.id AND D.id = $1`;
+                  END AS location,
+                  ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders
+                  FROM documents D
+                    JOIN types T ON D.type_id = T.id
+                    LEFT JOIN documents_stakeholders DS ON D.id = DS.document_id
+                    LEFT JOIN stakeholders S ON DS.stakeholder_id = S.id
+                  WHERE D.id = $1
+                  GROUP BY D.id, D.title, D.description, D.type_id, T.name, 
+                    D.issue_date, D.scale, D.language, D.pages, D.location
+      `;
       const res = await db.query(sql, [id]);
       if (!res || res.rows.length === 0) {
         throw new DocumentNotFoundError();
@@ -219,7 +232,8 @@ class DocumentDAO {
             })
           : [],
         doc.language,
-        doc.pages
+        doc.pages,
+        doc.stakeholders
       );
     } catch (err: any) {
       throw err;
@@ -240,9 +254,15 @@ class DocumentDAO {
                         substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
                       WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                         substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
-                    END AS location
-                  FROM documents D, types T WHERE D.type_id=T.id
-                  ORDER BY D.id`;
+                    END AS location,
+                    ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders
+                  FROM documents D
+                    JOIN types T ON D.type_id = T.id
+                    LEFT JOIN documents_stakeholders DS ON D.id = DS.document_id
+                    LEFT JOIN stakeholders S ON DS.stakeholder_id = S.id
+                  GROUP BY D.id, D.title, D.type_id, T.name, D.location
+                  ORDER BY D.id
+      `;
       const res = await db.query(sql);
       const response = res.rows.map((doc) => {
         return new DocumentLocationResponse(
@@ -254,7 +274,8 @@ class DocumentDAO {
                 const [lng, lat] = coords.split(" ").map(Number);
                 return new Coordinates(lng, lat);
               })
-            : []
+            : [],
+          doc.stakeholders
         );
       });
       return response;
