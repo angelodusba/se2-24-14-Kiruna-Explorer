@@ -39,7 +39,7 @@ import { ErrorContext } from "../../contexts/ErrorContext";
 
 const style = {
   position: "absolute",
-  zIndex: 401,
+  zIndex: 1000,
   top: "50%",
   left: "50%",
   transform: { xs: "translate(-50%, -50%)", lg: "translate(-100%, -50%)" },
@@ -119,10 +119,7 @@ function DocumentCard() {
       {!disabledInput && (
         <Paper variant="outlined" ref={cardRef}>
           <Box sx={style}>
-            <Grid
-              container
-              width={"100%"}
-              sx={{ display: "flex", flexDirection: "column" }}>
+            <Grid container width={"100%"} sx={{ display: "flex", flexDirection: "column" }}>
               <Grid
                 size={12}
                 sx={{
@@ -130,18 +127,12 @@ function DocumentCard() {
                   flexDirection: "row",
                   alignItems: "center",
                   mb: 1,
-                }}>
+                }}
+              >
                 <Grid size={2} sx={{ marginLeft: "8px", paddingLeft: 2 }}>
-                  <img
-                    src={KirunaLogo}
-                    width="40px"
-                    height="48px"
-                    alt="Kiruna Explorer"
-                  />
+                  <img src={KirunaLogo} width="40px" height="48px" alt="Kiruna Explorer" />
                 </Grid>
-                <Grid
-                  size={9}
-                  sx={{ display: "flex", justifyContent: "start" }}>
+                <Grid size={9} sx={{ display: "flex", justifyContent: "start" }}>
                   <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                     {documentCard.title}
                   </Typography>
@@ -162,14 +153,16 @@ function DocumentCard() {
                     alignItems: "start",
                     pl: 1,
                     mt: 2,
-                  }}>
+                  }}
+                >
                   <List
                     sx={{
                       width: "100%",
                       bgcolor: "background.paper",
                       display: "grid",
                       gridTemplateColumns: "repeat(2, 1fr)",
-                    }}>
+                    }}
+                  >
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
@@ -193,8 +186,7 @@ function DocumentCard() {
                         }}
                       />
                     </ListItem>
-                    <ListItem
-                      sx={{ alignItems: "start", maxWidth: "50%", pr: 0 }}>
+                    <ListItem sx={{ alignItems: "start", maxWidth: "50%", pr: 0 }}>
                       <ListItemAvatar>
                         <Avatar>
                           <AspectRatioOutlined></AspectRatioOutlined>
@@ -331,7 +323,8 @@ function DocumentCard() {
                           <Box sx={{ display: "flex", alignItems: "center" }}>
                             <Typography
                               sx={{ fontWeight: "bold", color: "#003d8f" }}
-                              variant="subtitle2">
+                              variant="subtitle2"
+                            >
                               Location
                             </Typography>
                             {user && (
@@ -340,7 +333,8 @@ function DocumentCard() {
                                 size="small"
                                 onClick={() => {
                                   navigate(`/map/${docId.id}/georeference`);
-                                }}>
+                                }}
+                              >
                                 <EditOutlined fontSize="inherit" />
                               </IconButton>
                             )}
@@ -357,10 +351,7 @@ function DocumentCard() {
                         secondary={
                           documentCard.location.length === 0
                             ? "Entire municipality"
-                            : `${CoordstoDMS(
-                                documentCard.location[0].lat,
-                                true
-                              )}\n${CoordstoDMS(
+                            : `${CoordstoDMS(documentCard.location[0].lat, true)}\n${CoordstoDMS(
                                 documentCard.location[0].lng,
                                 false
                               )}`
@@ -383,7 +374,8 @@ function DocumentCard() {
                     mt: 2,
                     gap: 1,
                     pl: 2,
-                  }}>
+                  }}
+                >
                   <Typography color="#003d8f" fontWeight="bold">
                     Description
                   </Typography>
@@ -394,7 +386,8 @@ function DocumentCard() {
                       alignItems: "center",
                       justifyContent: "center",
                       width: "100%",
-                    }}>
+                    }}
+                  >
                     <Typography color="#003d8f" fontWeight="bold">
                       Original resources
                     </Typography>
@@ -402,7 +395,8 @@ function DocumentCard() {
                       <IconButton
                         aria-label="delete"
                         size="small"
-                        onClick={() => navigate(`/map/${docId.id}/resources`)}>
+                        onClick={() => navigate(`/map/${docId.id}/resources`)}
+                      >
                         <EditOutlined fontSize="inherit" />
                       </IconButton>
                     )}
@@ -417,7 +411,8 @@ function DocumentCard() {
                         whiteSpace: "nowrap",
                         flex: 1,
                         minWidth: 0,
-                      }}>
+                      }}
+                    >
                       No original resources available
                     </Typography>
                   ) : (
@@ -439,7 +434,8 @@ function DocumentCard() {
                               alignItems: "center",
                               justifyContent: "space-between",
                               width: "100%",
-                            }}>
+                            }}
+                          >
                             <Box
                               sx={{
                                 display: "flex",
@@ -447,7 +443,8 @@ function DocumentCard() {
                                 gap: 1,
                                 flex: 1,
                                 minWidth: 0,
-                              }}>
+                              }}
+                            >
                               {icon}
                               <Typography
                                 variant="body2"
@@ -457,18 +454,18 @@ function DocumentCard() {
                                   whiteSpace: "nowrap",
                                   flex: 1,
                                   minWidth: 0,
-                                }}>
+                                }}
+                              >
                                 {attachment.path.split("/").pop()}
                               </Typography>
                             </Box>
                             <IconButton
                               download={attachment.path.split("/").pop()}
-                              href={`${DocumentAPI.getResourcesBaseURL()}${
-                                attachment.path
-                              }`}
+                              href={`${DocumentAPI.getResourcesBaseURL()}${attachment.path}`}
                               target="_blank"
                               aria-label="download"
-                              size="small">
+                              size="small"
+                            >
                               <FileDownload fontSize="inherit" />
                             </IconButton>
                           </Box>
