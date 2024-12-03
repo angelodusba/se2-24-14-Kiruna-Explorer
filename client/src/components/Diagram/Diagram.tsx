@@ -80,9 +80,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders },
       position: {
         x: assignX_toDate(doc.date, minYear) * gridWidth + gridWidth,
-        y: index * gridHeight + offset,
+        y: index * nodeHeight + offset,
       },
-      draggable: false,
+      draggable: true,
       connectable: true,
       style: {
         width: nodeWidth,
@@ -198,7 +198,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           }
         }
         maxDocsPerScale[scale.name] = max;
-        offset += gridHeight * max;
+        offset += nodeHeight * max;
       });
 
       //sort for date
@@ -216,6 +216,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           height: gridHeight,
           backgroundColor: "000",
           borderRadius: 10,
+          border: "1px solid #000",
           fontSize: gridWidth / 10,
           textAlign: "center" as const,
         },
@@ -235,7 +236,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           position: { x: 0, y: offsetYPerScale[scale.name] },
           style: {
             width: gridWidth,
-            height: gridHeight * maxDocsPerScale[scale.name],
+            height: nodeHeight * maxDocsPerScale[scale.name],
             backgroundColor: "red",
             borderRadius: 10,
             fontSize: gridWidth / 10,
