@@ -60,6 +60,35 @@ function createCustomIcon(typeName: string, id: number, stakeholders: string[]) 
       });
 }
 
+function createReactFlowIcon(typeName: string, id: number, stakeholders: string[]) {
+  if (typeIconsData[typeName]) {
+    return (
+      <DocumentIcon
+        id={id}
+        d={typeIconsData[typeName].d}
+        inputWidth={typeIconsData[typeName].width}
+        inputHeight={typeIconsData[typeName].height}
+        colors={
+          stakeholders.length
+            ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f")
+            : ["#003d8f"]
+        }
+      />
+    );
+  } else {
+    return (
+      <img
+        src={KirunaLogo}
+        alt="Fallback Icon"
+        width="26"
+        height="32"
+        style={{ display: 'block' }}
+      />
+    );
+  }
+}
+
+
 function createHighlitedIcon(typeName: string, id: number, stakeholders: string[]) {
   return typeIconsData[typeName]
     ? L.divIcon({
@@ -84,4 +113,4 @@ function createHighlitedIcon(typeName: string, id: number, stakeholders: string[
       });
 }
 
-export { createCustomIcon, createHighlitedIcon };
+export { createCustomIcon, createHighlitedIcon, createReactFlowIcon };

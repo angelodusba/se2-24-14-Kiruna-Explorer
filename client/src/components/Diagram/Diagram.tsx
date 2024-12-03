@@ -13,6 +13,7 @@ import ReactFlow, {
   reconnectEdge,
   useReactFlow,
 } from "reactflow";
+import { createHighlitedIcon, createCustomIcon } from "../Map/Icons";
 import { Edge, Connection } from "reactflow";
 import "reactflow/dist/style.css";
 import dayjs from "dayjs";
@@ -27,6 +28,8 @@ interface DocumentForDiagram {
   title: string;
   date: string;
   scale: string;
+  typeName: string;
+  stakeholders: string[];
 }
 import ZoomNode from "./ZoomNode";
 const nodeTypes = {
@@ -35,7 +38,8 @@ const nodeTypes = {
 
 const gridHeight = 200; // Size of the grid cells
 const gridWidth = 400; // Width of the grid
-const nodeWidth = gridWidth / 2;
+const nodeWidth = gridWidth / 4;
+const nodeHeight = nodeWidth;
 
 const initialEdges: Edge[] = [];
 import CustomEdge from "./CustomEdge";
@@ -73,21 +77,24 @@ function Diagram({ currentFilter }: DiagramProps) {
     return {
       id: doc.id.toString(),
       type: "zoom",
-      data: { label: doc.title.substring(0, 100) },
+      data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders },
       position: {
         x: assignX_toDate(doc.date, minYear) * gridWidth + gridWidth,
         y: index * gridHeight + offset,
       },
-      style: {
-        width: nodeWidth,
-        height: gridHeight / 2,
-        borderRadius: 10,
-        background: "pink",
-        fontSize: nodeWidth / 10,
-        textAlign: "center",
-      },
       draggable: false,
       connectable: true,
+      style: {
+        width: nodeWidth,
+        height: nodeHeight,
+        borderRadius: "50%",
+        backgroundColor: "#fff",
+        border: "1px solid #000",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      
     };
   };
   const createNodesForDocument = (
@@ -154,6 +161,8 @@ function Diagram({ currentFilter }: DiagramProps) {
           title: doc.title,
           date: doc.issue_date,
           scale: doc.scale.toLowerCase(),
+          stakeholders: doc.stakeholders,
+          typeName: doc.type.name,
         };
       });
       const minYear = Math.floor(Math.min(...list.map((doc) => dayjs(doc.date).year())));
@@ -277,6 +286,7 @@ import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutl
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import { IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
+import { icon } from "leaflet";
 
 function Flow({
   nodes,
