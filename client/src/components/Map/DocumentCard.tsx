@@ -73,7 +73,7 @@ function CoordstoDMS(coordinate: number, isLat: boolean): string {
   return `${degrees}°${minutes}'${seconds}" ${direction}`;
 }
 
-function DocumentCard() {
+function DocumentCard(props) {
   const navigate = useNavigate();
   const docId = useParams();
   const user = useContext(UserContext);
@@ -138,7 +138,7 @@ function DocumentCard() {
                   </Typography>
                 </Grid>
                 <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
-                  <IconButton size="small" onClick={() => navigate("/map")}>
+                  <IconButton size="small" onClick={() => navigate(props.returnHere? props.returnHere : "/map")}>
                     {<CloseOutlined fontSize="small" />}
                   </IconButton>
                 </Grid>

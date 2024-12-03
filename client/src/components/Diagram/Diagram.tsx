@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import ReactFlow, { ReactFlowProvider, addEdge, Controls, Background, NodeChange,
-    applyNodeChanges, Node, PanOnScrollMode, BackgroundVariant, EdgeChange, applyEdgeChanges,
+    applyNodeChanges, Node, BackgroundVariant, EdgeChange, applyEdgeChanges,
     reconnectEdge, 
-    useReactFlow,
-    useViewport} from 'reactflow';
+    useReactFlow,} from 'reactflow';
 import { Edge, Connection } from 'reactflow';
 import 'reactflow/dist/style.css';
 import dayjs from 'dayjs';
@@ -205,13 +204,15 @@ function Diagram({currentFilter}: DiagramProps) {
                     onEdgeUpdate={onEdgeUpdate} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
                     yearToShowFirst = {yearToShowFirst} currentFilter={currentFilter} resetViewport={refreshViewport}
             />
+            <Outlet />
         </ReactFlowProvider>
     );
 }
  
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
-import { Button, colors, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 function Flow({ nodes, edges, onNodesChange, onEdgesChange, resetViewport,
   onConnect, onEdgeUpdate, nodeTypes, edgeTypes, yearToShowFirst, currentFilter }) {
@@ -253,13 +254,25 @@ function Flow({ nodes, edges, onNodesChange, onEdgesChange, resetViewport,
         setViewport(newViewport);
       }
     }, [currentFilter, yearToShowFirst, resetViewport]);
-  
+    
+    const navigate = useNavigate();
+
+    const onNodeClick = (event, node) => {
+      const { x, y, zoom } = getViewport();
+      const nodeX = -node.position.x * zoom;
+      const nodeY = -node.position.y * zoom;
+      const newViewport = { x: nodeX + window.innerWidth * zoom, y: nodeY + gridHeight, zoom };
+      setViewport(newViewport, { duration: 800 });
+      navigate(`/diagram/${node.id}`);
+    };
+
     return (
         <div style={{ height: '100vh', width: '100vw', overflow: 'auto' }}>
           <ReactFlow
             nodes={nodes}
             nodeTypes={nodeTypes}
             onNodesChange={onNodesChange}
+            onNodeClick={onNodeClick}
             edges={edges}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}

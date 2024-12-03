@@ -192,7 +192,10 @@ function App() {
               <Route
                 path="/diagram"
                 element={<Diagram currentFilter={currentFilter} />}
-              />
+              >
+                  <Route path=":id" element={<DocumentCard returnHere={"/diagram"}/>}>
+                </Route>
+              </Route>
             </Route>
             <Route
               path="*"
