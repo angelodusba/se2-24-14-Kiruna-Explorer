@@ -5,6 +5,7 @@ import { Point } from "../models/Document";
 import { SearchFilter } from "../models/SearchFilter";
 import { DocumentCard } from "../models/DocumentCard";
 import { Attachment } from "../models/Attachment";
+import { Area } from "../models/Area";
 
 const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
@@ -92,8 +93,11 @@ async function getAllAreas() {
     credentials: "include",
   });
   if (response.ok) {
-    const areas = await response.json();
-    return areas.slice(1);
+    const areas: Area[] = await response.json();
+    return areas.slice(1).map((area) => {
+      area.location.pop();
+      return area;
+    });
   } else {
     const errDetail = await response.json();
     throw new Error(errDetail.message || "Something went wrong, please reload the page");
