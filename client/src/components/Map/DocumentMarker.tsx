@@ -2,7 +2,7 @@ import { Marker, useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import { createHighlitedIcon, createCustomIcon } from "./Icons";
 
-function DocumentMarker({ position, id, typeName }) {
+function DocumentMarker({ position, id, typeName, stakeholders }) {
   const navigate = useNavigate();
   const map = useMap();
 
@@ -24,8 +24,8 @@ function DocumentMarker({ position, id, typeName }) {
       riseOnHover
       icon={
         window.location.pathname.includes(id)
-          ? createHighlitedIcon(typeName, id)
-          : createCustomIcon(typeName, id)
+          ? createHighlitedIcon(typeName, id, stakeholders)
+          : createCustomIcon(typeName, id, stakeholders)
       }
       position={position}
       eventHandlers={{ click: handleClick }}

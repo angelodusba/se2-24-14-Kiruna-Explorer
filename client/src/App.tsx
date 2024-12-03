@@ -66,6 +66,7 @@ function App() {
           id: doc.id,
           type: doc.type,
           location: doc.location,
+          stakeholders: doc.stakeholders,
         };
       });
       setDocsLocation(filteredDocs);

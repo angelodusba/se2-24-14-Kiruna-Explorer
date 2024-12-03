@@ -90,6 +90,7 @@ function Map({ docs }) {
                     key={doc.id}
                     id={doc.id}
                     typeName={doc.type.name}
+                    stakeholders={doc.stakeholders}
                     position={L.latLng(doc.location[0])}
                   />
                 );
@@ -101,6 +102,7 @@ function Map({ docs }) {
                     key={doc.id}
                     id={doc.id}
                     typeName={doc.type.name}
+                    stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
                   />
                 );

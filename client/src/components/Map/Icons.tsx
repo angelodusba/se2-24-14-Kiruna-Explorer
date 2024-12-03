@@ -2,8 +2,7 @@ import L from "leaflet";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import { renderToString } from "react-dom/server";
 import typeIconsData from "../../assets/typeIconsData.ts";
-
-const colors = ["orange", "blue", "red", "green", "black"]; //Hard coded now for testing pruposes, will be replaced by stakeholders of each doc
+import stakeholdersColorsData from "../../assets/stakeholdersColorsData.ts";
 
 function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   return (
@@ -37,7 +36,7 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   );
 }
 
-function createCustomIcon(typeName: string, id: number) {
+function createCustomIcon(typeName: string, id: number, stakeholders: string[]) {
   return typeIconsData[typeName]
     ? L.divIcon({
         html: renderToString(
@@ -46,10 +45,9 @@ function createCustomIcon(typeName: string, id: number) {
             d={typeIconsData[typeName].d}
             inputWidth={typeIconsData[typeName].width}
             inputHeight={typeIconsData[typeName].height}
-            colors={colors}
+            colors={stakeholders.length ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f") : ["#003d8f"]}
           />
         ),
-        className: "",
         iconSize: [26, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
@@ -62,7 +60,7 @@ function createCustomIcon(typeName: string, id: number) {
       });
 }
 
-function createHighlitedIcon(typeName: string, id: number) {
+function createHighlitedIcon(typeName: string, id: number, stakeholders: string[]) {
   return typeIconsData[typeName]
     ? L.divIcon({
         html: renderToString(
@@ -71,10 +69,9 @@ function createHighlitedIcon(typeName: string, id: number) {
             d={typeIconsData[typeName].d}
             inputWidth={typeIconsData[typeName].width}
             inputHeight={typeIconsData[typeName].height}
-            colors={colors}
+            colors={stakeholders.length ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f") : ["#003d8f"]}
           />
         ),
-        className: "",
         iconSize: [26 * 1.5, 32 * 1.5],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],

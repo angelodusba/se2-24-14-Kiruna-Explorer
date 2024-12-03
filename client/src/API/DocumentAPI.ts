@@ -232,6 +232,7 @@ async function getFilteredDocuments(
     location: Point[];
     language: string;
     pages: number;
+    stakeholders: string[];
   }[];
   totalRows: number;
   totalPages: number;
