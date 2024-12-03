@@ -97,7 +97,7 @@ const AccountMenu = styled((props: MenuProps) => (
   },
 }));
 
-function Navbar({ onSearch, handleLogout }) {
+function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const navigate = useNavigate();
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
@@ -108,9 +108,9 @@ function Navbar({ onSearch, handleLogout }) {
   const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
     null
   );
-  const advancedSearchOpen = Boolean(advancedSearchAnchorEl); //
+  const advancedSearchOpen = Boolean(advancedSearchAnchorEl);
   const advancedSearchId = advancedSearchOpen ? "advancedSearch" : undefined;
-  /*  */
+  /* Filters */
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
   const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
   const [filters, setFilters] = useState<SearchFilter>({
@@ -122,20 +122,7 @@ function Navbar({ onSearch, handleLogout }) {
     languages: [],
     stakeholders: [],
   });
-  const [filterNumber, setFilterNumber] = useState<number>(0);
-
-  const handleResetFilters = () => {
-    setFilters({
-      title: "",
-      types: [],
-      start_year: "",
-      end_year: "",
-      scales: [],
-      languages: [],
-      stakeholders: [],
-      municipality: undefined,
-    });
-  };
+  const [searchValue, setSearchValue] = useState<string>("");
 
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAccountAnchorEl(event.currentTarget);
@@ -145,10 +132,9 @@ function Navbar({ onSearch, handleLogout }) {
     setAccountAnchorEl(null);
   };
 
-  const handleSimpleSearch = (search: string) => {
-    const filter: SearchFilter = { title: search };
-    onSearch(filter);
-    setFilterNumber(search !== "" && search !== undefined ? 1 : 0);
+  const handleSimpleSearch = () => {
+    setFilters({ title: searchValue });
+    onSearch({ title: searchValue });
   };
 
   const handleAdvancedSearch = () => {
@@ -167,8 +153,7 @@ function Navbar({ onSearch, handleLogout }) {
         }
       })
     );
-    const filterNum = Object.keys(nonEmptyFilters).length;
-    setFilterNumber(filterNum);
+    setSearchValue(nonEmptyFilters.title || "");
     onSearch(nonEmptyFilters);
   };
 
@@ -233,6 +218,8 @@ function Navbar({ onSearch, handleLogout }) {
       .catch((error) => {
         console.log(error);
       });
+    // Reset App filters
+    handleResetFilters();
   }, []);
 
   return (
@@ -257,7 +244,7 @@ function Navbar({ onSearch, handleLogout }) {
                 }}
               >
                 <Link
-                  to={"/"}
+                  to={"/map"}
                   style={{
                     textDecoration: "none",
                     color: "white",
@@ -301,6 +288,8 @@ function Navbar({ onSearch, handleLogout }) {
                   onSearch={handleSimpleSearch}
                   handleFilterPanelOpen={handleAdvacedSearchPanelOpen}
                   filterNumber={filterNumber}
+                  searchValue={searchValue}
+                  setSearchValue={setSearchValue}
                 />
                 <Popover
                   id={advancedSearchId}

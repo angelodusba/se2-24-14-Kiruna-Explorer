@@ -4,18 +4,15 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SearchIcon from "@mui/icons-material/Search";
-import { useState } from "react";
 import { Badge } from "@mui/material";
 
-function SearchBar({ onSearch, handleFilterPanelOpen, filterNumber }) {
-  const [search, setSearch] = useState("");
-
+function SearchBar({ onSearch, handleFilterPanelOpen, filterNumber, searchValue, setSearchValue }) {
   return (
     <Paper
       component="form"
       onSubmit={(event) => {
         event.preventDefault();
-        onSearch(search);
+        onSearch();
       }}
       sx={{
         p: "1px 4px",
@@ -32,9 +29,9 @@ function SearchBar({ onSearch, handleFilterPanelOpen, filterNumber }) {
         sx={{ ml: 2, flex: 1, mt: "5px", mb: 0 }}
         placeholder="Search documents"
         inputProps={{ "aria-label": "search documents" }}
-        value={search}
+        value={searchValue}
         onChange={(e) => {
-          setSearch(e.target.value);
+          setSearchValue(e.target.value);
         }}
       />
       <IconButton type="submit" sx={{ p: "10px" }} aria-label="search">
