@@ -7,6 +7,7 @@ import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 import MapPicker from "../components/Map/MapPicker";
 import { ErrorContext } from "../contexts/ErrorContext";
+import { Area } from "../models/Area";
 
 interface OutletContext {
   location: { lat: number; lng: number }[];
@@ -31,11 +32,12 @@ function GeoreferencePage({ fetchDocuments }) {
     scale: "Blueprints/ material effects",
     language: "",
   });
-  const [areas, setAreas] = useState([]);
+  const [areas, setAreas] = useState<Area[]>([]);
 
   useEffect(() => {
     DocumentAPI.getAllAreas()
       .then((areas) => {
+        console.log(areas);
         setAreas(areas);
       })
       .catch((error) => {
