@@ -1,36 +1,18 @@
 import { Marker, useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
-import ActionIcon from "../../assets/type_icons/Action.tsx";
-import AgreementIcon from "../../assets/type_icons/Agreement.tsx";
-import ConflictIcon from "../../assets/type_icons/Conflict.tsx";
-import ConsultationIcon from "../../assets/type_icons/Consultation.tsx";
-import DesignIcon from "../../assets/type_icons/Design.tsx";
-import InformativeIcon from "../../assets/type_icons/Informative.tsx";
-import PrescriptiveIcon from "../../assets/type_icons/Prescriptive.tsx";
-import TechnicalIcon from "../../assets/type_icons/Technical.tsx";
+import DocumentIcon from "./DocumentIcon.tsx";
+import typeIconsData from "../../assets/typeIconsData.ts";
 import L from "leaflet";
 import { renderToString } from "react-dom/server";
 
-const colors = ["orange", "blue", "green", "red"]; //Hard coded now for testing pruposes, will be replaced by stakeholders of each doc
+const colors = ["orange", "blue", "red", "green", "black"]; //Hard coded now for testing pruposes, will be replaced by stakeholders of each doc
 
-const typeIcons = {
-  "Action": renderToString(<ActionIcon colors={colors}/>),
-  "Material Effect": renderToString(<ActionIcon colors={colors}/>), //Put again here ActionLogo because in the example UI pdf "Material Effect" does not have its icon, and in some example docs "Material Effect" has same icon as "Action"S
-  "Agreement": renderToString(<AgreementIcon colors={colors}/>),
-  "Conflict": renderToString(<ConflictIcon colors={colors}/>),
-  "Consultation": renderToString(<ConsultationIcon colors={colors}/>),
-  "Design": renderToString(<DesignIcon colors={colors}/>),
-  "Informative": renderToString(<InformativeIcon colors={colors}/>),
-  "Prescriptive": renderToString(<PrescriptiveIcon colors={colors}/>),
-  "Technical": renderToString(<TechnicalIcon colors={colors}/>),
-};
-
-function createCustomIcon(typeName: string) {
+function createCustomIcon(typeName: string, id: number) {
   var customIcon: any;
-  if (typeIcons[typeName]) {
+  if (typeIconsData[typeName]) {
     customIcon = L.divIcon({
-      html: typeIcons[typeName], //If type not found, use as default the original KirunaLogo. Using operator: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#nullish-coalescing
+      html: renderToString(<DocumentIcon id={id} d={typeIconsData[typeName].d} inputWidth={typeIconsData[typeName].width} inputHeight={typeIconsData[typeName].height} colors={colors}/>),
       className: '',
       iconSize: [26, 32],
       iconAnchor: [16, 32],
@@ -47,11 +29,11 @@ function createCustomIcon(typeName: string) {
   return customIcon;
 };
 
-function createHighlitedIcon(typeName: string) {
+function createHighlitedIcon(typeName: string, id: number) {
   var highlightedIcon: any;
-  if (typeIcons[typeName]) {
+  if (typeIconsData[typeName]) {
     highlightedIcon = L.divIcon({
-      html: typeIcons[typeName], //If type not found, use as default the original KirunaLogo. Using operator: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#nullish-coalescing
+      html: renderToString(<DocumentIcon id={id} d={typeIconsData[typeName].d} inputWidth={typeIconsData[typeName].width} inputHeight={typeIconsData[typeName].height} colors={colors}/>),
       className: '',
       iconSize: [26 * 1.5, 32 * 1.5],
       iconAnchor: [16, 32],
@@ -89,7 +71,7 @@ function DocumentMarker({ position, id, typeName }) {
   return (
     <Marker
       riseOnHover
-      icon={window.location.pathname.includes(id) ? createHighlitedIcon(typeName) : createCustomIcon(typeName)}
+      icon={window.location.pathname.includes(id) ? createHighlitedIcon(typeName, id) : createCustomIcon(typeName, id)}
       position={position}
       eventHandlers={{ click: handleClick }}
     />
