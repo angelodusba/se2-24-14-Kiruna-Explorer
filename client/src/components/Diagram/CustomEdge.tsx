@@ -34,7 +34,7 @@ const CustomEdge: React.FC<EdgeProps> = ({
     sourcePosition,
     targetPosition,
     markerEnd,
-    style = {},
+    style,
     label,
     ...rest
 }) => {
@@ -307,21 +307,8 @@ const CustomEdge: React.FC<EdgeProps> = ({
                         background: "black",
                         cursor: "col-resize",
                     }}
-                >
-                     <div
-                        style={{
-                            position: "absolute",
-                            left: "30px",
-                            background: "white",
-                            padding: "5px",
-                            border: "1px solid black",
-                            borderRadius: "3px",
-                            pointerEvents: "none",
-                        }}
-                    >
-                    {label}
-                    </div>
-                </div>
+                />
+
                 {Object.keys(extraPoints).length > 0 &&
                     Object.keys(extraPoints).map((pointKey, index) => {
                         if (
@@ -345,6 +332,7 @@ const CustomEdge: React.FC<EdgeProps> = ({
                                         borderRadius: "50%",
                                         background: "black",
                                         cursor: "row-resize",
+                                        
                                     }}
                                 />
                             );

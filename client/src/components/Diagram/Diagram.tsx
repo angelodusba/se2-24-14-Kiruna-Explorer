@@ -22,6 +22,7 @@ import { SearchFilter } from "../../models/SearchFilter";
 import ConnectionAPI from "../../API/ConnectionApi";
 import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
+import connectionStyles from "./ConnectionStyles";
 
 interface DocumentForDiagram {
   id: number;
@@ -145,6 +146,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           target: id2,
           type: "animated",
           label: type,
+          style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
         };
       });
     });
@@ -329,7 +331,6 @@ function Flow({
   useEffect(() => {
     if (nodes.length > 0) {
       const index = nodes.findIndex((node) => node.id == yearToShowFirst);
-      console.log(nodes[index]);
       const firstNode = nodes[index];
       const firstNodeX = -firstNode.position.x;
       const firstNodeY = -firstNode.position.y;
