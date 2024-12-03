@@ -335,11 +335,11 @@ function Flow({
 
   const navigate = useNavigate();
 
-  const onNodeClick = (event, node) => {
-    const { x, y, zoom } = getViewport();
-    const nodeX = -node.position.x * zoom;
-    const nodeY = -node.position.y * zoom;
-    const newViewport = { x: nodeX + window.innerWidth * zoom, y: nodeY + gridHeight, zoom };
+  const onNodeClick = (_, node) => {
+    const { zoom } = getViewport();
+    const nodeX = -node.position.x * zoom + window.innerWidth / 2 - nodeWidth * zoom / 2;
+    const nodeY = -node.position.y * zoom + window.innerHeight / 2 - gridHeight * zoom / 2;
+    const newViewport = { x: nodeX + nodeWidth*zoom, y: nodeY, zoom };
     setViewport(newViewport, { duration: 800 });
     navigate(`/diagram/${node.id}`);
   };
