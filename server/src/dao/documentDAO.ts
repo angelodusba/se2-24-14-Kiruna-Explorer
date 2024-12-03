@@ -442,8 +442,10 @@ class DocumentDAO {
                       WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                         substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
                     END AS location,
+                    ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders,
                     COUNT(*) OVER () AS total_rows -- Count of all matching rows (ignores LIMIT and OFFSET)
-                  FROM documents D INNER JOIN types T ON D.type_id=T.id
+                  FROM documents D
+                    INNER JOIN types T ON D.type_id=T.id
                     LEFT JOIN documents_stakeholders DS ON D.id=DS.document_id
                     LEFT JOIN stakeholders S ON S.id=DS.stakeholder_id
                   WHERE 1=1
@@ -519,7 +521,8 @@ class DocumentDAO {
                 })
               : [],
             doc.language,
-            doc.pages
+            doc.pages,
+            doc.stakeholders
           )
       );
       return new FilteredDocumentsResponse(docs, totalRows, totalPages);
