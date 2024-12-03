@@ -2,17 +2,24 @@ import L from "leaflet";
 import "leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { Alert, Button } from "@mui/material";
+import { Alert, Autocomplete, Button, Paper, TextField } from "@mui/material";
 import { useContext, useEffect, useRef, useState } from "react";
 import { FeatureGroup, useMap } from "react-leaflet";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import PlaceIcon from "@mui/icons-material/Place";
 import { EditControl } from "react-leaflet-draw";
 import SaveAreaDialog from "./SaveAreaDialog";
+import { Area } from "../../models/Area";
 
 function MapPicker({ areas, setDocument }) {
   const [pointMarker, setPointMarker] = useState<L.Marker | null>(null);
-  const [polygon, setPolygon] = useState<L.Polygon | null>(null);
+  const [customPolygon, setCustomPolygon] = useState<L.Polygon | null>(null);
+  const [predefinedArea, setPredefinedArea] = useState<Area | null>({
+    id: null,
+    name: "",
+    location: [],
+  });
+  const [predefinedAreaId, setPredefinedAreaId] = useState(null);
   const [saveDialog, setSaveDialog] = useState(false);
   const featureGroupRef = useRef<L.FeatureGroup>(null);
   const { disabledInput, setDisabledInput } = useContext(DisabledInputContext);
@@ -41,12 +48,12 @@ function MapPicker({ areas, setDocument }) {
   }, [disabledInput, map, pointMarker, setDocument]);
 
   const handlePolygonCreate = (event) => {
-    if (polygon) {
+    if (customPolygon) {
       featureGroupRef.current?.clearLayers();
     }
     // Create the new polygon
     const newPolygon = L.polygon(event.layer.getLatLngs()[0]);
-    setPolygon(newPolygon);
+    setCustomPolygon(newPolygon);
 
     featureGroupRef.current?.addLayer(newPolygon);
   };
@@ -54,13 +61,13 @@ function MapPicker({ areas, setDocument }) {
   const handlePolygonEdited = (event) => {
     featureGroupRef.current?.clearLayers();
     const area = L.polygon(event.layers.getLayers()[0].getLatLngs()[0]);
-    setPolygon(area);
+    setCustomPolygon(area);
     featureGroupRef.current?.addLayer(area);
   };
 
   const handlePolygonDelete = () => {
     featureGroupRef.current?.clearLayers();
-    setPolygon(null);
+    setCustomPolygon(null);
   };
 
   const handleClose = (event) => {
@@ -76,7 +83,7 @@ function MapPicker({ areas, setDocument }) {
       }
     } else if (disabledInput === "area") {
       featureGroupRef.current?.clearLayers();
-      setPolygon(null);
+      setCustomPolygon(null);
     }
     setDisabledInput(undefined);
   };
@@ -90,7 +97,7 @@ function MapPicker({ areas, setDocument }) {
     } else if (disabledInput === "area") {
       setDocument((prevDocument) => ({
         ...prevDocument,
-        coordinates: polygon.getLatLngs()[0],
+        coordinates: customPolygon.getLatLngs()[0],
       }));
       featureGroupRef.current?.clearLayers();
       //setPolygon(null);
@@ -100,48 +107,85 @@ function MapPicker({ areas, setDocument }) {
 
   return (
     <>
-      {polygon && (
+      {true && (
         <Alert
+          icon={false}
           severity="warning"
           sx={{
-            top: 16,
+            top: 78,
             left: "50%",
             textAlign: "center",
             transform: "translateX(-50%)",
             position: "absolute",
             zIndex: 403,
           }}>
-          Drawing a new polygon will overwrite the previous one.
+          Drawing or selecting a new area will overwrite the previous one.
         </Alert>
       )}
       {disabledInput === "area" && (
-        <FeatureGroup ref={featureGroupRef}>
-          <EditControl
-            position="topleft"
-            draw={{
-              polyline: false,
-              polygon: {
-                allowIntersection: false,
-                drawError: {
-                  color: "#e1e100",
-                  message: "You can't intersect sides!",
+        <>
+          <Paper
+            sx={{
+              backgroundColor: "white",
+              p: 1,
+              width: { xs: "50%", md: "30%" },
+              top: 16,
+              left: "50%",
+              textAlign: "center",
+              transform: "translateX(-50%)",
+              position: "absolute",
+              zIndex: 403,
+            }}>
+            <Autocomplete
+              size="small"
+              options={areas}
+              getOptionLabel={(option) => option.name}
+              id="areaSelect"
+              value={
+                areas.find((area) => area.id === predefinedArea.id) || null
+              }
+              onChange={(_event, newValue) => {
+                setPredefinedArea(newValue);
+                L.polygon(newValue.location).addTo(map);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  fullWidth
+                  {...params}
+                  label="Predefined Area"
+                  variant="outlined"
+                />
+              )}
+            />
+          </Paper>
+          <FeatureGroup ref={featureGroupRef}>
+            <EditControl
+              position="topleft"
+              draw={{
+                polyline: false,
+                polygon: {
+                  allowIntersection: false,
+                  drawError: {
+                    color: "#e1e100",
+                    message: "You can't intersect sides!",
+                  },
+                  shapeOptions: {
+                    color: "#003d8f",
+                    weight: 4,
+                    clickable: false,
+                  },
                 },
-                shapeOptions: {
-                  color: "#003d8f",
-                  weight: 4,
-                  clickable: false,
-                },
-              },
-              circle: false,
-              marker: false,
-              circlemarker: false,
-              rectangle: false,
-            }}
-            onCreated={handlePolygonCreate}
-            onDeleted={handlePolygonDelete}
-            onEdited={handlePolygonEdited}
-          />
-        </FeatureGroup>
+                circle: false,
+                marker: false,
+                circlemarker: false,
+                rectangle: false,
+              }}
+              onCreated={handlePolygonCreate}
+              onDeleted={handlePolygonDelete}
+              onEdited={handlePolygonEdited}
+            />
+          </FeatureGroup>
+        </>
       )}
       <Alert
         ref={alertRef}
@@ -166,11 +210,14 @@ function MapPicker({ areas, setDocument }) {
           event.stopPropagation();
         }}
         onClose={handleClose}>
-        Select{disabledInput.includes("area") ? "an area" : "a point"}
+        Select
+        {disabledInput.includes("area")
+          ? " a predefined area or draw a new one"
+          : " a point"}
         <Button
           disabled={
             (disabledInput === "point" && !pointMarker) ||
-            (disabledInput === "area" && !polygon)
+            (disabledInput === "area" && !customPolygon)
           }
           sx={{
             ml: { xs: 2, md: 3 },
@@ -189,7 +236,9 @@ function MapPicker({ areas, setDocument }) {
           Pick
         </Button>
       </Alert>
-      <SaveAreaDialog polygon={polygon} open={saveDialog}></SaveAreaDialog>
+      <SaveAreaDialog
+        polygon={customPolygon}
+        open={saveDialog}></SaveAreaDialog>
     </>
   );
 }
