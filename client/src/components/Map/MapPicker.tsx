@@ -14,11 +14,6 @@ import { Area } from "../../models/Area";
 function MapPicker({ areas, setDocument }) {
   const [pointMarker, setPointMarker] = useState<L.Marker | null>(null);
   const [customPolygon, setCustomPolygon] = useState<L.Polygon | null>(null);
-  const [predefinedArea, setPredefinedArea] = useState<Area | null>({
-    id: null,
-    name: "",
-    location: [],
-  });
   const [predefinedAreaId, setPredefinedAreaId] = useState(null);
   const [saveDialog, setSaveDialog] = useState(false);
   const featureGroupRef = useRef<L.FeatureGroup>(null);
@@ -49,8 +44,13 @@ function MapPicker({ areas, setDocument }) {
 
   const handlePolygonCreate = (event) => {
     if (customPolygon) {
-      featureGroupRef.current?.clearLayers();
+      if (predefinedAreaId !== null) {
+        map.removeLayer(customPolygon);
+      } else {
+        featureGroupRef.current?.clearLayers();
+      }
     }
+
     // Create the new polygon
     const newPolygon = L.polygon(event.layer.getLatLngs()[0]);
     setCustomPolygon(newPolygon);
@@ -107,7 +107,7 @@ function MapPicker({ areas, setDocument }) {
 
   return (
     <>
-      {true && (
+      {customPolygon && (
         <Alert
           icon={false}
           severity="warning"
@@ -141,12 +141,17 @@ function MapPicker({ areas, setDocument }) {
               options={areas}
               getOptionLabel={(option) => option.name}
               id="areaSelect"
-              value={
-                areas.find((area) => area.id === predefinedArea.id) || null
-              }
+              value={areas.find((area) => area.id === predefinedAreaId) || null}
               onChange={(_event, newValue) => {
-                setPredefinedArea(newValue);
-                L.polygon(newValue.location).addTo(map);
+                if (predefinedAreaId === null) {
+                  //Remove the existing polygon
+                  featureGroupRef.current?.clearLayers();
+                } else {
+                  map.removeLayer(customPolygon);
+                }
+                setPredefinedAreaId(newValue.id);
+                const area = L.polygon(newValue.location).addTo(map);
+                setCustomPolygon(area);
               }}
               renderInput={(params) => (
                 <TextField
@@ -179,6 +184,10 @@ function MapPicker({ areas, setDocument }) {
                 marker: false,
                 circlemarker: false,
                 rectangle: false,
+              }}
+              edit={{
+                edit: predefinedAreaId === null,
+                remove: predefinedAreaId === null,
               }}
               onCreated={handlePolygonCreate}
               onDeleted={handlePolygonDelete}
