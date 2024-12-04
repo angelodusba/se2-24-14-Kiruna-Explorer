@@ -573,50 +573,6 @@ Creates a new type in the database.
 - Additional Constraints:
   - It should return a `409` error if a type with the same name already exists in the database.
 
-### Scale APIs
-
-#### GET `kirunaexplorer/scales`
-
-Retrieves all the scales in the database.
-
-- Request Parameters: None
-- Request Body Content: None
-- Response Body Content: An array of **Scale** objects, each representing a scale:
-  - Example:
-
-```JSON
-[
-    {
-        "id": 1,
-        "name": "Scale 1"
-    },
-    {
-        "id": 2,
-        "name": "Scale 2"
-    }
-]
-```
-
-#### POST `kirunaexplorer/scales`
-
-Creates a new scale in the database.
-
-- Request Parameters: None
-- Request Body Content: An object with one field:
-  - `name` (string) - The name of the scale, it cannot be empty.
-  - Example:
-
-```JSON
-{
-    "name": "Scale 1"
-}
-```
-
-- Response Body Content: None
-- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
-- Additional Constraints:
-  - It should return a `409` error if a scale with the same name already exists in the database.
-
 ### Attachment APIs
 
 #### POST `kirunaexplorer/attachments/:document_id`
@@ -812,6 +768,44 @@ Retrieves all the areas in the database.
 ]
 ```
 
+#### GET `kirunaexplorer/areas/municipality`
+
+Retrieves the municipality area in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An **Area** object.
+  - Example:
+
+```JSON
+{
+  "id": 1,
+  "name": "Municipality area",
+  "location": [
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            }
+        ]
+}
+```
+
 #### POST `kirunaexplorer/areas`
 
 Creates a new area in the database.
@@ -847,7 +841,7 @@ Creates a new area in the database.
 ```
 
 - Response Body Content: An **Area** object that represents the created area
- - Example:
+- Example:
 
 ```JSON
 {

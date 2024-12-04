@@ -9,6 +9,7 @@ class AreaRoutes {
   private controller: AreaController;
   private authService: Authenticator;
   private errorHandler: ErrorHandler;
+
   constructor(authenticator: Authenticator) {
     this.authService = authenticator;
     this.router = express.Router();
@@ -34,6 +35,17 @@ class AreaRoutes {
       this.controller
         .getAreas()
         .then((areas) => res.status(200).json(areas))
+        .catch((err: any) => next(err))
+    );
+
+    /**
+     * Route for retrieving the municipality area.
+     * It returns an Area object.
+     */
+    this.router.get("/municipality", (req: any, res: any, next: any) =>
+      this.controller
+        .getMunicipalityArea()
+        .then((area) => res.status(200).json(area))
         .catch((err: any) => next(err))
     );
 

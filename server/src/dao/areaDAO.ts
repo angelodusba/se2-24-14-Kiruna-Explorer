@@ -12,8 +12,9 @@ class AreaDAO {
     try {
       const sql = `SELECT id, name, 
                   substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11)) AS location
-                  FROM areas`;
-      const result = await db.query(sql, []);
+                  FROM areas
+      `;
+      const result = await db.query(sql);
       const areas: Area[] = result.rows.map((row) => {
         return new Area(
           row.id,
@@ -26,7 +27,36 @@ class AreaDAO {
       });
       return areas;
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
+    }
+  }
+
+  /**
+   * Fetches the municipality area
+   * @returns A Promise that resolves to an Area object.
+   */
+  async getMunicipalityArea(): Promise<Area> {
+    try {
+      const sql = `SELECT id, name, 
+                    substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11)) AS location
+                  FROM areas
+                  WHERE id=1
+      `;
+      const result = await db.query(sql);
+      if (result.rows.length !== 1 || !result.rows[0].name.includes("Municipality area")) {
+        throw new Error("An error occurred while retrieving the municipality area");
+      }
+      const row = result.rows[0];
+      return new Area(
+        row.id,
+        row.name,
+        row.location.split(",").map((coords: string) => {
+          const [lng, lat] = coords.split(" ").map(Number);
+          return new Coordinates(lng, lat);
+        })
+      );
+    } catch (err: any) {
+      throw err;
     }
   }
 
@@ -57,7 +87,7 @@ class AreaDAO {
     } catch (err: any) {
       if (err.message.includes('duplicate key value violates unique constraint "areas_name_key"'))
         throw new AreaAlreadyExistsError();
-      throw new Error(err);
+      throw err;
     }
   }
 }
