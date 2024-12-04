@@ -12,14 +12,9 @@ import {
   Avatar,
   ListItemIcon,
   Popover,
-  Tabs,
-  Tab,
 } from "@mui/material";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
-import MapIcon from "@mui/icons-material/Map";
-import DescriptionIcon from "@mui/icons-material/Description";
-import EarbudsIcon from "@mui/icons-material/Earbuds";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
 import UserContext from "../contexts/UserContext";
@@ -127,6 +122,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     scales: [],
     languages: [],
     stakeholders: [],
+    municipality: false,
   });
   const [searchValue, setSearchValue] = useState<string>("");
 
@@ -141,6 +137,21 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const handleSimpleSearch = () => {
     setFilters({ title: searchValue });
     onSearch({ title: searchValue });
+  };
+
+  const handleReset = () => {
+    setFilters({
+      title: "",
+      types: [],
+      start_year: "",
+      end_year: "",
+      scales: [],
+      languages: [],
+      stakeholders: [],
+      municipality: false,
+    });
+    setSearchValue("");
+    handleResetFilters();
   };
 
   const handleAdvancedSearch = () => {
@@ -315,7 +326,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     <AdvancedSearchForm
                       handleClose={handleAdvacedSearchPanelClose}
                       handleSubmit={handleAdvancedSearch}
-                      handleReset={handleResetFilters}
+                      handleReset={handleReset}
                       filters={filters}
                       setFilters={setFilters}
                       stakeholders={stakeholders}
