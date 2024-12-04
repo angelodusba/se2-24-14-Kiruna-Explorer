@@ -20,7 +20,8 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { StakeHolder } from "../../models/StakeHolders";
 import { useMemo, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { AddCircleOutlined } from "@mui/icons-material";
+import { Add, AddCircleOutlined } from "@mui/icons-material";
+import AddResourceDialog from "./AddResourceDialog";
 
 const datePattern = /^([0-9]{4})(\/(0[1-9]|1[0-2])(\/(0[1-9]|[12][0-9]|3[01]))?)?$/;
 const languages = [
@@ -32,7 +33,9 @@ const languages = [
 ];
 const scaleLabels = ["Blueprints/material effects", "Text", "Concept", "Architectural scale"];
 
-function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
+function GeneralInfoForm({ types, stakeholders, document, setDocument, handleRefreshData }) {
+  const [typeDialogOpen, setTypeDialogOpen] = useState<boolean>(false);
+  const [stakeholderDialogOpen, setStakeholderDialogOpen] = useState<boolean>(false);
   const [dateError, setDateError] = useState("");
   const [scaleError, setScaleError] = useState("");
   const [scaleModality, setScaleModality] = useState<number>(0);
@@ -125,9 +128,17 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         />
       </Grid>
       {/* TYPE */}
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
+      <Grid
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "flex-start",
+        }}
+        size={{ xs: 12, md: 6 }}
+      >
         <Autocomplete
           size="small"
+          style={{ width: "100%", marginRight: 3 }}
           options={types}
           getOptionLabel={(option) => option.name}
           id="typeSelect"
@@ -142,6 +153,14 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
             <TextField {...params} label="Type" variant="outlined" required />
           )}
         />
+        <IconButton
+          aria-label="add type"
+          onClick={() => {
+            setTypeDialogOpen(true);
+          }}
+        >
+          <Add />
+        </IconButton>
       </Grid>
       {/* LANGUAGES */}
       <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
@@ -194,9 +213,13 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
         />
       </Grid>
       {/* STAKEHOLDERS */}
-      <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
+      <Grid
+        sx={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}
+        size={{ xs: 12, md: 6 }}
+      >
         <Autocomplete
           size="small"
+          style={{ width: "100%", marginRight: 3 }}
           multiple
           id="stakeholdersSelect"
           options={stakeholders}
@@ -234,6 +257,15 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
             />
           )}
         />
+        <IconButton
+          aria-label="add stakeholder"
+          onClick={() => {
+            console.log("apriti");
+            setStakeholderDialogOpen(true);
+          }}
+        >
+          <Add />
+        </IconButton>
       </Grid>
       {/* ISSUE DATE */}
       <Grid sx={{ display: "flex", flexDirection: "column" }} size={{ xs: 12, md: 6 }}>
@@ -404,6 +436,26 @@ function GeneralInfoForm({ types, stakeholders, document, setDocument }) {
           Add source
         </Button>
       </Grid>
+      {typeDialogOpen && (
+        <AddResourceDialog
+          title={"Add a new document type"}
+          label={"Document type"}
+          handleClose={() => {
+            setTypeDialogOpen(false);
+          }}
+          handleRefreshData={handleRefreshData}
+        />
+      )}
+      {stakeholderDialogOpen && (
+        <AddResourceDialog
+          title={"Add a new stakeholder"}
+          label={"Stakeholder name"}
+          handleClose={() => {
+            setStakeholderDialogOpen(false);
+          }}
+          handleRefreshData={handleRefreshData}
+        />
+      )}
     </>
   );
 }

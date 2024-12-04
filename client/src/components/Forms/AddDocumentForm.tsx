@@ -1,12 +1,5 @@
 import Grid from "@mui/material/Grid2";
-import {
-  Box,
-  Button,
-  Step,
-  StepLabel,
-  Stepper,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import React from "react";
 import GeneralInfoForm from "./GeneralInfoForm";
 import GeoreferenceForm from "./GeoreferenceForm";
@@ -32,6 +25,7 @@ function AddDocumentForm({
   handleSelectConnectionTypes,
   document,
   setDocument,
+  handleRefreshData,
 }) {
   const isStepOptional = (index: number): boolean => {
     return steps[index].optional;
@@ -44,6 +38,7 @@ function AddDocumentForm({
         stakeholders={stakeholders}
         document={document}
         setDocument={setDocument}
+        handleRefreshData={handleRefreshData}
       />
     ) : activeStep === 1 ? (
       <GeoreferenceForm document={document} setDocument={setDocument} />
@@ -87,7 +82,8 @@ function AddDocumentForm({
         pt: 0,
         px: 2,
         mt: 4,
-      }}>
+      }}
+    >
       <Grid sx={{ width: "100%" }} size="auto">
         <Stepper
           id="stepper"
@@ -96,16 +92,15 @@ function AddDocumentForm({
           sx={{
             width: "100%",
             top: "0px",
-          }}>
+          }}
+        >
           {steps.map((step, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;
             } = {};
             if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
-              );
+              labelProps.optional = <Typography variant="caption">Optional</Typography>;
             }
             return (
               <Step
@@ -115,10 +110,12 @@ function AddDocumentForm({
                   "& .MuiStepConnector-root": { top: { xs: 12, sm: 12 } },
                 }}
                 key={index}
-                {...stepProps}>
+                {...stepProps}
+              >
                 <StepLabel
                   {...labelProps}
-                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}>
+                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}
+                >
                   {step.label}
                 </StepLabel>
               </Step>
@@ -135,7 +132,8 @@ function AddDocumentForm({
           py: 2,
         }}
         size={6}
-        spacing={2}>
+        spacing={2}
+      >
         {/* FORM CURRENTLY DISPLAYED */}
         {currentForm}
       </Grid>
@@ -146,16 +144,15 @@ function AddDocumentForm({
             display: activeStep === steps.length - 1 ? "none" : "flex",
             py: 2,
           }}
-          size="auto">
-          {activeStep > 0 && activeStep < steps.length - 1 && (
+          size="auto"
+        >
+          {activeStep === 1 && (
             <Button color="inherit" onClick={handleBack} sx={{ mr: 1 }}>
               Back
             </Button>
           )}
           <Box sx={{ flex: "1 1 auto" }} />
-          <Button type={"submit"}>
-            {activeStep === steps.length - 3 ? "Create" : "Next"}
-          </Button>
+          <Button type={"submit"}>{activeStep === steps.length - 3 ? "Create" : "Next"}</Button>
         </Grid>
       )}
     </Grid>

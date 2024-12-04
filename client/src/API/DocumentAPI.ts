@@ -7,13 +7,15 @@ import { DocumentCard } from "../models/DocumentCard";
 import { Attachment } from "../models/Attachment";
 import { Area } from "../models/Area";
 
-const baseURL =
-  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 
 async function sendDocument(document: Document): Promise<number> {
-  document.coordinates.push(document.coordinates[0]);
+  if (document.coordinates.length > 1) {
+    // Copy the first point of the polygon as the last one
+    document.coordinates.push(document.coordinates[0]);
+  }
   const response = await fetch(baseURL + "documents", {
     method: "POST",
     credentials: "include",
@@ -38,9 +40,7 @@ async function sendDocument(document: Document): Promise<number> {
   } else {
     const errDetail = await response.json();
     console.log(errDetail);
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -54,47 +54,7 @@ async function getDocumentsLocation() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
-  }
-}
-
-async function getTypes(): Promise<Type[]> {
-  const response = await fetch(baseURL + "types", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (response.ok) {
-    const types: Type[] = await response.json();
-    return types;
-  } else {
-    const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
-  }
-}
-
-async function getStakeholders() {
-  const response = await fetch(baseURL + "stakeholders", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (response.ok) {
-    const stakeholders: StakeHolder[] = await response.json();
-    return stakeholders;
-  } else {
-    const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -109,9 +69,7 @@ async function getMunicipalityArea() {
     return area;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -128,9 +86,7 @@ async function getAllAreas() {
     });
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -152,9 +108,7 @@ async function saveArea(name: string, location) {
     return res;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -168,9 +122,7 @@ async function getAllDocumentsNames() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -184,9 +136,7 @@ async function getMunicipalityDocuments() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -205,9 +155,7 @@ async function changeDocumentLocation(id: number, location: Point[]) {
   });
   if (!response.ok) {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -224,9 +172,7 @@ async function getDocumentCard(id: number) {
     return documentCard;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -267,9 +213,7 @@ async function getFilteredDocuments(
     sort: sort ? sort : undefined,
   };
   // Remove undefined values
-  Object.keys(params).forEach(
-    (key) => params[key] === undefined && delete params[key]
-  );
+  Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
   const nonEmptyFilters = Object.fromEntries(
     Object.entries(filters).filter(([, value]) => {
       if (Array.isArray(value)) {
@@ -299,9 +243,7 @@ async function getFilteredDocuments(
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -320,9 +262,7 @@ async function uploadFile(id, file) {
     return attachment;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -335,9 +275,75 @@ async function deleteFile(id) {
     return;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+  }
+}
+
+/** --------------- Stakeholder APIs ------------------ */
+async function addStakeholder(name) {
+  const response = await fetch(`${baseURL}stakeholders`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name }),
+  });
+  if (!response.ok) {
+    const errDetail = await response.json();
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+  }
+}
+
+async function getStakeholders() {
+  const response = await fetch(baseURL + "stakeholders", {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    const stakeholders: StakeHolder[] = await response.json();
+    return stakeholders;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+  }
+}
+
+/** --------------- Types APIs ------------------ */
+
+async function addDocumentType(name) {
+  const response = await fetch(`${baseURL}types`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name }),
+  });
+  if (!response.ok) {
+    const errDetail = await response.json();
+    console.log(errDetail);
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+  }
+}
+
+async function getTypes(): Promise<Type[]> {
+  const response = await fetch(baseURL + "types", {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    const types: Type[] = await response.json();
+    return types;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
@@ -347,8 +353,6 @@ const DocumentAPI = {
   sendDocument,
   getDocumentsLocation,
   getAllDocumentsNames,
-  getTypes,
-  getStakeholders,
   getMunicipalityDocuments,
   changeDocumentLocation,
   getDocumentCard,
@@ -359,5 +363,9 @@ const DocumentAPI = {
   getAllAreas,
   saveArea,
   getMunicipalityArea,
+  addStakeholder,
+  getStakeholders,
+  getTypes,
+  addDocumentType,
 };
 export default DocumentAPI;
