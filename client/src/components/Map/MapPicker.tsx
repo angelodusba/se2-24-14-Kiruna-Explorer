@@ -45,12 +45,10 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
   }, [disabledInput, map, pointMarker, setDocument]);
 
   const handlePolygonCreate = (event) => {
-    if (customPolygon) {
-      if (predefinedAreaId !== null) {
-        map.removeLayer(customPolygon);
-      } else {
-        featureGroupRef.current?.clearLayers();
-      }
+    if (predefinedAreaId !== null) {
+      map.removeLayer(customPolygon);
+    } else {
+      featureGroupRef.current?.clearLayers();
     }
 
     // Create the new polygon

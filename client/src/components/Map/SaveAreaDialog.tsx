@@ -65,6 +65,7 @@ function SaveAreaDialog({ polygon, open }) {
             }
             setName(event.target.value);
           }}
+          sx={{ m: 2 }}
           error={!!nameError}
           helperText={nameError && nameError}
         />
