@@ -23,6 +23,7 @@ import ConnectionAPI from "../../API/ConnectionApi";
 import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
 import connectionStyles from "./ConnectionStyles";
+import SideBar from "./SideBar";
 
 interface DocumentForDiagram {
   id: number;
@@ -294,7 +295,6 @@ import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutl
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import { IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
-import { icon } from "leaflet";
 
 function Flow({
   nodes,
@@ -390,7 +390,9 @@ function Flow({
         </div>
         <Controls />
         <Background gap={gridWidth} variant={BackgroundVariant.Lines} color="#aaa" />
+        <SideBar />
       </ReactFlow>
+      
     </div>
   );
 }
