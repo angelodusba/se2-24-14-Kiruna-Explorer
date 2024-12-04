@@ -24,49 +24,7 @@ function GeoreferenceForm({
   const [georeferenceModality, setGeoreferenceModality] = useState(
     document.coordinates.length === 0 ? 0 : 1
   );
-
-  const [selectedArea, setSelectedArea] = useState("");
   const { setDisabledInput } = useContext(DisabledInputContext);
-
-  // Hardcoded sample areas which should replace the actual API call
-  const areas = [
-    {
-      id: 1,
-      name: "Area 1",
-      coordinates: [
-        { lat: 67.5458, lng: 19.8253 },
-        { lat: 67.5558, lng: 19.8353 },
-      ],
-    },
-    {
-      id: 2,
-      name: "Area 2",
-      coordinates: [
-        { lat: 67.5658, lng: 19.8453 },
-        { lat: 67.5758, lng: 19.8553 },
-      ],
-    },
-    {
-      id: 3,
-      name: "Area 3",
-      coordinates: [
-        { lat: 67.5858, lng: 19.8653 },
-        { lat: 67.5958, lng: 19.8753 },
-      ],
-    },
-  ];
-
-  const handleAreaChange = (event) => {
-    const areaId = event.target.value;
-    setSelectedArea(areaId);
-    const area = areas.find((a) => a.id === areaId);
-    if (area) {
-      setDocument((prevDocument) => ({
-        ...prevDocument,
-        coordinates: area.coordinates,
-      }));
-    }
-  };
 
   return (
     <Grid
@@ -142,7 +100,7 @@ function GeoreferenceForm({
           display: georeferenceModality === 1 ? "flex" : "none",
           alignItems: "center",
         }}
-        size={6}>
+        size={{ xs: 12, md: 6 }}>
         <Grid
           sx={{
             display: georeferenceModality === 1 ? "flex" : "none",
@@ -241,9 +199,10 @@ function GeoreferenceForm({
         sx={{
           display: georeferenceModality === 2 ? "flex" : "none",
           alignItems: "center",
+          justifyContent: "center",
         }}
-        size={6}>
-        <Grid
+        size={{ xs: 12, md: 6 }}>
+        {/*<Grid
           sx={{
             display: georeferenceModality === 2 ? "flex" : "none",
             flexDirection: "column",
@@ -265,7 +224,7 @@ function GeoreferenceForm({
             </Select>
           </FormControl>
         </Grid>
-
+        */}
         <Grid
           sx={{
             display: georeferenceModality === 2 ? "flex" : "none",
