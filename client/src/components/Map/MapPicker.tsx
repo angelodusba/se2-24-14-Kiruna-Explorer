@@ -86,8 +86,13 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
         setPointMarker(null);
       }
     } else if (disabledInput.includes("area")) {
-      featureGroupRef.current?.clearLayers();
-      setCustomPolygon(null);
+      if (predefinedAreaId === null) {
+        featureGroupRef.current?.clearLayers();
+        setCustomPolygon(null);
+      } else {
+        map.removeLayer(customPolygon);
+        setCustomPolygon(null);
+      }
     }
     if (disabledInput.includes("save")) {
       navigate("/map");

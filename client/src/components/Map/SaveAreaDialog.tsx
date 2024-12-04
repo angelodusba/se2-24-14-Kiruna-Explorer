@@ -20,6 +20,9 @@ function SaveAreaDialog({ polygon, open }) {
   const handleAreaSave = () => {
     DocumentAPI.saveArea(name, polygon.getLatLngs()[0])
       .then(() => {
+        if (disabledInput.includes("save")) {
+          navigate("/map");
+        }
         setDisabledInput(undefined);
       })
       .catch(() => {
