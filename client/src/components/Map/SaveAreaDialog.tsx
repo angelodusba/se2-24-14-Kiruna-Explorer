@@ -2,7 +2,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   TextField,
   DialogActions,
   Button,
@@ -10,15 +9,20 @@ import {
 import { useContext, useState } from "react";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import DocumentAPI from "../../API/DocumentAPI";
+import { useNavigate } from "react-router-dom";
 
 function SaveAreaDialog({ polygon, open }) {
-  const { setDisabledInput } = useContext(DisabledInputContext);
+  const { disabledInput, setDisabledInput } = useContext(DisabledInputContext);
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState("");
+  const navigate = useNavigate();
 
   const handleAreaSave = () => {
     DocumentAPI.saveArea(name, polygon.getLatLngs()[0])
       .then(() => {
+        if (disabledInput.includes("save")) {
+          navigate("/map");
+        }
         setDisabledInput(undefined);
       })
       .catch(() => {
@@ -27,6 +31,9 @@ function SaveAreaDialog({ polygon, open }) {
   };
 
   const handleClose = () => {
+    if (disabledInput.includes("save")) {
+      navigate("/map");
+    }
     setDisabledInput(undefined);
   };
 
@@ -43,7 +50,6 @@ function SaveAreaDialog({ polygon, open }) {
       }}>
       <DialogTitle>Do you want to save the area?</DialogTitle>
       <DialogContent>
-        <DialogContentText></DialogContentText>
         <TextField
           autoFocus
           required
@@ -65,7 +71,7 @@ function SaveAreaDialog({ polygon, open }) {
       </DialogContent>
       <DialogActions>
         <Button color="error" onClick={handleClose}>
-          Cancel
+          Don't save
         </Button>
         <Button type="submit">Save</Button>
       </DialogActions>
