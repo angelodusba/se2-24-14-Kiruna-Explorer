@@ -434,7 +434,7 @@ I want to click on the documents shown on the diagram so that I can access to th
 
 - Resident/ visitor/ urban planner can access to the document by clicking on the documents
 
-#### Test Case 1: Visualize the area 
+#### Test Case 1:  
 
 #### Test Case 2: 
 
