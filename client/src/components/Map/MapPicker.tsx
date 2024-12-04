@@ -10,6 +10,7 @@ import PlaceIcon from "@mui/icons-material/Place";
 import { EditControl } from "react-leaflet-draw";
 import SaveAreaDialog from "./SaveAreaDialog";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import { useNavigate } from "react-router-dom";
 
 function MapPicker({ areas = undefined, setDocument = undefined }) {
   const [pointMarker, setPointMarker] = useState<L.Marker | null>(null);
@@ -18,6 +19,7 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
   const [saveDialog, setSaveDialog] = useState(false);
   const featureGroupRef = useRef<L.FeatureGroup>(null);
   const { disabledInput, setDisabledInput } = useContext(DisabledInputContext);
+  const navigate = useNavigate();
   const alertRef = useRef(null);
   const map = useMap();
 
@@ -72,10 +74,12 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
 
   const handleClose = (event) => {
     event.stopPropagation();
-    setDocument((prevDocument) => ({
-      ...prevDocument,
-      coordinates: [],
-    }));
+    if (!disabledInput.includes("save")) {
+      setDocument((prevDocument) => ({
+        ...prevDocument,
+        coordinates: [],
+      }));
+    }
     if (disabledInput === "point") {
       if (pointMarker) {
         map.removeLayer(pointMarker);
@@ -84,6 +88,9 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
     } else if (disabledInput.includes("area")) {
       featureGroupRef.current?.clearLayers();
       setCustomPolygon(null);
+    }
+    if (disabledInput.includes("save")) {
+      navigate("/map");
     }
     setDisabledInput(undefined);
   };
@@ -95,10 +102,12 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
       setPointMarker(null);
       setDisabledInput(undefined);
     } else if (disabledInput.includes("area")) {
-      setDocument((prevDocument) => ({
-        ...prevDocument,
-        coordinates: customPolygon.getLatLngs()[0],
-      }));
+      if (!disabledInput.includes("save")) {
+        setDocument((prevDocument) => ({
+          ...prevDocument,
+          coordinates: customPolygon.getLatLngs()[0],
+        }));
+      }
       if (predefinedAreaId === null) {
         featureGroupRef.current?.clearLayers();
         setSaveDialog(true);
