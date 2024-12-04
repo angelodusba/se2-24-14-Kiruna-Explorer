@@ -2,7 +2,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   TextField,
   DialogActions,
   Button,
@@ -43,7 +42,6 @@ function SaveAreaDialog({ polygon, open }) {
       }}>
       <DialogTitle>Do you want to save the area?</DialogTitle>
       <DialogContent>
-        <DialogContentText></DialogContentText>
         <TextField
           autoFocus
           required
