@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -17,12 +17,17 @@ import { Edge, Connection } from "reactflow";
 import "reactflow/dist/style.css";
 import dayjs from "dayjs";
 import { SearchFilter } from "../../models/SearchFilter";
-
+import ZoomNode from "./ZoomNode";
+import CustomEdge from "./CustomEdge";
 import ConnectionAPI from "../../API/ConnectionApi";
 import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
 import connectionStyles from "./ConnectionStyles";
 import SideBar from "./SideBar";
+import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
+import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
+import { IconButton } from "@mui/material";
+import { Outlet, useNavigate } from "react-router-dom";
 
 interface DocumentForDiagram {
   id: number;
@@ -32,19 +37,10 @@ interface DocumentForDiagram {
   typeName: string;
   stakeholders: string[];
 }
-import ZoomNode from "./ZoomNode";
+
 const nodeTypes = {
   zoom: ZoomNode,
 };
-
-const gridHeight = 200; // Size of the grid cells
-const gridWidth = 400; // Width of the grid
-const nodeWidth = gridWidth / 4;
-const nodeHeight = nodeWidth;
-
-const initialEdges: Edge[] = [];
-import CustomEdge from "./CustomEdge";
-const nodeClassName = (node) => node.type;
 
 const edgeTypes = {
   animated: CustomEdge,
@@ -53,6 +49,12 @@ const edgeTypes = {
 interface DiagramProps {
   currentFilter: SearchFilter;
 }
+
+const gridHeight = 200; // Size of the grid cells
+const gridWidth = 400; // Width of the grid
+const nodeWidth = gridWidth / 4;
+const nodeHeight = nodeWidth;
+const initialEdges: Edge[] = [];
 
 function Diagram({ currentFilter }: DiagramProps) {
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
@@ -75,7 +77,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     const d = dayjs(date);
     //find the index of d.year() in filteredYears
     const index = filteredYears.findIndex((year) => year === d.year());
-    return index + d.month() / 12 ;
+    return index + d.month() / 12;
   };
   const createNode = (doc: DocumentForDiagram, index, offset, filteredYears) => {
     return {
@@ -98,7 +100,6 @@ function Diagram({ currentFilter }: DiagramProps) {
         alignItems: "center",
         justifyContent: "center",
       },
-      
     };
   };
   const createNodesForDocument = (
@@ -160,7 +161,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     // Fetch Documents
     const fetchDocumentsAndConnections = async () => {
       const response = await DocumentAPI.getFilteredDocuments(currentFilter);
-      const list = response.docs.map((doc: any, _: number) => {
+      const list = response.docs.map((doc: any) => {
         return {
           id: doc.id,
           title: doc.title,
@@ -210,7 +211,11 @@ function Diagram({ currentFilter }: DiagramProps) {
         return fiteredDocsPerYear.find((docs) => docs[0].date.includes(year.toString()));
       });
       //sort for date
-      const documentsNodes = createNodesForDocument(fiteredDocsPerYear, filteredYears, offsetYPerScale);
+      const documentsNodes = createNodesForDocument(
+        fiteredDocsPerYear,
+        filteredYears,
+        offsetYPerScale
+      );
       setDocsNodes(documentsNodes);
       const sortedNodesByID = documentsNodes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
       //Keep track of last year_node id to not overlap
@@ -230,7 +235,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           fontSize: gridWidth / 10,
           fontWeight: "bold",
           textAlign: "center" as const,
-          cursor: "default"
+          cursor: "default",
         },
         draggable: false,
         connectable: false,
@@ -300,11 +305,6 @@ function Diagram({ currentFilter }: DiagramProps) {
   );
 }
 
-import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
-import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
-import { IconButton } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
-
 function Flow({
   docsNodes,
   nodes,
@@ -317,7 +317,7 @@ function Flow({
   nodeTypes,
   edgeTypes,
   yearToShowFirst,
-  currentFilter
+  currentFilter,
 }) {
   const { setViewport, getViewport } = useReactFlow(); // Get viewport control methods
 
@@ -365,9 +365,9 @@ function Flow({
   const onNodeClick = (_, node) => {
     if (docsNodes.some((doc) => doc.id == node.id)) {
       const { zoom } = getViewport();
-      const nodeX = -node.position.x * zoom + window.innerWidth / 2 - nodeWidth * zoom / 2;
-      const nodeY = -node.position.y * zoom + window.innerHeight / 2 - gridHeight * zoom / 2;
-      const newViewport = { x: nodeX + nodeWidth*zoom, y: nodeY, zoom };
+      const nodeX = -node.position.x * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
+      const nodeY = -node.position.y * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
+      const newViewport = { x: nodeX + nodeWidth * zoom, y: nodeY, zoom };
       setViewport(newViewport, { duration: 800 });
       navigate(`/diagram/${node.id}`);
     }
@@ -392,7 +392,7 @@ function Flow({
         panOnDrag
         fitView
       >
-        <div style={{ position: "absolute", bottom: 10, right: 10, zIndex: 10 }}>
+        <div style={{ position: "absolute", bottom: 10, right: 80, zIndex: 10 }}>
           <IconButton onClick={() => handlePan("left")} sx={{ background: "pink" }}>
             <ArrowCircleLeftOutlinedIcon sx={{ color: "white" }} />
           </IconButton>
@@ -400,11 +400,10 @@ function Flow({
             <ArrowCircleRightOutlinedIcon sx={{ color: "white" }} />
           </IconButton>
         </div>
-        <Controls />
+        <Controls position="bottom-right" />
         <Background gap={gridWidth} variant={BackgroundVariant.Lines} color="#aaa" />
         <SideBar />
       </ReactFlow>
-      
     </div>
   );
 }
