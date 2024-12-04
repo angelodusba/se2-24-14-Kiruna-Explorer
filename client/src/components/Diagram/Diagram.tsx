@@ -13,7 +13,6 @@ import ReactFlow, {
   reconnectEdge,
   useReactFlow,
 } from "reactflow";
-import { createHighlitedIcon, createCustomIcon } from "../Map/Icons";
 import { Edge, Connection } from "reactflow";
 import "reactflow/dist/style.css";
 import dayjs from "dayjs";
@@ -56,6 +55,7 @@ interface DiagramProps {
 }
 
 function Diagram({ currentFilter }: DiagramProps) {
+  const [docsNodes, setDocsNodes] = useState<Node[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [yearToShowFirst, setYearToShowFirst] = useState<number>(0);
@@ -210,8 +210,9 @@ function Diagram({ currentFilter }: DiagramProps) {
         return fiteredDocsPerYear.find((docs) => docs[0].date.includes(year.toString()));
       });
       //sort for date
-      const docsNodes = createNodesForDocument(fiteredDocsPerYear, filteredYears, offsetYPerScale);
-      const sortedNodesByID = docsNodes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+      const documentsNodes = createNodesForDocument(fiteredDocsPerYear, filteredYears, offsetYPerScale);
+      setDocsNodes(documentsNodes);
+      const sortedNodesByID = documentsNodes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
       //Keep track of last year_node id to not overlap
       // Create nodes for years (COLUMNS)
       let lastID = sortedNodesByID[sortedNodesByID.length - 1].id;
@@ -222,11 +223,14 @@ function Diagram({ currentFilter }: DiagramProps) {
         style: {
           width: gridWidth,
           height: gridHeight,
-          backgroundColor: "000",
+          backgroundColor: "#eeeeee",
           borderRadius: 10,
-          border: "1px solid #000",
+          border: "2px solid #000",
+          color: "#003d8f",
           fontSize: gridWidth / 10,
+          fontWeight: "bold",
           textAlign: "center" as const,
+          cursor: "default"
         },
         draggable: false,
         connectable: false,
@@ -240,15 +244,19 @@ function Diagram({ currentFilter }: DiagramProps) {
       const scalesNodes = scales.map((scale, index) => {
         return {
           id: (index + lastID + 1).toString(),
-          data: { label: scale.name },
+          data: { label: scale.name.charAt(0).toUpperCase() + scale.name.slice(1) },
           position: { x: 0, y: offsetYPerScale[scale.name] },
           style: {
             width: gridWidth,
             height: nodeHeight * maxDocsPerScale[scale.name],
-            backgroundColor: "red",
+            backgroundColor: "#eeeeee",
+            border: "2px solid #000",
+            color: "#003d8f",
             borderRadius: 10,
+            fontWeight: "bold",
             fontSize: gridWidth / 10,
             textAlign: "center" as const,
+            cursor: "default",
           },
           draggable: false,
           connectable: false,
@@ -257,13 +265,13 @@ function Diagram({ currentFilter }: DiagramProps) {
         };
       });
       //merge years and document Nodes
-      const merge = [...yearNodes, ...scalesNodes, ...docsNodes];
+      const merge = [...yearNodes, ...scalesNodes, ...documentsNodes];
       setNodes(merge);
 
       //Now fetch connections
       const connections = await ConnectionAPI.getConnections();
       //create Edges
-      const edges = createEdges(connections, docsNodes);
+      const edges = createEdges(connections, documentsNodes);
       setEdges(edges);
       //refresh viewport via state change
       setRefreshViewport(!refreshViewport);
@@ -274,6 +282,7 @@ function Diagram({ currentFilter }: DiagramProps) {
   return (
     <ReactFlowProvider>
       <Flow
+        docsNodes={docsNodes}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
@@ -297,6 +306,7 @@ import { IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 
 function Flow({
+  docsNodes,
   nodes,
   edges,
   onNodesChange,
@@ -307,7 +317,7 @@ function Flow({
   nodeTypes,
   edgeTypes,
   yearToShowFirst,
-  currentFilter,
+  currentFilter
 }) {
   const { setViewport, getViewport } = useReactFlow(); // Get viewport control methods
 
@@ -353,12 +363,14 @@ function Flow({
   const navigate = useNavigate();
 
   const onNodeClick = (_, node) => {
-    const { zoom } = getViewport();
-    const nodeX = -node.position.x * zoom + window.innerWidth / 2 - nodeWidth * zoom / 2;
-    const nodeY = -node.position.y * zoom + window.innerHeight / 2 - gridHeight * zoom / 2;
-    const newViewport = { x: nodeX + nodeWidth*zoom, y: nodeY, zoom };
-    setViewport(newViewport, { duration: 800 });
-    navigate(`/diagram/${node.id}`);
+    if (docsNodes.some((doc) => doc.id == node.id)) {
+      const { zoom } = getViewport();
+      const nodeX = -node.position.x * zoom + window.innerWidth / 2 - nodeWidth * zoom / 2;
+      const nodeY = -node.position.y * zoom + window.innerHeight / 2 - gridHeight * zoom / 2;
+      const newViewport = { x: nodeX + nodeWidth*zoom, y: nodeY, zoom };
+      setViewport(newViewport, { duration: 800 });
+      navigate(`/diagram/${node.id}`);
+    }
   };
 
   return (

@@ -18,14 +18,14 @@ const createIcon = (inputWidth, inputHeight, d, id) => {
         style={{ maxWidth: "100%", maxHeight: "100%" }}
         >
             <g key={`LegendIcon${id}`} clipPath={`url(#DocumentIconCut${id})`}>
-            <path d={d} stroke="none" fill={'grey'} fillRule="evenodd" />
+            <path d={d} stroke="none" fill={'black'} fillRule="evenodd" />
             </g>
         </svg>
     )
 }
 
 function SideBar() {
-    const [isMinimized, setIsMinimized] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(true);
 
     const toggleMinimize = () => {
         setIsMinimized(!isMinimized);
@@ -35,12 +35,12 @@ function SideBar() {
         <Box
         sx={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start", 
                 height: "auto", position: "absolute", left: '1%', top: '10%', zIndex: 1000, 
-                backgroundColor: "white", border: "1px solid black", 
+                backgroundColor: "#eeeeee", border: "2px solid black", 
                 padding: isMinimized? "": "32px 16px 32px 16px",
                 maxHeight: "50vh", overflowY: isMinimized?"":"auto",
                 borderRadius: "8px"
                 }}>
-            <h2>Legend{"     "}    
+            <h2 style={{ color: "#003d8f"}}>&ensp;Legend&ensp;
             {isMinimized ? (  
                     <IconButton onClick={toggleMinimize} sx={{":hover": {backgroundColor: "grey"}, 
                     flexDirection: "row", justifyContent:"center"}}>

@@ -36,7 +36,7 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   );
 }
 
-function createCustomIcon(typeName: string, id: number, stakeholders: string[]) {
+function createCustomIcon(typeName: string, id: number, stakeholders: string[], enlargement: number) {
   return typeIconsData[typeName]
     ? L.divIcon({
         html: renderToString(
@@ -48,13 +48,13 @@ function createCustomIcon(typeName: string, id: number, stakeholders: string[]) 
             colors={stakeholders.length ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f") : ["#003d8f"]}
           />
         ),
-        iconSize: [26, 32],
+        iconSize: [26 * enlargement, 32 * enlargement],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
       })
     : new L.Icon({
         iconUrl: KirunaLogo,
-        iconSize: [26, 32],
+        iconSize: [26 * enlargement, 32 * enlargement],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
       });
@@ -88,29 +88,4 @@ function createReactFlowIcon(typeName: string, id: number, stakeholders: string[
   }
 }
 
-
-function createHighlitedIcon(typeName: string, id: number, stakeholders: string[]) {
-  return typeIconsData[typeName]
-    ? L.divIcon({
-        html: renderToString(
-          <DocumentIcon
-            id={id}
-            d={typeIconsData[typeName].d}
-            inputWidth={typeIconsData[typeName].width}
-            inputHeight={typeIconsData[typeName].height}
-            colors={stakeholders.length ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f") : ["#003d8f"]}
-          />
-        ),
-        iconSize: [26 * 1.5, 32 * 1.5],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
-      })
-    : new L.Icon({
-        iconUrl: KirunaLogo,
-        iconSize: [26 * 1.5, 32 * 1.5],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
-      });
-}
-
-export { createCustomIcon, createHighlitedIcon, createReactFlowIcon };
+export { createCustomIcon, createReactFlowIcon };
