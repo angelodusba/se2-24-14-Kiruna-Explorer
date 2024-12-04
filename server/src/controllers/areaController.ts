@@ -22,6 +22,14 @@ class AreaController {
   }
 
   /**
+   * Fetches the municipality area
+   * @returns A Promise that resolves to an Area object.
+   */
+  async getMunicipalityArea(): Promise<Area> {
+    return this.dao.getMunicipalityArea();
+  }
+
+  /**
    * Create a new named area.
    * @param name Area name.
    * @param location Area location (boundaries).
