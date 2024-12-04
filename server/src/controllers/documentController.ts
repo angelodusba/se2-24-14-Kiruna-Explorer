@@ -29,7 +29,7 @@ class DocumentController {
    * @param language - The language of the document, can be empty.
    * @param pages - The number of pages of the document.
    * @param stakeholderIds - The stakeholders of the document.
-   * @returns A Promise that resolves to true if the document has been successfully created.
+   * @returns A Promise that resolves to the id of the document if the document has been successfully created.
    */
   async createDocument(
     title: string,

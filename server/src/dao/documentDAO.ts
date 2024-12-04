@@ -20,7 +20,7 @@ class DocumentDAO {
    * @param language - The language of the document.
    * @param pages - Number of pages of the document.
    * @param stakeholderIds - The stakeholders of the document.
-   * @returns A Promise that resolves to true if the document has been created.
+   * @returns A Promise that resolves to the id of the document if the document has been created.
    */
   async createDocument(
     title: string,

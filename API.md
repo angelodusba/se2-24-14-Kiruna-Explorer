@@ -177,7 +177,7 @@ Retrieves all the locations of the documents in the database.
 
 - Request Parameters: None
 - Request Body Content: None
-- Response Body Content: An array of **DocumentLocationResponse** objects, each containing a document's ID, type, and location coordinates (if available):
+- Response Body Content: An array of **DocumentLocationResponse** objects, each containing a document's ID, type, title, location coordinates (if available) and stakeholders (if available):
   - Example:
 
 ```JSON
@@ -188,12 +188,14 @@ Retrieves all the locations of the documents in the database.
             "id": 1,
             "name": "Design"
         },
+        "title": "Document 1",
         "location": [
             {
                 "lng": 19.5,
                 "lat": 48.5
             }
-        ]
+        ],
+        "stakeholders": ["Stakeholder 1", "Stakeholder 2"]
     },
     {
         "id": 2,
@@ -201,6 +203,7 @@ Retrieves all the locations of the documents in the database.
             "id": 1,
             "name": "Design"
         },
+        "title": "Document 2",
         "location": [
             {
                 "lng": 7.5,
@@ -222,7 +225,8 @@ Retrieves all the locations of the documents in the database.
                 "lng": 7.5,
                 "lat": 46.5
             }
-        ]
+        ],
+        "stakeholders": []
     }
 ]
 ```
@@ -401,7 +405,8 @@ Retrieves all the information of the requested document.
 		}
 	],
 	"language": "french",
-	"pages": "60"
+	"pages": "60",
+    "stakeholders": ["LKAB", "Municipality"]
 }
 ```
 
@@ -449,8 +454,8 @@ Retrieves all the information of the documents matching the specified filters.
 }
 ```
 
-- Response Body Content: An object with three fields:
-  - `docs` (Document[]) - An array of filtered documents.
+- Response Body Content: An **FilteredDocumentsResponse** object with three fields:
+  - `docs` (**Document**[]) - An array of filtered documents.
   - `totalRows` (number) - Total number of rows found in the db for the selected filtering criteria.
   - `totalPages` (number) - Maximum number of pages the client can request for the selected filtering criteria.
   - Example:
@@ -472,7 +477,8 @@ Retrieves all the information of the documents matching the specified filters.
         {"lat": 20.94, "lng": 33.21}
       ],
       "language": "English",
-      "pages": "32"
+      "pages": "32",
+      "stakeholders": ["LKAB", "Municipality"]
     },
     {
       ...
