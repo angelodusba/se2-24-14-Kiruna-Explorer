@@ -9,9 +9,9 @@ import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import PlaceIcon from "@mui/icons-material/Place";
 import { EditControl } from "react-leaflet-draw";
 import SaveAreaDialog from "./SaveAreaDialog";
-import { Area } from "../../models/Area";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
-function MapPicker({ areas, setDocument }) {
+function MapPicker({ areas = undefined, setDocument = undefined }) {
   const [pointMarker, setPointMarker] = useState<L.Marker | null>(null);
   const [customPolygon, setCustomPolygon] = useState<L.Polygon | null>(null);
   const [predefinedAreaId, setPredefinedAreaId] = useState(null);
@@ -81,7 +81,7 @@ function MapPicker({ areas, setDocument }) {
         map.removeLayer(pointMarker);
         setPointMarker(null);
       }
-    } else if (disabledInput === "area") {
+    } else if (disabledInput.includes("area")) {
       featureGroupRef.current?.clearLayers();
       setCustomPolygon(null);
     }
@@ -94,14 +94,18 @@ function MapPicker({ areas, setDocument }) {
       map.removeLayer(pointMarker);
       setPointMarker(null);
       setDisabledInput(undefined);
-    } else if (disabledInput === "area") {
+    } else if (disabledInput.includes("area")) {
       setDocument((prevDocument) => ({
         ...prevDocument,
         coordinates: customPolygon.getLatLngs()[0],
       }));
-      featureGroupRef.current?.clearLayers();
-      //setPolygon(null);
-      setSaveDialog(true);
+      if (predefinedAreaId === null) {
+        featureGroupRef.current?.clearLayers();
+        setSaveDialog(true);
+      } else {
+        map.removeLayer(customPolygon);
+        setDisabledInput(undefined);
+      }
     }
   };
 
@@ -119,82 +123,87 @@ function MapPicker({ areas, setDocument }) {
             position: "absolute",
             zIndex: 403,
           }}>
-          Drawing or selecting a new area will overwrite the previous one.
+          Drawing {!disabledInput.includes("save") && " or selecting"} a new
+          area will overwrite the previous one.
         </Alert>
       )}
       {disabledInput === "area" && (
-        <>
-          <Paper
-            sx={{
-              backgroundColor: "white",
-              p: 1,
-              width: { xs: "50%", md: "30%" },
-              top: 16,
-              left: "50%",
-              textAlign: "center",
-              transform: "translateX(-50%)",
-              position: "absolute",
-              zIndex: 403,
-            }}>
-            <Autocomplete
-              size="small"
-              options={areas}
-              getOptionLabel={(option) => option.name}
-              id="areaSelect"
-              value={areas.find((area) => area.id === predefinedAreaId) || null}
-              onChange={(_event, newValue) => {
-                if (predefinedAreaId === null) {
-                  //Remove the existing polygon
-                  featureGroupRef.current?.clearLayers();
-                } else {
-                  map.removeLayer(customPolygon);
-                }
-                setPredefinedAreaId(newValue.id);
-                const area = L.polygon(newValue.location).addTo(map);
-                setCustomPolygon(area);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  fullWidth
-                  {...params}
-                  label="Predefined Area"
-                  variant="outlined"
-                />
-              )}
-            />
-          </Paper>
-          <FeatureGroup ref={featureGroupRef}>
-            <EditControl
-              position="topleft"
-              draw={{
-                polyline: false,
-                polygon: {
-                  allowIntersection: false,
-                  drawError: {
-                    color: "#e1e100",
-                    message: "You can't intersect sides!",
-                  },
-                  shapeOptions: {
-                    color: "#003d8f",
-                    weight: 4,
-                    clickable: false,
-                  },
+        <Paper
+          sx={{
+            backgroundColor: "white",
+            border: "3px solid #003d8f",
+            p: 1,
+            width: { xs: "50%", md: "30%" },
+            top: 16,
+            left: "50%",
+            textAlign: "center",
+            transform: "translateX(-50%)",
+            position: "absolute",
+            zIndex: 403,
+          }}>
+          <Autocomplete
+            size="small"
+            options={areas}
+            getOptionLabel={(option) => option.name}
+            id="areaSelect"
+            value={areas.find((area) => area.id === predefinedAreaId) || null}
+            onChange={(_event, newValue) => {
+              if (predefinedAreaId === null) {
+                //Remove the existing polygon
+                featureGroupRef.current?.clearLayers();
+              } else {
+                map.removeLayer(customPolygon);
+              }
+              setPredefinedAreaId(newValue ? newValue.id : null);
+              const area = newValue
+                ? L.polygon(newValue.location).addTo(map)
+                : null;
+              setCustomPolygon(area);
+            }}
+            renderInput={(params) => (
+              <TextField
+                fullWidth
+                {...params}
+                label="Predefined Area"
+                variant="outlined"
+              />
+            )}
+          />
+        </Paper>
+      )}
+      {disabledInput.includes("area") && (
+        <FeatureGroup ref={featureGroupRef}>
+          <EditControl
+            position="topleft"
+            draw={{
+              polyline: false,
+              polygon: {
+                allowIntersection: false,
+                drawError: {
+                  color: "#e1e100",
+                  message: "You can't intersect sides!",
                 },
-                circle: false,
-                marker: false,
-                circlemarker: false,
-                rectangle: false,
-              }}
-              edit={{
-                edit: predefinedAreaId === null,
-                remove: predefinedAreaId === null,
-              }}
-              onCreated={handlePolygonCreate}
-              onDeleted={handlePolygonDelete}
-              onEdited={handlePolygonEdited}
-            />
-          </FeatureGroup>
-        </>
+                shapeOptions: {
+                  color: "#003d8f",
+                  weight: 4,
+                  clickable: false,
+                },
+              },
+              circle: false,
+              marker: false,
+              circlemarker: false,
+              rectangle: false,
+            }}
+            edit={
+              predefinedAreaId !== null
+                ? { edit: false, remove: false }
+                : undefined
+            }
+            onCreated={handlePolygonCreate}
+            onDeleted={handlePolygonDelete}
+            onEdited={handlePolygonEdited}
+          />
+        </FeatureGroup>
       )}
       <Alert
         ref={alertRef}
@@ -219,14 +228,11 @@ function MapPicker({ areas, setDocument }) {
           event.stopPropagation();
         }}
         onClose={handleClose}>
-        Select
-        {disabledInput.includes("area")
-          ? " a predefined area or draw a new one"
-          : " a point"}
+        {disabledInput.includes("area") ? "Select an area" : "Select a point"}
         <Button
           disabled={
             (disabledInput === "point" && !pointMarker) ||
-            (disabledInput === "area" && !customPolygon)
+            (disabledInput.includes("area") && !customPolygon)
           }
           sx={{
             ml: { xs: 2, md: 3 },
@@ -241,8 +247,14 @@ function MapPicker({ areas, setDocument }) {
           onClick={handlePick}
           variant="contained"
           size="small"
-          startIcon={<PlaceIcon />}>
-          Pick
+          startIcon={
+            disabledInput.includes("save") ? (
+              <SaveOutlinedIcon></SaveOutlinedIcon>
+            ) : (
+              <PlaceIcon />
+            )
+          }>
+          {disabledInput.includes("save") ? "Save" : "Pick"}
         </Button>
       </Alert>
       <SaveAreaDialog
