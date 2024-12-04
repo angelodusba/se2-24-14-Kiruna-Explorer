@@ -12,8 +12,10 @@ import {
   Avatar,
   ListItemIcon,
   Popover,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
@@ -99,6 +101,16 @@ const AccountMenu = styled((props: MenuProps) => (
 
 function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDiagram = location.pathname === "/diagram";
+  const isMap = location.pathname === "/map";
+  const handleSwitchChange = () => {
+    if (isDiagram) {
+      navigate("/map");
+    } else if (isMap) {
+      navigate("/diagram");
+    }
+  };
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
   /* User account panel */
@@ -156,6 +168,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     setSearchValue(nonEmptyFilters.title || "");
     onSearch(nonEmptyFilters);
   };
+
 
   const handleAdvacedSearchPanelOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAdvancedSearchAnchorEl(event.currentTarget);
@@ -291,6 +304,36 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   searchValue={searchValue}
                   setSearchValue={setSearchValue}
                 />
+
+              <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                }}
+              >
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={isDiagram}
+                            onChange={handleSwitchChange}
+                            color="primary"
+                        />
+                    }
+                    label={isDiagram ? "Diagram View" : "Map View"}
+                    sx={{
+                        display: "block", // Places label on a new line
+                        color: "#b8860b", // Darker gold color (Dark Goldenrod)
+                        fontSize: "1.5rem", // Larger font size
+                        fontWeight: "bold", // Bold text
+                        "& .MuiTypography-root": {
+                            fontSize: "1.25rem",
+                            fontWeight: "bold",
+                            color: "#b8860b", // Darker gold text
+                        },
+                    }}
+                />
+            </Box>
                 <Popover
                   id={advancedSearchId}
                   open={advancedSearchOpen}
