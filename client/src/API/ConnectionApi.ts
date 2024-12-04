@@ -1,4 +1,8 @@
-import { ConnectionList, HalfConnection } from "../models/Connection";
+import {
+  ConnectionList,
+  HalfConnection,
+  Connection,
+} from "../models/Connection";
 
 const baseURL =
   import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
@@ -46,7 +50,7 @@ async function getConnections() {
     },
   });
   if (response.ok) {
-    const connections = await response.json();
+    const connections: Connection[] = await response.json();
     return connections;
   } else {
     const errDetail = await response.json();

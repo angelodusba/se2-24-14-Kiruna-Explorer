@@ -7,11 +7,13 @@ import { DocumentCard } from "../models/DocumentCard";
 import { Attachment } from "../models/Attachment";
 import { Area } from "../models/Area";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL =
+  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 
 async function sendDocument(document: Document): Promise<number> {
+  document.coordinates.push(document.coordinates[0]);
   const response = await fetch(baseURL + "documents", {
     method: "POST",
     credentials: "include",
@@ -35,7 +37,10 @@ async function sendDocument(document: Document): Promise<number> {
     return res.id;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    console.log(errDetail);
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -49,7 +54,9 @@ async function getDocumentsLocation() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -66,7 +73,9 @@ async function getTypes(): Promise<Type[]> {
     return types;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -83,7 +92,26 @@ async function getStakeholders() {
     return stakeholders;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
+  }
+}
+
+async function getMunicipalityArea() {
+  const response = await fetch(baseURL + "areas/municipality", {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    const area: Area = await response.json();
+    area.location.pop();
+    return area;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -100,7 +128,9 @@ async function getAllAreas() {
     });
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -122,7 +152,9 @@ async function saveArea(name: string, location) {
     return res;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -136,7 +168,9 @@ async function getAllDocumentsNames() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -150,11 +184,14 @@ async function getMunicipalityDocuments() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
 async function changeDocumentLocation(id: number, location: Point[]) {
+  location.push(location[0]);
   const response = await fetch(baseURL + "documents/location", {
     method: "PUT",
     credentials: "include",
@@ -168,7 +205,9 @@ async function changeDocumentLocation(id: number, location: Point[]) {
   });
   if (!response.ok) {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -185,7 +224,9 @@ async function getDocumentCard(id: number) {
     return documentCard;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -226,7 +267,9 @@ async function getFilteredDocuments(
     sort: sort ? sort : undefined,
   };
   // Remove undefined values
-  Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+  Object.keys(params).forEach(
+    (key) => params[key] === undefined && delete params[key]
+  );
   const nonEmptyFilters = Object.fromEntries(
     Object.entries(filters).filter(([, value]) => {
       if (Array.isArray(value)) {
@@ -256,7 +299,9 @@ async function getFilteredDocuments(
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -275,7 +320,9 @@ async function uploadFile(id, file) {
     return attachment;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
 
@@ -288,38 +335,11 @@ async function deleteFile(id) {
     return;
   } else {
     const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
   }
 }
-
-/** ------------------- Scales APIs ------------------------ */
-
-import Scale from "../models/Scale";
-
-/** Get all the scale types
- * @returns {{id: number, name: string}[]} - array of object with id: number and name: string
- * @throws {Error} - error message
- * @example
- * const scales = await getScaleTypes();
- *
- */
-
-const getScaleTypes = async () => {
-  const response = await fetch(baseURL + "scales", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (response.ok) {
-    const scales: Scale[] = await response.json();
-    return scales;
-  } else {
-    const errDetail = await response.json();
-    throw new Error(errDetail.message || "Something went wrong, please reload the page");
-  }
-};
 
 /** ------------------- Export ------------------------ */
 
@@ -336,8 +356,8 @@ const DocumentAPI = {
   getResourcesBaseURL,
   uploadFile,
   deleteFile,
-  getScaleTypes,
   getAllAreas,
   saveArea,
+  getMunicipalityArea,
 };
 export default DocumentAPI;
