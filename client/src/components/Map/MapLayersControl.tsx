@@ -41,13 +41,12 @@ function MapLayersControl({
           <Grid container sx={{ height: "100%", width: "100%" }}>
             <Grid
               container
-              spacing={3}
               size={{ xs: 12, md: 6 }}
               sx={{
                 display: "flex",
                 alignItems: "start",
                 p: 2,
-                height: "100%",
+                height: "50%",
                 width: "100%",
               }}>
               <Grid
@@ -128,22 +127,17 @@ function MapLayersControl({
               </Grid>
             </Grid>
             <Divider
-              sx={{ display: { xs: "flex", md: "none" }, marginTop: -1 }}
-              orientation="horizontal"
-            />
-            <Divider
               sx={{ display: { xs: "none", md: "flex" }, marginRight: -1 }}
               orientation="vertical"
             />
             <Grid
               container
-              spacing={3}
               size={{ xs: 12, md: 6 }}
               sx={{
                 display: "flex",
                 alignItems: "start",
                 p: 2,
-                height: "100%",
+                height: "50%",
                 width: "100%",
               }}>
               <Grid
