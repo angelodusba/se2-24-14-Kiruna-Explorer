@@ -96,7 +96,7 @@ function Map({ docs }) {
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
         }}>
-        {user && user.role === Role.UrbanPlanner && !disabledInput && (
+        {!disabledInput && (
           <MapLayersControl
             mapType={mapType}
             setMapType={setMapType}
