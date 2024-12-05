@@ -37,7 +37,6 @@ function GeoreferencePage({ fetchDocuments }) {
   useEffect(() => {
     DocumentAPI.getAllAreas()
       .then((areas) => {
-        console.log(areas);
         setAreas(areas);
       })
       .catch((error) => {
@@ -71,11 +70,10 @@ function GeoreferencePage({ fetchDocuments }) {
           document={document}
           setDocument={setDocument}
           handleSubmit={handleEditGeoreferenceSubmit}
-          handleClose={handleClose}></GeoreferenceForm>
+          handleClose={handleClose}
+        ></GeoreferenceForm>
       </FormModal>
-      {disabledInput && (
-        <MapPicker areas={areas} setDocument={setDocument}></MapPicker>
-      )}
+      {disabledInput && <MapPicker areas={areas} setDocument={setDocument}></MapPicker>}
     </>
   );
 }

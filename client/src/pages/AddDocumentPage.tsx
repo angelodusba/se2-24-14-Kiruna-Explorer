@@ -56,9 +56,8 @@ function AddDocumentPage({ fetchDocuments }) {
       if (lastSource === "") {
         document.pages = document.pages.split("-").slice(0, -1).join("-");
       }
-      console.log(document.pages);
     }
-    if (activeStep === steps.length - 3) {
+    if (activeStep === 1) {
       //Insert document
       try {
         if (!isNaN(Number(document.scale))) {

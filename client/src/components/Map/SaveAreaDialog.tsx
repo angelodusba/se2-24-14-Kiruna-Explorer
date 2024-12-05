@@ -47,7 +47,8 @@ function SaveAreaDialog({ polygon, open }) {
           event.preventDefault();
           handleAreaSave();
         },
-      }}>
+      }}
+    >
       <DialogTitle>Do you want to save the area?</DialogTitle>
       <DialogContent>
         <TextField
@@ -56,7 +57,6 @@ function SaveAreaDialog({ polygon, open }) {
           id="name"
           name="name"
           label="Area Name"
-          fullWidth
           variant="outlined"
           value={name}
           onChange={(event) => {

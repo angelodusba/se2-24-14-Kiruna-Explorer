@@ -1,6 +1,6 @@
 import Grid from "@mui/material/Grid2";
 import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import GeneralInfoForm from "./GeneralInfoForm";
 import GeoreferenceForm from "./GeoreferenceForm";
 import LinkDocumentForm from "./LinkDocumentForm";
@@ -30,6 +30,7 @@ function AddDocumentForm({
   const isStepOptional = (index: number): boolean => {
     return steps[index].optional;
   };
+  const [georeferenceModality, setGeoreferenceModality] = useState<number>(0);
 
   const currentForm =
     activeStep === 0 ? (
@@ -41,7 +42,13 @@ function AddDocumentForm({
         handleRefreshData={handleRefreshData}
       />
     ) : activeStep === 1 ? (
-      <GeoreferenceForm document={document} setDocument={setDocument} />
+      <GeoreferenceForm
+        document={document}
+        setDocument={setDocument}
+        handleChangeModality={(mode) => {
+          setGeoreferenceModality(mode);
+        }}
+      />
     ) : activeStep === 2 ? (
       <AttachmentsForm docId={insertedDocumentId}></AttachmentsForm>
     ) : (
@@ -152,7 +159,19 @@ function AddDocumentForm({
             </Button>
           )}
           <Box sx={{ flex: "1 1 auto" }} />
-          <Button type={"submit"}>{activeStep === steps.length - 3 ? "Create" : "Next"}</Button>
+          <Button
+            type={"submit"}
+            disabled={
+              activeStep === 1 &&
+              ((georeferenceModality === 1 &&
+                (document.coordinates.length !== 1 ||
+                  document.coordinates[0].lat === "" ||
+                  document.coordinates[0].lng === "")) ||
+                (georeferenceModality === 2 && document.coordinates.length < 2))
+            }
+          >
+            {activeStep === 1 ? "Create" : "Next"}
+          </Button>
         </Grid>
       )}
     </Grid>
