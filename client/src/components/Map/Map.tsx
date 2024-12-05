@@ -15,7 +15,6 @@ import DocumentMarker from "./DocumentMarker";
 import MapLayersControl from "./MapLayersControl";
 import ConnectionAPI from "../../API/ConnectionApi";
 import { ErrorContext } from "../../contexts/ErrorContext";
-import { Connection } from "../../models/Connection";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import DocumentAPI from "../../API/DocumentAPI";
 import React from "react";
@@ -43,7 +42,7 @@ function Map({ docs }) {
   const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
     if (doc.location.length === 0) {
-      return [67.85572, 20.22513];
+      return L.latLng([67.85572, 20.22513]);
     } else if (doc.location.length === 1) {
       return L.latLng(doc.location[0]);
     } else if (doc.location.length > 1) {
