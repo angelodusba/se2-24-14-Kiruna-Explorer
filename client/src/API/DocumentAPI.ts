@@ -141,7 +141,10 @@ async function getMunicipalityDocuments() {
 }
 
 async function changeDocumentLocation(id: number, location: Point[]) {
-  location.push(location[0]);
+  if (location.length > 1) {
+    // Copy the first point of the polygon as the last one
+    location.push(location[0]);
+  }
   const response = await fetch(baseURL + "documents/location", {
     method: "PUT",
     credentials: "include",
