@@ -1,13 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import {
-  LayerGroup,
-  MapContainer,
-  Polygon,
-  Polyline,
-  TileLayer,
-  Tooltip,
-} from "react-leaflet";
+import { LayerGroup, MapContainer, Polygon, TileLayer } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -26,6 +19,7 @@ import { Connection } from "../../models/Connection";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import DocumentAPI from "../../API/DocumentAPI";
 import React from "react";
+import Link from "./Link";
 
 const municipalityClusterIcon = function () {
   return new L.Icon({
@@ -43,8 +37,22 @@ function Map({ docs }) {
     links: false,
     areas: false,
   });
-  const [links, setLinks] = useState<Connection[]>([]);
+  const [links, setLinks] = useState([]);
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
+
+  const getDocLocation = (id) => {
+    const doc = docs.find((d) => d.id === id);
+    if (doc.location.length === 0) {
+      return [67.85572, 20.22513];
+    } else if (doc.location.length === 1) {
+      return L.latLng(doc.location[0]);
+    } else if (doc.location.length > 1) {
+      const pos: L.LatLngExpression[] = doc.location
+        .slice(0, -1)
+        .map((point) => L.latLng(point));
+      L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857);
+    }
+  };
 
   useEffect(() => {
     ConnectionAPI.getConnections()
@@ -179,6 +187,22 @@ function Map({ docs }) {
             pathOptions={{ color: "red", fill: false }}
             positions={bounds.getLatLngs() as L.LatLngExpression[]}></Polygon>
         )}
+        {!disabledInput &&
+          links.map((link, index) => {
+            {
+              return (
+                layersVisibility.links && (
+                  <Link
+                    key={index}
+                    link={link}
+                    positions={{
+                      doc1: getDocLocation(link.id_doc1),
+                      doc2: getDocLocation(link.id_doc2),
+                    }}></Link>
+                )
+              );
+            }
+          })}
         <Outlet />
       </MapContainer>
     </>
