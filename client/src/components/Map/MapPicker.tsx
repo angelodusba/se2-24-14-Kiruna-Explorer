@@ -45,11 +45,8 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
   }, [disabledInput, map, pointMarker, setDocument]);
 
   const handlePolygonCreate = (event) => {
-    if (predefinedAreaId !== null) {
-      map.removeLayer(customPolygon);
-    } else {
-      featureGroupRef.current?.clearLayers();
-    }
+    featureGroupRef.current?.clearLayers();
+    setPredefinedAreaId(null);
 
     // Create the new polygon
     const newPolygon = L.polygon(event.layer.getLatLngs()[0]);
@@ -84,13 +81,8 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
         setPointMarker(null);
       }
     } else if (disabledInput.includes("area")) {
-      if (predefinedAreaId === null) {
-        featureGroupRef.current?.clearLayers();
-        setCustomPolygon(null);
-      } else {
-        map.removeLayer(customPolygon);
-        setCustomPolygon(null);
-      }
+      featureGroupRef.current?.clearLayers();
+      setCustomPolygon(null);
     }
     if (disabledInput.includes("save")) {
       navigate("/map");
@@ -106,16 +98,16 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
       setDisabledInput(undefined);
     } else if (disabledInput.includes("area")) {
       if (!disabledInput.includes("save")) {
+        console.log(customPolygon.getLatLngs()[0]);
         setDocument((prevDocument) => ({
           ...prevDocument,
           coordinates: customPolygon.getLatLngs()[0],
         }));
       }
+      featureGroupRef.current?.clearLayers();
       if (predefinedAreaId === null) {
-        featureGroupRef.current?.clearLayers();
         setSaveDialog(true);
       } else {
-        map.removeLayer(customPolygon);
         setDisabledInput(undefined);
       }
     }
@@ -160,17 +152,20 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
             id="areaSelect"
             value={areas.find((area) => area.id === predefinedAreaId) || null}
             onChange={(_event, newValue) => {
-              if (predefinedAreaId === null) {
-                //Remove the existing polygon
-                featureGroupRef.current?.clearLayers();
+              //Remove the existing polygon
+              featureGroupRef.current?.clearLayers();
+
+              setCustomPolygon(null);
+              if (newValue) {
+                setPredefinedAreaId(newValue.id);
               } else {
-                map.removeLayer(customPolygon);
+                setPredefinedAreaId(null);
               }
-              setPredefinedAreaId(newValue ? newValue.id : null);
-              const area = newValue
-                ? L.polygon(newValue.location).addTo(map)
-                : null;
+              const area = newValue ? L.polygon(newValue.location) : null;
               setCustomPolygon(area);
+              if (area !== null) {
+                featureGroupRef.current?.addLayer(area);
+              }
             }}
             renderInput={(params) => (
               <TextField
