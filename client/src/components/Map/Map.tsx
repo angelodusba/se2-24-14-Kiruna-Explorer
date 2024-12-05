@@ -36,10 +36,10 @@ function Map({ docs }) {
     links: false,
     areas: false,
   });
-  const [links, setLinks] = useState([]);
+  //const [links, setLinks] = useState([]);
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
 
-  const getDocLocation = (id) => {
+  /*const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
     if (doc.location.length === 0) {
       return L.latLng([67.85572, 20.22513]);
@@ -51,16 +51,16 @@ function Map({ docs }) {
         .map((point) => L.latLng(point));
       L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857);
     }
-  };
+  };*/
 
   useEffect(() => {
-    ConnectionAPI.getConnections()
+    /*ConnectionAPI.getConnections()
       .then((links) => {
         setLinks(links);
       })
       .catch((err) => {
         setError(err.message);
-      });
+      });*/
 
     DocumentAPI.getMunicipalityArea()
       .then((area) => {
@@ -186,7 +186,7 @@ function Map({ docs }) {
             pathOptions={{ color: "red", fill: false }}
             positions={bounds.getLatLngs() as L.LatLngExpression[]}></Polygon>
         )}
-        {!disabledInput &&
+        {/*!disabledInput &&
           links.map((link, index) => {
             {
               return (
@@ -201,7 +201,7 @@ function Map({ docs }) {
                 )
               );
             }
-          })}
+          })*/}
         <Outlet />
       </MapContainer>
     </>
