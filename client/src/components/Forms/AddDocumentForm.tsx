@@ -1,13 +1,6 @@
 import Grid from "@mui/material/Grid2";
-import {
-  Box,
-  Button,
-  Step,
-  StepLabel,
-  Stepper,
-  Typography,
-} from "@mui/material";
-import React from "react";
+import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
+import React, { useState } from "react";
 import GeneralInfoForm from "./GeneralInfoForm";
 import GeoreferenceForm from "./GeoreferenceForm";
 import LinkDocumentForm from "./LinkDocumentForm";
@@ -32,10 +25,12 @@ function AddDocumentForm({
   handleSelectConnectionTypes,
   document,
   setDocument,
+  handleRefreshData,
 }) {
   const isStepOptional = (index: number): boolean => {
     return steps[index].optional;
   };
+  const [georeferenceModality, setGeoreferenceModality] = useState<number>(0);
 
   const currentForm =
     activeStep === 0 ? (
@@ -44,9 +39,16 @@ function AddDocumentForm({
         stakeholders={stakeholders}
         document={document}
         setDocument={setDocument}
+        handleRefreshData={handleRefreshData}
       />
     ) : activeStep === 1 ? (
-      <GeoreferenceForm document={document} setDocument={setDocument} />
+      <GeoreferenceForm
+        document={document}
+        setDocument={setDocument}
+        handleChangeModality={(mode) => {
+          setGeoreferenceModality(mode);
+        }}
+      />
     ) : activeStep === 2 ? (
       <AttachmentsForm docId={insertedDocumentId}></AttachmentsForm>
     ) : (
@@ -87,7 +89,8 @@ function AddDocumentForm({
         pt: 0,
         px: 2,
         mt: 4,
-      }}>
+      }}
+    >
       <Grid sx={{ width: "100%" }} size="auto">
         <Stepper
           id="stepper"
@@ -96,16 +99,15 @@ function AddDocumentForm({
           sx={{
             width: "100%",
             top: "0px",
-          }}>
+          }}
+        >
           {steps.map((step, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;
             } = {};
             if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
-              );
+              labelProps.optional = <Typography variant="caption">Optional</Typography>;
             }
             return (
               <Step
@@ -115,10 +117,12 @@ function AddDocumentForm({
                   "& .MuiStepConnector-root": { top: { xs: 12, sm: 12 } },
                 }}
                 key={index}
-                {...stepProps}>
+                {...stepProps}
+              >
                 <StepLabel
                   {...labelProps}
-                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}>
+                  sx={{ ".MuiStepLabel-labelContainer": { maxWidth: "70px" } }}
+                >
                   {step.label}
                 </StepLabel>
               </Step>
@@ -135,7 +139,8 @@ function AddDocumentForm({
           py: 2,
         }}
         size={6}
-        spacing={2}>
+        spacing={2}
+      >
         {/* FORM CURRENTLY DISPLAYED */}
         {currentForm}
       </Grid>
@@ -146,15 +151,26 @@ function AddDocumentForm({
             display: activeStep === steps.length - 1 ? "none" : "flex",
             py: 2,
           }}
-          size="auto">
-          {activeStep > 0 && activeStep < steps.length - 1 && (
+          size="auto"
+        >
+          {activeStep === 1 && (
             <Button color="inherit" onClick={handleBack} sx={{ mr: 1 }}>
               Back
             </Button>
           )}
           <Box sx={{ flex: "1 1 auto" }} />
-          <Button type={"submit"}>
-            {activeStep === steps.length - 3 ? "Create" : "Next"}
+          <Button
+            type={"submit"}
+            disabled={
+              activeStep === 1 &&
+              ((georeferenceModality === 1 &&
+                (document.coordinates.length !== 1 ||
+                  document.coordinates[0].lat === "" ||
+                  document.coordinates[0].lng === "")) ||
+                (georeferenceModality === 2 && document.coordinates.length < 2))
+            }
+          >
+            {activeStep === 1 ? "Create" : "Next"}
           </Button>
         </Grid>
       )}

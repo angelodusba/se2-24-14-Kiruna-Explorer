@@ -28,6 +28,7 @@ import AdvancedSearchForm from "./Forms/AdvancedSearchForm";
 import { StakeHolder } from "../models/StakeHolders";
 import { Type } from "../models/Type";
 import DocumentAPI from "../API/DocumentAPI";
+import MenuDial from "./DocumentDial";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -97,7 +98,7 @@ const AccountMenu = styled((props: MenuProps) => (
   },
 }));
 
-function Navbar({ onSearch, handleLogout }) {
+function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const navigate = useNavigate();
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
@@ -108,9 +109,9 @@ function Navbar({ onSearch, handleLogout }) {
   const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
     null
   );
-  const advancedSearchOpen = Boolean(advancedSearchAnchorEl); //
+  const advancedSearchOpen = Boolean(advancedSearchAnchorEl);
   const advancedSearchId = advancedSearchOpen ? "advancedSearch" : undefined;
-  /*  */
+  /* Filters */
   const [stakeholders, setStakeholders] = useState<StakeHolder[]>([]);
   const [documentTypes, setDocumentTypes] = useState<Type[]>([]);
   const [filters, setFilters] = useState<SearchFilter>({
@@ -121,19 +122,9 @@ function Navbar({ onSearch, handleLogout }) {
     scales: [],
     languages: [],
     stakeholders: [],
+    municipality: false,
   });
-
-  const handleResetFilters = () => {
-    setFilters({
-      title: "",
-      types: [],
-      start_year: "",
-      end_year: "",
-      scales: [],
-      languages: [],
-      stakeholders: [],
-    });
-  };
+  const [searchValue, setSearchValue] = useState<string>("");
 
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAccountAnchorEl(event.currentTarget);
@@ -143,9 +134,24 @@ function Navbar({ onSearch, handleLogout }) {
     setAccountAnchorEl(null);
   };
 
-  const handleSimpleSearch = (search: string) => {
-    const filter: SearchFilter = { title: search };
-    onSearch(filter);
+  const handleSimpleSearch = () => {
+    setFilters({ title: searchValue });
+    onSearch({ title: searchValue });
+  };
+
+  const handleReset = () => {
+    setFilters({
+      title: "",
+      types: [],
+      start_year: "",
+      end_year: "",
+      scales: [],
+      languages: [],
+      stakeholders: [],
+      municipality: false,
+    });
+    setSearchValue("");
+    handleResetFilters();
   };
 
   const handleAdvancedSearch = () => {
@@ -155,12 +161,16 @@ function Navbar({ onSearch, handleLogout }) {
         if (Array.isArray(value)) {
           // Keep arrays only if they have at least one element
           return value.length > 0;
+        } else if (typeof value === "boolean") {
+          // Include boolean values unless they are undefined
+          return value !== undefined;
         } else {
           // Keep strings only if they are not empty
           return value !== "";
         }
       })
     );
+    setSearchValue(nonEmptyFilters.title || "");
     onSearch(nonEmptyFilters);
   };
 
@@ -225,138 +235,146 @@ function Navbar({ onSearch, handleLogout }) {
       .catch((error) => {
         console.log(error);
       });
+    // Reset App filters
+    handleResetFilters();
   }, []);
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar
-        position="fixed"
-        color="transparent"
-        sx={{
-          boxShadow: "none",
-          border: "none",
-          zIndex: 1000,
-          color: "white",
-        }}
-      >
-        <Toolbar sx={{ flexGrow: 1 }}>
-          <Box sx={{ flexGrow: 1 }}>
-            <Grid container>
-              <Grid
-                size="grow"
-                sx={{
-                  marginTop: "8px",
-                }}
-              >
-                <Link
-                  to={"/"}
-                  style={{
-                    textDecoration: "none",
-                    color: "white",
-                    justifyContent: "start",
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
+    <>
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar
+          position="fixed"
+          color="transparent"
+          sx={{
+            boxShadow: "none",
+            border: "none",
+            zIndex: 1000,
+            color: "white",
+          }}
+        >
+          <Toolbar sx={{ flexGrow: 1 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid container>
+                <Grid
+                  size="grow"
+                  sx={{
+                    marginTop: "8px",
                   }}
                 >
-                  <img
-                    src={KirunaLogo}
-                    width="40px"
-                    height="48px"
-                    alt="Kiruna Explorer"
-                    style={{ marginRight: "8px" }}
-                  />
-                  <Typography
-                    variant="h5"
-                    component="div"
-                    sx={{
-                      display: { sm: "block", xs: "none" },
-                      fontWeight: 500,
-                      letterSpacing: "0.5px", // Slight spacing
-                      textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
+                  <Link
+                    to={"/map"}
+                    style={{
+                      textDecoration: "none",
+                      color: "white",
+                      justifyContent: "start",
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
                     }}
                   >
-                    Kiruna Explorer
-                  </Typography>
-                </Link>
-              </Grid>
-              <Grid
-                size={6}
-                sx={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  display: "flex",
-                }}
-              >
-                <SearchBar
-                  aria-describedby={advancedSearchId}
-                  onSearch={handleSimpleSearch}
-                  handleFilterPanelOpen={handleAdvacedSearchPanelOpen}
-                />
-                <Popover
-                  id={advancedSearchId}
-                  open={advancedSearchOpen}
-                  anchorEl={advancedSearchAnchorEl}
-                  onClose={handleAdvacedSearchPanelClose}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
+                    <img
+                      src={KirunaLogo}
+                      width="40px"
+                      height="48px"
+                      alt="Kiruna Explorer"
+                      style={{ marginRight: "8px" }}
+                    />
+                    <Typography
+                      variant="h5"
+                      component="div"
+                      sx={{
+                        display: { sm: "block", xs: "none" },
+                        fontWeight: 500,
+                        letterSpacing: "0.5px", // Slight spacing
+                        textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
+                      }}
+                    >
+                      Kiruna Explorer
+                    </Typography>
+                  </Link>
+                </Grid>
+                <Grid
+                  size={6}
+                  sx={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
                   }}
                 >
-                  <AdvancedSearchForm
-                    handleClose={handleAdvacedSearchPanelClose}
-                    handleSubmit={handleAdvancedSearch}
-                    handleReset={handleResetFilters}
-                    filters={filters}
-                    setFilters={setFilters}
-                    stakeholders={stakeholders}
-                    documentTypes={documentTypes}
+                  <SearchBar
+                    aria-describedby={advancedSearchId}
+                    onSearch={handleSimpleSearch}
+                    handleFilterPanelOpen={handleAdvacedSearchPanelOpen}
+                    filterNumber={filterNumber}
+                    searchValue={searchValue}
+                    setSearchValue={setSearchValue}
                   />
-                </Popover>
-              </Grid>
-              <Grid
-                size="grow"
-                sx={{
-                  justifyContent: "end",
-                  alignItems: "center",
-                  display: { xs: "flex", sm: "flex" },
-                }}
-              >
-                {!user ? (
-                  <Fab
-                    disabled={disabledInput}
-                    variant="extended"
-                    size="medium"
-                    className="customButton"
-                    onClick={() => navigate("/auth")}
+                  <Popover
+                    id={advancedSearchId}
+                    open={advancedSearchOpen}
+                    anchorEl={advancedSearchAnchorEl}
+                    onClose={handleAdvacedSearchPanelClose}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "center",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "center",
+                    }}
                   >
-                    <AccountCircleOutlined sx={{ mr: 1 }} />
-                    Login
-                  </Fab>
-                ) : (
-                  <Fab
-                    disabled={disabledInput}
-                    size="medium"
-                    id="accountMenu"
-                    aria-controls={accountOpen ? "accountMenu" : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={accountOpen ? "true" : undefined}
-                    onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
-                  >
-                    <Avatar {...stringAvatar(user.username)} />
-                  </Fab>
-                )}
+                    <AdvancedSearchForm
+                      handleClose={handleAdvacedSearchPanelClose}
+                      handleSubmit={handleAdvancedSearch}
+                      handleReset={handleReset}
+                      filters={filters}
+                      setFilters={setFilters}
+                      stakeholders={stakeholders}
+                      documentTypes={documentTypes}
+                    />
+                  </Popover>
+                </Grid>
+                <Grid
+                  size="grow"
+                  sx={{
+                    justifyContent: "end",
+                    alignItems: "center",
+                    display: { xs: "flex", sm: "flex" },
+                  }}
+                >
+                  {!user ? (
+                    <Fab
+                      disabled={disabledInput}
+                      variant="extended"
+                      size="medium"
+                      className="customButton"
+                      onClick={() => navigate("/auth")}
+                    >
+                      <AccountCircleOutlined sx={{ mr: 1 }} />
+                      Login
+                    </Fab>
+                  ) : (
+                    <Fab
+                      disabled={disabledInput}
+                      size="medium"
+                      id="accountMenu"
+                      aria-controls={accountOpen ? "accountMenu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={accountOpen ? "true" : undefined}
+                      onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
+                    >
+                      <Avatar {...stringAvatar(user.username)} />
+                    </Fab>
+                  )}
+                </Grid>
               </Grid>
-            </Grid>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      {user && renderAccountMenu}
-    </Box>
+            </Box>
+          </Toolbar>
+        </AppBar>
+        {user && renderAccountMenu}
+      </Box>
+      <MenuDial />
+    </>
   );
 }
 

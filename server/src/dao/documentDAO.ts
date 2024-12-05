@@ -20,7 +20,7 @@ class DocumentDAO {
    * @param language - The language of the document.
    * @param pages - Number of pages of the document.
    * @param stakeholderIds - The stakeholders of the document.
-   * @returns A Promise that resolves to true if the document has been created.
+   * @returns A Promise that resolves to the id of the document if the document has been created.
    */
   async createDocument(
     title: string,
@@ -82,6 +82,48 @@ class DocumentDAO {
   }
 
   /**
+   * Validates if all points in the given array are within the municipality area.
+   *
+   * @param locations - An array of points with lat/lng properties.
+   * @returns A Promise that resolves to true if all points are within the municipality area, false otherwise.
+   */
+  async validateDocumentLocation(location: Coordinates[]): Promise<boolean> {
+    if (location.length === 0) {
+      // Municipality area documents are always valid
+      return true;
+    }
+    try {
+      // Format the points as a GeoJSON array
+      const pointsGeoJSON = location.map(
+        (point) => `{"type": "Point", "coordinates": [${point.lng}, ${point.lat}]}`
+      );
+      // Prepare the SQL query
+      const sql = `
+      WITH points AS (
+        SELECT ST_SetSRID(ST_GeomFromGeoJSON(geojson), 4326) AS geom
+        FROM unnest($1::text[]) AS geojson
+        -- FROM unnest(ARRAY[${pointsGeoJSON.join(",")}]) AS geojson
+      )
+      SELECT NOT EXISTS (
+        SELECT 1
+        FROM points
+        WHERE NOT ST_Within(geom, (
+          SELECT location
+          FROM areas
+          WHERE id = 1
+        ))
+      ) AS all_within
+    `;
+
+      // Execute the query
+      const result = await db.query(sql, [pointsGeoJSON]);
+      return result.rows[0]?.all_within || false;
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  /**
    * Fetches all the saved documents.
    * @returns A Promise that resolves to an array of Document objects.
    */
@@ -89,16 +131,21 @@ class DocumentDAO {
     try {
       const sql = `SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name,
                     D.issue_date, D.scale, D.language, D.pages,
-                  CASE 
-                    WHEN location IS NULL THEN NULL
-                    WHEN ST_GeometryType(location) = 'ST_Point' THEN 
-                      substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
-                    WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
-                      substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
-                  END AS location
-                  FROM documents D, types T
-                  WHERE D.type_id=T.id
-      `;
+                    CASE 
+                      WHEN location IS NULL THEN NULL
+                      WHEN ST_GeometryType(location) = 'ST_Point' THEN 
+                        substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
+                      WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
+                        substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
+                    END AS location,
+                    ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders
+                  FROM documents D
+                    JOIN types T ON D.type_id = T.id
+                    LEFT JOIN documents_stakeholders DS ON D.id = DS.document_id
+                    LEFT JOIN stakeholders S ON DS.stakeholder_id = S.id
+                  GROUP BY D.id, D.title, D.description, D.type_id, T.name, 
+                    D.issue_date, D.scale, D.language, D.pages, D.location
+    `;
       const res = await db.query(sql);
       const response = res.rows.map((doc) => {
         return new Document(
@@ -115,7 +162,8 @@ class DocumentDAO {
               })
             : [],
           doc.language,
-          doc.pages
+          doc.pages,
+          doc.stakeholders
         );
       });
       return response;
@@ -155,9 +203,16 @@ class DocumentDAO {
                       substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
                     WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                       substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
-                  END AS location
-                  FROM documents D, types T
-                  WHERE D.type_id=T.id AND D.id = $1`;
+                  END AS location,
+                  ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders
+                  FROM documents D
+                    JOIN types T ON D.type_id = T.id
+                    LEFT JOIN documents_stakeholders DS ON D.id = DS.document_id
+                    LEFT JOIN stakeholders S ON DS.stakeholder_id = S.id
+                  WHERE D.id = $1
+                  GROUP BY D.id, D.title, D.description, D.type_id, T.name, 
+                    D.issue_date, D.scale, D.language, D.pages, D.location
+      `;
       const res = await db.query(sql, [id]);
       if (!res || res.rows.length === 0) {
         throw new DocumentNotFoundError();
@@ -177,7 +232,8 @@ class DocumentDAO {
             })
           : [],
         doc.language,
-        doc.pages
+        doc.pages,
+        doc.stakeholders
       );
     } catch (err: any) {
       throw err;
@@ -198,9 +254,15 @@ class DocumentDAO {
                         substring(ST_AsText(location) FROM 7 FOR (length(ST_AsText(location)) - 7))
                       WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                         substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
-                    END AS location
-                  FROM documents D, types T WHERE D.type_id=T.id
-                  ORDER BY D.id`;
+                    END AS location,
+                    ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders
+                  FROM documents D
+                    JOIN types T ON D.type_id = T.id
+                    LEFT JOIN documents_stakeholders DS ON D.id = DS.document_id
+                    LEFT JOIN stakeholders S ON DS.stakeholder_id = S.id
+                  GROUP BY D.id, D.title, D.type_id, T.name, D.location
+                  ORDER BY D.id
+      `;
       const res = await db.query(sql);
       const response = res.rows.map((doc) => {
         return new DocumentLocationResponse(
@@ -212,7 +274,8 @@ class DocumentDAO {
                 const [lng, lat] = coords.split(" ").map(Number);
                 return new Coordinates(lng, lat);
               })
-            : []
+            : [],
+          doc.stakeholders
         );
       });
       return response;
@@ -379,8 +442,10 @@ class DocumentDAO {
                       WHEN ST_GeometryType(location) = 'ST_Polygon' THEN 
                         substring(ST_AsText(location) FROM 10 FOR (length(ST_AsText(location)) - 11))
                     END AS location,
+                    ARRAY_AGG(S.name) FILTER (WHERE S.name IS NOT NULL) AS stakeholders,
                     COUNT(*) OVER () AS total_rows -- Count of all matching rows (ignores LIMIT and OFFSET)
-                  FROM documents D INNER JOIN types T ON D.type_id=T.id
+                  FROM documents D
+                    INNER JOIN types T ON D.type_id=T.id
                     LEFT JOIN documents_stakeholders DS ON D.id=DS.document_id
                     LEFT JOIN stakeholders S ON S.id=DS.stakeholder_id
                   WHERE 1=1
@@ -419,7 +484,7 @@ class DocumentDAO {
         params.push(stakeholders);
         sql += ` AND S.id = ANY($${params.length})`;
       }
-      if (municipality) {
+      if (municipality === true) {
         sql += ` AND D.location IS NULL`;
       }
       // Add group by clause
@@ -456,7 +521,8 @@ class DocumentDAO {
                 })
               : [],
             doc.language,
-            doc.pages
+            doc.pages,
+            doc.stakeholders
           )
       );
       return new FilteredDocumentsResponse(docs, totalRows, totalPages);

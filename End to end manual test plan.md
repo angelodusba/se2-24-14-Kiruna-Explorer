@@ -10,6 +10,13 @@
 6. [KX6-List documents](#KX6-list-documents)
 7. [KX7-Add attachments](#KX7-add-attachments)
 8. [KX8-Search documents](#KX8-search-documents)
+9. [KX9-Define the geolocated area](#KX9-Define-the-geolocated-area)
+10. [KX19-Select an existing point or areas](#Select-an-existing-ponit-or-area)
+11. [KX10-Visualize all documents on the diagram](#Visualize-all-documents-on-the-diagram)
+12. [KX11-Visualize the area](#Visualize-the-area)
+13. [KX14-Click on the documents on diagram](#Click-on-the-documents-on-diagram)
+14. [JX20-Single cluster](#Single-cluster)
+
 
 ---
 
@@ -316,5 +323,139 @@ So that I can find what I am interested in_.
   - Select the filters to use for searching documents (with invalid data)
   - Submit
 - **Expected Result:** The filters are invalid, search is not performed
+
+## KX9-Define the geolocated area
+
+### Description
+
+_As an Urban Planner
+I want to define the geolocated area of a document on the map
+
+### Acceptance Criteria
+
+- Urban planners are able to define the geolocated area of a document on the map
+
+#### Test Case 1: Add  the geolocated area
+
+- **Preconditions:** User is logged in and is an urban planner
+- **Expected Result:** Urban planners can define the geolocated area on the map
+
+#### Test Case 2: Draw an area on the map
+
+- **Preconditions:** User is logged in and is an urban planner
+- **Test Steps:**
+  - select the draw a polygon button 
+  - draw an area by choosing more than 2 points
+  - select the save button on the buttom of the page
+  - or select the edit button to edith it or selecting delete button to delet an area
+- **Expected Result:** Area will be save and is accesible   when we want to add documents
+
+
+10. [KX19-Select an existing point or areas](#Select-an-existing-ponit-or-area)
+
+### Description
+
+_As an Urban Planner
+I want the option to select an existing point or areas instead of drawing a new one so that georefrencing is more consistent and faster to define
+
+### Acceptance Criteria
+
+- Urban planners are able select existing area or points
+
+#### Test Case 1: Select existing area
+
+- **Preconditions:** User is logged in and is an urban planner
+- **Expected Result:** Urban planners can choose an existing area or point
+
+#### Test Case 2: Select an area on the map
+
+- **Preconditions:** User is logged in and is an urban planner
+- **Test Steps:**
+  - select the add document and 
+  - In the georefrene part from thr drop down menue on the top of the screen we can choose areas from the predefined area part
+  
+- **Expected Result:** Area will be choose for the specific document
+
+
+11. [KX10-Visualize all documents on the diagram](#Visualize-all-documents-on-the-diagram)
+
+
+### Description
+
+_As an Urban Planner
+I want to visualize all documents on the diagram so that I can study their relationship with time
+
+### Acceptance Criteria
+
+- Urban planners can visualize all documents on the diagram and study their relationship with time
+
+#### Test Case 1: Study the diagram
+
+- **Preconditions:** User is logged in and is an urban planner
+- **Expected Result:** Urban planners can study documents 
+
+#### Test Case 2: Study the diagrams with details in the Legend drop down menue
+
+- **Preconditions:** User is logged in and is an urban planner
+- **Test Steps:**
+  - Swipping the diagram veiw button to the right
+  - In the diagram view there are some buttons which help urban planners to study the diagram and documents and their relationships
+  
+- **Expected Result:** Urban planners can study all the relationships between documents
+
+
+12. [KX11-Visualize the area](#Visualize-the-area)
+
+### Description
+
+_As resident
+I want to visualize the area associated with the different documents so that I can assess their impact
+
+### Acceptance Criteria
+
+- Residents can visualize the area associated with the different documents
+
+#### Test Case 1: Visualize the area 
+
+- **Preconditions:** User is logged in and is resident
+- **Expected Result:** Residents can visulize the area associated with the different documnets  
+
+#### Test Case 2: 
+
+
+13. [KX14-Click on the documents on diagram](#Click-on-the-documents-on-diagram)
+
+### Description
+
+_As a resident/ visitor/urban planner
+I want to click on the documents shown on the diagram so that I can access to the document
+
+### Acceptance Criteria
+
+- Resident/ visitor/ urban planner can access to the document by clicking on the documents
+
+#### Test Case 1:  
+
+#### Test Case 2: 
+
+
+14. [JX20-Single cluster](#Single-cluster)
+
+### Description
+
+_ As a visitor/UP/Citizen
+I want to see points and areas too close represented as a single cluster so that the map is not cluttered
+
+### Acceptance Criteria
+
+- Visitor/UP/Citizen can see points and areas too close as a single cluster
+
+#### Test Case 1: view points and areas as a cluster 
+- **Preconditions:** User is logged in and is visitor/UP/citizen
+- **Expected Result:** User can zoom out to view all points and areas as a single cluster; the number of points decreases as the zoom level increases.
+
+
+
+
 
 ---

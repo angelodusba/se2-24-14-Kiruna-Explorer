@@ -23,6 +23,7 @@ function AddDocumentPage({ fetchDocuments }) {
   const navigate = useNavigate();
   const { disabledInput } = useContext(DisabledInputContext);
   const { setError } = useContext(ErrorContext);
+  const [refreshData, setRefreshData] = useState(true);
 
   // AddDocumentForm data
   const [activeStep, setActiveStep] = useState<number>(0);
@@ -39,19 +40,25 @@ function AddDocumentPage({ fetchDocuments }) {
     scale: "Blueprints/material effects",
     language: "",
   });
+  const [areas, setAreas] = useState([]);
   // LinkDocumentForm data
   const [connectionsList, setConnectionsList] = useState<ConnectionList>({
     starting_document_id: undefined,
     connections: [],
   });
   const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
-  const [documentsList, setDocumentsList] = useState<
-    { id: number; title: string }[]
-  >([]);
+  const [documentsList, setDocumentsList] = useState<{ id: number; title: string }[]>([]);
 
   const handleSubmit = async (document: Document) => {
-    if (activeStep === steps.length - 3) {
-      //Insert DOC
+    if (activeStep === 0) {
+      // Remove trailing dash
+      const lastSource = document.pages.split("-").pop();
+      if (lastSource === "") {
+        document.pages = document.pages.split("-").slice(0, -1).join("-");
+      }
+    }
+    if (activeStep === 1) {
+      //Insert document
       try {
         if (!isNaN(Number(document.scale))) {
           document.scale = `1:${document.scale}`;
@@ -101,20 +108,21 @@ function AddDocumentPage({ fetchDocuments }) {
   const handleAddConnection = () => {
     setConnectionsList((prevList) => ({
       starting_document_id: prevList.starting_document_id,
-      connections: [
-        ...prevList.connections,
-        { document_id: undefined, connection_types: [] },
-      ],
+      connections: [...prevList.connections, { document_id: undefined, connection_types: [] }],
     }));
   };
 
-  const handleSelectLinkedDocument = (
-    connIndex: number,
-    documentId: number
-  ) => {
+  const handleSelectLinkedDocument = (connIndex: number, documentId: number) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
-      newConnections[connIndex].document_id = documentId;
+      if (documentId === 0) {
+        newConnections[connIndex] = {
+          document_id: undefined,
+          connection_types: [],
+        };
+      } else {
+        newConnections[connIndex].document_id = documentId;
+      }
       return {
         starting_document_id: prevList.starting_document_id,
         connections: newConnections,
@@ -122,10 +130,7 @@ function AddDocumentPage({ fetchDocuments }) {
     });
   };
 
-  const handleSelectConnectionTypes = (
-    connIndex: number,
-    connection_types: string[]
-  ) => {
+  const handleSelectConnectionTypes = (connIndex: number, connection_types: string[]) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       newConnections[connIndex].connection_types = connection_types;
@@ -136,8 +141,12 @@ function AddDocumentPage({ fetchDocuments }) {
     });
   };
 
+  const handleRefreshData = () => {
+    setRefreshData(true);
+  };
+
   useEffect(() => {
-    if (activeStep === 0) {
+    if (activeStep === 0 && refreshData) {
       // Fetch document types
       DocumentAPI.getTypes()
         .then((types: Type[]) => {
@@ -150,6 +159,16 @@ function AddDocumentPage({ fetchDocuments }) {
       DocumentAPI.getStakeholders()
         .then((stakeholders: StakeHolder[]) => {
           setStakeholders(stakeholders);
+        })
+        .catch((error) => {
+          setError(error.message);
+        });
+    }
+    if (activeStep === 1) {
+      //Fetch areas
+      DocumentAPI.getAllAreas()
+        .then((areas) => {
+          setAreas(areas);
         })
         .catch((error) => {
           setError(error.message);
@@ -173,7 +192,8 @@ function AddDocumentPage({ fetchDocuments }) {
           setError(error.message);
         });
     }
-  }, [activeStep, setError]);
+    setRefreshData(false);
+  }, [activeStep, setError, refreshData]);
 
   return (
     <>
@@ -197,9 +217,10 @@ function AddDocumentPage({ fetchDocuments }) {
           handleSelectConnectionTypes={handleSelectConnectionTypes}
           document={document}
           setDocument={setDocument}
+          handleRefreshData={handleRefreshData}
         />
       </FormModal>
-      {disabledInput && <MapPicker setDocument={setDocument}></MapPicker>}
+      {disabledInput && <MapPicker areas={areas} setDocument={setDocument}></MapPicker>}
     </>
   );
 }

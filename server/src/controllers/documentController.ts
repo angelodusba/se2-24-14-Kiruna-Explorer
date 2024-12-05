@@ -1,4 +1,6 @@
 import DocumentDAO from "../dao/documentDAO";
+import { InvalidDocumentLocationError } from "../errors/documentErrors";
+import Coordinates from "../models/coordinates";
 import Document from "../models/document";
 import DocumentCardResponse from "../response/documentCardResponse";
 import DocumentLocationResponse from "../response/documentLocationResponse";
@@ -27,7 +29,7 @@ class DocumentController {
    * @param language - The language of the document, can be empty.
    * @param pages - The number of pages of the document.
    * @param stakeholderIds - The stakeholders of the document.
-   * @returns A Promise that resolves to true if the document has been successfully created.
+   * @returns A Promise that resolves to the id of the document if the document has been successfully created.
    */
   async createDocument(
     title: string,
@@ -35,11 +37,16 @@ class DocumentController {
     type_id: number,
     issue_date: string,
     scale: string,
-    location: { lat: number; lng: number }[],
+    location: Coordinates[],
     language: string,
     pages: string,
     stakeholderIds: number[]
   ): Promise<{ id: number }> {
+    // Check if all the location points are inside the municipality area
+    const validLocation = await this.dao.validateDocumentLocation(location);
+    if (!validLocation) {
+      throw new InvalidDocumentLocationError();
+    }
     // Convert object array into a comma separated string of coordinates
     const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
     return this.dao.createDocument(
@@ -106,10 +113,12 @@ class DocumentController {
    * @returns A promise that resolves to true if the document's location has been successfully updated.
    * @throws DocumentNotFoundError if the document does not exist.
    */
-  async updateDocumentLocation(
-    id: number,
-    location: { lat: number; lng: number }[]
-  ): Promise<boolean> {
+  async updateDocumentLocation(id: number, location: Coordinates[]): Promise<boolean> {
+    // Check if all the location points are inside the municipality area
+    const validLocation = await this.dao.validateDocumentLocation(location);
+    if (!validLocation) {
+      throw new InvalidDocumentLocationError();
+    }
     // Convert object array into a comma separated string of coordinates
     const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
     return this.dao.updateDocumentLocation(id, locationStr);

@@ -63,19 +63,31 @@ class DocumentRoutes {
         .isArray()
         .withMessage("Location must be an array.")
         .bail()
-        .custom((value: any) => {
-          if (
-            !value.every(
-              (coord: any) =>
-                typeof coord === "object" &&
-                coord !== null &&
-                !isNaN(Number(coord.lat)) &&
-                !isNaN(Number(coord.lng))
-            )
-          ) {
-            throw new Error(
-              "Each coordinate must be an object with numeric lat and lng properties."
-            );
+        .custom((points: any) => {
+          // Check each point has 'lat' and 'lng'
+          for (const point of points) {
+            if (
+              typeof point.lat !== "number" ||
+              typeof point.lng !== "number" ||
+              point.lat < -90 ||
+              point.lat > 90 ||
+              point.lng < -180 ||
+              point.lng > 180
+            ) {
+              throw new Error("Each point in location must have a valid value of 'lat' and 'lng'");
+            }
+          }
+          // Additional checks to be performed when trying to insert an area
+          if (points.length > 1) {
+            if (points.length < 4) {
+              throw new Error("Location must be an array with at least 3 points.");
+            }
+            // Check if first and last points are identical to form a closed polygon
+            const first = points[0];
+            const last = points[points.length - 1];
+            if (first.lat !== last.lat || first.lng !== last.lng) {
+              throw new Error("The polygon must be closed (first and last points must be identical)");
+            }
           }
           return true; // Indicates the validation passed
         }),
@@ -157,19 +169,31 @@ class DocumentRoutes {
         .isArray()
         .withMessage("Location must be an array.")
         .bail()
-        .custom((value: any) => {
-          if (
-            !value.every(
-              (coord: any) =>
-                typeof coord === "object" &&
-                coord !== null &&
-                !isNaN(Number(coord.lat)) &&
-                !isNaN(Number(coord.lng))
-            )
-          ) {
-            throw new Error(
-              "Each coordinate must be an object with numeric lat and lng properties."
-            );
+        .custom((points: any) => {
+          // Check each point has 'lat' and 'lng'
+          for (const point of points) {
+            if (
+              typeof point.lat !== "number" ||
+              typeof point.lng !== "number" ||
+              point.lat < -90 ||
+              point.lat > 90 ||
+              point.lng < -180 ||
+              point.lng > 180
+            ) {
+              throw new Error("Each point in location must have a valid value of 'lat' and 'lng'");
+            }
+          }
+          // Additional checks to be performed when trying to insert an area
+          if (points.length > 1) {
+            if (points.length < 4) {
+              throw new Error("Location must be an array with at least 3 points.");
+            }
+            // Check if first and last points are identical to form a closed polygon
+            const first = points[0];
+            const last = points[points.length - 1];
+            if (first.lat !== last.lat || first.lng !== last.lng) {
+              throw new Error("The polygon must be closed (first and last points must be identical)");
+            }
           }
           return true; // Indicates the validation passed
         }),
@@ -302,7 +326,7 @@ class DocumentRoutes {
             req.body.types,
             req.body.languages,
             req.body.stakeholders,
-            req.body.municipality == "true" ? true : false
+            req.body.municipality
           )
           .then((documents) => res.status(200).json(documents))
           .catch((err: any) => {

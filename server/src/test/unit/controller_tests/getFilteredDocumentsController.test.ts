@@ -1,10 +1,10 @@
-import DocumentController from "../../controllers/documentController";
-import DocumentDAO from "../../dao/documentDAO";
-import FilteredDocumentsResponse from "../../response/filteredDocumentsResponse";
-import Document from "../../models/document";
-import Type from "../../models/type";
+import DocumentController from "../../../controllers/documentController";
+import DocumentDAO from "../../../dao/documentDAO";
+import FilteredDocumentsResponse from "../../../response/filteredDocumentsResponse";
+import Document from "../../../models/document";
+import Type from "../../../models/type";
 
-jest.mock("../../dao/documentDAO");
+jest.mock("../../../dao/documentDAO");
 
 describe("DocumentController", () => {
   let documentController: DocumentController;

@@ -20,6 +20,17 @@ class TypeController {
   async getTypes(): Promise<Type[]> {
     return this.dao.getTypes();
   }
+
+  /**
+   * Creates a new type of document in the database.
+   * @param name - The name of the document type.
+   * @returns A Promise that resolves to true if the document type has been successfully created.
+   */
+  async createType(
+    name: string
+  ): Promise<boolean> {
+    return this.dao.createType(name);
+  }
 }
 
 export default TypeController;

@@ -1,9 +1,9 @@
 import exp from "constants";
-import AttachmentController from "../../controllers/attachmentController";
-import AttachmentDAO from "../../dao/attachmentDAO";
+import AttachmentController from "../../../controllers/attachmentController";
+import AttachmentDAO from "../../../dao/attachmentDAO";
 
 // Mock the AttachmentDAO class
-jest.mock("../../dao/attachmentDAO");
+jest.mock("../../../dao/attachmentDAO");
 
 describe("AttachmentController", () => {
   let attachmentController: AttachmentController;

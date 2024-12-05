@@ -19,15 +19,17 @@ import { SearchFilter } from "./models/SearchFilter";
 import { ErrorContext } from "./contexts/ErrorContext";
 import { Snackbar, Alert } from "@mui/material";
 import DocumentsListPage from "./pages/DocumentsListPage";
+import Diagram from "./components/Diagram/Diagram";
+import MapPicker from "./components/Map/MapPicker";
 
 function App() {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | undefined>(undefined);
-  const [disabledInput, setDisabledInput] = useState(false);
+  const [disabledInput, setDisabledInput] = useState(undefined);
   const [error, setError] = useState("");
   const [docsLocation, setDocsLocation] = useState([]);
-  const [currentFilter, setCurrentFilter] = useState<SearchFilter>(undefined);
-
-  const navigate = useNavigate();
+  const [currentFilter, setCurrentFilter] = useState<SearchFilter>({});
+  const [filterNumber, setFilterNumber] = useState<number>(0);
 
   const doLogin = async (email: string, password: string) => {
     try {
@@ -65,12 +67,19 @@ function App() {
           id: doc.id,
           type: doc.type,
           location: doc.location,
+          stakeholders: doc.stakeholders,
         };
       });
       setDocsLocation(filteredDocs);
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const handleResetFilters = () => {
+    setCurrentFilter({});
+    setFilterNumber(0);
+    filterDocuments({});
   };
 
   const handleCardShow = (id) => {
@@ -90,21 +99,35 @@ function App() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    // Update filters count
+    const nonEmptyFilters = Object.fromEntries(
+      Object.entries(currentFilter).filter(([, value]) => {
+        if (Array.isArray(value)) {
+          // Keep arrays only if they have at least one element
+          return value.length > 0;
+        } else if (typeof value === "boolean") {
+          // Include boolean values unless they are undefined
+          return value !== undefined && value !== false;
+        } else {
+          // Keep strings only if they are not empty
+          return value !== "";
+        }
+      })
+    );
+    const filterNum = Object.keys(nonEmptyFilters).length;
+    setFilterNumber(filterNum);
+  }, [currentFilter]);
+
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider
-        value={{ disabledInput, setDisabledInput }}>
+      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
         <ErrorContext.Provider value={{ error, setError }}>
           <Routes>
-            <Route
-              path="/"
-              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-            />
+            <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
             <Route
               path="/auth"
-              element={
-                user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
-              }
+              element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
             />
             <Route
               path="/"
@@ -114,11 +137,14 @@ function App() {
                     <Navbar
                       handleLogout={doLogout}
                       onSearch={filterDocuments}
+                      filterNumber={filterNumber}
+                      handleResetFilters={handleResetFilters}
                     />
                   )}
                   <Outlet />
                 </>
-              }>
+              }
+            >
               <Route path="/map" element={<Map docs={docsLocation} />}>
                 <Route
                   path="add"
@@ -135,6 +161,16 @@ function App() {
                   element={
                     user && user.role === Role.UrbanPlanner ? (
                       <LinkDocumentsPage />
+                    ) : (
+                      <Navigate to="/auth" />
+                    )
+                  }
+                />
+                <Route
+                  path="area"
+                  element={
+                    user && user.role === Role.UrbanPlanner ? (
+                      <MapPicker />
                     ) : (
                       <Navigate to="/auth" />
                     )
@@ -188,22 +224,24 @@ function App() {
                   />
                 }
               />
+              <Route path="/diagram" element={<Diagram currentFilter={currentFilter} />}>
+                <Route path=":id" element={<DocumentCard returnHere={"/diagram"} />}></Route>
+              </Route>
             </Route>
-            <Route
-              path="*"
-              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-            />
+            <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
           </Routes>
           <Snackbar
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             open={!!error}
             autoHideDuration={3500}
-            onClose={() => setError("")}>
+            onClose={() => setError("")}
+          >
             <Alert
               onClose={() => setError("")}
               severity="error"
               variant="filled"
-              sx={{ width: "100%" }}>
+              sx={{ width: "100%" }}
+            >
               {error}
             </Alert>
           </Snackbar>

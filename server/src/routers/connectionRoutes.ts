@@ -78,7 +78,7 @@ class ConnectionRoutes {
      */
     this.router.get(
       "/",
-      query("document_id").isInt({ min: 1 }).withMessage("Page must be an integer greater than 0"),
+      query("document_id").optional().isInt({ min: 1 }).withMessage("Page must be an integer greater than 0"),
       this.errorHandler.validateRequest,
       async (req: any, res: any, next: any) => {
         try {
@@ -107,6 +107,7 @@ class ConnectionRoutes {
       }
     );
 
+    // Modify connections?
     this.router.put(
       "/",
       this.authService.isLoggedIn,

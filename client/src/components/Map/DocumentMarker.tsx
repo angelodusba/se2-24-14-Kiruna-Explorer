@@ -1,25 +1,9 @@
 import { Marker, useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
-import KirunaLogo from "../../assets/KirunaLogo.svg";
-import L from "leaflet";
+import { createCustomIcon } from "./Icons";
 
-const customIcon = new L.Icon({
-  iconUrl: KirunaLogo,
-  iconSize: [26.4, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-});
-
-const highlitedIcon = new L.Icon({
-  iconUrl: KirunaLogo,
-  iconSize: [26.4 * 1.5, 32 * 1.5],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-});
-
-function DocumentMarker({ position, id }) {
+function DocumentMarker({ position, id, typeName, stakeholders }) {
   const navigate = useNavigate();
-
   const map = useMap();
 
   const handleClick = () => {
@@ -38,7 +22,11 @@ function DocumentMarker({ position, id }) {
   return (
     <Marker
       riseOnHover
-      icon={window.location.pathname.includes(id) ? highlitedIcon : customIcon}
+      icon={
+        window.location.pathname.includes(id)
+          ? createCustomIcon(typeName, id, stakeholders, 1.5)
+          : createCustomIcon(typeName, id, stakeholders, 1)
+      }
       position={position}
       eventHandlers={{ click: handleClick }}
     />

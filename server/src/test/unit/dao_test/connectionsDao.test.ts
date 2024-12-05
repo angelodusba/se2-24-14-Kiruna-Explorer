@@ -1,13 +1,13 @@
-import ConnectionDAO from "../../dao/connectionDAO";
-import * as db from "../../db/db";
+import ConnectionDAO from "../../../dao/connectionDAO";
+import * as db from "../../../db/db";
 import {
   InvalidConnectionTypeError,
   ConnectionAlreadyExistsError,
-} from "../../errors/connectionErrors";
-import { DocumentNotFoundError } from "../../errors/documentErrors";
+} from "../../../errors/connectionErrors";
+import { DocumentNotFoundError } from "../../../errors/documentErrors";
 
-jest.mock("../../db/db");
-jest.mock("../../dao/documentDAO", () => {
+jest.mock("../../../db/db");
+jest.mock("../../../dao/documentDAO", () => {
   return jest.fn().mockImplementation(() => {
     return {
       getDocumentById: jest.fn().mockImplementation((id: any) => {

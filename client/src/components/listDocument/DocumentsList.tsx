@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,10 +9,6 @@ import {
   Paper,
   Typography,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
   Menu,
   Card,
@@ -37,8 +34,25 @@ function DocumentsList({
   totalRows,
   handleChangePage,
 }) {
+  const [expandedDescriptions, setExpandedDescriptions] = useState<{
+    [key: number]: boolean;
+  }>({});
+
+  const handleViewMoreClick = (id: number) => {
+    setExpandedDescriptions((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
   return (
-    <Card sx={{ width: "100%", maxHeight: "92vh", display: "flex", flexDirection: "column" }}>
+    <Card
+      sx={{
+        width: "100%",
+        maxHeight: "92vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <CardHeader title="Document List" />
       <div
         style={{
@@ -98,7 +112,16 @@ function DocumentsList({
                 {documents.map((document) => (
                   <TableRow key={document.id}>
                     <TableCell>{document.title}</TableCell>
-                    <TableCell>{document.description}</TableCell>
+                    <TableCell>
+                      {expandedDescriptions[document.id]
+                        ? document.description
+                        : `${document.description.substring(0, 50)}...`}
+                      {document.description.length > 50 && (
+                        <Button size="small" onClick={() => handleViewMoreClick(document.id)}>
+                          {expandedDescriptions[document.id] ? "View Less" : "View More"}
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell>{document.type_name}</TableCell>
                     <TableCell>{document.issue_date}</TableCell>
                     <TableCell>{document.scale}</TableCell>
@@ -123,8 +146,8 @@ function DocumentsList({
           </TableContainer>
         )}
       </CardContent>
-      <CardActions sx={{ marginBottom: 2 }}>
-        <Typography variant="body2" color="textSecondary" style={{ marginRight: "auto" }}>
+      <CardActions sx={{ marginBottom: 2, display: "flex", justifyContent: "flex-end" }}>
+        <Typography variant="body2" color="textSecondary">
           Documents {documents.length + rowsPerPage * (page - 1)} / {totalRows}
         </Typography>
         <Pagination

@@ -1,26 +1,34 @@
-import { Description, Folder, ListAltOutlined } from "@mui/icons-material";
-import { SpeedDial, SpeedDialAction } from "@mui/material";
+import { Close, Description, Earbuds, Map } from "@mui/icons-material";
+import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-function DocumentDial() {
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+function MenuDial() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState<number>(
+    location.pathname.includes("map") ? 0 : location.pathname.includes("list") ? 1 : 2
+  );
 
   const actions = [
     {
       id: 1,
-      icon: <Folder />,
-      name: "Whole municipality documents",
-      url: "/map/municipality",
+      icon: <Map />,
+      name: "Map view",
+      url: "/map",
     },
     {
       id: 2,
-      icon: <ListAltOutlined />,
-      name: "Documents List",
+      icon: <Description />,
+      name: "List view",
       url: "/list",
+    },
+    {
+      id: 3,
+      icon: <Earbuds />,
+      name: "Diagram view",
+      url: "/diagram",
     },
   ];
 
@@ -38,18 +46,26 @@ function DocumentDial() {
           },
         },
       }}
-      icon={<Description />}
-      onClose={handleClose}
-      onOpen={handleOpen}
-      open={open}>
-      {actions.map((action) => (
+      icon={<SpeedDialIcon icon={actions[currentIndex].icon} openIcon={<Close />} />}
+      onClose={() => {
+        setOpen(false);
+      }}
+      onOpen={() => {
+        setOpen(true);
+      }}
+      open={open}
+    >
+      {actions.map((action, index) => (
         <SpeedDialAction
           key={action.id}
           icon={action.icon}
           tooltipTitle={action.name}
           tooltipPlacement="right"
           tooltipOpen
-          onClick={() => navigate(action.url)}
+          onClick={() => {
+            setCurrentIndex(index);
+            navigate(action.url);
+          }}
           sx={{
             "& .MuiSpeedDialAction-staticTooltipLabel": {
               whiteSpace: "nowrap",
@@ -62,4 +78,4 @@ function DocumentDial() {
   );
 }
 
-export default DocumentDial;
+export default MenuDial;

@@ -19,6 +19,17 @@ class StakeholderController {
   async getStakeholders(): Promise<Stakeholder[]> {
     return this.dao.getStakeholders();
   }
+
+  /**
+   * Creates a new stakeholder in the database.
+   * @param name - The name of the stakeholder.
+   * @returns A Promise that resolves to true if the stakeholder has been successfully created.
+   */
+  async createStakeholder(
+    name: string
+  ): Promise<boolean> {
+    return this.dao.createStakeholder(name);
+  }
 }
 
 export default StakeholderController;

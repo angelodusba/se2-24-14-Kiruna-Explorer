@@ -133,6 +133,11 @@ Adds a new document to the database.
   - It should return a `404` error if the type of the document does not exist in the database
   - It should return a `404` error if at least one of the stakeholder does not exist in the database
   - It should return a `404` error if the scale does not exist in the database
+  - It should return a `422` error if the length of the location array is 2 or 3, i.e. when inserting a polygon at least 4 points are required.
+  - It should return a `422` error if at least one point is not numeric.
+  - It should return a `422` error if at least one point's lat is not between -90 and 90 or if at least one point's lng is not between -180 and 180.
+  - It should return a `422` error if the area is not a closed polygon, i.e. the last point is not equal to the first point.
+  - It should return a `404` error if at least one point is outside the municipality area.
 
 #### PUT `kirunaexplorer/documents/location`
 
@@ -160,6 +165,11 @@ Updates the location of a document in the database.
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
 - Additional Constraints:
   - It should return a `404` error if the document does not exist in the database
+  - It should return a `422` error if the length of the location array is 2 or 3, i.e. when inserting a polygon at least 4 points are required.
+  - It should return a `422` error if at least one point is not numeric.
+  - It should return a `422` error if at least one point's lat is not between -90 and 90 or if at least one point's lng is not between -180 and 180.
+  - It should return a `422` error if the area is not a closed polygon, i.e. the last point is not equal to the first point.
+  - It should return a `404` error if at least one point is outside the municipality area.
 
 #### GET `kirunaexplorer/documents/location`
 
@@ -167,7 +177,7 @@ Retrieves all the locations of the documents in the database.
 
 - Request Parameters: None
 - Request Body Content: None
-- Response Body Content: An array of **DocumentLocationResponse** objects, each containing a document's ID, type, and location coordinates (if available):
+- Response Body Content: An array of **DocumentLocationResponse** objects, each containing a document's ID, type, title, location coordinates (if available) and stakeholders (if available):
   - Example:
 
 ```JSON
@@ -178,12 +188,14 @@ Retrieves all the locations of the documents in the database.
             "id": 1,
             "name": "Design"
         },
+        "title": "Document 1",
         "location": [
             {
                 "lng": 19.5,
                 "lat": 48.5
             }
-        ]
+        ],
+        "stakeholders": ["Stakeholder 1", "Stakeholder 2"]
     },
     {
         "id": 2,
@@ -191,6 +203,7 @@ Retrieves all the locations of the documents in the database.
             "id": 1,
             "name": "Design"
         },
+        "title": "Document 2",
         "location": [
             {
                 "lng": 7.5,
@@ -212,7 +225,8 @@ Retrieves all the locations of the documents in the database.
                 "lng": 7.5,
                 "lat": 46.5
             }
-        ]
+        ],
+        "stakeholders": []
     }
 ]
 ```
@@ -391,7 +405,8 @@ Retrieves all the information of the requested document.
 		}
 	],
 	"language": "french",
-	"pages": "60"
+	"pages": "60",
+    "stakeholders": ["LKAB", "Municipality"]
 }
 ```
 
@@ -439,8 +454,8 @@ Retrieves all the information of the documents matching the specified filters.
 }
 ```
 
-- Response Body Content: An object with three fields:
-  - `docs` (Document[]) - An array of filtered documents.
+- Response Body Content: An **FilteredDocumentsResponse** object with three fields:
+  - `docs` (**Document**[]) - An array of filtered documents.
   - `totalRows` (number) - Total number of rows found in the db for the selected filtering criteria.
   - `totalPages` (number) - Maximum number of pages the client can request for the selected filtering criteria.
   - Example:
@@ -462,7 +477,8 @@ Retrieves all the information of the documents matching the specified filters.
         {"lat": 20.94, "lng": 33.21}
       ],
       "language": "English",
-      "pages": "32"
+      "pages": "32",
+      "stakeholders": ["LKAB", "Municipality"]
     },
     {
       ...
@@ -499,33 +515,69 @@ Retrieves all the stakeholders in the database.
 ]
 ```
 
+#### POST `kirunaexplorer/stakeholders`
+
+Creates a new stakeholder in the database.
+
+- Request Parameters: None
+- Request Body Content: An object with one field:
+  - `name` (string) - The name of the stakeholder, it cannot be empty.
+  - Example:
+
+```JSON
+{
+    "name": "Stakeholder 1"
+}
+```
+
+- Response Body Content: None
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `409` error if a stakeholder with the same name already exists in the database.
 
 ### Type APIs
 
 #### GET `kirunaexplorer/types`
 
-Retrieves all the node types in the database.
+Retrieves all the types in the database.
 
 - Request Parameters: None
 - Request Body Content: None
-- Response Body Content: An array of **Type** objects, each representing a node type:
+- Response Body Content: An array of **Type** objects, each representing a type:
   - Example:
 
 ```JSON
 [
     {
         "id": 1,
-        "name": "Node type 1"
+        "name": "Type 1"
     },
     {
         "id": 2,
-        "name": "Node type 2"
+        "name": "Type 2"
     }
 ]
 ```
 
+#### POST `kirunaexplorer/types`
+
+Creates a new type in the database.
+
+- Request Parameters: None
+- Request Body Content: An object with one field:
+  - `name` (string) - The name of the type, it cannot be empty.
+  - Example:
+
+```JSON
+{
+    "name": "Type 1"
+}
+```
+
+- Response Body Content: None
 - Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `409` error if a type with the same name already exists in the database.
 
 ### Attachment APIs
 
@@ -657,3 +709,175 @@ Retrieves all connections between documents
   },
 ]
 ```
+
+### Area APIs
+
+#### GET `kirunaexplorer/areas`
+
+Retrieves all the areas in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An array of **Area** objects, each representing an area:
+  - Example:
+
+```JSON
+[
+    {
+        "id": 1,
+        "name": "Area 1",
+        "location": [
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Area 2",
+        "location": [
+            {
+                "lng": 5.5,
+                "lat": 45.5
+            },
+            {
+                "lng": 10.5,
+                "lat": 44.5
+            },
+            {
+                "lng": 15.5,
+                "lat": 47.5
+            },
+            {
+                "lng": 5.5,
+                "lat": 45.5
+            }
+        ]
+    }
+]
+```
+
+#### GET `kirunaexplorer/areas/municipality`
+
+Retrieves the municipality area in the database.
+
+- Request Parameters: None
+- Request Body Content: None
+- Response Body Content: An **Area** object.
+  - Example:
+
+```JSON
+{
+  "id": 1,
+  "name": "Municipality area",
+  "location": [
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 46.5
+            },
+            {
+                "lng": 12.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 42.5
+            },
+            {
+                "lng": 7.5,
+                "lat": 46.5
+            }
+        ]
+}
+```
+
+#### POST `kirunaexplorer/areas`
+
+Creates a new area in the database.
+
+- Request Parameters: None
+- Request Body Content: An object with one field:
+  - `name` (string) - The name of the area, it cannot be empty.
+  - `location`: an array of objects with at least 4 elements, representing the coordinates (logitude, latitude) of the document, can be only a polygon.
+  - Example:
+
+```JSON
+{
+    "name": "Area 1",
+    "location": [
+        {
+            "lng": 7.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 42.5
+        },
+        {
+            "lng": 7.5,
+            "lat": 42.5
+        }
+    ]
+}
+```
+
+- Response Body Content: An **Area** object that represents the created area
+- Example:
+
+```JSON
+{
+    "id": 1,
+    "name": "Area 1",
+    "location": [
+        {
+            "lng": 7.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 46.5
+        },
+        {
+            "lng": 12.5,
+            "lat": 42.5
+        },
+        {
+            "lng": 7.5,
+            "lat": 42.5
+        }
+    ]
+}
+```
+
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `409` error if an area with the same name already exists in the database.
+  - It should return a `422` error if at least one point is not numeric.
+  - It should return a `422` error if at least one point's lat is not between -90 and 90 or if at least one point's lng is not between -180 and 180.
+  - It should return a `422` error if the area is not a closed polygon, i.e. the last point is not equal to the first point.
+  - It should return a `404` error if at least one point is outside the municipality area.

@@ -6,12 +6,20 @@ class DocumentLocationResponse {
   type: Type;
   title: string;
   location: Coordinates[];
+  stakeholders: string[];
 
-  constructor(id: number, type: Type, title:string, location: Coordinates[]) {
+  constructor(
+    id: number,
+    type: Type,
+    title: string,
+    location: Coordinates[],
+    stakeholders?: string[]
+  ) {
     this.id = id;
     this.type = type;
     this.title = title;
     this.location = location;
+    this.stakeholders = stakeholders ? stakeholders : [];
   }
 }
 

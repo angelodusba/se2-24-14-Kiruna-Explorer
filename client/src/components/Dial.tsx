@@ -1,13 +1,16 @@
 import { AddLinkOutlined, NoteAddOutlined } from "@mui/icons-material";
+import AddLocationAltOutlinedIcon from "@mui/icons-material/AddLocationAltOutlined";
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DisabledInputContext } from "../contexts/DisabledInputContext";
 
 function Dial() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const { setDisabledInput } = useContext(DisabledInputContext);
 
   const actions = [
     {
@@ -21,6 +24,12 @@ function Dial() {
       icon: <AddLinkOutlined />,
       name: "Link documents",
       url: "/map/link",
+    },
+    {
+      id: 3,
+      icon: <AddLocationAltOutlinedIcon />,
+      name: "Add area",
+      url: "/map/area",
     },
   ];
 
@@ -41,8 +50,7 @@ function Dial() {
       icon={<SpeedDialIcon />}
       onClose={handleClose}
       onOpen={handleOpen}
-      open={open}
-    >
+      open={open}>
       {actions.map((action) => (
         <SpeedDialAction
           key={action.id}
@@ -51,6 +59,9 @@ function Dial() {
           tooltipOpen
           onClick={() => {
             if (action.url) {
+              if (action.id === 3) {
+                setDisabledInput("area save");
+              }
               navigate(action.url);
             }
             handleClose();

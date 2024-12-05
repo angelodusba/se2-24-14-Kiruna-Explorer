@@ -3,6 +3,10 @@ body {
   overflow-y: hidden;
 }
 
+.sr-only {
+  display: none;
+}
+
 .customButton {
   background-color: white !important;
   color: #003d8f !important;
@@ -11,4 +15,43 @@ body {
 .customButton:hover {
   background-color: #003d8f !important;
   color: white !important;
+}
+
+.leaflet-top {
+  margin-top: 72px !important;
+  margin-right: 24px !important;
+}
+
+.leaflet-control {
+  margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .leaflet-top {
+    margin-right: 16px !important;
+  }
+}
+
+.layer-image {
+  height: 64px;
+  width: 64px;
+  border-radius: 30%;
+}
+
+@media (max-width: 768px) {
+  .layer-image {
+    height: 32px;
+    width: 32px;
+  }
+}
+
+.layer-image.selected {
+  border: 4px solid #003d8f;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.leaflet-div-icon {
+  border: 2px solid #003d8f !important;
+  border-radius: 100% !important;
+  padding: 3px !important;
 }

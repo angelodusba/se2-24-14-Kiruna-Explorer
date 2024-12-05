@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import FormModal from "../components/Forms/FormModal";
 import { Document } from "../models/Document";
 import GeoreferenceForm from "../components/Forms/GeoreferenceForm";
@@ -7,6 +7,7 @@ import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 import MapPicker from "../components/Map/MapPicker";
 import { ErrorContext } from "../contexts/ErrorContext";
+import { Area } from "../models/Area";
 
 interface OutletContext {
   location: { lat: number; lng: number }[];
@@ -31,6 +32,17 @@ function GeoreferencePage({ fetchDocuments }) {
     scale: "Blueprints/ material effects",
     language: "",
   });
+  const [areas, setAreas] = useState<Area[]>([]);
+
+  useEffect(() => {
+    DocumentAPI.getAllAreas()
+      .then((areas) => {
+        setAreas(areas);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  }, [setError]);
 
   const handleEditGeoreferenceSubmit = (event) => {
     event.preventDefault();
@@ -58,9 +70,10 @@ function GeoreferencePage({ fetchDocuments }) {
           document={document}
           setDocument={setDocument}
           handleSubmit={handleEditGeoreferenceSubmit}
-          handleClose={handleClose}></GeoreferenceForm>
+          handleClose={handleClose}
+        ></GeoreferenceForm>
       </FormModal>
-      {disabledInput && <MapPicker setDocument={setDocument}></MapPicker>}
+      {disabledInput && <MapPicker areas={areas} setDocument={setDocument}></MapPicker>}
     </>
   );
 }

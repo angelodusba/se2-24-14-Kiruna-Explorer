@@ -1,7 +1,8 @@
 const DOCUMENT_NOT_FOUND = "The document does not exist";
+const LOCATION_NOT_VALID = "The document location can't exceed the municipality area's boundaries";
 
 /**
- * Represents an error that occurs when a user is not found.
+ * Represents an error that occurs when a document is not found.
  */
 class DocumentNotFoundError extends Error {
   customMessage: string;
@@ -14,4 +15,18 @@ class DocumentNotFoundError extends Error {
   }
 }
 
-export { DocumentNotFoundError };
+/**
+ * Represents an error that occurs when a document location is not valid.
+ */
+class InvalidDocumentLocationError extends Error {
+  customMessage: string;
+  customCode: number;
+
+  constructor() {
+    super();
+    this.customMessage = LOCATION_NOT_VALID;
+    this.customCode = 404;
+  }
+}
+
+export { DocumentNotFoundError, InvalidDocumentLocationError };
