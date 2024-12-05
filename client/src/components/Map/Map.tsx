@@ -46,9 +46,7 @@ function Map({ docs }) {
     } else if (doc.location.length === 1) {
       return L.latLng(doc.location[0]);
     } else if (doc.location.length > 1) {
-      const pos: L.LatLngExpression[] = doc.location
-        .slice(0, -1)
-        .map((point) => L.latLng(point));
+      const pos: L.LatLngExpression[] = doc.location.slice(0, -1).map((point) => L.latLng(point));
       return L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857);
     }
   };
@@ -76,6 +74,7 @@ function Map({ docs }) {
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
         <>
           <Dial /> {/* Add documents and links button */}
+          {/* TODO: remove */}
           <DocumentDial /> {/* Municipality documents button */}
         </>
       )}
@@ -94,7 +93,8 @@ function Map({ docs }) {
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
-        }}>
+        }}
+      >
         {!disabledInput && (
           <MapLayersControl
             mapType={mapType}
@@ -158,7 +158,8 @@ function Map({ docs }) {
                         positions={pos}
                         pathOptions={{
                           color: `hsl(${(doc.type.id * 30) % 360}, 100%, 50%)`,
-                        }}></Polygon>
+                        }}
+                      ></Polygon>
                     )}
                   </React.Fragment>
                 );
@@ -184,7 +185,8 @@ function Map({ docs }) {
         {bounds !== null && (
           <Polygon
             pathOptions={{ color: "red", fill: false }}
-            positions={bounds.getLatLngs() as L.LatLngExpression[]}></Polygon>
+            positions={bounds.getLatLngs() as L.LatLngExpression[]}
+          ></Polygon>
         )}
         {!disabledInput &&
           links.map((link, index) => {
@@ -201,7 +203,8 @@ function Map({ docs }) {
                       positions={{
                         doc1: getDocLocation(link.id_doc1),
                         doc2: getDocLocation(link.id_doc2),
-                      }}></Link>
+                      }}
+                    ></Link>
                   )
                 );
               }
