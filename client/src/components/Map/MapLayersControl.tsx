@@ -158,7 +158,7 @@ function MapLayersControl({
                 }}>
                 <Box
                   component="button"
-                  disabled={true}
+                  disabled={false}
                   onClick={() =>
                     setLayersVisibility((prevLayers) => ({
                       ...prevLayers,

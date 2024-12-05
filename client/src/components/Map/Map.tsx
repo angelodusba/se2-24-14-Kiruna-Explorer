@@ -36,10 +36,10 @@ function Map({ docs }) {
     links: false,
     areas: false,
   });
-  //const [links, setLinks] = useState([]);
+  const [links, setLinks] = useState([]);
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
 
-  /*const getDocLocation = (id) => {
+  const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
     if (doc.location.length === 0) {
       return L.latLng([67.85572, 20.22513]);
@@ -49,18 +49,18 @@ function Map({ docs }) {
       const pos: L.LatLngExpression[] = doc.location
         .slice(0, -1)
         .map((point) => L.latLng(point));
-      L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857);
+      return L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857);
     }
-  };*/
+  };
 
   useEffect(() => {
-    /*ConnectionAPI.getConnections()
+    ConnectionAPI.getConnections()
       .then((links) => {
         setLinks(links);
       })
       .catch((err) => {
         setError(err.message);
-      });*/
+      });
 
     DocumentAPI.getMunicipalityArea()
       .then((area) => {
@@ -186,22 +186,27 @@ function Map({ docs }) {
             pathOptions={{ color: "red", fill: false }}
             positions={bounds.getLatLngs() as L.LatLngExpression[]}></Polygon>
         )}
-        {/*!disabledInput &&
+        {!disabledInput &&
           links.map((link, index) => {
             {
-              return (
-                layersVisibility.links && (
-                  <Link
-                    key={index}
-                    link={link}
-                    positions={{
-                      doc1: getDocLocation(link.id_doc1),
-                      doc2: getDocLocation(link.id_doc2),
-                    }}></Link>
-                )
-              );
+              if (
+                docs.some((doc) => doc.id === link.id_doc1) &&
+                docs.some((doc) => doc.id === link.id_doc2)
+              ) {
+                return (
+                  layersVisibility.links && (
+                    <Link
+                      key={index}
+                      link={link}
+                      positions={{
+                        doc1: getDocLocation(link.id_doc1),
+                        doc2: getDocLocation(link.id_doc2),
+                      }}></Link>
+                  )
+                );
+              }
             }
-          })*/}
+          })}
         <Outlet />
       </MapContainer>
     </>
