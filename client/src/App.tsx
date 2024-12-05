@@ -121,13 +121,19 @@ function App() {
 
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
+      <DisabledInputContext.Provider
+        value={{ disabledInput, setDisabledInput }}>
         <ErrorContext.Provider value={{ error, setError }}>
           <Routes>
-            <Route path="/" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+            <Route
+              path="/"
+              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+            />
             <Route
               path="/auth"
-              element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
+              element={
+                user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
+              }
             />
             <Route
               path="/"
@@ -143,8 +149,7 @@ function App() {
                   )}
                   <Outlet />
                 </>
-              }
-            >
+              }>
               <Route path="/map" element={<Map docs={docsLocation} />}>
                 <Route
                   path="add"
@@ -160,7 +165,7 @@ function App() {
                   path="link"
                   element={
                     user && user.role === Role.UrbanPlanner ? (
-                      <LinkDocumentsPage />
+                      <LinkDocumentsPage fetchDocuments={fetchDocuments} />
                     ) : (
                       <Navigate to="/auth" />
                     )
@@ -224,24 +229,29 @@ function App() {
                   />
                 }
               />
-              <Route path="/diagram" element={<Diagram currentFilter={currentFilter} />}>
-                <Route path=":id" element={<DocumentCard returnHere={"/diagram"} />}></Route>
+              <Route
+                path="/diagram"
+                element={<Diagram currentFilter={currentFilter} />}>
+                <Route
+                  path=":id"
+                  element={<DocumentCard returnHere={"/diagram"} />}></Route>
               </Route>
             </Route>
-            <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
+            <Route
+              path="*"
+              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+            />
           </Routes>
           <Snackbar
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             open={!!error}
             autoHideDuration={3500}
-            onClose={() => setError("")}
-          >
+            onClose={() => setError("")}>
             <Alert
               onClose={() => setError("")}
               severity="error"
               variant="filled"
-              sx={{ width: "100%" }}
-            >
+              sx={{ width: "100%" }}>
               {error}
             </Alert>
           </Snackbar>

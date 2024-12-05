@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import { ConnectionList, HalfConnection } from "../models/Connection";
 import { ErrorContext } from "../contexts/ErrorContext";
 
-function LinkDocumentsPage() {
+function LinkDocumentsPage({ fetchDocuments }) {
   const navigate = useNavigate();
   const { setError } = useContext(ErrorContext);
 
@@ -27,6 +27,7 @@ function LinkDocumentsPage() {
   const handleLinkSubmit = async (connectionList) => {
     try {
       await ConnectionAPI.sendConnections(connectionList);
+      fetchDocuments();
       handleClose();
     } catch (err) {
       setError(err.message);
