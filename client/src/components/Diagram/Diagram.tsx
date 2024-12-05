@@ -127,7 +127,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     }
     return newNodes;
   };
-  const createEdges = (connections: Connection[], passed_nodes) => {
+  const createEdges = (connections: any, passed_nodes) => {
     return connections.flatMap((conn: any) => {
       //compare x and y of the nodes, start from the doc with smallest x, if x is the same,
       // start from the one with smallest y
