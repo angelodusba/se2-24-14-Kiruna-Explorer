@@ -138,7 +138,10 @@ function DocumentCard(props) {
                   </Typography>
                 </Grid>
                 <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
-                  <IconButton size="small" onClick={() => navigate(props.returnHere? props.returnHere : "/map")}>
+                  <IconButton
+                    size="small"
+                    onClick={() => navigate(props.returnHere ? props.returnHere : "/map")}
+                  >
                     {<CloseOutlined fontSize="small" />}
                   </IconButton>
                 </Grid>
@@ -351,6 +354,8 @@ function DocumentCard(props) {
                         secondary={
                           documentCard.location.length === 0
                             ? "Entire municipality"
+                            : documentCard.location.length > 1
+                            ? "Area"
                             : `${CoordstoDMS(documentCard.location[0].lat, true)}\n${CoordstoDMS(
                                 documentCard.location[0].lng,
                                 false

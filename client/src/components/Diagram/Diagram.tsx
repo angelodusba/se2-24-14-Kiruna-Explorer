@@ -157,7 +157,6 @@ function Diagram({ currentFilter }: DiagramProps) {
   };
   // Fetch docs and create nodes
   useEffect(() => {
-    console.log(currentFilter);
     // Fetch Documents
     const fetchDocumentsAndConnections = async () => {
       const response = await DocumentAPI.getFilteredDocuments(currentFilter);
