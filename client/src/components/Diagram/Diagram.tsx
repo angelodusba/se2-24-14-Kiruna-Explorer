@@ -50,10 +50,12 @@ interface DiagramProps {
   currentFilter: SearchFilter;
 }
 
-const gridHeight = 200; // Size of the grid cells
+const gridHeight = 400; // Size of the grid cells
 const gridWidth = 400; // Width of the grid
 const nodeWidth = gridWidth / 4;
 const nodeHeight = nodeWidth;
+const nodePerRows = 3;
+const nodePerColumns = 3;
 const initialEdges: Edge[] = [];
 
 function Diagram({ currentFilter }: DiagramProps) {
@@ -73,20 +75,22 @@ function Diagram({ currentFilter }: DiagramProps) {
       setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
     []
   );
-  const assignX_toDate = (date: string, filteredYears: number[]) => {
+  const assignX_toYear = (date: string, filteredYears: number[]) => {
     const d = dayjs(date);
     //find the index of d.year() in filteredYears
     const index = filteredYears.findIndex((year) => year === d.year());
-    return index + d.month() / 12;
+    //return index + d.month() / 12;
+    return index;
   };
-  const createNode = (doc: DocumentForDiagram, index, offset, filteredYears) => {
+  const createNode = (doc: DocumentForDiagram, offsetScale, offsetY, offsetX, filteredYears) => {
     return {
       id: doc.id.toString(),
       type: "zoom",
       data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders },
       position: {
-        x: assignX_toDate(doc.date, filteredYears) * gridWidth + gridWidth,
-        y: index * nodeHeight + offset,
+        x: (assignX_toYear(doc.date, filteredYears)) * gridWidth + gridWidth + 
+          offsetX * nodeWidth + offsetX*(gridWidth - nodeWidth*nodePerRows)/(nodePerRows-1),
+        y:  offsetY* nodeHeight + offsetScale,
       },
       draggable: true,
       connectable: true,
@@ -119,9 +123,20 @@ function Diagram({ currentFilter }: DiagramProps) {
         //sort docs by month
         const docsPerYearPerScale = arrayDocsPerScale[scale];
         const sortedDocs = docsPerYearPerScale.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
-        const nodesToAdd = sortedDocs.map((doc, index) =>
-          createNode(doc, index, offsetYPerScale[scale], filteredYears)
-        );
+        let nDoc = 0;
+        const offsetScale = offsetYPerScale[scale];
+        let offsetY = 0;
+        let offsetX = 0;
+        let nodesToAdd = [];
+        for (const doc of sortedDocs) {
+          offsetX = nDoc % nodePerRows;
+          offsetY = Math.floor(nDoc / nodePerRows);
+          if (offsetY > nodePerColumns) {
+            return;
+          }
+          nodesToAdd.push(createNode(doc, offsetScale, offsetY, offsetX, filteredYears));
+          nDoc++;
+        }
         newNodes = [...newNodes, ...nodesToAdd];
       }
     }
@@ -202,8 +217,9 @@ function Diagram({ currentFilter }: DiagramProps) {
             max = filteredByScale.length;
           }
         }
-        maxDocsPerScale[scale.name] = max;
-        offset += nodeHeight * max;
+        const nodeRatio = gridWidth / nodeWidth;
+        maxDocsPerScale[scale.name] = Math.ceil(max / nodeRatio) * nodeRatio;
+        offset += nodeHeight * Math.ceil(max / nodeRatio) * nodeRatio;
       });
       //Keep nodes with no documents, used to position docs and years
       const filteredYears = years.filter((year) => {
@@ -324,12 +340,6 @@ function Flow({
     const { x, y, zoom } = getViewport(); // Get current viewport position
     const keypanStep = (gridWidth * 5) / zoom; // Amount to pan
     switch (direction) {
-      case "up":
-        setViewport({ x, y: y + keypanStep, zoom });
-        break;
-      case "down":
-        setViewport({ x, y: y - keypanStep, zoom });
-        break;
       case "left":
         setViewport({ x: x + keypanStep, y, zoom });
         break;
@@ -348,11 +358,14 @@ function Flow({
       const firstNode = nodes[index];
       const firstNodeX = -firstNode.position.x;
       const firstNodeY = -firstNode.position.y;
-      const zoom = 0.5;
-      const coveredYearsBefore = 2;
+
+      const minY = Math.min(...nodes.map((node) => node.position.y));
+      const maxY = Math.max(...nodes.map((node) => node.position.y)) + gridHeight;
+      const zoom = window.innerHeight / (maxY - minY);
+      const coveredYearsBefore = 1;
       const newViewport = {
         x: (firstNodeX + coveredYearsBefore * gridWidth) * zoom,
-        y: (firstNodeY + gridHeight) * zoom,
+        y: (firstNodeY ) * zoom,
         zoom: zoom,
       };
       setViewport(newViewport);
