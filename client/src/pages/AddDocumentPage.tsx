@@ -47,7 +47,9 @@ function AddDocumentPage({ fetchDocuments }) {
     connections: [],
   });
   const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
-  const [documentsList, setDocumentsList] = useState<{ id: number; title: string }[]>([]);
+  const [documentsList, setDocumentsList] = useState<
+    { id: number; title: string }[]
+  >([]);
 
   const handleSubmit = async (document: Document) => {
     if (activeStep === 0) {
@@ -79,6 +81,7 @@ function AddDocumentPage({ fetchDocuments }) {
   const handleLinkSubmit = async () => {
     try {
       await ConnectionAPI.sendConnections(connectionsList);
+      fetchDocuments();
       handleClose();
     } catch (err) {
       setError(err);
@@ -108,11 +111,17 @@ function AddDocumentPage({ fetchDocuments }) {
   const handleAddConnection = () => {
     setConnectionsList((prevList) => ({
       starting_document_id: prevList.starting_document_id,
-      connections: [...prevList.connections, { document_id: undefined, connection_types: [] }],
+      connections: [
+        ...prevList.connections,
+        { document_id: undefined, connection_types: [] },
+      ],
     }));
   };
 
-  const handleSelectLinkedDocument = (connIndex: number, documentId: number) => {
+  const handleSelectLinkedDocument = (
+    connIndex: number,
+    documentId: number
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       if (documentId === 0) {
@@ -130,7 +139,10 @@ function AddDocumentPage({ fetchDocuments }) {
     });
   };
 
-  const handleSelectConnectionTypes = (connIndex: number, connection_types: string[]) => {
+  const handleSelectConnectionTypes = (
+    connIndex: number,
+    connection_types: string[]
+  ) => {
     setConnectionsList((prevList) => {
       const newConnections = prevList.connections;
       newConnections[connIndex].connection_types = connection_types;
@@ -220,7 +232,9 @@ function AddDocumentPage({ fetchDocuments }) {
           handleRefreshData={handleRefreshData}
         />
       </FormModal>
-      {disabledInput && <MapPicker areas={areas} setDocument={setDocument}></MapPicker>}
+      {disabledInput && (
+        <MapPicker areas={areas} setDocument={setDocument}></MapPicker>
+      )}
     </>
   );
 }
