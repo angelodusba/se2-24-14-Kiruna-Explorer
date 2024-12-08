@@ -264,7 +264,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     marginTop: "8px",
                   }}>
                   <Link
-                    to={"/map"}
+                    to={"/"}
                     style={{
                       textDecoration: "none",
                       color: "white",

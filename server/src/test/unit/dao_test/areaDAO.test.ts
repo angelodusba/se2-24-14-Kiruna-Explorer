@@ -25,10 +25,7 @@ describe("AreaDAO", () => {
       };
       (db.query as jest.Mock).mockResolvedValue(mockResult);
 
-      const area = await areaDAO.createArea(
-        "New Area",
-        "67.5458 19.8253, 67.5558 19.8353"
-      );
+      const area = await areaDAO.createArea("New Area", "67.5458 19.8253, 67.5558 19.8353");
 
       expect(area).toEqual(
         new Area(1, "New Area", [
@@ -41,9 +38,7 @@ describe("AreaDAO", () => {
 
     test("should throw an AreaAlreadyExistsError if the area name already exists", async () => {
       (db.query as jest.Mock).mockRejectedValue(
-        new Error(
-          'duplicate key value violates unique constraint "areas_name_key"'
-        )
+        new Error('duplicate key value violates unique constraint "areas_name_key"')
       );
 
       await expect(
@@ -77,9 +72,9 @@ describe("AreaDAO", () => {
       const invalidLocation = "invalid location format";
       (db.query as jest.Mock).mockRejectedValue(new Error("Database error"));
 
-      await expect(
-        areaDAO.createArea("New Area", invalidLocation)
-      ).rejects.toThrow("Database error");
+      await expect(areaDAO.createArea("New Area", invalidLocation)).rejects.toThrow(
+        "Database error"
+      );
       expect(db.query).toHaveBeenCalled();
     });
     describe("getAreas", () => {
@@ -102,12 +97,12 @@ describe("AreaDAO", () => {
 
         expect(areas).toEqual([
           new Area(1, "Area 1", [
-            new Coordinates(67.5458, 19.8253),
-            new Coordinates(67.5558, 19.8353),
+            new Coordinates(19.8253, 67.5458),
+            new Coordinates(19.8353, 67.5558),
           ]),
           new Area(2, "Area 2", [
-            new Coordinates(67.5658, 19.8453),
-            new Coordinates(67.5758, 19.8553),
+            new Coordinates(19.8453, 67.5658),
+            new Coordinates(19.8553, 67.5758),
           ]),
         ]);
         expect(db.query).toHaveBeenCalled();
@@ -120,5 +115,5 @@ describe("AreaDAO", () => {
         expect(db.query).toHaveBeenCalled();
       });
     });
-    });
-    });
+  });
+});

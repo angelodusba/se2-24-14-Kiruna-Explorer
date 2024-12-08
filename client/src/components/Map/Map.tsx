@@ -39,6 +39,7 @@ function Map({ docs }) {
   });
   const [links, setLinks] = useState([]);
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
+  const [selectedDocId, setSelectedDocId] = useState(null);
   const [hoveredDocument, setHoveredDocument] = useState(null);
 
   const getDocLocation = (id) => {
@@ -140,6 +141,9 @@ function Map({ docs }) {
                     typeName={doc.type.name}
                     stakeholders={doc.stakeholders}
                     position={L.latLng(doc.location[0])}
+                    selectedDocId={selectedDocId}
+                    setSelectedDocId={setSelectedDocId}
+                    links={links}
                   />
                 );
               }
@@ -156,6 +160,9 @@ function Map({ docs }) {
                       typeName={doc.type.name}
                       stakeholders={doc.stakeholders}
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
+                      selectedDocId={selectedDocId}
+                      setSelectedDocId={setSelectedDocId}
+                      links={links}
                       setHoveredDocument={setHoveredDocument}></DocumentMarker>
                     {(layersVisibility.areas || hoveredDocument === doc.id) && (
                       <Polygon
@@ -182,6 +189,9 @@ function Map({ docs }) {
                     typeName={doc.type.name}
                     stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
+                    selectedDocId={selectedDocId}
+                    setSelectedDocId={setSelectedDocId}
+                    links={links}
                   />
                 );
               }

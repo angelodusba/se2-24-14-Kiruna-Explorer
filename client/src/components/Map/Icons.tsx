@@ -3,6 +3,7 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import { renderToString } from "react-dom/server";
 import typeIconsData from "../../assets/typeIconsData.ts";
 import stakeholdersColorsData from "../../assets/stakeholdersColorsData.ts";
+import { useParams } from "react-router-dom";
 
 function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   return (
@@ -36,12 +37,16 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   );
 }
 
-function createCustomIcon(typeName: string, id: number, stakeholders: string[], enlargement: number) {
+function createCustomIcon(typeName: string, docId: number, stakeholders: string[], enlargement: number, links: any, selectedDocId: number) {
+  const { id } = useParams();
+  const classes = id && selectedDocId !== docId && !links.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId))
+    ? "leaflet-div-icon doc-not-connected"
+    : "leaflet-div-icon";
   return typeIconsData[typeName]
     ? L.divIcon({
         html: renderToString(
           <DocumentIcon
-            id={id}
+            id={docId}
             d={typeIconsData[typeName].d}
             inputWidth={typeIconsData[typeName].width}
             inputHeight={typeIconsData[typeName].height}
@@ -51,12 +56,14 @@ function createCustomIcon(typeName: string, id: number, stakeholders: string[], 
         iconSize: [26 * enlargement, 32 * enlargement],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
+        className: classes,
       })
     : new L.Icon({
         iconUrl: KirunaLogo,
         iconSize: [26 * enlargement, 32 * enlargement],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
+        className: classes
       });
 }
 
