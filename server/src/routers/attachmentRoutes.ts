@@ -76,7 +76,12 @@ const handleFileUpload = (req: any, res: any, next: any) => {
     },
   });
   // Upload the file
-  const upload = multer({ storage: storage }).single("file");
+  const upload = multer({
+    storage: storage,
+    limits: {
+      fileSize: 8000000,
+    },
+  }).single("file");
   upload(req, res, (err: any) => {
     // Validation and conversion to boolean of the "original" body field
     if (req.body.original == "true") {
@@ -142,7 +147,9 @@ class AttachmentRoutes {
     // Get all attachments of a document
     this.router.get(
       "/:document_id",
-      param("document_id").isInt({ gt: 0 }).withMessage("Document ID must be a positive integer."),
+      param("document_id")
+        .isInt({ gt: 0 })
+        .withMessage("Document ID must be a positive integer."),
       this.errorHandler.validateRequest,
       (req: any, res: any, next: any) => {
         this.controller
