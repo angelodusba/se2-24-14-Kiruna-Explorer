@@ -38,6 +38,7 @@ function Map({ docs }) {
   });
   const [links, setLinks] = useState([]);
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
+  const [selectedDocId, setSelectedDocId] = useState(null);
 
   const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
@@ -136,6 +137,9 @@ function Map({ docs }) {
                     typeName={doc.type.name}
                     stakeholders={doc.stakeholders}
                     position={L.latLng(doc.location[0])}
+                    selectedDocId={selectedDocId}
+                    setSelectedDocId={setSelectedDocId}
+                    links={links}
                   />
                 );
               }
@@ -152,6 +156,9 @@ function Map({ docs }) {
                       typeName={doc.type.name}
                       stakeholders={doc.stakeholders}
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
+                      selectedDocId={selectedDocId}
+                      setSelectedDocId={setSelectedDocId}
+                      links={links}
                     />
                     {layersVisibility.areas && (
                       <Polygon
@@ -177,6 +184,9 @@ function Map({ docs }) {
                     typeName={doc.type.name}
                     stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
+                    selectedDocId={selectedDocId}
+                    setSelectedDocId={setSelectedDocId}
+                    links={links}
                   />
                 );
               }
