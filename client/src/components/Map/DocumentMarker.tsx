@@ -2,7 +2,13 @@ import { Marker, useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import { createCustomIcon } from "./Icons";
 
-function DocumentMarker({ position, id, typeName, stakeholders }) {
+function DocumentMarker({
+  position,
+  id,
+  typeName,
+  stakeholders,
+  setHoveredDocument = undefined,
+}) {
   const navigate = useNavigate();
   const map = useMap();
 
@@ -28,8 +34,17 @@ function DocumentMarker({ position, id, typeName, stakeholders }) {
           : createCustomIcon(typeName, id, stakeholders, 1)
       }
       position={position}
-      eventHandlers={{ click: handleClick }}
-    />
+      eventHandlers={{
+        click: handleClick,
+        ...(setHoveredDocument && {
+          mouseover: () => {
+            setHoveredDocument(id);
+          },
+          mouseout: () => {
+            setHoveredDocument(null);
+          },
+        }),
+      }}></Marker>
   );
 }
 
