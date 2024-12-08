@@ -262,7 +262,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   }}
                 >
                   <Link
-                    to={"/map"}
+                    to={"/"}
                     style={{
                       textDecoration: "none",
                       color: "white",
@@ -361,7 +361,11 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       aria-controls={accountOpen ? "accountMenu" : undefined}
                       aria-haspopup="true"
                       aria-expanded={accountOpen ? "true" : undefined}
-                      onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
+                      onClick={
+                        accountOpen
+                          ? handleAccountMenuClose
+                          : handleAccountMenuOpen
+                      }
                     >
                       <Avatar {...stringAvatar(user.username)} />
                     </Fab>

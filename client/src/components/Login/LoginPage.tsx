@@ -3,8 +3,11 @@ import LoginCard from "./LoginCard";
 import KirunaImage from "../../assets/Kiruna.webp";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import { Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage(props) {
+  const navigate = useNavigate();
+
   return (
     <Grid
       container
@@ -25,7 +28,8 @@ function LoginPage(props) {
             }),
           },
         }),
-      ]}>
+      ]}
+    >
       <Grid size="grow" display={{ md: "flex", xs: "none" }}>
         <img src={KirunaImage} alt="Kiruna" height={"100%"} width={"100%"} />
       </Grid>
@@ -39,7 +43,8 @@ function LoginPage(props) {
         sx={{
           p: 2,
           m: "auto",
-        }}>
+        }}
+      >
         <Box
           display="flex"
           flexDirection="column"
@@ -47,19 +52,24 @@ function LoginPage(props) {
           sx={{
             p: 2,
             m: "auto",
-          }}>
+          }}
+        >
           <Box
             display="flex"
             flexDirection="column"
             alignItems="center"
-            gap={2}>
+            gap={2}
+            onClick={() => navigate("/")}
+            sx={{ cursor: "pointer" }}
+            >
             <img src={KirunaLogo} alt="Kiruna" height={"96px"} width={"80px"} />
             <Typography
               variant="h4"
               noWrap
               component="div"
               color="#003d8f"
-              display="block">
+              display="block"
+            >
               Kiruna Explorer
             </Typography>
           </Box>

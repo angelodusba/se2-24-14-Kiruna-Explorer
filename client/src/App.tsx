@@ -21,6 +21,7 @@ import { Snackbar, Alert } from "@mui/material";
 import DocumentsListPage from "./pages/DocumentsListPage";
 import Diagram from "./components/Diagram/Diagram";
 import MapPicker from "./components/Map/MapPicker";
+import { LandingPage } from "./pages/LandingPage";
 
 function App() {
   const navigate = useNavigate();
@@ -122,12 +123,13 @@ function App() {
   return (
     <UserContext.Provider value={user}>
       <DisabledInputContext.Provider
-        value={{ disabledInput, setDisabledInput }}>
+        value={{ disabledInput, setDisabledInput }}
+      >
         <ErrorContext.Provider value={{ error, setError }}>
           <Routes>
             <Route
               path="/"
-              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
+              element={<LandingPage />} // Show LandingPage as the default route
             />
             <Route
               path="/auth"
@@ -149,7 +151,8 @@ function App() {
                   )}
                   <Outlet />
                 </>
-              }>
+              }
+            >
               <Route path="/map" element={<Map docs={docsLocation} />}>
                 <Route
                   path="add"
@@ -231,10 +234,12 @@ function App() {
               />
               <Route
                 path="/diagram"
-                element={<Diagram currentFilter={currentFilter} />}>
+                element={<Diagram currentFilter={currentFilter} />}
+              >
                 <Route
                   path=":id"
-                  element={<DocumentCard returnHere={"/diagram"} />}></Route>
+                  element={<DocumentCard returnHere={"/diagram"} />}
+                ></Route>
               </Route>
             </Route>
             <Route
@@ -246,12 +251,14 @@ function App() {
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             open={!!error}
             autoHideDuration={3500}
-            onClose={() => setError("")}>
+            onClose={() => setError("")}
+          >
             <Alert
               onClose={() => setError("")}
               severity="error"
               variant="filled"
-              sx={{ width: "100%" }}>
+              sx={{ width: "100%" }}
+            >
               {error}
             </Alert>
           </Snackbar>
