@@ -18,7 +18,6 @@ import "reactflow/dist/style.css";
 import dayjs from "dayjs";
 import { SearchFilter } from "../../models/SearchFilter";
 import ZoomNode from "./ZoomNode";
-import CustomEdge from "./CustomEdge";
 import ConnectionAPI from "../../API/ConnectionApi";
 import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
@@ -28,6 +27,7 @@ import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutl
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import { IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
+import ViewportPortal from "reactflow"
 
 interface DocumentForDiagram {
   id: number;
@@ -42,25 +42,24 @@ const nodeTypes = {
   zoom: ZoomNode,
 };
 
-const edgeTypes = {
-  animated: CustomEdge,
-};
-
 interface DiagramProps {
   currentFilter: SearchFilter;
 }
 
-const gridHeight = 200; // Size of the grid cells
+const gridHeight = 400; // Size of the grid cells
 const gridWidth = 400; // Width of the grid
 const nodeWidth = gridWidth / 4;
 const nodeHeight = nodeWidth;
+const nodePerRows = 3;
+const nodePerColumns = 3;
 const initialEdges: Edge[] = [];
 
 function Diagram({ currentFilter }: DiagramProps) {
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
+  const [gridNodes, setGridNodes] = useState<Node[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  const [yearToShowFirst, setYearToShowFirst] = useState<number>(0);
+  const [yearToShowFirst, setYearToShowFirst] = useState<string>('Year_2020');
   const [refreshViewport, setRefreshViewport] = useState<boolean>(false);
 
   const onNodesChange = (changes: NodeChange[]) =>
@@ -73,21 +72,16 @@ function Diagram({ currentFilter }: DiagramProps) {
       setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
     []
   );
-  const assignX_toDate = (date: string, filteredYears: number[]) => {
-    const d = dayjs(date);
-    //find the index of d.year() in filteredYears
-    const index = filteredYears.findIndex((year) => year === d.year());
-    return index + d.month() / 12;
+  const assignX_toYear = (year: number, filteredYears: number[]) => {
+    //find the index year in filteredYears
+    const index = filteredYears.findIndex((f_year) => f_year === year);
+    return index;
   };
-  const createNode = (doc: DocumentForDiagram, index, offset, filteredYears) => {
+  const createNode = (doc: DocumentForDiagram, offsetY, offsetX, docYear) => {
     return {
       id: doc.id.toString(),
       type: "zoom",
       data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders },
-      position: {
-        x: assignX_toDate(doc.date, filteredYears) * gridWidth + gridWidth,
-        y: index * nodeHeight + offset,
-      },
       draggable: true,
       connectable: true,
       style: {
@@ -100,12 +94,13 @@ function Diagram({ currentFilter }: DiagramProps) {
         alignItems: "center",
         justifyContent: "center",
       },
+      position : { x: offsetX  , y: offsetY },
+      parentId: docYear.toString() + '_&_' + doc.scale,
+      extent: 'parent',
     };
   };
   const createNodesForDocument = (
     fiteredDocsPerYear: DocumentForDiagram[][],
-    filteredYears: number[],
-    offsetYPerScale
   ) => {
     let newNodes = [];
     for (const docsPerYear of fiteredDocsPerYear) {
@@ -119,9 +114,26 @@ function Diagram({ currentFilter }: DiagramProps) {
         //sort docs by month
         const docsPerYearPerScale = arrayDocsPerScale[scale];
         const sortedDocs = docsPerYearPerScale.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
-        const nodesToAdd = sortedDocs.map((doc, index) =>
-          createNode(doc, index, offsetYPerScale[scale], filteredYears)
-        );
+        let nDoc = 0;
+        let offsetY = 0;
+        let offsetX = 0;
+        let nodesToAdd = [];
+        for (const doc of sortedDocs) {
+          let index_x = nDoc % nodePerRows;
+          let index_y = Math.floor(nDoc / nodePerRows);
+          offsetX = index_x * nodeWidth;
+          offsetY = index_y * nodeHeight;
+          const horizontalPadding = (gridWidth - nodeWidth * nodePerRows) / (nodePerRows + 1);
+          const verticalPadding = (gridHeight - nodeHeight * nodePerColumns) / (nodePerColumns + 1);
+          offsetX += (index_x + 1) * horizontalPadding;
+          offsetY += (index_y + 1) * verticalPadding;
+          if (index_y > nodePerColumns) {
+            return;
+          }
+          const docYear = dayjs(doc.date).year();
+          nodesToAdd.push(createNode(doc, offsetY, offsetX, docYear));
+          nDoc++;
+        }
         newNodes = [...newNodes, ...nodesToAdd];
       }
     }
@@ -138,18 +150,42 @@ function Diagram({ currentFilter }: DiagramProps) {
       if (doc1 == null || doc2 == null) {
         return [];
       }
-      if (doc1.position.x > doc2.position.x) {
-        [id1, id2] = [id2, id1];
-      } else if (doc1.position.x == doc2.position.x && doc1.position.y > doc2.position.y) {
-        [id1, id2] = [id2, id1];
+
+      const sourcePosition = doc1.position;
+      const targetPosition = doc2.position;
+      const distanceX = targetPosition.x - sourcePosition.x;
+      const distanceY = targetPosition.y - sourcePosition.y;
+
+      let targetHandle = 'tb';
+      let sourceHandle = 'st';
+      if (Math.abs(distanceX) > Math.abs(distanceY)) {
+        // Horizontal connection
+        if (distanceX > 0) {
+          targetHandle = 'tl'; // Connect to the left side
+          sourceHandle = 'sr'; // Connect from the right side
+        } else {
+          targetHandle = 'tr'; // Connect to the right side
+          sourceHandle = 'sl'; // Connect from the left side
+        }
+      } else {
+        // Vertical connection
+        if (distanceY > 0) {
+          targetHandle = 'tt'; // Connect to the top side
+          sourceHandle = 'sb'; // Connect from the bottom side
+        } else {
+          targetHandle = 'tb'; // Connect to the bottom side
+          sourceHandle = 'st'; // Connect from the top side
+        }
       }
+
       return conn.connection_types.map((type: string) => {
         return {
           id: `${id1}-${id2}-${type}`,
           source: id1,
           target: id2,
-          type: "animated",
-          label: type,
+          type: "default",
+          sourceHandle: sourceHandle,
+          targetHandle: targetHandle,
           style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
         };
       });
@@ -179,10 +215,8 @@ function Diagram({ currentFilter }: DiagramProps) {
         acc[scale] = acc[scale] ? acc[scale] + 1 : 1;
         return acc;
       }, {});
-
       // Get all scales from numberOfDocumentsPerScale
       const scales = Object.keys(numberOfDocumentsPerScale).map((scale) => ({ name: scale }));
-
       //Group docs by year
       const arrayDocsPerYear: DocumentForDiagram[][] = years.map((year) =>
         list.filter((doc) => dayjs(doc.date).year() === year)
@@ -191,37 +225,47 @@ function Diagram({ currentFilter }: DiagramProps) {
       const fiteredDocsPerYear = arrayDocsPerYear.filter((docs) => docs.length > 0);
       const offsetYPerScale = {};
       let offset = gridHeight;
-      const maxDocsPerScale = {};
-      // Give the height of a scale as the maximum number of documents in a year for that scale
+      // Calculate offset for each grid cell
       scales.forEach((scale) => {
         offsetYPerScale[scale.name] = offset;
-        let max = 1;
-        for (const docsPerYear of fiteredDocsPerYear) {
-          const filteredByScale = docsPerYear.filter((doc) => doc.scale === scale.name);
-          if (filteredByScale.length > max) {
-            max = filteredByScale.length;
-          }
-        }
-        maxDocsPerScale[scale.name] = max;
-        offset += nodeHeight * max;
+        offset += gridHeight
       });
       //Keep nodes with no documents, used to position docs and years
       const filteredYears = years.filter((year) => {
         return fiteredDocsPerYear.find((docs) => docs[0].date.includes(year.toString()));
       });
+      //Create a group node for each year-scale tuple
+      const groupNodes = {}
+      for (const year of filteredYears) {
+        for (const scale of scales) {
+            groupNodes[year.toString() + '_&_' + scale.name] = {
+              id: year.toString() + '_&_' + scale.name,
+              data: { label: year.toString() + scale.name },
+              position: { x: (assignX_toYear(year, filteredYears)) * gridWidth + gridWidth, y: offsetYPerScale[scale.name] },
+              style: {
+              width: gridWidth,
+              height: gridHeight,
+              backgroundColor: "transparent",
+              border : "none",
+              },
+              draggable: false,
+              connectable: false,
+              type: "group",
+              selectable: false,
+              focusable: false,
+              zIndex: -10,
+            }
+        }
+      }
+      // Add nodes in flow
+      const groupNodesArray = Object.values(groupNodes) as Node[];
+      setGridNodes(groupNodesArray);
       //sort for date
-      const documentsNodes = createNodesForDocument(
-        fiteredDocsPerYear,
-        filteredYears,
-        offsetYPerScale
-      );
+      const documentsNodes = createNodesForDocument(fiteredDocsPerYear);
       setDocsNodes(documentsNodes);
-      const sortedNodesByID = documentsNodes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-      //Keep track of last year_node id to not overlap
       // Create nodes for years (COLUMNS)
-      let lastID = sortedNodesByID[sortedNodesByID.length - 1].id;
       const yearNodes: Node[] = filteredYears.map((year, index) => ({
-        id: (index + Number(lastID) + 1).toString(),
+        id: 'Year_' + year.toString(),
         data: { label: year.toString() },
         position: { x: index * gridWidth + gridWidth, y: 0 },
         style: {
@@ -240,19 +284,17 @@ function Diagram({ currentFilter }: DiagramProps) {
         connectable: false,
       }));
       //Start year
-      setYearToShowFirst(Number(yearNodes[0].id));
-      lastID = Number(yearNodes[yearNodes.length - 1].id);
-      //Last year
-      //setYearToShowFirst(lastID)
+      setYearToShowFirst(yearNodes[0].id);
+
       // Create nodes for documents scales, (ROWS)
       const scalesNodes = scales.map((scale, index) => {
         return {
-          id: (index + lastID + 1).toString(),
+          id: scale.name + (index).toString(),
           data: { label: scale.name.charAt(0).toUpperCase() + scale.name.slice(1) },
           position: { x: 0, y: offsetYPerScale[scale.name] },
           style: {
             width: gridWidth,
-            height: nodeHeight * maxDocsPerScale[scale.name],
+            height: gridHeight,
             backgroundColor: "#eeeeee",
             border: "2px solid #000",
             color: "#003d8f",
@@ -269,19 +311,27 @@ function Diagram({ currentFilter }: DiagramProps) {
         };
       });
       //merge years and document Nodes
-      const merge = [...yearNodes, ...scalesNodes, ...documentsNodes];
+      const merge = [...yearNodes, ...scalesNodes, ...groupNodesArray];
       setNodes(merge);
-
-      //Now fetch connections
-      const connections = await ConnectionAPI.getConnections();
-      //create Edges
-      const edges = createEdges(connections, documentsNodes);
-      setEdges(edges);
-      //refresh viewport via state change
-      setRefreshViewport(!refreshViewport);
     };
     fetchDocumentsAndConnections();
   }, [currentFilter]);
+
+  useEffect(() => {
+    const setDocsNodesAndFetchConnections = async () => {
+      if (gridNodes.length > 0 && docsNodes.length > 0) {
+        setNodes((nds) => [...nds, ...docsNodes]);
+        //Now fetch connections
+        const connections = await ConnectionAPI.getConnections();
+        //create Edges
+        const edges = createEdges(connections, docsNodes);
+        setEdges(edges);
+        //refresh viewport via state change
+        setRefreshViewport(!refreshViewport);
+      }
+    }
+    setDocsNodesAndFetchConnections();
+  }, [gridNodes, docsNodes]);
 
   return (
     <ReactFlowProvider>
@@ -294,15 +344,17 @@ function Diagram({ currentFilter }: DiagramProps) {
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
         yearToShowFirst={yearToShowFirst}
         currentFilter={currentFilter}
         resetViewport={refreshViewport}
+        gridNodes={gridNodes}
       />
+
       <Outlet />
     </ReactFlowProvider>
   );
 }
+
 
 function Flow({
   docsNodes,
@@ -314,9 +366,9 @@ function Flow({
   onConnect,
   onEdgeUpdate,
   nodeTypes,
-  edgeTypes,
   yearToShowFirst,
   currentFilter,
+  gridNodes
 }) {
   const { setViewport, getViewport } = useReactFlow(); // Get viewport control methods
 
@@ -324,12 +376,6 @@ function Flow({
     const { x, y, zoom } = getViewport(); // Get current viewport position
     const keypanStep = (gridWidth * 5) / zoom; // Amount to pan
     switch (direction) {
-      case "up":
-        setViewport({ x, y: y + keypanStep, zoom });
-        break;
-      case "down":
-        setViewport({ x, y: y - keypanStep, zoom });
-        break;
       case "left":
         setViewport({ x: x + keypanStep, y, zoom });
         break;
@@ -343,16 +389,14 @@ function Flow({
 
   //Center viewport on first node, cover 2 years before
   useEffect(() => {
-    if (nodes.length > 0) {
-      const index = nodes.findIndex((node) => node.id == yearToShowFirst);
-      const firstNode = nodes[index];
-      const firstNodeX = -firstNode.position.x;
-      const firstNodeY = -firstNode.position.y;
-      const zoom = 0.5;
-      const coveredYearsBefore = 2;
+    if (gridNodes.length > 0) {
+      const minX = Math.min(...gridNodes.map((node) => node.position.x));
+      const minY = Math.min(...gridNodes.map((node) => node.position.y));
+      const maxY = Math.max(...gridNodes.map((node) => node.position.y));
+      const zoom = window.innerHeight / (maxY - minY + gridHeight*2);
       const newViewport = {
-        x: (firstNodeX + coveredYearsBefore * gridWidth) * zoom,
-        y: (firstNodeY + gridHeight) * zoom,
+        x: -minX * zoom + gridWidth * zoom,
+        y: -minY * zoom + gridHeight * zoom,
         zoom: zoom,
       };
       setViewport(newViewport);
@@ -364,9 +408,11 @@ function Flow({
   const onNodeClick = (_, node) => {
     if (docsNodes.some((doc) => doc.id == node.id)) {
       const { zoom } = getViewport();
-      const nodeX = -node.position.x * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
-      const nodeY = -node.position.y * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
-      const newViewport = { x: nodeX + nodeWidth * zoom, y: nodeY, zoom };
+      const offsetX = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.x;
+      const offsetY = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.y;
+      const viewportX = offsetX*zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
+      const viewportY = offsetY*zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
+      const newViewport = { x: viewportX + nodeWidth * zoom, y: viewportY , zoom };
       setViewport(newViewport, { duration: 800 });
       navigate(`/diagram/${node.id}`);
     }
@@ -382,7 +428,6 @@ function Flow({
         edges={edges}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        edgeTypes={edgeTypes}
         onEdgeUpdate={onEdgeUpdate}
         zoomOnScroll={false}
         minZoom={0.1}
@@ -400,7 +445,7 @@ function Flow({
           </IconButton>
         </div>
         <Controls position="bottom-right" />
-        <Background gap={gridWidth} variant={BackgroundVariant.Lines} color="#aaa" />
+        <Background gap={gridWidth} variant={BackgroundVariant.Dots} color="#aaa" />
         <SideBar />
       </ReactFlow>
     </div>

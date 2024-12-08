@@ -123,16 +123,13 @@ beforeAll(async () => {
   await db.query("INSERT INTO types (name) VALUES ($1)", ["type2"]);
   await db.query("INSERT INTO types (name) VALUES ($1)", ["type3"]);
   // Insert two stakeholders
-  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", [
-    "stakeholder1",
-  ]);
-  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", [
-    "stakeholder2",
-  ]);
+  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder1"]);
+  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder2"]);
   // Populate DB with municipality area if it doesn't exist yet
   const res = await db.query(`SELECT id, name FROM areas WHERE id = 1`);
   if (res.rows.length === 0) {
-    await db.query(`
+    await db.query(
+      `
       INSERT INTO areas (name, location) VALUES ($1, 
       ST_SetSRID(ST_GeometryFromText('POLYGON((
       21.9621 67.3562, 22.0589 67.4263, 22.1965 67.5545, 22.3241 67.6468, 
@@ -186,7 +183,9 @@ beforeAll(async () => {
       21.1603 67.4063, 21.1908 67.3843, 21.2944 67.3486, 21.4553 67.3206, 
       21.4702 67.324, 21.5813 67.2917, 21.6621 67.2737, 21.7582 67.2653, 
       21.8702 67.2922, 21.9621 67.3562
-      ))'), 4326))`, ["Municipality area"]);
+      ))'), 4326))`,
+      ["Municipality area"]
+    );
   }
 });
 
@@ -225,8 +224,8 @@ describe("POST kirunaexplorer/documents", () => {
       })
       .expect(200)
       .expect((res) => {
-        expect(res.body.id).toBeGreaterThan(0);          
-      })
+        expect(res.body.id).toBeGreaterThan(0);
+      });
   });
 
   test("POST /kirunaexplorer/documents - unauthorized", async () => {
@@ -371,19 +370,21 @@ describe("POST kirunaexplorer/documents", () => {
           },
         ],
       })
-      .expect(404)
+      .expect(400)
       .expect((res) => {
-        expect(res.body.error).toBe("The document location can't exceed the municipality area's boundaries");
-      });      
+        expect(res.body.error).toBe(
+          "The document location can't exceed the municipality area's boundaries"
+        );
+      });
   });
-  
+
   test("POST /kirunaexplorer/documents - document with correct area", async () => {
     const test_obj = await retrieveInitialData();
     const testLocation = [
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 23 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .post(`${routePath}/documents`)
@@ -409,16 +410,16 @@ describe("POST kirunaexplorer/documents", () => {
           },
         ],
       })
-      .expect(200);      
+      .expect(200);
   });
-  
+
   test("POST /kirunaexplorer/documents - document with area with only one out of bounds point", async () => {
     const test_obj = await retrieveInitialData();
     const testLocation = [
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 24 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .post(`${routePath}/documents`)
@@ -444,20 +445,22 @@ describe("POST kirunaexplorer/documents", () => {
           },
         ],
       })
-      .expect(404)
+      .expect(400)
       .expect((res) => {
-        expect(res.body.error).toBe("The document location can't exceed the municipality area's boundaries");
-      });      
+        expect(res.body.error).toBe(
+          "The document location can't exceed the municipality area's boundaries"
+        );
+      });
   });
 
   test("POST /kirunaexplorer/documents - document with area with all out of bounds points", async () => {
     const test_obj = await retrieveInitialData();
     const testLocation = [
-        { lat: 5.4, lng: 8.0 },
-        { lat: 6.0, lng: 9.5 },
-        { lat: 7.4, lng: 10.0 },
-        { lat: 8.6, lng: 11.8 },
-        { lat: 5.4, lng: 8.0 }
+      { lat: 5.4, lng: 8.0 },
+      { lat: 6.0, lng: 9.5 },
+      { lat: 7.4, lng: 10.0 },
+      { lat: 8.6, lng: 11.8 },
+      { lat: 5.4, lng: 8.0 },
     ];
     await request(app)
       .post(`${routePath}/documents`)
@@ -483,10 +486,12 @@ describe("POST kirunaexplorer/documents", () => {
           },
         ],
       })
-      .expect(404)
+      .expect(400)
       .expect((res) => {
-        expect(res.body.error).toBe("The document location can't exceed the municipality area's boundaries");
-      });      
+        expect(res.body.error).toBe(
+          "The document location can't exceed the municipality area's boundaries"
+        );
+      });
   });
 
   test("POST /kirunaexplorer/documents - document with area with open polygon", async () => {
@@ -495,7 +500,7 @@ describe("POST kirunaexplorer/documents", () => {
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 23 },
-      { lat: 69, lng: 21.5 }
+      { lat: 69, lng: 21.5 },
     ];
     await request(app)
       .post(`${routePath}/documents`)
@@ -523,8 +528,10 @@ describe("POST kirunaexplorer/documents", () => {
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("The polygon must be closed (first and last points must be identical)");
-      });      
+        expect(res.body.errors[0].msg).toBe(
+          "The polygon must be closed (first and last points must be identical)"
+        );
+      });
   });
 
   test("POST /kirunaexplorer/documents - document with area with not enough points", async () => {
@@ -532,7 +539,7 @@ describe("POST kirunaexplorer/documents", () => {
     const testLocation = [
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .post(`${routePath}/documents`)
@@ -561,7 +568,7 @@ describe("POST kirunaexplorer/documents", () => {
       .expect(422)
       .expect((res) => {
         expect(res.body.errors[0].msg).toBe("Location must be an array with at least 3 points.");
-      });      
+      });
   });
 
   test("POST /kirunaexplorer/documents - document with area with out of range points", async () => {
@@ -571,7 +578,7 @@ describe("POST kirunaexplorer/documents", () => {
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 23 },
       { lat: 68.3, lng: 190 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .post(`${routePath}/documents`)
@@ -599,8 +606,10 @@ describe("POST kirunaexplorer/documents", () => {
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("Each point in location must have a valid value of 'lat' and 'lng'");
-      });      
+        expect(res.body.errors[0].msg).toBe(
+          "Each point in location must have a valid value of 'lat' and 'lng'"
+        );
+      });
   });
 });
 
@@ -693,7 +702,7 @@ describe("PUT /kirunaexplorer/documents/location", () => {
         id: 99999,
         location: [{ lat: 5.0, lng: 8.0 }],
       })
-      .expect(404);
+      .expect(400);
   });
 
   test("PUT /kirunaexplorer/documents/location - empty id", async () => {
@@ -762,9 +771,11 @@ describe("PUT /kirunaexplorer/documents/location", () => {
         id: test_obj.document1.id,
         location: [{ lat: 5.0, lng: 8.0 }],
       })
-      .expect(404)
+      .expect(400)
       .expect((res) => {
-        expect(res.body.error).toBe("The document location can't exceed the municipality area's boundaries");
+        expect(res.body.error).toBe(
+          "The document location can't exceed the municipality area's boundaries"
+        );
       });
   });
 
@@ -774,7 +785,7 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 23 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .put(`${routePath}/documents/location`)
@@ -792,7 +803,7 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 24 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .put(`${routePath}/documents/location`)
@@ -801,12 +812,14 @@ describe("PUT /kirunaexplorer/documents/location", () => {
         id: test_obj.document1.id,
         location: testLocation,
       })
-      .expect(404)
+      .expect(400)
       .expect((res) => {
-        expect(res.body.error).toBe("The document location can't exceed the municipality area's boundaries");
-      }); 
+        expect(res.body.error).toBe(
+          "The document location can't exceed the municipality area's boundaries"
+        );
+      });
   });
-  
+
   test("PUT /kirunaexplorer/documents/location - document with area with all out of bounds point", async () => {
     const test_obj = await retrieveInitialData();
     const testLocation = [
@@ -814,7 +827,7 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       { lat: 6.0, lng: 9.5 },
       { lat: 7.4, lng: 10.0 },
       { lat: 8.6, lng: 11.8 },
-      { lat: 5.4, lng: 8.0 }
+      { lat: 5.4, lng: 8.0 },
     ];
     await request(app)
       .put(`${routePath}/documents/location`)
@@ -823,10 +836,12 @@ describe("PUT /kirunaexplorer/documents/location", () => {
         id: test_obj.document1.id,
         location: testLocation,
       })
-      .expect(404)
+      .expect(400)
       .expect((res) => {
-        expect(res.body.error).toBe("The document location can't exceed the municipality area's boundaries");
-      }); 
+        expect(res.body.error).toBe(
+          "The document location can't exceed the municipality area's boundaries"
+        );
+      });
   });
 
   test("PUT /kirunaexplorer/documents/location - document with area with open polygon", async () => {
@@ -835,7 +850,7 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 23 },
-      { lat: 69, lng: 21.5 }
+      { lat: 69, lng: 21.5 },
     ];
     await request(app)
       .put(`${routePath}/documents/location`)
@@ -846,8 +861,10 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("The polygon must be closed (first and last points must be identical)");
-      }); 
+        expect(res.body.errors[0].msg).toBe(
+          "The polygon must be closed (first and last points must be identical)"
+        );
+      });
   });
 
   test("PUT /kirunaexplorer/documents/location - document with area with not enough points", async () => {
@@ -855,7 +872,7 @@ describe("PUT /kirunaexplorer/documents/location", () => {
     const testLocation = [
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .put(`${routePath}/documents/location`)
@@ -876,7 +893,7 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.6, lng: 190 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .put(`${routePath}/documents/location`)
@@ -887,10 +904,12 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("Each point in location must have a valid value of 'lat' and 'lng'");
-      }); 
+        expect(res.body.errors[0].msg).toBe(
+          "Each point in location must have a valid value of 'lat' and 'lng'"
+        );
+      });
   });
-    
+
   test("PUT /kirunaexplorer/documents/location - not logged in", async () => {
     const test_obj = await retrieveInitialData();
     await request(app)
@@ -932,7 +951,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
         title: "title",
         municipality: true,
         start_year: "2022",
-        end_year: "2022"
+        end_year: "2022",
       })
       .expect(200)
       .expect((res) => {
@@ -949,7 +968,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
         languages: ["Swedish"],
         stakeholders: [test_obj.stakeholder2],
         start_year: "2022",
-        end_year: "2022"
+        end_year: "2022",
       })
       .expect(200)
       .expect((res) => {
@@ -965,7 +984,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
         scales: ["Text"],
         stakeholders: [test_obj.stakeholder1],
         start_year: "2022",
-        end_year: "2022"
+        end_year: "2022",
       })
       .expect(200)
       .expect((res) => {
@@ -1016,7 +1035,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
         start_year: "202",
-        end_year: "2022"          
+        end_year: "2022",
       })
       .expect(422);
   });
@@ -1025,7 +1044,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        scales: ["invalid"]
+        scales: ["invalid"],
       })
       .expect(422);
   });
@@ -1034,7 +1053,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        types: ["invalid"]
+        types: ["invalid"],
       })
       .expect(422);
   });
@@ -1043,7 +1062,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        languages: ["invalid"]
+        languages: ["invalid"],
       })
       .expect(422);
   });
@@ -1052,7 +1071,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        stakeholders: ["invalid"]
+        stakeholders: ["invalid"],
       })
       .expect(422);
   });
@@ -1061,7 +1080,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        municipality: "invalid"
+        municipality: "invalid",
       })
       .expect(422);
   });

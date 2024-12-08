@@ -25,7 +25,7 @@ class InvalidDocumentLocationError extends Error {
   constructor() {
     super();
     this.customMessage = LOCATION_NOT_VALID;
-    this.customCode = 404;
+    this.customCode = 400;
   }
 }
 

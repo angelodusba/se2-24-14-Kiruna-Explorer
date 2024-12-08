@@ -54,7 +54,8 @@ beforeAll(async () => {
   // Populate DB with municipality area if it doesn't exist yet
   const res = await db.query(`SELECT id, name FROM areas WHERE id = 1`);
   if (res.rows.length === 0) {
-    await db.query(`
+    await db.query(
+      `
       INSERT INTO areas (name, location) VALUES ($1, 
       ST_SetSRID(ST_GeometryFromText('POLYGON((
       21.9621 67.3562, 22.0589 67.4263, 22.1965 67.5545, 22.3241 67.6468, 
@@ -108,7 +109,9 @@ beforeAll(async () => {
       21.1603 67.4063, 21.1908 67.3843, 21.2944 67.3486, 21.4553 67.3206, 
       21.4702 67.324, 21.5813 67.2917, 21.6621 67.2737, 21.7582 67.2653, 
       21.8702 67.2922, 21.9621 67.3562
-      ))'), 4326))`, ["Municipality area"]);
+      ))'), 4326))`,
+      ["Municipality area"]
+    );
   }
 });
 
@@ -127,7 +130,11 @@ describe("GET kirunaexplorer/areas", () => {
         expect(res.body[0].id).toBe(1);
         expect(res.body[0].name).toBe("Municipality area");
         expect(res.body[0].location.length).toBeGreaterThan(4);
-        expect(res.body[0].location.every((point: any) => typeof point.lat === "number" && typeof point.lng === "number")).toBe(true);
+        expect(
+          res.body[0].location.every(
+            (point: any) => typeof point.lat === "number" && typeof point.lng === "number"
+          )
+        ).toBe(true);
       });
   });
 });
@@ -138,22 +145,26 @@ describe("POST kirunaexplorer/areas", () => {
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 23 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "area2",
-        location: testLocation
+        location: testLocation,
       })
       .expect(200)
       .expect((res) => {
         expect(res.body.location.length).toBe(4);
         expect(res.body.name).toBe("area2");
-        expect(res.body.location.every((point: {lng: number, lat: number}) => {
-          return testLocation.some(testPoint => testPoint.lat === point.lat && testPoint.lng === point.lng);
-        })).toBe(true);
+        expect(
+          res.body.location.every((point: { lng: number; lat: number }) => {
+            return testLocation.some(
+              (testPoint) => testPoint.lat === point.lat && testPoint.lng === point.lng
+            );
+          })
+        ).toBe(true);
       });
 
     await request(app)
@@ -161,9 +172,18 @@ describe("POST kirunaexplorer/areas", () => {
       .expect(200)
       .expect((res) => {
         expect(res.body.length).toBe(2);
-        expect(res.body.some((area: any) => area.name === "area2" && area.location.length === 4 && area.location.every((point: {lng: number, lat: number}) => {
-          return testLocation.some(testPoint => testPoint.lat === point.lat && testPoint.lng === point.lng);
-        }))).toBe(true);
+        expect(
+          res.body.some(
+            (area: any) =>
+              area.name === "area2" &&
+              area.location.length === 4 &&
+              area.location.every((point: { lng: number; lat: number }) => {
+                return testLocation.some(
+                  (testPoint) => testPoint.lat === point.lat && testPoint.lng === point.lng
+                );
+              })
+          )
+        ).toBe(true);
       });
   });
 
@@ -173,18 +193,20 @@ describe("POST kirunaexplorer/areas", () => {
       { lat: 6.0, lng: 9.5 },
       { lat: 7.4, lng: 10.0 },
       { lat: 8.6, lng: 11.8 },
-      { lat: 5.4, lng: 8.0 }
+      { lat: 5.4, lng: 8.0 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "area3",
-        location: testLocation
+        location: testLocation,
       })
-      .expect(404)
+      .expect(400)
       .expect((res) => {
-        expect(res.body.error).toBe("The document location can't exceed the municipality area's boundaries");
+        expect(res.body.error).toBe(
+          "The document location can't exceed the municipality area's boundaries"
+        );
       });
   });
 
@@ -193,14 +215,14 @@ describe("POST kirunaexplorer/areas", () => {
       { lat: 68, lng: 21.5 },
       { lat: 68.4, lng: 21.3 },
       { lat: 68.3, lng: 23 },
-      { lat: 68, lng: 21.5 }
+      { lat: 68, lng: 21.5 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "area2",
-        location: testLocation
+        location: testLocation,
       })
       .expect(409)
       .expect((res) => {
@@ -214,20 +236,20 @@ describe("POST kirunaexplorer/areas", () => {
       { lat: 67.7, lng: 22.7 },
       { lat: 67.8, lng: 22.8 },
       { lat: 67.5, lng: 23.1 },
-      { lat: 67.5, lng: 22.5 }
+      { lat: 67.5, lng: 22.5 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "",
-        location: testLocation
+        location: testLocation,
       })
       .expect(422)
       .expect((res) => {
         expect(res.body.errors[0].msg).toBe("Name must be a non-empty string");
-      })
-  })
+      });
+  });
 
   test("POST /kirunaexplorer/areas - Invalid area, not numeric points", async () => {
     const testLocation = [
@@ -235,18 +257,20 @@ describe("POST kirunaexplorer/areas", () => {
       { lat: 67.7, lng: 22.7 },
       { lat: "67.8", lng: 22.8 },
       { lat: 67.5, lng: 23.1 },
-      { lat: 67.5, lng: 22.5 }
+      { lat: 67.5, lng: 22.5 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "area3",
-        location: testLocation
+        location: testLocation,
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("Each point in location must have a valid value of 'lat' and 'lng'");
+        expect(res.body.errors[0].msg).toBe(
+          "Each point in location must have a valid value of 'lat' and 'lng'"
+        );
       });
   });
 
@@ -256,18 +280,20 @@ describe("POST kirunaexplorer/areas", () => {
       { lat: 67.7, lng: 22.7 },
       { lat: 95, lng: 22.8 },
       { lat: 67.5, lng: 23.1 },
-      { lat: 67.5, lng: 22.5 }
+      { lat: 67.5, lng: 22.5 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "area3",
-        location: testLocation
+        location: testLocation,
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("Each point in location must have a valid value of 'lat' and 'lng'");
+        expect(res.body.errors[0].msg).toBe(
+          "Each point in location must have a valid value of 'lat' and 'lng'"
+        );
       });
   });
 
@@ -275,14 +301,14 @@ describe("POST kirunaexplorer/areas", () => {
     const testLocation = [
       { lat: 67.5, lng: 22.5 },
       { lat: 67.7, lng: 22.7 },
-      { lat: 67.8, lng: 22.8 }
+      { lat: 67.8, lng: 22.8 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "area3",
-        location: testLocation
+        location: testLocation,
       })
       .expect(422)
       .expect((res) => {
@@ -296,19 +322,21 @@ describe("POST kirunaexplorer/areas", () => {
       { lat: 67.7, lng: 22.7 },
       { lat: 67.8, lng: 22.8 },
       { lat: 67.5, lng: 23.1 },
-      { lat: 67.5, lng: 22.3 }
+      { lat: 67.5, lng: 22.3 },
     ];
     await request(app)
       .post(`${routePath}/areas`)
       .set("Cookie", urbanPlannerCookie)
       .send({
         name: "area3",
-        location: testLocation
+        location: testLocation,
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("The polygon must be closed (first and last points must be identical)");
-      })
+        expect(res.body.errors[0].msg).toBe(
+          "The polygon must be closed (first and last points must be identical)"
+        );
+      });
   });
 
   test("POST /kirunaexplorer/areas - Not logged in", async () => {
