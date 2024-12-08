@@ -81,9 +81,7 @@ beforeAll(async () => {
   urbanPlannerCookie = await login(urbanPlanner);
 
   await db.query("INSERT INTO types (name) VALUES ($1)", ["type1"]);
-  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", [
-    "stakeholder1",
-  ]);
+  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder1"]);
 });
 
 afterAll(async () => {
@@ -104,8 +102,8 @@ describe("DocumentRoutes Tests", () => {
           type_id: testData.type1,
           issue_date: "01/01/2023",
           scale: "1:500",
-          location: [{ lat: 65.583, lng: 22.183 }],
-          language: "en",
+          location: [{ lat: 68.1817, lng: 20.4573 }],
+          language: "English",
           pages: "100",
           stakeholders: [testData.stakeholder1],
         });
@@ -125,12 +123,12 @@ describe("DocumentRoutes Tests", () => {
           issue_date: "01/01/2023",
           scale: "1:500",
           location: [
-            { lat: 65.583, lng: 22.183 },
-            { lat: 65.584, lng: 22.184 },
-            { lat: 65.585, lng: 22.185 },
-            { lat: 65.583, lng: 22.183 },
+            { lat: 68.1817, lng: 20.4573 },
+            { lat: 68.3455, lng: 21.4843 },
+            { lat: 68.0472, lng: 21.3165 },
+            { lat: 68.1817, lng: 20.4573 }, // Polygon coordinates as array
           ],
-          language: "en",
+          language: "English",
           pages: "100",
           stakeholders: [testData.stakeholder1],
         });

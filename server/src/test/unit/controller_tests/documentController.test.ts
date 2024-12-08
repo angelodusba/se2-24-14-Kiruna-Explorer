@@ -25,6 +25,7 @@ describe("DocumentController", () => {
     it("should create a new document successfully", async () => {
       // Mock the createDocument method to resolve to true
       mockDocumentDAO.createDocument.mockResolvedValue({ id: 1 });
+      mockDocumentDAO.validateDocumentLocation.mockResolvedValue(true);
 
       const documentData = {
         title: "Test Document",
@@ -66,9 +67,8 @@ describe("DocumentController", () => {
 
     it("should handle errors when creating a document", async () => {
       // Mock the createDocument method to reject with an error
-      mockDocumentDAO.createDocument.mockRejectedValue(
-        new Error("Failed to create document")
-      );
+      mockDocumentDAO.createDocument.mockRejectedValue(new Error("Failed to create document"));
+      mockDocumentDAO.validateDocumentLocation.mockResolvedValue(true);
 
       const documentData = {
         title: "Test Document",
@@ -81,7 +81,6 @@ describe("DocumentController", () => {
         pages: "10",
         stakeholders: [1, 2],
       };
-
       await expect(
         documentController.createDocument(
           documentData.title,

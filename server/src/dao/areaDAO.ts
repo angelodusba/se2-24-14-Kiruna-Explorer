@@ -20,7 +20,7 @@ class AreaDAO {
           row.id,
           row.name,
           row.location.split(",").map((coords: string) => {
-            const [lng, lat] = coords.split(" ").map(Number);
+            const [lng, lat] = coords.trim().split(" ").map(Number);
             return new Coordinates(lng, lat);
           })
         );
@@ -51,7 +51,7 @@ class AreaDAO {
         row.id,
         row.name,
         row.location.split(",").map((coords: string) => {
-          const [lng, lat] = coords.split(" ").map(Number);
+          const [lng, lat] = coords.trim().split(" ").map(Number);
           return new Coordinates(lng, lat);
         })
       );
