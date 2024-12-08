@@ -26,7 +26,7 @@ body {
   margin: 0 !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .leaflet-top {
     margin-right: 16px !important;
   }
