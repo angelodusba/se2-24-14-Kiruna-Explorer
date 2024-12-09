@@ -47,7 +47,6 @@ import {
     width: "90%",
     maxWidth: "700px",
     maxHeight: "80%",
-    minHeight: "60%",
     bgcolor: "background.paper",
     borderRadius: "8px",
     boxShadow: 24,
@@ -120,12 +119,12 @@ import {
     return (
       <>
         {!disabledInput && (
-          <Paper variant="outlined" ref={cardRef}>
+          <Paper variant="outlined" ref={cardRef} >
             <Box sx={style}>
               <Grid
                 container
                 width={"100%"}
-                sx={{ display: "flex", flexDirection: "column" }}
+                sx={{ display: "flex", flexDirection: "column", padding: "10px" }}
               >
                 <Grid
                   size={12}
