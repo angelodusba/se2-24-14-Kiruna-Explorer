@@ -1,10 +1,18 @@
 import { Marker, useMap } from "react-leaflet";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { createCustomIcon } from "./Icons";
 
-function DocumentMarker({ position, id, typeName, stakeholders }) {
+function DocumentMarker({
+  position,
+  docId,
+  typeName,
+  stakeholders,
+  links,
+  setHoveredDocument = undefined,
+}) {
   const navigate = useNavigate();
   const map = useMap();
+  const selectedDocId = Number(useParams().id);
 
   const handleClick = () => {
     const currentZoom = map.getZoom();
@@ -16,20 +24,31 @@ function DocumentMarker({ position, id, typeName, stakeholders }) {
       duration: 0.7,
       easeLinearity: 0.3,
     });
-    navigate(`/map/${id}`);
+    navigate(`/map/${docId}`);
   };
 
   return (
     <Marker
       riseOnHover
-      icon={
-        window.location.pathname.includes(id)
-          ? createCustomIcon(typeName, id, stakeholders, 1.5)
-          : createCustomIcon(typeName, id, stakeholders, 1)
-      }
+      icon={createCustomIcon(
+        typeName,
+        docId,
+        selectedDocId,
+        stakeholders,
+        links,
+      )}
       position={position}
-      eventHandlers={{ click: handleClick }}
-    />
+      eventHandlers={{
+        click: handleClick,
+        ...(setHoveredDocument && {
+          mouseover: () => {
+            setHoveredDocument(docId);
+          },
+          mouseout: () => {
+            setHoveredDocument(null);
+          },
+        }),
+      }}></Marker>
   );
 }
 

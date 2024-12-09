@@ -36,12 +36,16 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   );
 }
 
-function createCustomIcon(typeName: string, id: number, stakeholders: string[], enlargement: number) {
+function createCustomIcon(typeName: string, docId: number, selectedDocId: any, stakeholders: string[], links: any) {
+  const classes = selectedDocId && selectedDocId !== docId && !links.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId))
+    ? "leaflet-div-icon doc-not-connected"
+    : "leaflet-div-icon";
+  const enlargement = selectedDocId === docId ? 2 : 1;
   return typeIconsData[typeName]
     ? L.divIcon({
         html: renderToString(
           <DocumentIcon
-            id={id}
+            id={docId}
             d={typeIconsData[typeName].d}
             inputWidth={typeIconsData[typeName].width}
             inputHeight={typeIconsData[typeName].height}
@@ -51,12 +55,14 @@ function createCustomIcon(typeName: string, id: number, stakeholders: string[], 
         iconSize: [26 * enlargement, 32 * enlargement],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
+        className: classes,
       })
     : new L.Icon({
         iconUrl: KirunaLogo,
         iconSize: [26 * enlargement, 32 * enlargement],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
+        className: classes
       });
 }
 

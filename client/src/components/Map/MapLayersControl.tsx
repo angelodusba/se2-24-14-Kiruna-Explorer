@@ -18,14 +18,12 @@ function MapLayersControl({
   return (
     <>
       <div className="leaflet-control-container leaflet-top leaflet-left leaflet-right">
-        <Tooltip title="Layers">
+        <Tooltip title="Layers" placement="left">
           <Fab
             className=" leaflet-control"
             size="medium"
             id="layersControl"
-            //aria-controls={accountOpen ? "accountMenu" : undefined}
             aria-haspopup="true"
-            //aria-expanded={accountOpen ? "true" : undefined}
             onClick={() => {
               setDrawerOpened(true);
             }}>

@@ -7,10 +7,10 @@ import { CurvePathData } from "@elfalem/leaflet-curve";
 import { Point } from "../../models/Document";
 
 const linkStyles = {
-  Collateral: { color: "blue", dashArray: "5, 5" },
+  Collateral: { color: "blue", dashArray: "10" },
   Direct: { color: "black" },
-  Update: { color: "green", dashArray: "3, 3" },
-  Prevision: { color: "orange", dashArray: "5, 5" },
+  Update: { color: "green", dashArray: "8" },
+  Prevision: { color: "orange", dashArray: "10" },
 };
 
 function Link({ link, positions }) {

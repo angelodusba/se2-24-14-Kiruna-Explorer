@@ -27,7 +27,8 @@ import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutl
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import { IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
-import ViewportPortal from "reactflow"
+import ViewportPortal from "reactflow";
+import Legend from "../Legend";
 
 interface DocumentForDiagram {
   id: number;
@@ -59,14 +60,15 @@ function Diagram({ currentFilter }: DiagramProps) {
   const [gridNodes, setGridNodes] = useState<Node[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  const [yearToShowFirst, setYearToShowFirst] = useState<string>('Year_2020');
+  const [yearToShowFirst, setYearToShowFirst] = useState<string>("Year_2020");
   const [refreshViewport, setRefreshViewport] = useState<boolean>(false);
 
   const onNodesChange = (changes: NodeChange[]) =>
     setNodes((nds) => applyNodeChanges(changes, nds));
   const onEdgesChange = (changes: EdgeChange[]) =>
     setEdges((eds) => applyEdgeChanges(changes, eds));
-  const onConnect = (params: Connection) => setEdges((eds) => addEdge(params, eds));
+  const onConnect = (params: Connection) =>
+    setEdges((eds) => addEdge(params, eds));
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge, newConnection: Connection) =>
       setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
@@ -94,13 +96,13 @@ function Diagram({ currentFilter }: DiagramProps) {
         alignItems: "center",
         justifyContent: "center",
       },
-      position : { x: offsetX  , y: offsetY },
-      parentId: docYear.toString() + '_&_' + doc.scale,
-      extent: 'parent',
+      position: { x: offsetX, y: offsetY },
+      parentId: docYear.toString() + "_&_" + doc.scale,
+      extent: "parent",
     };
   };
   const createNodesForDocument = (
-    fiteredDocsPerYear: DocumentForDiagram[][],
+    fiteredDocsPerYear: DocumentForDiagram[][]
   ) => {
     let newNodes = [];
     for (const docsPerYear of fiteredDocsPerYear) {
@@ -113,7 +115,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       for (const scale in arrayDocsPerScale) {
         //sort docs by month
         const docsPerYearPerScale = arrayDocsPerScale[scale];
-        const sortedDocs = docsPerYearPerScale.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+        const sortedDocs = docsPerYearPerScale.sort((a, b) =>
+          dayjs(a.date).diff(dayjs(b.date))
+        );
         let nDoc = 0;
         let offsetY = 0;
         let offsetX = 0;
@@ -123,8 +127,10 @@ function Diagram({ currentFilter }: DiagramProps) {
           let index_y = Math.floor(nDoc / nodePerRows);
           offsetX = index_x * nodeWidth;
           offsetY = index_y * nodeHeight;
-          const horizontalPadding = (gridWidth - nodeWidth * nodePerRows) / (nodePerRows + 1);
-          const verticalPadding = (gridHeight - nodeHeight * nodePerColumns) / (nodePerColumns + 1);
+          const horizontalPadding =
+            (gridWidth - nodeWidth * nodePerRows) / (nodePerRows + 1);
+          const verticalPadding =
+            (gridHeight - nodeHeight * nodePerColumns) / (nodePerColumns + 1);
           offsetX += (index_x + 1) * horizontalPadding;
           offsetY += (index_y + 1) * verticalPadding;
           if (index_y > nodePerColumns) {
@@ -156,25 +162,25 @@ function Diagram({ currentFilter }: DiagramProps) {
       const distanceX = targetPosition.x - sourcePosition.x;
       const distanceY = targetPosition.y - sourcePosition.y;
 
-      let targetHandle = 'tb';
-      let sourceHandle = 'st';
+      let targetHandle = "tb";
+      let sourceHandle = "st";
       if (Math.abs(distanceX) > Math.abs(distanceY)) {
         // Horizontal connection
         if (distanceX > 0) {
-          targetHandle = 'tl'; // Connect to the left side
-          sourceHandle = 'sr'; // Connect from the right side
+          targetHandle = "tl"; // Connect to the left side
+          sourceHandle = "sr"; // Connect from the right side
         } else {
-          targetHandle = 'tr'; // Connect to the right side
-          sourceHandle = 'sl'; // Connect from the left side
+          targetHandle = "tr"; // Connect to the right side
+          sourceHandle = "sl"; // Connect from the left side
         }
       } else {
         // Vertical connection
         if (distanceY > 0) {
-          targetHandle = 'tt'; // Connect to the top side
-          sourceHandle = 'sb'; // Connect from the bottom side
+          targetHandle = "tt"; // Connect to the top side
+          sourceHandle = "sb"; // Connect from the bottom side
         } else {
-          targetHandle = 'tb'; // Connect to the bottom side
-          sourceHandle = 'st'; // Connect from the top side
+          targetHandle = "tb"; // Connect to the bottom side
+          sourceHandle = "st"; // Connect from the top side
         }
       }
 
@@ -186,7 +192,9 @@ function Diagram({ currentFilter }: DiagramProps) {
           type: "default",
           sourceHandle: sourceHandle,
           targetHandle: targetHandle,
-          style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
+          style: connectionStyles[type]
+            ? connectionStyles[type]
+            : connectionStyles["default"],
         };
       });
     });
@@ -206,9 +214,16 @@ function Diagram({ currentFilter }: DiagramProps) {
           typeName: doc.type.name,
         };
       });
-      const minYear = Math.floor(Math.min(...list.map((doc) => dayjs(doc.date).year())));
-      const maxYear = Math.ceil(Math.max(...list.map((doc) => dayjs(doc.date).year())));
-      const years = Array.from({ length: maxYear - minYear + 1 }, (_, k) => k + minYear);
+      const minYear = Math.floor(
+        Math.min(...list.map((doc) => dayjs(doc.date).year()))
+      );
+      const maxYear = Math.ceil(
+        Math.max(...list.map((doc) => dayjs(doc.date).year()))
+      );
+      const years = Array.from(
+        { length: maxYear - minYear + 1 },
+        (_, k) => k + minYear
+      );
       //Need to calculate the offset for each scale, to position the nodes correctly
       const numberOfDocumentsPerScale = response.docs.reduce((acc, doc) => {
         const scale = doc.scale.toLowerCase();
@@ -216,45 +231,54 @@ function Diagram({ currentFilter }: DiagramProps) {
         return acc;
       }, {});
       // Get all scales from numberOfDocumentsPerScale
-      const scales = Object.keys(numberOfDocumentsPerScale).map((scale) => ({ name: scale }));
+      const scales = Object.keys(numberOfDocumentsPerScale).map((scale) => ({
+        name: scale,
+      }));
       //Group docs by year
       const arrayDocsPerYear: DocumentForDiagram[][] = years.map((year) =>
         list.filter((doc) => dayjs(doc.date).year() === year)
       );
       // Keep only years with documents
-      const fiteredDocsPerYear = arrayDocsPerYear.filter((docs) => docs.length > 0);
+      const fiteredDocsPerYear = arrayDocsPerYear.filter(
+        (docs) => docs.length > 0
+      );
       const offsetYPerScale = {};
       let offset = gridHeight;
       // Calculate offset for each grid cell
       scales.forEach((scale) => {
         offsetYPerScale[scale.name] = offset;
-        offset += gridHeight
+        offset += gridHeight;
       });
       //Keep nodes with no documents, used to position docs and years
       const filteredYears = years.filter((year) => {
-        return fiteredDocsPerYear.find((docs) => docs[0].date.includes(year.toString()));
+        return fiteredDocsPerYear.find((docs) =>
+          docs[0].date.includes(year.toString())
+        );
       });
       //Create a group node for each year-scale tuple
-      const groupNodes = {}
+      const groupNodes = {};
       for (const year of filteredYears) {
         for (const scale of scales) {
-            groupNodes[year.toString() + '_&_' + scale.name] = {
-              id: year.toString() + '_&_' + scale.name,
-              data: { label: year.toString() + scale.name },
-              position: { x: (assignX_toYear(year, filteredYears)) * gridWidth + gridWidth, y: offsetYPerScale[scale.name] },
-              style: {
+          groupNodes[year.toString() + "_&_" + scale.name] = {
+            id: year.toString() + "_&_" + scale.name,
+            data: { label: year.toString() + scale.name },
+            position: {
+              x: assignX_toYear(year, filteredYears) * gridWidth + gridWidth,
+              y: offsetYPerScale[scale.name],
+            },
+            style: {
               width: gridWidth,
               height: gridHeight,
               backgroundColor: "transparent",
-              border : "none",
-              },
-              draggable: false,
-              connectable: false,
-              type: "group",
-              selectable: false,
-              focusable: false,
-              zIndex: -10,
-            }
+              border: "none",
+            },
+            draggable: false,
+            connectable: false,
+            type: "group",
+            selectable: false,
+            focusable: false,
+            zIndex: -10,
+          };
         }
       }
       // Add nodes in flow
@@ -265,7 +289,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       setDocsNodes(documentsNodes);
       // Create nodes for years (COLUMNS)
       const yearNodes: Node[] = filteredYears.map((year, index) => ({
-        id: 'Year_' + year.toString(),
+        id: "Year_" + year.toString(),
         data: { label: year.toString() },
         position: { x: index * gridWidth + gridWidth, y: 0 },
         style: {
@@ -289,8 +313,10 @@ function Diagram({ currentFilter }: DiagramProps) {
       // Create nodes for documents scales, (ROWS)
       const scalesNodes = scales.map((scale, index) => {
         return {
-          id: scale.name + (index).toString(),
-          data: { label: scale.name.charAt(0).toUpperCase() + scale.name.slice(1) },
+          id: scale.name + index.toString(),
+          data: {
+            label: scale.name.charAt(0).toUpperCase() + scale.name.slice(1),
+          },
           position: { x: 0, y: offsetYPerScale[scale.name] },
           style: {
             width: gridWidth,
@@ -329,7 +355,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         //refresh viewport via state change
         setRefreshViewport(!refreshViewport);
       }
-    }
+    };
     setDocsNodesAndFetchConnections();
   }, [gridNodes, docsNodes]);
 
@@ -355,7 +381,6 @@ function Diagram({ currentFilter }: DiagramProps) {
   );
 }
 
-
 function Flow({
   docsNodes,
   nodes,
@@ -368,7 +393,7 @@ function Flow({
   nodeTypes,
   yearToShowFirst,
   currentFilter,
-  gridNodes
+  gridNodes,
 }) {
   const { setViewport, getViewport } = useReactFlow(); // Get viewport control methods
 
@@ -393,7 +418,7 @@ function Flow({
       const minX = Math.min(...gridNodes.map((node) => node.position.x));
       const minY = Math.min(...gridNodes.map((node) => node.position.y));
       const maxY = Math.max(...gridNodes.map((node) => node.position.y));
-      const zoom = window.innerHeight / (maxY - minY + gridHeight*2);
+      const zoom = window.innerHeight / (maxY - minY + gridHeight * 2);
       const newViewport = {
         x: -minX * zoom + gridWidth * zoom,
         y: -minY * zoom + gridHeight * zoom,
@@ -408,11 +433,21 @@ function Flow({
   const onNodeClick = (_, node) => {
     if (docsNodes.some((doc) => doc.id == node.id)) {
       const { zoom } = getViewport();
-      const offsetX = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.x;
-      const offsetY = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.y;
-      const viewportX = offsetX*zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
-      const viewportY = offsetY*zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
-      const newViewport = { x: viewportX + nodeWidth * zoom, y: viewportY , zoom };
+      const offsetX = -gridNodes.find(
+        (gridNode) => gridNode.id === node.parentId
+      ).position.x;
+      const offsetY = -gridNodes.find(
+        (gridNode) => gridNode.id === node.parentId
+      ).position.y;
+      const viewportX =
+        offsetX * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
+      const viewportY =
+        offsetY * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
+      const newViewport = {
+        x: viewportX + nodeWidth * zoom,
+        y: viewportY,
+        zoom,
+      };
       setViewport(newViewport, { duration: 800 });
       navigate(`/diagram/${node.id}`);
     }
@@ -420,6 +455,7 @@ function Flow({
 
   return (
     <div style={{ height: "100vh", width: "100vw", overflow: "auto" }}>
+      <Legend></Legend>
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
@@ -434,18 +470,26 @@ function Flow({
         maxZoom={3}
         panOnScroll
         panOnDrag
-        fitView
-      >
-        <div style={{ position: "absolute", bottom: 10, right: 80, zIndex: 10 }}>
-          <IconButton onClick={() => handlePan("left")} sx={{ background: "pink" }}>
+        fitView>
+        <div
+          style={{ position: "absolute", bottom: 10, right: 80, zIndex: 10 }}>
+          <IconButton
+            onClick={() => handlePan("left")}
+            sx={{ background: "pink" }}>
             <ArrowCircleLeftOutlinedIcon sx={{ color: "white" }} />
           </IconButton>
-          <IconButton onClick={() => handlePan("right")} sx={{ background: "pink" }}>
+          <IconButton
+            onClick={() => handlePan("right")}
+            sx={{ background: "pink" }}>
             <ArrowCircleRightOutlinedIcon sx={{ color: "white" }} />
           </IconButton>
         </div>
         <Controls position="bottom-right" />
-        <Background gap={gridWidth} variant={BackgroundVariant.Dots} color="#aaa" />
+        <Background
+          gap={gridWidth}
+          variant={BackgroundVariant.Dots}
+          color="#aaa"
+        />
         <SideBar />
       </ReactFlow>
     </div>

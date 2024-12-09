@@ -34,16 +34,14 @@ function GeoreferenceForm({
         py: 2,
       }}
       onSubmit={handleSubmit}
-      spacing={2}
-    >
+      spacing={2}>
       <Grid
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
         }}
-        size={12}
-      >
+        size={12}>
         <Typography variant="h6" fontWeight={"bold"}>
           Georeference Modality
         </Typography>
@@ -54,8 +52,7 @@ function GeoreferenceForm({
           flexDirection: "column",
           alignItems: "center",
         }}
-        size={{ xs: 12, md: georeferenceModality === 0 ? 12 : 6 }}
-      >
+        size={{ xs: 12, md: georeferenceModality === 0 ? 12 : 6 }}>
         <FormControl>
           <RadioGroup
             aria-labelledby="georeferenceModality"
@@ -78,10 +75,17 @@ function GeoreferenceForm({
                   coordinates: [{ lat: "", lng: "" }],
                 }));
               }
-            }}
-          >
-            <FormControlLabel value={0} control={<Radio />} label="Municipality Area" />
-            <FormControlLabel value={1} control={<Radio />} label="Single point" />
+            }}>
+            <FormControlLabel
+              value={0}
+              control={<Radio />}
+              label="Municipality Area"
+            />
+            <FormControlLabel
+              value={1}
+              control={<Radio />}
+              label="Single point"
+            />
             <FormControlLabel value={2} control={<Radio />} label="Area" />
           </RadioGroup>
         </FormControl>
@@ -95,16 +99,14 @@ function GeoreferenceForm({
             display: "flex",
             alignItems: "center",
           }}
-          size={{ xs: 12, md: 6 }}
-        >
+          size={{ xs: 12, md: 6 }}>
           <Grid
             sx={{
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
             }}
-            size={{ xs: 12, md: 6 }}
-          >
+            size={{ xs: 12, md: 6 }}>
             <TextField
               size="small"
               fullWidth
@@ -113,7 +115,8 @@ function GeoreferenceForm({
               value={document.coordinates[0] ? document.coordinates[0].lat : ""}
               onChange={(event) => {
                 event.preventDefault();
-                const regex = /^-?\d*\.?\d*$/;
+
+                const regex = /^-?\d*\.?\d{0,8}$/;
                 if (!regex.test(event.target.value)) {
                   return;
                 }
@@ -143,8 +146,7 @@ function GeoreferenceForm({
               flexDirection: "column",
               justifyContent: "center",
             }}
-            size={{ xs: 12, md: 6 }}
-          >
+            size={{ xs: 12, md: 6 }}>
             <TextField
               size="small"
               fullWidth
@@ -153,7 +155,7 @@ function GeoreferenceForm({
               value={document.coordinates[0] ? document.coordinates[0].lng : ""}
               onChange={(event) => {
                 event.preventDefault();
-                const regex = /^-?\d*\.?\d*$/;
+                const regex = /^-?\d*\.?\d{0,8}$/;
                 if (!regex.test(event.target.value)) {
                   return;
                 }
@@ -182,14 +184,12 @@ function GeoreferenceForm({
               display: georeferenceModality === 1 ? "flex" : "none",
               justifyContent: "center",
             }}
-            size={12}
-          >
+            size={12}>
             <Button
               onClick={() => setDisabledInput("point")}
               variant="outlined"
               size="small"
-              startIcon={<PlaceIcon />}
-            >
+              startIcon={<PlaceIcon />}>
               Pick on the map
             </Button>
           </Grid>
@@ -204,26 +204,28 @@ function GeoreferenceForm({
             alignItems: "center",
             justifyContent: "center",
           }}
-          size={{ xs: 12, md: 6 }}
-        >
+          size={{ xs: 12, md: 6 }}>
           <Grid
             sx={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
             }}
-            size={12}
-          >
+            size={12}>
             <Button
               onClick={() => setDisabledInput("area")}
               variant="outlined"
               size="small"
-              startIcon={<PlaceIcon />}
-            >
+              startIcon={<PlaceIcon />}>
               Pick on the map
             </Button>
-            <Typography variant="body1" component="h1" style={{ marginTop: "10px" }}>
-              {document.coordinates.length < 2 ? "No area selected" : "An area has been selected"}
+            <Typography
+              variant="body1"
+              component="h1"
+              style={{ marginTop: "10px" }}>
+              {document.coordinates.length < 2
+                ? "No area selected"
+                : "An area has been selected"}
             </Typography>
           </Grid>
         </Grid>
@@ -235,8 +237,7 @@ function GeoreferenceForm({
             width: "100%",
             display: "flex",
             justifyContent: "space-between",
-          }}
-        >
+          }}>
           <Button color="error" onClick={handleClose}>
             Close
           </Button>
