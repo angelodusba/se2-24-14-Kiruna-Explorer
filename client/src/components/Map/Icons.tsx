@@ -3,7 +3,6 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import { renderToString } from "react-dom/server";
 import typeIconsData from "../../assets/typeIconsData.ts";
 import stakeholdersColorsData from "../../assets/stakeholdersColorsData.ts";
-import { useParams } from "react-router-dom";
 
 function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   return (
@@ -37,11 +36,11 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   );
 }
 
-function createCustomIcon(typeName: string, docId: number, stakeholders: string[], enlargement: number, links: any, selectedDocId: number) {
-  const { id } = useParams();
-  const classes = id && selectedDocId !== docId && !links.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId))
+function createCustomIcon(typeName: string, docId: number, selectedDocId: any, stakeholders: string[], links: any) {
+  const classes = selectedDocId && selectedDocId !== docId && !links.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId))
     ? "leaflet-div-icon doc-not-connected"
     : "leaflet-div-icon";
+  const enlargement = selectedDocId === docId ? 2 : 1;
   return typeIconsData[typeName]
     ? L.divIcon({
         html: renderToString(
