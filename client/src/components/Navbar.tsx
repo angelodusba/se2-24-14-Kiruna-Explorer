@@ -89,10 +89,7 @@ const AccountMenu = styled((props: MenuProps) => (
         marginRight: theme.spacing(1.5),
       },
       "&:active": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.selectedOpacity
-        ),
+        backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
       },
     },
     ...theme.applyStyles("dark", {
@@ -106,13 +103,12 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
   /* User account panel */
-  const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
+  const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(null);
   const accountOpen = Boolean(accountAnchorEl);
   /* Advanced search panel */
-  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
+  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
+    null
+  );
   const advancedSearchOpen = Boolean(advancedSearchAnchorEl);
   const advancedSearchId = advancedSearchOpen ? "advancedSearch" : undefined;
   /* Filters */
@@ -178,9 +174,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     onSearch(nonEmptyFilters);
   };
 
-  const handleAdvacedSearchPanelOpen = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleAdvacedSearchPanelOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAdvancedSearchAnchorEl(event.currentTarget);
   };
 
@@ -196,7 +190,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
       }}
       anchorEl={accountAnchorEl}
       open={accountOpen}
-      onClose={handleAccountMenuClose}>
+      onClose={handleAccountMenuClose}
+    >
       <Typography variant="h5" fontWeight="bold" align="center">
         Hi {user?.username}
       </Typography>
@@ -213,7 +208,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
           handleLogout();
         }}
         disableRipple
-        sx={{ color: "error.main" }}>
+        sx={{ color: "error.main" }}
+      >
         <ListItemIcon>
           <Logout fontSize="small" color="error" />
         </ListItemIcon>
@@ -252,9 +248,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
           sx={{
             boxShadow: "none",
             border: "none",
-            zIndex: 405,
+            zIndex: 1000,
             color: "white",
-          }}>
+          }}
+        >
           <Toolbar sx={{ flexGrow: 1 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid container>
@@ -262,7 +259,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   size="grow"
                   sx={{
                     marginTop: "8px",
-                  }}>
+                  }}
+                >
                   <Link
                     to={"/"}
                     style={{
@@ -272,7 +270,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
-                    }}>
+                    }}
+                  >
                     <img
                       src={KirunaLogo}
                       width="40px"
@@ -288,7 +287,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                         fontWeight: 500,
                         letterSpacing: "0.5px", // Slight spacing
                         textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
-                      }}>
+                      }}
+                    >
                       Kiruna Explorer
                     </Typography>
                   </Link>
@@ -299,7 +299,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     justifyContent: "center",
                     alignItems: "center",
                     display: "flex",
-                  }}>
+                  }}
+                >
                   <SearchBar
                     aria-describedby={advancedSearchId}
                     onSearch={handleSimpleSearch}
@@ -320,7 +321,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     transformOrigin={{
                       vertical: "top",
                       horizontal: "center",
-                    }}>
+                    }}
+                  >
                     <AdvancedSearchForm
                       handleClose={handleAdvacedSearchPanelClose}
                       handleSubmit={handleAdvancedSearch}
@@ -338,14 +340,16 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     justifyContent: "end",
                     alignItems: "center",
                     display: { xs: "flex", sm: "flex" },
-                  }}>
+                  }}
+                >
                   {!user ? (
                     <Fab
                       disabled={disabledInput}
                       variant="extended"
                       size="medium"
                       className="customButton"
-                      onClick={() => navigate("/auth")}>
+                      onClick={() => navigate("/auth")}
+                    >
                       <AccountCircleOutlined sx={{ mr: 1 }} />
                       Login
                     </Fab>
@@ -361,7 +365,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                         accountOpen
                           ? handleAccountMenuClose
                           : handleAccountMenuOpen
-                      }>
+                      }
+                    >
                       <Avatar {...stringAvatar(user.username)} />
                     </Fab>
                   )}
