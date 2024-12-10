@@ -80,9 +80,9 @@ function Map({ docs }) {
           <Dial /> {/* Add documents and links button */}
           {/* TODO: remove */}
           <DocumentDial /> {/* Municipality documents button */}
-          <Legend></Legend>
         </>
       )}
+
       <MapContainer
         center={[67.85572, 20.22513]}
         minZoom={8}
@@ -100,12 +100,15 @@ function Map({ docs }) {
           cursor: disabledInput ? "crosshair" : "auto",
         }}>
         {!disabledInput && (
-          <MapLayersControl
-            mapType={mapType}
-            setMapType={setMapType}
-            layersVisibility={layersVisibility}
-            setLayersVisibility={setLayersVisibility}
-          />
+          <>
+            <Legend></Legend>
+            <MapLayersControl
+              mapType={mapType}
+              setMapType={setMapType}
+              layersVisibility={layersVisibility}
+              setLayersVisibility={setLayersVisibility}
+            />
+          </>
         )}
         {/* Map Tiles */}
         {mapType == "satellite" ? (
