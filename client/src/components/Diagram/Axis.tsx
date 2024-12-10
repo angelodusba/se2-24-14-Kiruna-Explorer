@@ -26,7 +26,7 @@ function Axis({ baseWidth, baseHeight, offset = 0, type, data, viewport }: AxisP
         position: "absolute",
         display: "flex",
         flexDirection: type === "x" ? "row" : "column",
-        fontSize: `${16 * zoom}px`,
+        fontSize: `${zoom >= 1 ? 16 * zoom : 40 * zoom}px`,
         top: type === "x" ? 0 : viewport.y + offset * zoom,
         left: type === "y" ? 0 : viewport.x + offset * zoom,
         zIndex: type === "x" ? 10 : 5, // X axis above Y axis
@@ -37,13 +37,19 @@ function Axis({ baseWidth, baseHeight, offset = 0, type, data, viewport }: AxisP
         <Box
           key={item.id}
           style={{
-            boxSizing: "border-box",
-            // border: "1px solid black",
-            alignContent: "center",
-            backgroundColor: "white",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             textAlign: "center",
+            boxSizing: "border-box",
+            border: "1px solid #aaa",
+            backgroundColor: "#eeeeee",
+            fontWeight: "bold",
+            borderRadius: 2,
+            color: "#003d8f",
             width: dim.width,
             height: dim.height,
+            cursor: "default",
           }}
         >
           {item.label}
