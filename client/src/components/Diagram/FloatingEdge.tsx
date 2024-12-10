@@ -94,7 +94,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
             height: "20px",
             pointerEvents: "all",
             borderRadius: "50%",
-            background: "black",
+            background: style.stroke,
             cursor: "pointer",
             display: 'flex',
             alignItems: 'center',
