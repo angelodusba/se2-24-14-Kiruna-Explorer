@@ -75,6 +75,11 @@ function Diagram({ currentFilter }: DiagramProps) {
   const [valuesY, setValuesY] = useState<{ id: number; label: string }[]>([]);
 
   const onConnect = (params: Connection) => {
+    //If a default edge is already present, return
+    if (edges.find((edge) => edge.source === params.source && edge.target === params.target
+          && edge.label === "default")) {
+      return;
+    }
     const newEdge = {
       id: `${params.source}-${params.target}-${"default"}`,
       ...params,
@@ -529,6 +534,7 @@ function Flow({
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         onMove={handleMove}
+        zoomOnDoubleClick={false}
         zoomOnScroll={false}
         minZoom={0.2}
         maxZoom={2}

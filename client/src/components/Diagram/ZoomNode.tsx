@@ -22,21 +22,21 @@ export default memo(({ data }: ZoomNodeProps) => {
   const opacity = selectedDocId && selectedDocId !== docId && !data.connections.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId)) ? 0.5 : 1;
   return (
     <>
-      <Handle type="target" position={Position.Top} id="tt" style={{ width: 15, height: 15, background: 'black' }} />
-      <Handle type="target" position={Position.Right} id="tr" style={{ width: 15, height: 15, background: 'black' }} />
-      <Handle type="target" position={Position.Bottom} id="tb" style={{ width: 15, height: 15, background: 'black' }} />
-      <Handle type="target" position={Position.Left} id="tl" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="target" position={Position.Top} id="tt" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
+      <Handle type="target" position={Position.Right} id="tr" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
+      <Handle type="target" position={Position.Bottom} id="tb" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
+      <Handle type="target" position={Position.Left} id="tl" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
       {showContent ? (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'auto', height: 'auto' }}>
-        {IconComponent}
+      {IconComponent}
       </div>
       ) : (
       "---"
       )}
-      <Handle type="source" position={Position.Top} id="st" style={{ width: 15, height: 15, background: 'black' }} />
-      <Handle type="source" position={Position.Right} id="sr" style={{ width: 15, height: 15, background: 'black' }} />
-      <Handle type="source" position={Position.Bottom} id="sb" style={{ width: 15, height: 15, background: 'black' }} />
-      <Handle type="source" position={Position.Left} id="sl" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="source" position={Position.Top} id="st" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
+      <Handle type="source" position={Position.Right} id="sr" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
+      <Handle type="source" position={Position.Bottom} id="sb" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
+      <Handle type="source" position={Position.Left} id="sl" style={{ width: 20, height: 10, background: 'grey', borderRadius: '1%' }} />
     </>
   );
 });
