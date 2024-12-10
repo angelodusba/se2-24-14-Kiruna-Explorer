@@ -4,7 +4,8 @@ import { renderToString } from "react-dom/server";
 import typeIconsData from "../../assets/typeIconsData.ts";
 import stakeholdersColorsData from "../../assets/stakeholdersColorsData.ts";
 
-function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
+function DocumentIcon({ id, d, inputWidth, inputHeight, colors, selected }) {
+  const gradientId = `gradient${id}`;
   return (
     <svg
       id={`DocumentIcon${id}`}
@@ -15,6 +16,20 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
       version="1.1"
       style={{ maxWidth: "100%", maxHeight: "100%" }}
     >
+      {selected && (
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop
+              offset="0%"
+              style={{ stopColor: "#3670BD", stopOpacity: 1 }}
+            />
+            <stop
+              offset="100%"
+              style={{ stopColor: "#002961", stopOpacity: 1 }}
+            />
+          </linearGradient>
+        </defs>
+      )}
       {colors.map((_, index: number) => (
         <defs key={`DocumentIcon${id}-${index}`}>
           <clipPath id={`DocumentIconCut${id}-${index}`}>
@@ -28,8 +43,16 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
         </defs>
       ))}
       {colors.map((color: string, index: number) => (
-        <g key={`DocumentIcon${id}-${index}`} clipPath={`url(#DocumentIconCut${id}-${index})`}>
-          <path d={d} stroke="none" fill={color} fillRule="evenodd" />
+        <g
+          key={`DocumentIcon${id}-${index}`}
+          clipPath={`url(#DocumentIconCut${id}-${index})`}
+        >
+          <path
+            d={d}
+            stroke="none"
+            fill={selected ? `url(#${gradientId})` : color}
+            fillRule="evenodd"
+          />
         </g>
       ))}
     </svg>
@@ -37,19 +60,21 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
 }
 
 function createCustomIcon(typeName: string, docId: number, selectedDocId: any, stakeholders: string[], links: any) {
+   const isSelected = selectedDocId === docId;
   const classes = selectedDocId && selectedDocId !== docId && !links.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId))
     ? "leaflet-div-icon doc-not-connected"
     : "leaflet-div-icon";
-  const enlargement = selectedDocId === docId ? 2 : 1;
+  const enlargement = isSelected ? 1.5 : 1;
   return typeIconsData[typeName]
     ? L.divIcon({
         html: renderToString(
           <DocumentIcon
             id={docId}
             d={typeIconsData[typeName].d}
-            inputWidth={typeIconsData[typeName].width}
-            inputHeight={typeIconsData[typeName].height}
+            inputWidth={typeIconsData[typeName].width * enlargement}
+            inputHeight={typeIconsData[typeName].height * enlargement}
             colors={stakeholders.length ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f") : ["#003d8f"]}
+            selected={isSelected}
           />
         ),
         iconSize: [26 * enlargement, 32 * enlargement],
@@ -79,6 +104,7 @@ function createReactFlowIcon(typeName: string, id: number, stakeholders: string[
             ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f")
             : ["#003d8f"]
         }
+        selected={false}
       />
     );
   } else {
