@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { Handle, useStore, Position } from 'reactflow';
 import { createReactFlowIcon } from '../Map/Icons';
+import { useParams } from 'react-router-dom';
  
 const zoomSelector = (s) => s.transform[2] >= 0.2;
  
@@ -9,13 +10,16 @@ interface ZoomNodeProps {
     type: string;
     id: string;
     stakeholders: string[];
+    connections: any;
   };
 }
 
 export default memo(({ data }: ZoomNodeProps) => {
   const showContent = useStore(zoomSelector);
-  const IconComponent = createReactFlowIcon(data.type, Number(data.id), data.stakeholders);
-  
+  const selectedDocId = Number(useParams().id);
+  const docId = Number(data.id);
+  const IconComponent = createReactFlowIcon(data.type, docId, data.stakeholders);
+  const opacity = selectedDocId && selectedDocId !== docId && !data.connections.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId)) ? 0.5 : 1;
   return (
     <>
       <Handle type="target" position={Position.Top} id="tt" style={{ width: 15, height: 15, background: 'black' }} />

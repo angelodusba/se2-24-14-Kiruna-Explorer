@@ -133,11 +133,11 @@ function Diagram({ currentFilter }: DiagramProps) {
     const index = filteredYears.findIndex((f_year) => f_year === year);
     return index;
   };
-  const createNode = (doc: DocumentForDiagram, offsetY, offsetX, docYear) => {
+  const createNode = (doc: DocumentForDiagram, offsetY, offsetX, docYear, connections) => {
     return {
       id: doc.id.toString(),
       type: "zoom",
-      data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders },
+      data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders, connections: connections },
       draggable: true,
       connectable: true,
       style: {
@@ -145,7 +145,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         height: nodeHeight,
         borderRadius: "50%",
         backgroundColor: "#fff",
-        border: "1px solid #000",
+        border: "2px solid #000",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -155,10 +155,11 @@ function Diagram({ currentFilter }: DiagramProps) {
       extent: "parent",
     };
   };
-  const createNodesForDocument = (
+  const createNodesForDocument = async (
     fiteredDocsPerYear: DocumentForDiagram[][]
   ) => {
     let newNodes = [];
+    const connections = await ConnectionAPI.getConnections();
     for (const docsPerYear of fiteredDocsPerYear) {
       //Group docs by scale, object with key scale and value array of docs
       const arrayDocsPerScale = docsPerYear.reduce((acc, doc) => {
@@ -191,7 +192,7 @@ function Diagram({ currentFilter }: DiagramProps) {
             return;
           }
           const docYear = dayjs(doc.date).year();
-          nodesToAdd.push(createNode(doc, offsetY, offsetX, docYear));
+          nodesToAdd.push(createNode(doc, offsetY, offsetX, docYear, connections));
           nDoc++;
         }
         newNodes = [...newNodes, ...nodesToAdd];
@@ -240,8 +241,8 @@ function Diagram({ currentFilter }: DiagramProps) {
     }
     return { sourceHandle, targetHandle };
   }
-  const createEdges = (connections: any, passed_nodes) => {
-    return connections.flatMap((conn: any) => {
+  const createEdges = (connectionsList: any, passed_nodes) => {
+    return connectionsList.flatMap((conn: any) => {
       //compare x and y of the nodes, start from the doc with smallest x, if x is the same,
       // start from the one with smallest y
       let id1 = conn.id_doc1.toString();
@@ -400,7 +401,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       const groupNodesArray = Object.values(groupNodes) as Node[];
       setGridNodes(groupNodesArray);
       //sort for date
-      const documentsNodes = createNodesForDocument(fiteredDocsPerYear);
+      const documentsNodes = await createNodesForDocument(fiteredDocsPerYear);
       setDocsNodes(documentsNodes);
       // Create nodes for years (COLUMNS)
       const yearNodes: Node[] = filteredYears.map((year, index) => ({
@@ -599,12 +600,12 @@ function Flow({
           style={{ position: "absolute", bottom: 10, right: 80, zIndex: 10, width: 10 }}>
           <IconButton
             onClick={() => handlePan("left")}
-            sx={{ background: "pink" }}>
+            sx={{ background: "#003d8f", "&:hover": { background: "#003d8f" } }}>
             <ArrowCircleLeftOutlinedIcon sx={{ color: "white" }} />
           </IconButton>
           <IconButton
             onClick={() => handlePan("right")}
-            sx={{ background: "pink" }}>
+            sx={{ background: "#003d8f", "&:hover": { background: "#003d8f" } }}>
             <ArrowCircleRightOutlinedIcon sx={{ color: "white" }} />
           </IconButton>
         </div>

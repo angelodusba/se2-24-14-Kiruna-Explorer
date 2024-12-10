@@ -67,8 +67,8 @@ function createCustomIcon(typeName: string, docId: number, selectedDocId: any, s
 }
 
 function createReactFlowIcon(typeName: string, id: number, stakeholders: string[]) {
-  if (typeIconsData[typeName]) {
-    return (
+  return typeIconsData[typeName]
+    ? (
       <DocumentIcon
         id={id}
         d={typeIconsData[typeName].d}
@@ -80,18 +80,16 @@ function createReactFlowIcon(typeName: string, id: number, stakeholders: string[
             : ["#003d8f"]
         }
       />
-    );
-  } else {
-    return (
+    )
+    : (
       <img
         src={KirunaLogo}
         alt="Fallback Icon"
-        width="26"
-        height="32"
+        width="75%"
+        height="75%"
         style={{ display: 'block' }}
       />
     );
-  }
 }
 
 export { createCustomIcon, createReactFlowIcon };
