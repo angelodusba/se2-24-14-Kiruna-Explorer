@@ -12,7 +12,11 @@ import ReactFlow, {
   applyEdgeChanges,
   reconnectEdge,
   useReactFlow,
+  useNodesState,
+  useEdgesState,
+
 } from "reactflow";
+
 import { Edge, Connection } from "reactflow";
 import "reactflow/dist/style.css";
 import dayjs from "dayjs";
@@ -29,7 +33,8 @@ import { IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import Legend from "../Legend";
 import FloatingEdge from "./FloatingEdge";
-import { Draggable } from "leaflet";
+
+
 
 interface DocumentForDiagram {
   id: number;
@@ -66,20 +71,16 @@ const nodeWidth = gridWidth / 4;
 const nodeHeight = nodeWidth;
 const nodePerRows = 3;
 const nodePerColumns = 3;
-const initialEdges: Edge[] = [];
 
 function Diagram({ currentFilter }: DiagramProps) {
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
   const [gridNodes, setGridNodes] = useState<Node[]>([]);
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [yearToShowFirst, setYearToShowFirst] = useState<string>("Year_2020");
   const [refreshViewport, setRefreshViewport] = useState<boolean>(false);
 
-  const onNodesChange = (changes: NodeChange[]) =>
-    setNodes((nds) => applyNodeChanges(changes, nds));
-  const onEdgesChange = (changes: EdgeChange[]) =>
-    setEdges((eds) => applyEdgeChanges(changes, eds));
   const onConnect = (params: Connection) => {
     const newEdge = {
       ...params,
