@@ -10,6 +10,7 @@ import {
   Paper,
   Typography,
   Button,
+  Chip,
 } from "@mui/material";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
@@ -73,6 +74,16 @@ function CoordstoDMS(coordinate: number, isLat: boolean): string {
   return `${degrees}°${minutes}'${seconds}" ${direction}`;
 }
 
+const getAttachmentIcon = (type: string) => {
+  if (type.includes("pdf")) {
+    return <PictureAsPdfOutlined />;
+  } else if (type.includes("doc")) {
+    return <ArticleOutlined />;
+  } else {
+    return <PhotoOutlined />;
+  }
+};
+
 function DocumentCard(props) {
   const navigate = useNavigate();
   const docId = useParams();
@@ -95,11 +106,28 @@ function DocumentCard(props) {
     conn_count: 0,
     attachments: [],
   });
+  const [originalResources, setOriginalResources] = useState([]);
+  const [notOriginalAttachments, setNotOriginalAttachments] = useState([]);
 
   const fetchCardInfo = (id: number) => {
     DocumentAPI.getDocumentCard(id)
       .then((card) => {
         setDocumentCard(card);
+        if (card.attachments.length === 0) {
+          return;
+        }
+
+        const original = [];
+        const notOriginal = [];
+        card.attachments.forEach((attachment) => {
+          if (attachment.original) {
+            original.push(attachment);
+          } else {
+            notOriginal.push(attachment);
+          }
+        });
+        setOriginalResources(original);
+        setNotOriginalAttachments(notOriginal);
       })
       .catch((err) => {
         setError(err.message);
@@ -419,7 +447,7 @@ function DocumentCard(props) {
                       </IconButton>
                     )}
                   </Box>
-                  {documentCard.attachments.length === 0 ? (
+                  {originalResources.length === 0 ? (
                     <Typography
                       variant="caption"
                       color="textDisabled"
@@ -427,21 +455,13 @@ function DocumentCard(props) {
                         textOverflow: "ellipsis",
                         overflow: "hidden",
                         whiteSpace: "nowrap",
-                        flex: 1,
                         minWidth: 0,
                       }}>
                       No original resources available
                     </Typography>
                   ) : (
-                    documentCard.attachments.map((attachment) => {
-                      const icon = attachment.type.includes("pdf") ? (
-                        <PictureAsPdfOutlined></PictureAsPdfOutlined>
-                      ) : attachment.type.includes("doc") ? (
-                        <ArticleOutlined></ArticleOutlined>
-                      ) : (
-                        <PhotoOutlined></PhotoOutlined>
-                      );
-
+                    originalResources.map((attachment) => {
+                      const icon = getAttachmentIcon(attachment.type);
                       return (
                         attachment.original && (
                           <Box
@@ -485,6 +505,86 @@ function DocumentCard(props) {
                             </IconButton>
                           </Box>
                         )
+                      );
+                    })
+                  )}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                    }}>
+                    <Typography color="#003d8f" fontWeight="bold">
+                      Attachments
+                    </Typography>
+                    {user && (
+                      <IconButton
+                        aria-label="delete"
+                        size="small"
+                        onClick={() => navigate(`/map/${docId.id}/resources`)}>
+                        <EditOutlined fontSize="inherit" />
+                      </IconButton>
+                    )}
+                  </Box>
+                  {notOriginalAttachments.length === 0 ? (
+                    <Typography
+                      variant="caption"
+                      color="textDisabled"
+                      sx={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        flex: 1,
+                        minWidth: 0,
+                      }}>
+                      No attachments available
+                    </Typography>
+                  ) : (
+                    notOriginalAttachments.map((attachment) => {
+                      const icon = getAttachmentIcon(attachment.type);
+
+                      return (
+                        <Box
+                          key={attachment.id}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            width: "100%",
+                          }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              flex: 1,
+                              minWidth: 0,
+                            }}>
+                            {icon}
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                textOverflow: "ellipsis",
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                flex: 1,
+                                minWidth: 0,
+                              }}>
+                              {attachment.path.split("/").pop()}
+                            </Typography>
+                          </Box>
+                          <IconButton
+                            download={attachment.path.split("/").pop()}
+                            href={`${DocumentAPI.getResourcesBaseURL()}${
+                              attachment.path
+                            }`}
+                            target="_blank"
+                            aria-label="download"
+                            size="small">
+                            <FileDownload fontSize="inherit" />
+                          </IconButton>
+                        </Box>
                       );
                     })
                   )}

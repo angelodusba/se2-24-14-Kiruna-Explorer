@@ -78,7 +78,7 @@ function Map({ docs }) {
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
         <>
           <Dial /> {/* Add documents and links button */}
-          {/* TODO: remove */}
+          {/*TODO: remove */}
           <DocumentDial /> {/* Municipality documents button */}
         </>
       )}
