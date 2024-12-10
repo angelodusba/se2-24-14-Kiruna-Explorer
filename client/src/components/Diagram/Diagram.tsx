@@ -549,7 +549,6 @@ function Flow({
         >
           Save new connections
         </Button>
-        <Controls position="bottom-right" style={{ position: "absolute" }} />
         <Axis
           baseWidth={gridWidth}
           baseHeight={gridHeight}
