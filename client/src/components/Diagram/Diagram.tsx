@@ -102,16 +102,21 @@ function Diagram({ currentFilter }: DiagramProps) {
     const edgeTypeNames = Object.keys(edgeTypeName).filter((key) => key !== "default");
     let currentEdgeType = myEdgeType;
 
-    // Remove all edgeTypeNames that are already in use, except currentEdgeType
+    // Remove all edgeTypeNames that are already in use, except the myEdgeType
     const notUsedEdgeTypeNames = edgeTypeNames.filter(
       (key) =>
         !edges.find((e) => e.id === `${edge.source}-${edge.target}-${key}`) &&
         !edges.find((e) => e.id === `${edge.target}-${edge.source}-${key}`)
     );
-
-    if (notUsedEdgeTypeNames.length > 0) {
-      const index = notUsedEdgeTypeNames.findIndex((key) => key === myEdgeType);
-      currentEdgeType = notUsedEdgeTypeNames[(index + 1) % notUsedEdgeTypeNames.length];
+    notUsedEdgeTypeNames.push(myEdgeType);
+    //Filter so each time i click i get the next edge type
+    const sortedEdgeTypes = notUsedEdgeTypeNames.sort();
+    if (sortedEdgeTypes.length > 0) {
+      const index = sortedEdgeTypes.findIndex((key) => key === myEdgeType);
+      console.log(myEdgeType)
+      console.log(index);
+      console.log(sortedEdgeTypes);
+      currentEdgeType = sortedEdgeTypes[(index+1) % sortedEdgeTypes.length];
     } else {
       return;
     }

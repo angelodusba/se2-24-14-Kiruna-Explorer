@@ -150,8 +150,6 @@ body {
 .react-flow__edge-path {
     stroke: var(--xy-edge-color, #c60525);
     stroke-width: 2px;
-    stroke-dasharray: 5, 5; /* This will make the edge dashed */
-    animation: dash-animation 2s linear infinite; /* Adding animation */
 }
 
 @keyframes dash-animation {
