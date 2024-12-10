@@ -4,18 +4,18 @@ import AttachmentsForm from "../components/Forms/AttachmentsForm";
 import { useOutletContext } from "react-router-dom";
 
 interface OutletContext {
-  originalRes: Attachment[];
+  attachments: Attachment[];
   fetchCardInfo: (id: number) => void;
 }
 
 function AttachmentsPage() {
-  const { originalRes, fetchCardInfo } = useOutletContext<OutletContext>();
+  const { attachments, fetchCardInfo } = useOutletContext<OutletContext>();
 
   return (
     <>
       <FormModal>
         <AttachmentsForm
-          originalRes={originalRes}
+          attachments={attachments}
           fetchCardInfo={fetchCardInfo}></AttachmentsForm>
       </FormModal>
     </>
