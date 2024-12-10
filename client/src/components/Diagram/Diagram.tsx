@@ -369,6 +369,7 @@ function Diagram({ currentFilter }: DiagramProps) {
               width: gridWidth,
               height: gridHeight,
               backgroundColor: "transparent",
+              display: 'none'
             },
             draggable: false,
             connectable: false,
