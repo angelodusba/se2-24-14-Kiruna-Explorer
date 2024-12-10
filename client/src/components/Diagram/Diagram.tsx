@@ -74,6 +74,15 @@ function Diagram({ currentFilter }: DiagramProps) {
   const [valuesX, setValuesX] = useState<{ id: number; label: string }[]>([]);
   const [valuesY, setValuesY] = useState<{ id: number; label: string }[]>([]);
 
+  const deleteEdge = (id) => {
+    setEdges((els) => els.filter((el) => el.id !== id));
+  };
+
+  const onEdgesDelete = (edgesToDelete) => {
+    // Update the state by filtering out the deleted edges
+    setEdges((eds) => eds.filter((edge) => !edgesToDelete.includes(edge)));
+  }
+
   const onConnect = (params: Connection) => {
     //If a default edge is already present, return
     if (edges.find((edge) => edge.source === params.source && edge.target === params.target
@@ -86,6 +95,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       label: "default",
       type: "floating",
       style: connectionStyles["default"],
+      data: {
+        onDelete: () => deleteEdge(`${params.source}-${params.target}-${"default"}`),
+      }
     };
     setEdges((eds) => addEdge(newEdge, eds));
   };
@@ -113,9 +125,6 @@ function Diagram({ currentFilter }: DiagramProps) {
     const sortedEdgeTypes = notUsedEdgeTypeNames.sort();
     if (sortedEdgeTypes.length > 0) {
       const index = sortedEdgeTypes.findIndex((key) => key === myEdgeType);
-      console.log(myEdgeType)
-      console.log(index);
-      console.log(sortedEdgeTypes);
       currentEdgeType = sortedEdgeTypes[(index+1) % sortedEdgeTypes.length];
     } else {
       return;
@@ -126,10 +135,14 @@ function Diagram({ currentFilter }: DiagramProps) {
       id: `${edge.source}-${edge.target}-${currentEdgeType}`,
       label: currentEdgeType,
       style: connectionStyles[currentEdgeType],
+      data: {
+        onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
+      }
     };
     const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
     setEdges(newEdges);
   };
+
 
   const assignX_toYear = (year: number, filteredYears: number[]) => {
     //find the index year in filteredYears
@@ -212,6 +225,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       sourceHandle: sourceHandle,
       targetHandle: targetHandle,
       style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
+      data: {
+        onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
+      }
     };
   };
   const getHandlesForEdge = (sourcePosition, targetPosition) => {
@@ -445,6 +461,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         saveNewConnections={saveNewConnections}
         valuesX={valuesX}
         valuesY={valuesY}
+        onEdgesDelete={onEdgesDelete}
       />
 
       <Outlet />
@@ -467,6 +484,7 @@ function Flow({
   saveNewConnections,
   valuesX,
   valuesY,
+  onEdgesDelete
 }) {
   const defaultViewport: Viewport = { x: 0, y: 0, zoom: 0.2 };
   const [viewport, setViewport] = useState<Viewport>(defaultViewport);
@@ -535,6 +553,7 @@ function Flow({
         onNodeClick={onNodeClick}
         edges={edges}
         onEdgesChange={onEdgesChange}
+        onEdgesDelete={onEdgesDelete}
         onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
