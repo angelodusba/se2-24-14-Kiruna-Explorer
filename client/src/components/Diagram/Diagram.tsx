@@ -567,6 +567,7 @@ function Flow({
         />
         <Controls
           position="bottom-right"
+          showInteractive={false}
           style={{ position: "fixed" }}
           onFitView={() => {
             flow.setViewport({ x: 0, y: 0, zoom: 0.2 });
@@ -581,6 +582,19 @@ function Flow({
         />
         <Legend />
       </ReactFlow>
+      <Button
+        onClick={() => saveNewConnections()}
+        style={{
+          position: "absolute",
+          bottom: 35,
+          right: 60,
+          zIndex: 200,
+          background: "#003d8f",
+          color: "white",
+        }}
+      >
+        Save new connections
+      </Button>
     </div>
   );
 }
