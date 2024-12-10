@@ -27,8 +27,9 @@ import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutl
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import { IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
-import ViewportPortal from "reactflow";
 import Legend from "../Legend";
+import FloatingEdge from "./FloatingEdge";
+import { Draggable } from "leaflet";
 
 interface DocumentForDiagram {
   id: number;
@@ -42,6 +43,18 @@ interface DocumentForDiagram {
 const nodeTypes = {
   zoom: ZoomNode,
 };
+
+const edgeTypes = {
+  floating: FloatingEdge,
+}
+
+// Create an edge type name for each key of connectionStyles
+const edgeTypeName = Object.keys(connectionStyles).reduce((acc, key) => {
+  if (key !== "default") {
+    acc[key] = key;
+  }
+  return acc;
+}, {});
 
 interface DiagramProps {
   currentFilter: SearchFilter;
@@ -67,13 +80,40 @@ function Diagram({ currentFilter }: DiagramProps) {
     setNodes((nds) => applyNodeChanges(changes, nds));
   const onEdgesChange = (changes: EdgeChange[]) =>
     setEdges((eds) => applyEdgeChanges(changes, eds));
-  const onConnect = (params: Connection) =>
-    setEdges((eds) => addEdge(params, eds));
+  const onConnect = (params: Connection) => {
+    const newEdge = {
+      ...params,
+      label: Object.keys(connectionStyles)[0],
+      type: 'floating',
+      style: connectionStyles[Object.keys(connectionStyles)[0]],
+    };
+    setEdges((eds) => addEdge(newEdge, eds));
+  };
+
+
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge, newConnection: Connection) =>
       setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
     []
   );
+
+  //On edgeClick change edge type to the next one
+  const onEdgeClick = (_, edge) => {
+    const edgeType = edgeTypeName[edge.label];
+    const edgeTypeNames = Object.keys(edgeTypeName);
+    let currentEdgeType = edgeType;
+
+    while(edges.find((e) => e.id === `${edge.source}-${edge.target}-${currentEdgeType}`)){
+      const nextIndex = (edgeTypeNames.indexOf(currentEdgeType) + 1) % edgeTypeNames.length;
+      currentEdgeType = edgeTypeNames[nextIndex];
+    }
+
+    const newEdge = { ...edge, id: `${edge.source}-${edge.target}-${currentEdgeType}`,
+                      label: currentEdgeType,style: connectionStyles[currentEdgeType] };
+    const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
+    setEdges(newEdges);
+  };
+
   const assignX_toYear = (year: number, filteredYears: number[]) => {
     //find the index year in filteredYears
     const index = filteredYears.findIndex((f_year) => f_year === year);
@@ -145,6 +185,47 @@ function Diagram({ currentFilter }: DiagramProps) {
     }
     return newNodes;
   };
+  const createEdge = (id1, id2, sourceHandle, targetHandle, type) => {
+    return {
+      id: `${id1}-${id2}-${type}`,
+      source: id1,
+      target: id2,
+      type: edgeTypes? 'floating': 'default',
+      label: type,
+      sourceHandle: sourceHandle,
+      targetHandle: targetHandle,
+      style: connectionStyles[type]
+        ? connectionStyles[type]
+        : connectionStyles["default"],
+    };
+  }
+  const getHandlesForEdge = (sourcePosition, targetPosition) => {
+    const distanceX = targetPosition.x - sourcePosition.x;
+    const distanceY = targetPosition.y - sourcePosition.y;
+
+    let targetHandle = "tb";
+    let sourceHandle = "st";
+    if (Math.abs(distanceX) > Math.abs(distanceY)) {
+      // Horizontal connection
+      if (distanceX > 0) {
+        targetHandle = "tl"; // Connect to the left side
+        sourceHandle = "sr"; // Connect from the right side
+      } else {
+        targetHandle = "tr"; // Connect to the right side
+        sourceHandle = "sl"; // Connect from the left side
+      }
+    } else {
+      // Vertical connection
+      if (distanceY > 0) {
+        targetHandle = "tt"; // Connect to the top side
+        sourceHandle = "sb"; // Connect from the bottom side
+      } else {
+        targetHandle = "tb"; // Connect to the bottom side
+        sourceHandle = "st"; // Connect from the top side
+      }
+    }
+    return { sourceHandle, targetHandle };
+  }
   const createEdges = (connections: any, passed_nodes) => {
     return connections.flatMap((conn: any) => {
       //compare x and y of the nodes, start from the doc with smallest x, if x is the same,
@@ -159,43 +240,10 @@ function Diagram({ currentFilter }: DiagramProps) {
 
       const sourcePosition = doc1.position;
       const targetPosition = doc2.position;
-      const distanceX = targetPosition.x - sourcePosition.x;
-      const distanceY = targetPosition.y - sourcePosition.y;
-
-      let targetHandle = "tb";
-      let sourceHandle = "st";
-      if (Math.abs(distanceX) > Math.abs(distanceY)) {
-        // Horizontal connection
-        if (distanceX > 0) {
-          targetHandle = "tl"; // Connect to the left side
-          sourceHandle = "sr"; // Connect from the right side
-        } else {
-          targetHandle = "tr"; // Connect to the right side
-          sourceHandle = "sl"; // Connect from the left side
-        }
-      } else {
-        // Vertical connection
-        if (distanceY > 0) {
-          targetHandle = "tt"; // Connect to the top side
-          sourceHandle = "sb"; // Connect from the bottom side
-        } else {
-          targetHandle = "tb"; // Connect to the bottom side
-          sourceHandle = "st"; // Connect from the top side
-        }
-      }
+      const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
 
       return conn.connection_types.map((type: string) => {
-        return {
-          id: `${id1}-${id2}-${type}`,
-          source: id1,
-          target: id2,
-          type: "default",
-          sourceHandle: sourceHandle,
-          targetHandle: targetHandle,
-          style: connectionStyles[type]
-            ? connectionStyles[type]
-            : connectionStyles["default"],
-        };
+        return createEdge(id1, id2, sourceHandle, targetHandle, type);
       });
     });
   };
@@ -367,9 +415,11 @@ function Diagram({ currentFilter }: DiagramProps) {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
+        edgeTypes = {edgeTypes? edgeTypes : undefined}
         yearToShowFirst={yearToShowFirst}
         currentFilter={currentFilter}
         resetViewport={refreshViewport}
@@ -387,10 +437,12 @@ function Flow({
   edges,
   onNodesChange,
   onEdgesChange,
+  onEdgeClick,
   resetViewport,
   onConnect,
   onEdgeUpdate,
   nodeTypes,
+  edgeTypes,
   yearToShowFirst,
   currentFilter,
   gridNodes,
@@ -453,16 +505,19 @@ function Flow({
     }
   };
 
+
   return (
     <div style={{ height: "100vh", width: "100vw", overflow: "auto" }}>
       <Legend></Legend>
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes? edgeTypes : undefined}
         onNodesChange={onNodesChange}
         onNodeClick={onNodeClick}
         edges={edges}
         onEdgesChange={onEdgesChange}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         zoomOnScroll={false}
