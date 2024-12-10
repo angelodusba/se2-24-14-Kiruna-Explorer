@@ -18,22 +18,21 @@ export default memo(({ data }: ZoomNodeProps) => {
   
   return (
     <>
-      <Handle type="target" position={Position.Top} id="tt" />
-      <Handle type="target" position={Position.Right} id="tr" />
-      <Handle type="target" position={Position.Bottom} id="tb" />
-      <Handle type="target" position={Position.Left} id="tl" />
+      <Handle type="target" position={Position.Top} id="tt" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="target" position={Position.Right} id="tr" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="target" position={Position.Bottom} id="tb" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="target" position={Position.Left} id="tl" style={{ width: 15, height: 15, background: 'black' }} />
       {showContent ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'auto', height: 'auto' }}>
-            {IconComponent}
-          </div>
-
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'auto', height: 'auto' }}>
+        {IconComponent}
+      </div>
       ) : (
-        "---"
+      "---"
       )}
-      <Handle type="source" position={Position.Top} id="st" />
-      <Handle type="source" position={Position.Right} id="sr" />
-      <Handle type="source" position={Position.Bottom} id="sb" />
-      <Handle type="source" position={Position.Left} id="sl" />
+      <Handle type="source" position={Position.Top} id="st" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="source" position={Position.Right} id="sr" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="source" position={Position.Bottom} id="sb" style={{ width: 15, height: 15, background: 'black' }} />
+      <Handle type="source" position={Position.Left} id="sl" style={{ width: 15, height: 15, background: 'black' }} />
     </>
   );
 });

@@ -81,7 +81,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
                     position: "absolute",
                     left: `${circlePos.x}px`,
                     top: `${circlePos.y}px`,
-                    zIndex: 9999,
+                    zIndex: 10,
                     opacity: 1,
                     width: "20px",
                     height: "20px",

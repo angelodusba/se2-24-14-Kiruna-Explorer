@@ -6,7 +6,7 @@ const connectionStyles = {
     },
     "direct_conn": {
         stroke: "#000000",
-        strokeWidth: 2
+        strokeWidth: 2,
     },
     "collateral_conn": {
         stroke: "#0000FF",
@@ -20,7 +20,7 @@ const connectionStyles = {
     },
     "default": {
         stroke: "#000000",
-        strokeWidth: 1
+        strokeWidth: 10
     }
 };
   

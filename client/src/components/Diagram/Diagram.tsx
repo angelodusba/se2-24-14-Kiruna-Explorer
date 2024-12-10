@@ -14,6 +14,7 @@ import ReactFlow, {
   useReactFlow,
   useNodesState,
   useEdgesState,
+  handleParentExpand,
 
 } from "reactflow";
 
@@ -29,10 +30,11 @@ import connectionStyles from "./ConnectionStyles";
 import SideBar from "./SideBar";
 import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import Legend from "../Legend";
 import FloatingEdge from "./FloatingEdge";
+import { ConnectionList } from "../../models/Connection";
 
 
 
@@ -83,10 +85,11 @@ function Diagram({ currentFilter }: DiagramProps) {
 
   const onConnect = (params: Connection) => {
     const newEdge = {
+      id: `${params.source}-${params.target}-${'default'}`,
       ...params,
-      label: Object.keys(connectionStyles)[0],
+      label: 'default',
       type: 'floating',
-      style: connectionStyles[Object.keys(connectionStyles)[0]],
+      style: connectionStyles["default"],
     };
     setEdges((eds) => addEdge(newEdge, eds));
   };
@@ -100,14 +103,24 @@ function Diagram({ currentFilter }: DiagramProps) {
 
   //On edgeClick change edge type to the next one
   const onEdgeClick = (_, edge) => {
-    const edgeType = edgeTypeName[edge.label];
-    const edgeTypeNames = Object.keys(edgeTypeName);
-    let currentEdgeType = edgeType;
+    const myEdgeType = edgeTypeName[edge.label];
+    const edgeTypeNames = Object.keys(edgeTypeName).filter((key) => key !== "default");
+    let currentEdgeType = myEdgeType;
 
-    while(edges.find((e) => e.id === `${edge.source}-${edge.target}-${currentEdgeType}`)){
-      const nextIndex = (edgeTypeNames.indexOf(currentEdgeType) + 1) % edgeTypeNames.length;
-      currentEdgeType = edgeTypeNames[nextIndex];
+    // Remove all edgeTypeNames that are already in use, except currentEdgeType
+    const notUsedEdgeTypeNames = edgeTypeNames.filter(
+      (key) => !edges.find((e) => e.id === `${edge.source}-${edge.target}-${key}`)
+               && !edges.find((e) => e.id === `${edge.target}-${edge.source}-${key}`)
+    )
+    
+    if (notUsedEdgeTypeNames.length > 0) {
+      const index = notUsedEdgeTypeNames.findIndex((key) => key === myEdgeType);
+      currentEdgeType = notUsedEdgeTypeNames[(index + 1) % notUsedEdgeTypeNames.length];
     }
+    else{
+      return;
+    }
+
 
     const newEdge = { ...edge, id: `${edge.source}-${edge.target}-${currentEdgeType}`,
                       label: currentEdgeType,style: connectionStyles[currentEdgeType] };
@@ -248,10 +261,64 @@ function Diagram({ currentFilter }: DiagramProps) {
       });
     });
   };
+  const saveNewConnections = async () => {
+    const connections = edges
+      .filter((edge) => edge.type === 'floating' && edge.label !== 'default')
+      .map((edge) => {
+        const parts = edge.id.split("-");
+        //Re order the ids
+        if (parseInt(parts[0]) > parseInt(parts[1])) {
+          return {
+            id_doc1: parseInt(parts[1]),
+            id_doc2: parseInt(parts[0]),
+            connection_types: [edge.label],
+          };
+        }
+        else
+        return {
+          id_doc1: parseInt(parts[0]),
+          id_doc2: parseInt(parts[1]),
+          connection_types: [edge.label],
+        };
+      })
+      .reduce((acc, edge) => {
+        const existing = acc.find((e) => (e.id_doc1 === edge.id_doc1 && e.id_doc2 === edge.id_doc2
+                                                || e.id_doc1 === edge.id_doc2 && e.id_doc2 === edge.id_doc1) );
+        if (existing) {
+          existing.connection_types = [...new Set([...existing.connection_types, ...edge.connection_types])];
+        } else {
+          acc.push(edge);
+        }
+        return acc;
+      }, []);
+      const uniqueNodes = [...new Set(connections.flatMap((conn) => [conn.id_doc1, conn.id_doc2]))];
+      const sortedNodes = uniqueNodes.sort((a, b) => b - a);
+      //Now create connectionLists one for each uniqueNode
+      const connectionLists: ConnectionList[] = sortedNodes.map((node) => {
+        return {
+          starting_document_id: node,
+          connections: connections.filter((conn) => conn.id_doc1 === node)
+                        .map((conn) => {
+                          return {
+                            document_id: conn.id_doc2,
+                            connection_types: conn.connection_types,
+                          };
+                        }),
+        };
+      });
+      for (const connectionList of connectionLists) {
+        if (connectionList.connections.length > 0){
+          await ConnectionAPI.updateConnections(connectionList)
+          console.log(connectionList)
+        }
+
+      }
+
+  }
   // Fetch docs and create nodes
   useEffect(() => {
     // Fetch Documents
-    const fetchDocumentsAndConnections = async () => {
+    const fetchDocuments = async () => {
       const response = await DocumentAPI.getFilteredDocuments(currentFilter);
       const list = response.docs.map((doc: any) => {
         return {
@@ -319,7 +386,6 @@ function Diagram({ currentFilter }: DiagramProps) {
               width: gridWidth,
               height: gridHeight,
               backgroundColor: "transparent",
-              border: "none",
             },
             draggable: false,
             connectable: false,
@@ -389,7 +455,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       const merge = [...yearNodes, ...scalesNodes, ...groupNodesArray];
       setNodes(merge);
     };
-    fetchDocumentsAndConnections();
+    fetchDocuments();
   }, [currentFilter]);
 
   useEffect(() => {
@@ -425,6 +491,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         currentFilter={currentFilter}
         resetViewport={refreshViewport}
         gridNodes={gridNodes}
+        saveNewConnections={saveNewConnections}
       />
 
       <Outlet />
@@ -447,12 +514,13 @@ function Flow({
   yearToShowFirst,
   currentFilter,
   gridNodes,
+  saveNewConnections,
 }) {
   const { setViewport, getViewport } = useReactFlow(); // Get viewport control methods
 
   const handlePan = (direction) => {
     const { x, y, zoom } = getViewport(); // Get current viewport position
-    const keypanStep = (gridWidth * 5) / zoom; // Amount to pan
+    const keypanStep = (gridWidth) / zoom; // Amount to pan
     switch (direction) {
       case "left":
         setViewport({ x: x + keypanStep, y, zoom });
@@ -528,7 +596,7 @@ function Flow({
         panOnDrag
         fitView>
         <div
-          style={{ position: "absolute", bottom: 10, right: 80, zIndex: 10 }}>
+          style={{ position: "absolute", bottom: 10, right: 80, zIndex: 10, width: 10 }}>
           <IconButton
             onClick={() => handlePan("left")}
             sx={{ background: "pink" }}>
@@ -540,6 +608,19 @@ function Flow({
             <ArrowCircleRightOutlinedIcon sx={{ color: "white" }} />
           </IconButton>
         </div>
+        <Button onClick={() => saveNewConnections()} 
+          style={
+            {
+              position: "absolute",
+              bottom: 10,
+              right: 80 + 20,
+              zIndex: 10,
+              background: "pink",
+              color: "white"
+            }
+          }>
+          Save new connections
+        </Button>
         <Controls position="bottom-right" />
         <Background
           gap={gridWidth}
