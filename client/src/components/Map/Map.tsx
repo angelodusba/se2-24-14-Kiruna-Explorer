@@ -1,6 +1,12 @@
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { LayerGroup, MapContainer, Polygon, TileLayer, Tooltip } from "react-leaflet";
+import {
+  LayerGroup,
+  MapContainer,
+  Polygon,
+  TileLayer,
+  Tooltip,
+} from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -20,6 +26,7 @@ import DocumentAPI from "../../API/DocumentAPI";
 import React from "react";
 import Link from "./Link";
 import Legend from "../Legend";
+import ZoomControl from "./ZoomControl";
 
 const municipalityClusterIcon = function () {
   return new L.Icon({
@@ -45,6 +52,7 @@ function Map({ docs }) {
   const [links, setLinks] = useState([]);
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
   const [hoveredDocument, setHoveredDocument] = useState(null);
+  const [zoom, setZoom] = useState(13);
 
   const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
@@ -99,7 +107,8 @@ function Map({ docs }) {
         doubleClickZoom
         attributionControl={true}
         zoomControl={false}
-        scrollWheelZoom={true} //layersVisibility.links && !disabledInput} // Needed to enable smooth zoom
+        scrollWheelZoom={false} // Needed to enable smooth zoom
+        markerZoomAnimation
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
@@ -115,6 +124,7 @@ function Map({ docs }) {
             />
           </>
         )}
+        <ZoomControl setZoom={setZoom}></ZoomControl>
         {/* Map Tiles */}
         {mapType == "satellite" ? (
           <LayerGroup>
@@ -217,7 +227,8 @@ function Map({ docs }) {
                 docs.some((doc) => doc.id === link.id_doc2)
               ) {
                 return (
-                  layersVisibility.links && (
+                  layersVisibility.links &&
+                  zoom > 11 && (
                     <Link
                       key={index}
                       link={link}
