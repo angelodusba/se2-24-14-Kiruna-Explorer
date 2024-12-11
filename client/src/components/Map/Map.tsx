@@ -28,6 +28,11 @@ const municipalityClusterIcon = function () {
   });
 };
 
+const KirunaBounds = L.latLngBounds(
+  [66.6082, 17.3998], // Southwest coordinates
+  [69.5526, 23.7867] // Northeast coordinates
+);
+
 function Map({ docs }) {
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
@@ -87,14 +92,14 @@ function Map({ docs }) {
         center={[67.85572, 20.22513]}
         minZoom={8}
         zoom={13}
-        bounds={bounds?.getBounds()}
-        maxBounds={bounds?.getBounds()}
+        bounds={KirunaBounds}
+        maxBounds={KirunaBounds}
         maxBoundsViscosity={1.0}
         touchZoom
         doubleClickZoom
         attributionControl={true}
         zoomControl={false}
-        scrollWheelZoom={false} // Needed to enable smooth zoom
+        scrollWheelZoom={true} //layersVisibility.links && !disabledInput} // Needed to enable smooth zoom
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
@@ -114,7 +119,7 @@ function Map({ docs }) {
         {mapType == "satellite" ? (
           <LayerGroup>
             <TileLayer
-              keepBuffer={100}
+              keepBuffer={10}
               attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
@@ -130,7 +135,10 @@ function Map({ docs }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         )}
-        <MarkerClusterGroup>
+        <MarkerClusterGroup
+          spiderfyOnMaxZoom={false}
+          disableClusteringAtZoom={11}
+          showCoverageOnHover={false}>
           {!disabledInput &&
             docs.map((doc) => {
               if (!doc) return null;
