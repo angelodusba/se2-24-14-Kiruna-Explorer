@@ -5,7 +5,6 @@ import ReactFlow, {
   Controls,
   Background,
   Node,
-  BackgroundVariant,
   reconnectEdge,
   useReactFlow,
   useNodesState,
@@ -28,8 +27,6 @@ import Legend from "../Legend";
 import FloatingEdge from "./FloatingEdge";
 import { ConnectionList } from "../../models/Connection";
 import Axis from "./Axis";
-import { BorderAll, BorderBottom } from "@mui/icons-material";
-import shadows from "@mui/material/styles/shadows";
 
 interface DocumentForDiagram {
   id: number;
@@ -83,12 +80,16 @@ function Diagram({ currentFilter }: DiagramProps) {
   const onEdgesDelete = (edgesToDelete) => {
     // Update the state by filtering out the deleted edges
     setEdges((eds) => eds.filter((edge) => !edgesToDelete.includes(edge)));
-  }
+  };
 
   const onConnect = (params: Connection) => {
     //If a default edge is already present, return
-    if (edges.find((edge) => edge.source === params.source && edge.target === params.target
-          && edge.label === "default")) {
+    if (
+      edges.find(
+        (edge) =>
+          edge.source === params.source && edge.target === params.target && edge.label === "default"
+      )
+    ) {
       return;
     }
     const newEdge = {
@@ -99,7 +100,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: connectionStyles["default"],
       data: {
         onDelete: () => deleteEdge(`${params.source}-${params.target}-${"default"}`),
-      }
+      },
     };
     setEdges((eds) => addEdge(newEdge, eds));
   };
@@ -127,7 +128,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     const sortedEdgeTypes = notUsedEdgeTypeNames.sort();
     if (sortedEdgeTypes.length > 0) {
       const index = sortedEdgeTypes.findIndex((key) => key === myEdgeType);
-      currentEdgeType = sortedEdgeTypes[(index+1) % sortedEdgeTypes.length];
+      currentEdgeType = sortedEdgeTypes[(index + 1) % sortedEdgeTypes.length];
     } else {
       return;
     }
@@ -139,12 +140,11 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: connectionStyles[currentEdgeType],
       data: {
         onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
-      }
+      },
     };
     const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
     setEdges(newEdges);
   };
-
 
   const assignX_toYear = (year: number, filteredYears: number[]) => {
     //find the index year in filteredYears
@@ -229,7 +229,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
       data: {
         onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
-      }
+      },
     };
   };
   const getHandlesForEdge = (sourcePosition, targetPosition) => {
@@ -386,7 +386,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       const groupNodes = {};
       for (const year of filteredYears) {
         for (const scale of scales) {
-            groupNodes[year.toString() + "_&_" + scale.name] = {
+          groupNodes[year.toString() + "_&_" + scale.name] = {
             id: year.toString() + "_&_" + scale.name,
             data: { label: year.toString() + scale.name },
             position: {
@@ -404,7 +404,7 @@ function Diagram({ currentFilter }: DiagramProps) {
             selectable: false,
             focusable: false,
             zIndex: -10,
-            };
+          };
         }
       }
       // Add nodes in flow
@@ -486,7 +486,7 @@ function Flow({
   saveNewConnections,
   valuesX,
   valuesY,
-  onEdgesDelete
+  onEdgesDelete,
 }) {
   const defaultViewport: Viewport = { x: 0, y: 0, zoom: 0.2 };
   const [viewport, setViewport] = useState<Viewport>(defaultViewport);
@@ -583,14 +583,14 @@ function Flow({
         </Button>
         <Axis
           baseWidth={gridWidth}
-          baseHeight={gridHeight/2}
+          baseHeight={gridHeight / 2}
           type={"x"}
           data={valuesX}
           offset={gridWidth}
           viewport={viewport}
         />
         <Axis
-          baseWidth={gridWidth/2}
+          baseWidth={gridWidth / 2}
           baseHeight={gridHeight}
           type={"y"}
           data={valuesY}
@@ -606,9 +606,7 @@ function Flow({
             setViewport({ x: 0, y: 0, zoom: 0.2 });
           }}
         />
-        <Background
-          gap = {gridWidth*100}
-        />
+        <Background gap={gridWidth * 100} />
         <Legend />
       </ReactFlow>
       <Button
