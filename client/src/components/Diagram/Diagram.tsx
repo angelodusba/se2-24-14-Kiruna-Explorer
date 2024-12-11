@@ -158,6 +158,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       data: {
         type: doc.typeName,
         id: doc.id,
+        title: doc.title,
         stakeholders: doc.stakeholders,
         connections: connections,
       },
