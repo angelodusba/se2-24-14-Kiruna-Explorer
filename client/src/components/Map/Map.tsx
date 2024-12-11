@@ -1,6 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { LayerGroup, MapContainer, Polygon, TileLayer } from "react-leaflet";
+import { LayerGroup, MapContainer, Polygon, TileLayer, Tooltip } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -141,6 +141,7 @@ function Map({ docs }) {
                     key={doc.id}
                     docId={doc.id}
                     typeName={doc.type.name}
+                    docTitle={doc.title}
                     stakeholders={doc.stakeholders}
                     position={L.latLng(doc.location[0])}
                     links={links}
@@ -158,6 +159,7 @@ function Map({ docs }) {
                       key={doc.id}
                       docId={doc.id}
                       typeName={doc.type.name}
+                      docTitle={doc.title}
                       stakeholders={doc.stakeholders}
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
                       links={links}
@@ -185,6 +187,7 @@ function Map({ docs }) {
                     key={doc.id}
                     docId={doc.id}
                     typeName={doc.type.name}
+                    docTitle={doc.title}
                     stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
                     links={links}

@@ -1,4 +1,4 @@
-import { Marker, useMap } from "react-leaflet";
+import { Marker, Tooltip, useMap } from "react-leaflet";
 import { useNavigate, useParams } from "react-router-dom";
 import { createCustomIcon } from "./Icons";
 
@@ -6,6 +6,7 @@ function DocumentMarker({
   position,
   docId,
   typeName,
+  docTitle,
   stakeholders,
   links,
   setHoveredDocument = undefined,
@@ -48,7 +49,10 @@ function DocumentMarker({
             setHoveredDocument(null);
           },
         }),
-      }}></Marker>
+      }}
+    >
+      {selectedDocId !== docId && <Tooltip direction="top" offset={[3, -32]}>{docTitle}</Tooltip>}
+    </Marker>
   );
 }
 
