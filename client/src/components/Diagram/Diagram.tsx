@@ -28,6 +28,8 @@ import Legend from "../Legend";
 import FloatingEdge from "./FloatingEdge";
 import { ConnectionList } from "../../models/Connection";
 import Axis from "./Axis";
+import { BorderAll, BorderBottom } from "@mui/icons-material";
+import shadows from "@mui/material/styles/shadows";
 
 interface DocumentForDiagram {
   id: number;
@@ -384,17 +386,17 @@ function Diagram({ currentFilter }: DiagramProps) {
       const groupNodes = {};
       for (const year of filteredYears) {
         for (const scale of scales) {
-          groupNodes[year.toString() + "_&_" + scale.name] = {
+            groupNodes[year.toString() + "_&_" + scale.name] = {
             id: year.toString() + "_&_" + scale.name,
             data: { label: year.toString() + scale.name },
             position: {
-              x: assignX_toYear(year, filteredYears) * gridWidth + gridWidth,
-              y: offsetYPerScale[scale.name],
+              x: assignX_toYear(year, filteredYears) * gridWidth + gridWidth + gridWidth / 100,
+              y: offsetYPerScale[scale.name] + gridHeight / 100,
             },
             style: {
-              width: gridWidth,
-              height: gridHeight,
-              backgroundColor: "transparent",
+              width: gridWidth - gridWidth / 50,
+              height: gridHeight - gridHeight / 50,
+              background: "transparent",
             },
             draggable: false,
             connectable: false,
@@ -402,7 +404,7 @@ function Diagram({ currentFilter }: DiagramProps) {
             selectable: false,
             focusable: false,
             zIndex: -10,
-          };
+            };
         }
       }
       // Add nodes in flow
@@ -581,14 +583,14 @@ function Flow({
         </Button>
         <Axis
           baseWidth={gridWidth}
-          baseHeight={gridHeight}
+          baseHeight={gridHeight/2}
           type={"x"}
           data={valuesX}
           offset={gridWidth}
           viewport={viewport}
         />
         <Axis
-          baseWidth={gridWidth}
+          baseWidth={gridWidth/2}
           baseHeight={gridHeight}
           type={"y"}
           data={valuesY}
@@ -605,10 +607,7 @@ function Flow({
           }}
         />
         <Background
-          gap={gridWidth}
-          variant={BackgroundVariant.Lines}
-          lineWidth={0.1}
-          color="#aaa"
+          gap = {gridWidth*100}
         />
         <Legend />
       </ReactFlow>
