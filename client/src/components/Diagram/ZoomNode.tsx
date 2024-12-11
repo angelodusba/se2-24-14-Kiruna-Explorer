@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Handle, useStore, Position } from 'reactflow';
 import { createReactFlowIcon } from '../Map/Icons';
 import { useParams } from 'react-router-dom';
@@ -10,6 +10,7 @@ interface ZoomNodeProps {
   data: {
     type: string;
     id: string;
+    title: string;
     stakeholders: string[];
     connections: any;
   };
@@ -21,6 +22,7 @@ export default memo(({ data }: ZoomNodeProps) => {
   const docId = Number(data.id);
   const IconComponent = createReactFlowIcon(data.type, docId, data.stakeholders);
   const opacity = selectedDocId && selectedDocId !== docId && !data.connections.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId)) ? 0.5 : 1;
+  const [showTooltip, setShowTooltip] = useState(false);
   return (
     <div style={{ 
       display: 'flex',
@@ -32,8 +34,24 @@ export default memo(({ data }: ZoomNodeProps) => {
       border: selectedDocId === docId ? '5px solid #003d8f' : 'none',
       borderRadius: '50%',
       boxShadow: selectedDocId === docId ? '0px 0px 8px 6px #003d8f' : "none"
-    }}>
+    }}
+    onMouseEnter={() => setShowTooltip(true)}
+    onMouseLeave={() => setShowTooltip(false)}
+    >
       <>
+      {selectedDocId !== docId && showTooltip && (
+        <div style={{
+          position: 'absolute',
+          bottom: '115%',
+          padding: '5px',
+          backgroundColor: '#003d8f',
+          color: 'white',
+          borderRadius: '5px',
+        }}
+        >
+          {data.title}
+        </div>
+      )}
         <Handle type="target" position={Position.Top} id="tt" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
         <Handle type="target" position={Position.Right} id="tr" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
         <Handle type="target" position={Position.Bottom} id="tb" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
