@@ -22,28 +22,34 @@ export default memo(({ data }: ZoomNodeProps) => {
   const IconComponent = createReactFlowIcon(data.type, docId, data.stakeholders);
   const opacity = selectedDocId && selectedDocId !== docId && !data.connections.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId)) ? 0.5 : 1;
   return (
-    <>
-      <Handle type="target" position={Position.Top} id="tt" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
-      <Handle type="target" position={Position.Right} id="tr" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
-      <Handle type="target" position={Position.Bottom} id="tb" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
-      <Handle type="target" position={Position.Left} id="tl" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
-      {showContent ? (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'auto', height: 'auto' }}>
-      {IconComponent}
-      </div>
-      ) : (
-      "---"
-      )}
-      <Handle type="source" position={Position.Top} id="st" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
-      </Handle>
-      <Handle type="source" position={Position.Right} id="sr" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      </Handle>
-      <Handle type="source" position={Position.Bottom} id="sb" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginBottom: '+5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
-      </Handle>
-      <Handle type="source" position={Position.Left} id="sl" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      </Handle>
-    </>
+    <div style={{ 
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+      padding: '10px',
+      border: selectedDocId === docId ? '5px solid #003d8f' : 'none',
+      borderRadius: '50%',
+      boxShadow: selectedDocId === docId ? '0px 0px 8px 6px #003d8f' : "none"
+    }}>
+      <>
+        <Handle type="target" position={Position.Top} id="tt" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
+        <Handle type="target" position={Position.Right} id="tr" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
+        <Handle type="target" position={Position.Bottom} id="tb" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
+        <Handle type="target" position={Position.Left} id="tl" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
+        {showContent ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'auto', height: 'auto', opacity: opacity }}>
+            {IconComponent}
+          </div>
+        ) : (
+        "---"
+        )}
+        <Handle type="source" position={Position.Top} id="st" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
+        <Handle type="source" position={Position.Right} id="sr" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
+        <Handle type="source" position={Position.Bottom} id="sb" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginBottom: '+5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
+        <Handle type="source" position={Position.Left} id="sl" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
+      </>
+    </div>
   );
 });
