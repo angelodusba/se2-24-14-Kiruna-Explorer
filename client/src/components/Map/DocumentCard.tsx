@@ -38,6 +38,7 @@ import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import UserContext from "../../contexts/UserContext";
 import L from "leaflet";
 import { ErrorContext } from "../../contexts/ErrorContext";
+import { createReactFlowIcon } from "./Icons";
 
 const style = {
   position: "absolute",
@@ -165,13 +166,24 @@ function DocumentCard(props) {
                   alignItems: "center",
                   mb: 1,
                 }}>
-                <Grid size={2} sx={{ marginLeft: "8px", paddingLeft: 2 }}>
-                  <img
-                    src={KirunaLogo}
-                    width="40px"
-                    height="48px"
-                    alt="Kiruna Explorer"
-                  />
+                <Grid
+                  size={2}
+                  sx={
+                    {
+                      //marginLeft: "8px", paddingLeft: 2
+                    }
+                  }>
+                  <Box
+                    sx={{
+                      height: 48,
+                      maxWidth: 48,
+                    }}>
+                    {createReactFlowIcon(
+                      documentCard.type.name,
+                      documentCard.id,
+                      documentCard.stakeholders
+                    )}
+                  </Box>
                 </Grid>
                 <Grid
                   size={9}
