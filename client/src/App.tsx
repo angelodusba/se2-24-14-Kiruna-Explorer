@@ -66,6 +66,7 @@ function App() {
       const filteredDocs = result.docs.map((doc) => {
         return {
           id: doc.id,
+          title: doc.title,
           type: doc.type,
           location: doc.location,
           stakeholders: doc.stakeholders,
