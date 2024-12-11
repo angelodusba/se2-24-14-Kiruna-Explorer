@@ -1,9 +1,10 @@
 import { Box, Drawer, Fab, Tooltip, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import typeIconsData from "./../assets/typeIconsData.ts";
 import stakeholdersColorsData from "./../assets/stakeholdersColorsData.ts";
 import connectionStyles from "./Diagram/ConnectionStyles.tsx";
 import LegendToggleOutlinedIcon from "@mui/icons-material/LegendToggleOutlined";
+import L from "leaflet";
 
 const createIcon = (inputWidth, inputHeight, d, id) => {
   return (
@@ -24,6 +25,15 @@ const createIcon = (inputWidth, inputHeight, d, id) => {
 
 function Legend() {
   const [drawerOpened, setDrawerOpened] = useState<boolean>(false);
+  const drawerRef = useRef(null);
+
+  useEffect(() => {
+    if (!drawerOpened) {
+      return;
+    }
+    L.DomEvent.disableClickPropagation(drawerRef.current);
+    L.DomEvent.disableScrollPropagation(drawerRef.current);
+  }, [drawerOpened]);
 
   return (
     <>
@@ -51,6 +61,7 @@ function Legend() {
         </Fab>
       </Tooltip>
       <Drawer
+        ref={drawerRef}
         anchor="right"
         variant="persistent"
         open={drawerOpened}
