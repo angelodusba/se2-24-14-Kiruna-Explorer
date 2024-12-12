@@ -9,8 +9,18 @@ import {
   CardActions,
   FormControlLabel,
   Checkbox,
+  Chip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import { useState } from "react";
+
+const languages = [
+  { code: "GB", label: "English" },
+  {
+    code: "SE",
+    label: "Swedish",
+  },
+];
 
 function AdvancedSearchForm({
   handleClose,
@@ -21,13 +31,7 @@ function AdvancedSearchForm({
   stakeholders,
   documentTypes,
 }) {
-  const languages = [
-    { code: "GB", label: "English" },
-    {
-      code: "SE",
-      label: "Swedish",
-    },
-  ];
+  const [keywordValue, setKeywordValue] = useState<string>("");
 
   return (
     <Card sx={{ padding: 1, maxWidth: "600px" }}>
@@ -193,6 +197,63 @@ function AdvancedSearchForm({
               renderInput={(params) => <TextField {...params} label="Stakeholders" />}
             />
           </Grid>
+          {/* Keywords */}
+          <Grid size={12}>
+            <TextField
+              size="small"
+              placeholder="Separate keywords with a space"
+              label="Keywords"
+              value={keywordValue}
+              onChange={(e) => {
+                setKeywordValue(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.code === "Space") {
+                  e.preventDefault();
+                  const trimmedKeyword = keywordValue.trim();
+                  // Avoid empty and duplicate entries
+                  if (trimmedKeyword && !filters.keywords.includes(trimmedKeyword)) {
+                    setFilters((prevFilters) => ({
+                      ...prevFilters,
+                      keywords: [...prevFilters.keywords, keywordValue.trim()],
+                    }));
+                  }
+                  setKeywordValue("");
+                }
+              }}
+              fullWidth
+            />
+          </Grid>
+          {/* Chips list */}
+          <Grid size={12}>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                listStyle: "none",
+                maxHeight: "80px",
+                overflowY: "auto",
+                gap: 1,
+                p: 0,
+                m: 0,
+              }}
+              component="ul"
+            >
+              {filters.keywords.map((label, index) => (
+                <Chip
+                  key={index}
+                  label={label}
+                  onDelete={() => {
+                    setFilters({
+                      ...filters,
+                      keywords: filters.keywords.filter((keyword) => keyword !== label),
+                    });
+                  }}
+                />
+              ))}
+            </Box>
+          </Grid>
+          {/* Municipality documents */}
           <Grid size={12}>
             <FormControlLabel
               control={

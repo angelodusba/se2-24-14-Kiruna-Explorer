@@ -122,6 +122,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     scales: [],
     languages: [],
     stakeholders: [],
+    keywords: [],
     municipality: false,
   });
   const [searchValue, setSearchValue] = useState<string>("");
@@ -148,6 +149,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
       scales: [],
       languages: [],
       stakeholders: [],
+      keywords: [],
       municipality: false,
     });
     setSearchValue("");
@@ -361,11 +363,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       aria-controls={accountOpen ? "accountMenu" : undefined}
                       aria-haspopup="true"
                       aria-expanded={accountOpen ? "true" : undefined}
-                      onClick={
-                        accountOpen
-                          ? handleAccountMenuClose
-                          : handleAccountMenuOpen
-                      }
+                      onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
                     >
                       <Avatar {...stringAvatar(user.username)} />
                     </Fab>
