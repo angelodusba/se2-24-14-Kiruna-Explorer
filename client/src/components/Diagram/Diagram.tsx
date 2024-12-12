@@ -113,12 +113,40 @@ function Diagram({ currentFilter }: DiagramProps) {
     []
   );
 
+  const [allEdges, setAllEdges] = useState(undefined)
+  const [allNodes, setAllNodes] = useState(undefined)
+  const [edgeIsClicked, setEdgeIsClicked] = useState(false)
+
   //on edge click leave only the nodes connected to the edge
   const onEdgeClick = (event, edge) => {
-    const nodesToKeep = nodes.filter((node) => node.id === edge.source || node.id === edge.target || node.type === "group")
-    const edgesToKeep = edges.filter((e) => e.source == edge.source && e.target == edge.target);
-    setNodes(nodesToKeep);
-    setEdges(edgesToKeep);
+    let pressTimer;
+    const handlePressStart = () => {
+      pressTimer = setTimeout(() => {
+      if(edgeIsClicked == false){
+        const edgesToKeep = edges.filter((e) => e.source == edge.source || e.target == edge.target);
+        const nodesToKeep = nodes.filter((node) => node.id === edge.source || node.id === edge.target || node.type === "group");
+        setAllEdges(edges);
+        setAllNodes(nodes);
+        setNodes(nodesToKeep);
+        setEdges(edgesToKeep);
+        setEdgeIsClicked(true)
+      }
+      else{
+        setNodes(allNodes);
+        setEdges(allEdges);
+        setEdgeIsClicked(false)
+      }
+
+      }, 500);
+    };
+
+    const handlePressEnd = () => {
+      clearTimeout(pressTimer);
+    };
+
+    event.target.addEventListener('mousedown', handlePressStart);
+    event.target.addEventListener('mouseup', handlePressEnd);
+    event.target.addEventListener('mouseleave', handlePressEnd);
   };
   //On edgeDoubleClick change edge type to the next one
   const onEdgeDoubleClick = (_, edge) => {
@@ -252,7 +280,7 @@ function Diagram({ currentFilter }: DiagramProps) {
   const getHandlesForEdge = (sourcePosition, targetPosition) => {
     const distanceX = targetPosition.x - sourcePosition.x;
     const distanceY = targetPosition.y - sourcePosition.y;
-
+    
     let targetHandle = "tl";
     let sourceHandle = "sr";
     if (Math.abs(distanceX) >= Math.abs(distanceY)) {
@@ -282,18 +310,19 @@ function Diagram({ currentFilter }: DiagramProps) {
       const grid1 = nodes.find((node) => node.id === doc1.parentId);
       const grid2 = nodes.find((node) => node.id === doc2.parentId);
 
-      let sourcePosition = doc1.position;
-      let targetPosition = doc2.position;
-      if (sourcePosition.x + grid1.position.x > targetPosition.x + grid2.position.x) {
+      let sourcePosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
+      let targetPosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
+      
+      if (sourcePosition.x > targetPosition.x ) {
         id1 = conn.id_doc2.toString();
         id2 = conn.id_doc1.toString();
-        sourcePosition = doc2.position;
-        targetPosition = doc1.position;
-      } else if (sourcePosition.x === targetPosition.x && sourcePosition.y + grid1.position.y > targetPosition.y + grid2.position.y) {
+        sourcePosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
+        targetPosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
+      } else if (sourcePosition.x === targetPosition.x && sourcePosition.y > targetPosition.y) {
         id1 = conn.id_doc2.toString();
         id2 = conn.id_doc1.toString();
-        sourcePosition = doc2.position;
-        targetPosition = doc1.position;
+        sourcePosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
+        targetPosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
       }
 
       const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
@@ -328,6 +357,7 @@ function Diagram({ currentFilter }: DiagramProps) {
             (e.id_doc1 === edge.id_doc1 && e.id_doc2 === edge.id_doc2) ||
             (e.id_doc1 === edge.id_doc2 && e.id_doc2 === edge.id_doc1)
         );
+
         if (existing) {
           existing.connection_types = [
             ...new Set([...existing.connection_types, ...edge.connection_types]),
@@ -355,7 +385,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     });
     for (const connectionList of connectionLists) {
       if (connectionList.connections.length > 0) {
-        await ConnectionAPI.updateConnections(connectionList);
+        await ConnectionAPI.updateConnectionsDiagram(connectionList);
       }
     }
   };

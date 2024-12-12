@@ -1,3 +1,4 @@
+import { connect } from "http2";
 import ConnectionDAO from "../dao/connectionDAO";
 import Connection from "../models/connection";
 import ConnectionByDocumentIdResponse from "../response/connectionsByDocumentIdResponse";
@@ -82,6 +83,39 @@ class ConnectionController {
       );
       if (!res)
         throw new Error("An error occurred while updating the connections.");
+      // Insert the new connections
+      await Promise.all(
+        connections.map(async (connection) => {
+          await this.dao.createConnection(
+            starting_document_id,
+            connection.document_id,
+            connection.connection_types
+          );
+        })
+      );
+      return true; // Return true if all connections are successfully created
+    } catch (err: any) {
+      throw err;
+    }
+  }
+  /**
+   * Update the connections of an existing document.
+   * @param starting_document_id - The id of the document the connections start from.
+   * @param connections - The list of connections to create.
+   * Eliminates only connections from start_doc_id to any of node of list
+   * while normal update eliminates all connections from start_doc_id or that ends in start_doc_id
+   */
+  async updateConnectionsDiagram(
+    starting_document_id: number,
+    connections: { document_id: number; connection_types: string[] }[]
+  ): Promise<boolean> {
+    try {
+      // Delete previous connections of starting document
+      await Promise.all(
+        connections.map(async (connection) => {
+          await this.dao.deleteConnectionsByPair(starting_document_id, connection.document_id)
+        })
+      )
       // Insert the new connections
       await Promise.all(
         connections.map(async (connection) => {

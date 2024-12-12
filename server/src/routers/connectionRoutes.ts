@@ -108,9 +108,7 @@ class ConnectionRoutes {
     );
 
     // Modify connections?
-    this.router.put(
-      "/",
-      this.authService.isLoggedIn,
+    this.router.put("/", this.authService.isLoggedIn,
       this.authService.isUrbanPlanner,
       [
         body("starting_document_id").isInt(),
@@ -143,6 +141,43 @@ class ConnectionRoutes {
           });
       }
     );
+
+    // Modify connections for diagram (Delete only connections whose nodes are mentioned in connectionList
+    this.router.put("/diagram", 
+      //this.authService.isLoggedIn,
+      //this.authService.isUrbanPlanner,
+      [
+        body("starting_document_id").isInt(),
+        body("connections").isArray(),
+        body("connections.*.document_id").isInt(),
+        body("connections.*.connection_types")
+          .isArray()
+          .withMessage("connection_types must be an array")
+          .custom((value: string[]) => {
+            // Check each string in the array to ensure it's one of the allowed values from ConnectionType
+            const validConnectionTypes: string[] = Object.values(ConnectionType);
+            for (const type of value) {
+              if (!validConnectionTypes.includes(type)) {
+                throw new Error(`Invalid connection type: ${type}`);
+              }
+            }
+            return true;
+          })
+          .withMessage(
+            "Each connection type must be a valid value in ['direct_conn', 'collateral_conn',  'prevision_conn', 'update_conn']"
+          ),
+      ],
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .updateConnectionsDiagram(req.body.starting_document_id, req.body.connections)
+          .then(() => res.status(200).end())
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
+
   }
 }
 

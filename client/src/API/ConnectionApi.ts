@@ -128,12 +128,32 @@ async function updateConnections(connectionsList: ConnectionList) {
   }
 }
 
+async function updateConnectionsDiagram(connectionsList: ConnectionList) {
+  const response = await fetch(baseURL + "connections/diagram", {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(connectionsList),
+  });
+  if (response.ok) {
+    return;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
+  }
+}
+
 const ConnectionAPI = {
   sendConnections,
   getConnections,
   getConnectionsByDocumentId,
   getTypeOfConnections,
-  updateConnections
+  updateConnections,
+  updateConnectionsDiagram
 };
 
 export default ConnectionAPI;

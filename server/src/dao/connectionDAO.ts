@@ -139,6 +139,16 @@ class ConnectionDAO {
       throw err;
     }
   }
+
+  async deleteConnectionsByPair(doc_id1: number, doc_id2: number){
+    try {
+      const sql = `DELETE FROM connections WHERE (document_id_1 = $1 AND document_id_2 = $2) OR (document_id_1 = $2 AND document_id_2 = $1)`;
+      await db.query(sql, [doc_id1, doc_id2]);
+      return true;
+    } catch (err: any) {
+      throw err;
+    }
+  }
 }
 
 export default ConnectionDAO;
