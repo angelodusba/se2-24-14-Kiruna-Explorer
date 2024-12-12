@@ -29,7 +29,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
   });
   const [circlePos, setCirclePos] = useState(data.pointPosition ||{
     x: storeCirclePosX[id] || labelX,
-    y: storeCirclePosY[id] || labelY,
+    y: storeCirclePosY[id] || labelY + Math.ceil(data.index/2) * (sourceY - targetY)/5 * (data.index % 2 === 0 ? 1 : -1),
   });
   const [refresh, setRefresh] = useState(0);
 

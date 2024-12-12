@@ -220,7 +220,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     }
     return newNodes;
   };
-  const createEdge = (id1, id2, sourceHandle, targetHandle, type) => {
+  const createEdge = (id1, id2, sourceHandle, targetHandle, type, index) => {
     return {
       id: `${id1}-${id2}-${type}`,
       source: id1,
@@ -232,6 +232,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
       data: {
         onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
+        index: index,
       },
     };
   };
@@ -278,8 +279,8 @@ function Diagram({ currentFilter }: DiagramProps) {
       const targetPosition = doc2.position;
       const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
 
-      return conn.connection_types.map((type: string) => {
-        return createEdge(id1, id2, sourceHandle, targetHandle, type);
+      return conn.connection_types.map((type: string, index) => {
+        return createEdge(id1, id2, sourceHandle, targetHandle, type, index);
       });
     });
   };
