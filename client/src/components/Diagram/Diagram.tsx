@@ -284,7 +284,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       }
 
       const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
-      console.log(conn)
+
       return conn.connection_types.map((type: string, index) => {
         return createEdge(id1, id2, sourceHandle, targetHandle, type, index);
       });
