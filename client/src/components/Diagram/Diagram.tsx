@@ -113,8 +113,15 @@ function Diagram({ currentFilter }: DiagramProps) {
     []
   );
 
-  //On edgeClick change edge type to the next one
-  const onEdgeClick = (_, edge) => {
+  //on edge click leave only the nodes connected to the edge
+  const onEdgeClick = (event, edge) => {
+    const nodesToKeep = nodes.filter((node) => node.id === edge.source || node.id === edge.target || node.type === "group")
+    const edgesToKeep = edges.filter((e) => e.source == edge.source && e.target == edge.target);
+    setNodes(nodesToKeep);
+    setEdges(edgesToKeep);
+  };
+  //On edgeDoubleClick change edge type to the next one
+  const onEdgeDoubleClick = (_, edge) => {
     const myEdgeType = edgeTypeName[edge.label];
     const edgeTypeNames = Object.keys(edgeTypeName).filter((key) => key !== "default");
     let currentEdgeType = myEdgeType;
@@ -469,7 +476,8 @@ function Diagram({ currentFilter }: DiagramProps) {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onEdgeClick={onEdgeClick}
+        onEdgeDoubleClick={onEdgeDoubleClick}
+        onEdgeClick = {onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
@@ -492,6 +500,7 @@ function Flow({
   edges,
   onNodesChange,
   onEdgesChange,
+  onEdgeDoubleClick,
   onEdgeClick,
   onConnect,
   onEdgeUpdate,
@@ -572,7 +581,8 @@ function Flow({
         edges={edges}
         onEdgesChange={onEdgesChange}
         onEdgesDelete={onEdgesDelete}
-        onEdgeDoubleClick={onEdgeClick}
+        onEdgeDoubleClick={onEdgeDoubleClick}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         onMove={handleMove}

@@ -21,7 +21,7 @@ export default memo(({ data }: ZoomNodeProps) => {
   const selectedDocId = Number(useParams().id);
   const docId = Number(data.id);
   const IconComponent = createReactFlowIcon(data.type, docId, data.stakeholders);
-  const opacity = selectedDocId && selectedDocId !== docId && !data.connections.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId)) ? 0.5 : 1;
+  const opacity = selectedDocId && selectedDocId !== docId && !data.connections.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId)) ? 0.1 : 1;
   const [showTooltip, setShowTooltip] = useState(false);
   const { zoom } = useStore((state) => ({
     zoom: state.transform[2],
