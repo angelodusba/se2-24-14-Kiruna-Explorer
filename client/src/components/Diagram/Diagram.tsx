@@ -90,6 +90,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           edge.source === params.source && edge.target === params.target && edge.label === "default"
       )
     ) {
+      console.log("Default edge already present");
       return;
     }
     const newEdge = {
@@ -102,7 +103,8 @@ function Diagram({ currentFilter }: DiagramProps) {
         onDelete: () => deleteEdge(`${params.source}-${params.target}-${"default"}`),
       },
     };
-    setEdges((eds) => addEdge(newEdge, eds));
+    const newEdges = edges.concat(newEdge);
+    setEdges(newEdges);
   };
 
   const onEdgeUpdate = useCallback(
@@ -134,9 +136,13 @@ function Diagram({ currentFilter }: DiagramProps) {
     }
 
     const newEdge = {
-      ...edge,
       id: `${edge.source}-${edge.target}-${currentEdgeType}`,
       label: currentEdgeType,
+      type: edge.type,
+      source: edge.source,
+      target: edge.target,
+      sourceHandle: edge.sourceHandle,
+      targetHandle: edge.targetHandle,
       style: connectionStyles[currentEdgeType],
       data: {
         onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
@@ -224,11 +230,11 @@ function Diagram({ currentFilter }: DiagramProps) {
     return {
       id: `${id1}-${id2}-${type}`,
       source: id1,
+      sourceHandle: sourceHandle,
       target: id2,
+      targetHandle: targetHandle,
       type: edgeTypes ? "floating" : "default",
       label: type,
-      sourceHandle: sourceHandle,
-      targetHandle: targetHandle,
       style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
       data: {
         onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
@@ -343,7 +349,6 @@ function Diagram({ currentFilter }: DiagramProps) {
     for (const connectionList of connectionLists) {
       if (connectionList.connections.length > 0) {
         await ConnectionAPI.updateConnections(connectionList);
-        console.log(connectionList);
       }
     }
   };
