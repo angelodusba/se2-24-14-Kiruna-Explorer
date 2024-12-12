@@ -68,6 +68,7 @@ function Legend() {
         PaperProps={{
           sx: {
             borderRadius: "3% 0 0 3%",
+            border: "1px solid #003d8f",
             width: "250px",
             height: "50vh",
             top: "25vh",
