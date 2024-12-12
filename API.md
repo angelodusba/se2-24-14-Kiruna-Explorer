@@ -656,12 +656,12 @@ Retrieves all the names of the connections in the database.
 
 #### POST `kirunaexplorer/connections`
 
-Creates a new connection between the selected existing document and one or more other documents in the database.
+Creates new connections between the selected existing document and one or more other documents in the database.
 
 - Request Parameters: None
-- Request Body Content: An object that represents the connection to be added. The object must have the following attributes:
+- Request Body Content: An object that represents the connections to be added. The object must have the following attributes:
   - `starting_document_id`: an integer that must not be empty
-  - `connections`: an array of objects that must not be empty, representing the connections of the selected document
+  - `connections`: an array of objects that must not be empty, representing the connections of the selected document to be added
   - Example:
 
 ```JSON
@@ -670,11 +670,16 @@ Creates a new connection between the selected existing document and one or more 
     "connections": [
         {
             "connected_document_id": 1,
-            "connection_name": "direct_conn"
+            "connection_types": [
+                "direct_conn",
+                "prevision_conn"
+            ]
         },
         {
             "connected_document_id": 2,
-            "connection_name": "prevision_conn"
+            "connection_types": [
+                "prevision_conn"
+            ]
         }
     ]
 }
@@ -685,6 +690,7 @@ Creates a new connection between the selected existing document and one or more 
 - Additional Constraints:
   - It should return a `404` error if the starting document does not exist in the database
   - It should return a `404` error if at least one of the connected documents does not exist in the database
+  - It should return a `409` error if any connection between two documents already exists in the database
 
 #### GET `kirunaexplorer/connections`
 
@@ -692,23 +698,94 @@ Retrieves all connections between documents
 
 - Request Parameters: none
 - Request Body Content: None
-- Response Body Content: An array of object, each containing
+- Response Body Content: An array of **Connection** objects, each representing a connection:
   - Example:
 
 ```JSON
 [
-  {
-    "document_id_1": 1,
-    "document_id_2": 2,
-    "connection_name": "direct_conn"
-  },
     {
-    "document_id_1": 1,
-    "document_id_2": 3,
-    "connection_name": "prevision_conn"
-  },
+        "id_doc1": 1,
+        "id_doc2": 2,
+        "connection_types": [
+            "direct_conn",
+            "prevision_conn"
+        ]
+    },
+    {
+        "id_doc1": 3,
+        "id_doc2": 4,
+        "connection_types": [
+            "direct_conn"
+        ]
+    }
 ]
 ```
+
+#### GET `kirunaexplorer/connections?document_id`
+
+Retrieves a list of connection filtered by the parameter document_id
+
+- Request Parameters: None
+- Query parameters:
+  - `document_id` (number) - The id of the document used to filter the connections, must not be empty and greater than 0.
+- Request Body Content: None
+- Response Body Content: An array of **ConnectionByDocumentIdResponse** objects, each representing the connections related to a certain document:
+  - Example:
+
+```JSON
+[
+    {
+        "document_id": 1,
+        "connection_types": [
+            "direct_conn",
+            "prevision_conn"
+        ]
+    },
+    {
+        "document_id": 2,
+        "connection_types": [
+            "direct_conn"
+        ]
+    }
+]
+```
+
+#### PUT `kirunaexplorer/connections`
+
+Updates a new connection between the selected existing document and one or more other documents in the database.
+
+- Request Parameters: None
+- Request Body Content: An object that represents the connections to be added. The object must have the following attributes:
+  - `starting_document_id`: an integer that must not be empty
+  - `connections`: an array of objects that must not be empty, representing the connections of the selected document to be added
+  - Example:
+
+```JSON
+{
+    "starting_document_id": 1,
+    "connections": [
+        {
+            "document_id": 1,
+            "connection_types": [
+                "direct_conn",
+                "prevision_conn"
+            ]
+        },
+        {
+            "document_id": 2,
+            "connection_types": [
+                "prevision_conn"
+            ]
+        }
+    ]
+}
+```
+- Response Body Content: None
+- Access Constraints: Can only be called by a logged in user whose role is `Urban Planner`.
+- Additional Constraints:
+  - It should return a `404` error if the starting document does not exist in the database
+  - It should return a `404` error if at least one of the connected documents does not exist in the database
+  - It should return a `409` error if any connection between two documents already exists in the database
 
 ### Area APIs
 
