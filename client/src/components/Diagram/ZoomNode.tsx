@@ -23,6 +23,9 @@ export default memo(({ data }: ZoomNodeProps) => {
   const IconComponent = createReactFlowIcon(data.type, docId, data.stakeholders);
   const opacity = selectedDocId && selectedDocId !== docId && !data.connections.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId)) ? 0.5 : 1;
   const [showTooltip, setShowTooltip] = useState(false);
+  const { zoom } = useStore((state) => ({
+    zoom: state.transform[2],
+  }));
   return (
     <div style={{ 
       display: 'flex',
@@ -33,7 +36,8 @@ export default memo(({ data }: ZoomNodeProps) => {
       padding: '10px',
       border: selectedDocId === docId ? '5px solid #003d8f' : 'none',
       borderRadius: '50%',
-      boxShadow: selectedDocId === docId ? '0px 0px 8px 6px #003d8f' : "none"
+      boxShadow: selectedDocId === docId ? '0px 0px 8px 6px #003d8f' : "none",
+      fontSize: `${1/zoom}em`,
     }}
     onMouseEnter={() => setShowTooltip(true)}
     onMouseLeave={() => setShowTooltip(false)}
@@ -47,6 +51,7 @@ export default memo(({ data }: ZoomNodeProps) => {
           backgroundColor: '#003d8f',
           color: 'white',
           borderRadius: '5px',
+
         }}
         >
           {data.title}
