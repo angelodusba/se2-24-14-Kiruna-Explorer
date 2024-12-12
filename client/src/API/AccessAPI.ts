@@ -19,8 +19,9 @@ async function login(email: string, password: string) {
     return new User(user.username, user.email, user.role);
   } else {
     const errDetail = await response.json();
+    console.log(errDetail);
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -42,7 +43,7 @@ async function getUserInfo() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
