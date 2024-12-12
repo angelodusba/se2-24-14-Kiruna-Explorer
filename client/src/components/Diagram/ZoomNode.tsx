@@ -58,8 +58,6 @@ export default memo(({ data }: ZoomNodeProps) => {
         </div>
       )}
         <Handle type="target" position={Position.Top} id="tt" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
-        <Handle type="target" position={Position.Right} id="tr" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
-        <Handle type="target" position={Position.Bottom} id="tb" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
         <Handle type="target" position={Position.Left} id="tl" style={{ width: 5, height: 5, background: 'green', borderRadius: '1%' }} />
         {showContent ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'auto', height: 'auto', opacity: opacity }}>
@@ -68,10 +66,8 @@ export default memo(({ data }: ZoomNodeProps) => {
         ) : (
         "---"
         )}
-        <Handle type="source" position={Position.Top} id="st" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
         <Handle type="source" position={Position.Right} id="sr" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
         <Handle type="source" position={Position.Bottom} id="sb" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginBottom: '+5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
-        <Handle type="source" position={Position.Left} id="sl" style={{ width: 5, height: 5, background: 'blue', borderRadius: '1%', marginTop: '-5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
       </>
     </div>
   );

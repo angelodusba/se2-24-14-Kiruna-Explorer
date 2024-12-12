@@ -240,26 +240,16 @@ function Diagram({ currentFilter }: DiagramProps) {
     const distanceX = targetPosition.x - sourcePosition.x;
     const distanceY = targetPosition.y - sourcePosition.y;
 
-    let targetHandle = "tb";
-    let sourceHandle = "st";
+    let targetHandle = "tt";
+    let sourceHandle = "sr";
     if (Math.abs(distanceX) > Math.abs(distanceY)) {
       // Horizontal connection
-      if (distanceX > 0) {
-        targetHandle = "tl"; // Connect to the left side
-        sourceHandle = "sr"; // Connect from the right side
-      } else {
-        targetHandle = "tr"; // Connect to the right side
-        sourceHandle = "sl"; // Connect from the left side
-      }
+      targetHandle = "tl"; // Connect to the left side
+      sourceHandle = "sr"; // Connect from the right side
     } else {
       // Vertical connection
-      if (distanceY > 0) {
-        targetHandle = "tt"; // Connect to the top side
-        sourceHandle = "sb"; // Connect from the bottom side
-      } else {
-        targetHandle = "tb"; // Connect to the bottom side
-        sourceHandle = "st"; // Connect from the top side
-      }
+      targetHandle = "tt"; // Connect to the top side
+      sourceHandle = "sb"; // Connect from the bottom side
     }
     return { sourceHandle, targetHandle };
   };
