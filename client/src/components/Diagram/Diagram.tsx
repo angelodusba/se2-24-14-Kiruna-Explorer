@@ -140,7 +140,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: connectionStyles[currentEdgeType],
       data: {
         onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
-        pointPosition : edge.data.pointPosition
+        pointPosition: edge.data.pointPosition,
       },
 
     };
@@ -269,7 +269,6 @@ function Diagram({ currentFilter }: DiagramProps) {
       const grid1 = nodes.find((node) => node.id === doc1.parentId);
       const grid2 = nodes.find((node) => node.id === doc2.parentId);
 
-
       let sourcePosition = doc1.position;
       let targetPosition = doc2.position;
       if (sourcePosition.x + grid1.position.x > targetPosition.x + grid2.position.x) {
@@ -285,7 +284,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       }
 
       const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
-
+      console.log(conn)
       return conn.connection_types.map((type: string, index) => {
         return createEdge(id1, id2, sourceHandle, targetHandle, type, index);
       });

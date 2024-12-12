@@ -18,6 +18,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
   targetPosition,
   data,
   style = {},
+  markerEnd,
 }) => {
   const [path, labelX, labelY] = getBezierPath({
     sourceX,
@@ -29,8 +30,9 @@ const FloatingEdge: React.FC<EdgeProps> = ({
   });
   const [circlePos, setCirclePos] = useState(data.pointPosition ||{
     x: storeCirclePosX[id] || labelX,
-    y: storeCirclePosY[id] || labelY + Math.ceil(data.index/2) * (sourceY - targetY)/5 * (data.index % 2 === 0 ? 1 : -1),
+    y: storeCirclePosY[id] || labelY + Math.ceil((data.index || 0)/2) * (sourceY - targetY)/5 * ((data.index || 0) % 2 === 0 ? 1 : -1),
   });
+  data.pointPosition = circlePos;
   const [refresh, setRefresh] = useState(0);
 
   useStore((state) => {
@@ -54,7 +56,6 @@ const FloatingEdge: React.FC<EdgeProps> = ({
       );
     }
   }, [edgeRef]);
-
 
   const [path1, removeX, removeY] = getBezierPath({
     sourceX,
