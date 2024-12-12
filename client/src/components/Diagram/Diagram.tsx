@@ -140,7 +140,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: connectionStyles[currentEdgeType],
       data: {
         onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
+        pointPosition : edge.data.pointPosition
       },
+
     };
     const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
     setEdges(newEdges);
