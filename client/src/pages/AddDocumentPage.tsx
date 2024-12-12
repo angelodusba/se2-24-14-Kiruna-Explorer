@@ -15,7 +15,7 @@ import { ErrorContext } from "../contexts/ErrorContext";
 const steps = [
   { label: "General info", optional: false },
   { label: "Georeference", optional: false },
-  { label: "Original resources", optional: false },
+  { label: "Attachments", optional: false },
   { label: "Linking", optional: true },
 ];
 
