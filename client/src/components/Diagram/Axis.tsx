@@ -29,21 +29,21 @@ function Axis({ baseWidth, baseHeight, offset = 0, type, data, viewport }: AxisP
         fontSize: `${zoom >= 1 ? 16 * zoom : 40 * zoom}px`,
         top: type === "x" ? 0 : viewport.y + offset * zoom,
         left: type === "y" ? 0 : viewport.x + offset * zoom,
-        zIndex: type === "x" ? 0 : -5, // X axis above Y axis
-         // Avoid interfering with the flow interactions
-          }}
-            >
-          {data.map((item) => (
-            <Box
-              key={item.id}
-              style={{
+        zIndex: type === "x" ? 10 : 5, // X axis above Y axis
+        pointerEvents: "none", // Avoid interfering with the flow interactions
+      }}
+    >
+      {data.map((item) => (
+        <Box
+          key={item.id}
+          style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             textAlign: "center",
             boxSizing: "border-box",
             border: "1px solid #aaa",
-            backgroundColor: "transparent",
+            backgroundColor: "#eeeeee",
             fontWeight: "bold",
             borderRadius: 2,
             color: "#003d8f",
@@ -51,11 +51,11 @@ function Axis({ baseWidth, baseHeight, offset = 0, type, data, viewport }: AxisP
             height: dim.height,
             cursor: "default",
             fontSize: `${Math.min(dim.width, dim.height) * 0.1}px`, // Dynamic font size based on box dimension
-              }}
-            >
-              {item.label}
-            </Box>
-          ))}
+          }}
+        >
+          {item.label}
+        </Box>
+      ))}
     </Box>
   );
 }
