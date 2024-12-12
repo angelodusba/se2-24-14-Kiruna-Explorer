@@ -240,9 +240,9 @@ function Diagram({ currentFilter }: DiagramProps) {
     const distanceX = targetPosition.x - sourcePosition.x;
     const distanceY = targetPosition.y - sourcePosition.y;
 
-    let targetHandle = "tt";
+    let targetHandle = "tl";
     let sourceHandle = "sr";
-    if (Math.abs(distanceX) > Math.abs(distanceY)) {
+    if (Math.abs(distanceX) >= Math.abs(distanceY)) {
       // Horizontal connection
       targetHandle = "tl"; // Connect to the left side
       sourceHandle = "sr"; // Connect from the right side
@@ -257,16 +257,33 @@ function Diagram({ currentFilter }: DiagramProps) {
     return connectionsList.flatMap((conn: any) => {
       //compare x and y of the nodes, start from the doc with smallest x, if x is the same,
       // start from the one with smallest y
-      const id1 = conn.id_doc1.toString();
-      const id2 = conn.id_doc2.toString();
+      let id1 = conn.id_doc1.toString();
+      let id2 = conn.id_doc2.toString();
       const doc1 = passed_nodes.find((doc) => doc.id == id1);
       const doc2 = passed_nodes.find((doc) => doc.id == id2);
       if (doc1 == null || doc2 == null) {
         return [];
       }
 
-      const sourcePosition = doc1.position;
-      const targetPosition = doc2.position;
+      //Get grid position of node 1 and 2
+      const grid1 = nodes.find((node) => node.id === doc1.parentId);
+      const grid2 = nodes.find((node) => node.id === doc2.parentId);
+
+
+      let sourcePosition = doc1.position;
+      let targetPosition = doc2.position;
+      if (sourcePosition.x + grid1.position.x > targetPosition.x + grid2.position.x) {
+        id1 = conn.id_doc2.toString();
+        id2 = conn.id_doc1.toString();
+        sourcePosition = doc2.position;
+        targetPosition = doc1.position;
+      } else if (sourcePosition.x === targetPosition.x && sourcePosition.y + grid1.position.y > targetPosition.y + grid2.position.y) {
+        id1 = conn.id_doc2.toString();
+        id2 = conn.id_doc1.toString();
+        sourcePosition = doc2.position;
+        targetPosition = doc1.position;
+      }
+
       const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
 
       return conn.connection_types.map((type: string, index) => {
