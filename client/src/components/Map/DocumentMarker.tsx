@@ -1,6 +1,7 @@
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import { useNavigate, useParams } from "react-router-dom";
 import { createCustomIcon } from "./Icons";
+import { useEffect } from "react";
 
 function DocumentMarker({
   position,
@@ -16,6 +17,23 @@ function DocumentMarker({
   const selectedDocId = Number(useParams().id);
 
   const handleClick = () => {
+    /* const currentZoom = map.getZoom();
+    const offsetLatLng = map.latLngToContainerPoint(position);
+    offsetLatLng.x -= 300;
+
+    const adjustedLatLng = map.containerPointToLatLng(offsetLatLng);
+    map.flyTo(adjustedLatLng, currentZoom, {
+      duration: 0.7,
+      easeLinearity: 0.3,
+    });*/
+    navigate(`/map/${docId}`);
+  };
+
+  useEffect(() => {
+    if (selectedDocId !== docId) {
+      return;
+    }
+
     const currentZoom = map.getZoom();
     const offsetLatLng = map.latLngToContainerPoint(position);
     offsetLatLng.x -= 300;
@@ -25,8 +43,7 @@ function DocumentMarker({
       duration: 0.7,
       easeLinearity: 0.3,
     });
-    navigate(`/map/${docId}`);
-  };
+  }, [docId, map, position, selectedDocId]);
 
   return (
     <Marker
@@ -36,7 +53,7 @@ function DocumentMarker({
         docId,
         selectedDocId,
         stakeholders,
-        links,
+        links
       )}
       position={position}
       eventHandlers={{
@@ -49,9 +66,12 @@ function DocumentMarker({
             setHoveredDocument(null);
           },
         }),
-      }}
-    >
-      {selectedDocId !== docId && <Tooltip direction="top" offset={[3, -32]}>{docTitle}</Tooltip>}
+      }}>
+      {selectedDocId !== docId && (
+        <Tooltip direction="top" offset={[3, -32]}>
+          {docTitle}
+        </Tooltip>
+      )}
     </Marker>
   );
 }
