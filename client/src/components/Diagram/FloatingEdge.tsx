@@ -30,7 +30,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
   });
   const [circlePos, setCirclePos] = useState(data.pointPosition ||{
     x: storeCirclePosX[id] || labelX ,
-    y: storeCirclePosY[id] || labelY + Math.ceil((data.index || 0)/2) * (Math.abs(sourceY - targetY) + Math.abs(sourceX - targetX))/5 * ((data.index || 0) % 2 === 0 ? 1 : -1),
+    y: storeCirclePosY[id] || labelY + Math.ceil((data.index || 0)/2) * (100) * ((data.index || 0) % 2 === 0 ? 1 : -1),
   });
   data.pointPosition = circlePos;
   const [refresh, setRefresh] = useState(0);
@@ -57,7 +57,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
     }
   }, [edgeRef]);
 
-  const [path1, removeX, removeY] = getBezierPath({
+  const [path1] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -79,6 +79,8 @@ const FloatingEdge: React.FC<EdgeProps> = ({
       data.onDelete(); // Call the delete function passed via `data`
     }
   };
+
+  const [removeX, removeY] = [circlePos.x - 30, circlePos.y - 30];
 
   return (
     <>
@@ -107,24 +109,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
           }}
         ></div>
         <div
-          onMouseDown={(e) => {
-            const timer = setTimeout(handleDelete, 1000);
-            let scale = 1;
-            const interval = setInterval(() => {
-              scale += 0.1;
-              (e.target as HTMLElement).style.transform = `scale(${scale})`;
-            }, 100);
-            (e.target as HTMLElement).onmouseup = () => {
-              clearTimeout(timer);
-              clearInterval(interval);
-              (e.target as HTMLElement).style.transform = "scale(1)";
-            };
-            (e.target as HTMLElement).onmouseleave = () => {
-              clearTimeout(timer);
-              clearInterval(interval);
-              (e.target as HTMLElement).style.transform = "scale(1)";
-            };
-          }}
+          onMouseDown={handleDelete}
           style={{
             position: "absolute",
             left: `${removeX}px`,
