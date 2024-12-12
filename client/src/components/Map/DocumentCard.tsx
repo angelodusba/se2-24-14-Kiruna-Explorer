@@ -10,9 +10,7 @@ import {
   Paper,
   Typography,
   Button,
-  Chip,
 } from "@mui/material";
-import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
 import {
   ArticleOutlined,
@@ -30,6 +28,7 @@ import {
   TranslateOutlined,
   TypeSpecimenOutlined,
 } from "@mui/icons-material";
+import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import type { DocumentCard } from "../../models/DocumentCard";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -39,6 +38,9 @@ import UserContext from "../../contexts/UserContext";
 import L from "leaflet";
 import { ErrorContext } from "../../contexts/ErrorContext";
 import { createReactFlowIcon } from "./Icons";
+import ConnectionAPI from "../../API/ConnectionApi";
+import ConnectionChips from "./ConnectionChips";
+import React from "react";
 
 const style = {
   position: "absolute",
@@ -109,30 +111,50 @@ function DocumentCard(props) {
   });
   const [originalResources, setOriginalResources] = useState([]);
   const [notOriginalAttachments, setNotOriginalAttachments] = useState([]);
+  const [connections, setConnections] = useState([]);
 
-  const fetchCardInfo = (id: number) => {
-    DocumentAPI.getDocumentCard(id)
-      .then((card) => {
-        setDocumentCard(card);
-        if (card.attachments.length === 0) {
-          return;
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
+
+  const handleConnectionsOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const fetchCardInfo = async (id: number) => {
+    try {
+      const card = await DocumentAPI.getDocumentCard(id);
+      setDocumentCard(card);
+      //Connections
+      const docNames = await DocumentAPI.getAllDocumentsNames();
+      console.log(docNames);
+      const conns = await ConnectionAPI.getConnectionsByDocumentId(id);
+      const connectionsWithNames = conns.map((conn) => {
+        const name =
+          docNames.find((name) => name.id === conn.document_id)?.title ||
+          "Unknown";
+        return { ...conn, name };
+      });
+      setConnections(connectionsWithNames);
+      console.log(connectionsWithNames);
+      //Attachments
+      if (card.attachments.length === 0) {
+        return;
+      }
+      const original = [];
+      const notOriginal = [];
+      card.attachments.forEach((attachment) => {
+        if (attachment.original) {
+          original.push(attachment);
+        } else {
+          notOriginal.push(attachment);
         }
-
-        const original = [];
-        const notOriginal = [];
-        card.attachments.forEach((attachment) => {
-          if (attachment.original) {
-            original.push(attachment);
-          } else {
-            notOriginal.push(attachment);
-          }
-        });
         setOriginalResources(original);
         setNotOriginalAttachments(notOriginal);
-      })
-      .catch((err) => {
-        setError(err.message);
       });
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   useEffect(() => {
@@ -140,7 +162,12 @@ function DocumentCard(props) {
       L.DomEvent.disableScrollPropagation(cardRef.current);
       L.DomEvent.disableClickPropagation(cardRef.current);
     }
-    fetchCardInfo(Number(docId.id));
+    const fetchData = async () => {
+      await fetchCardInfo(Number(docId.id));
+    };
+    fetchData();
+
+    //fetchCardInfo(Number(docId.id));
   }, [docId, disabledInput]);
 
   const isDiagramPage = window.location.pathname.includes("/diagram");
@@ -314,18 +341,35 @@ function DocumentCard(props) {
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
-                        primary="Connections"
-                        primaryTypographyProps={{
-                          sx: {
-                            fontWeight: "bold",
-                            color: "#003d8f",
-                          },
-                          variant: "subtitle2",
-                        }}
-                        secondaryTypographyProps={{
-                          variant: "caption",
-                        }}
-                        secondary={documentCard.conn_count}
+                        disableTypography
+                        primary={
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                              color: "#003d8f",
+                            }}
+                            variant="subtitle2">
+                            Connections
+                          </Typography>
+                        }
+                        secondary={
+                          <>
+                            <Typography variant="caption">
+                              {documentCard.conn_count}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => handleConnectionsOpen(e)}>
+                              <ArrowDropDownOutlinedIcon></ArrowDropDownOutlinedIcon>
+                            </IconButton>
+                            {connections.length > 0 && (
+                              <ConnectionChips
+                                connections={connections}
+                                anchorEl={anchorEl}
+                                setAnchorEl={setAnchorEl}></ConnectionChips>
+                            )}
+                          </>
+                        }
                       />
                     </ListItem>
                     <ListItem sx={{ alignItems: "start" }}>
@@ -349,6 +393,7 @@ function DocumentCard(props) {
                         secondary={documentCard.language || "-"}
                       />
                     </ListItem>
+
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
