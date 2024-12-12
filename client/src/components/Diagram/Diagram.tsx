@@ -568,13 +568,15 @@ function Flow({
         edgeTypes={edgeTypes ? edgeTypes : undefined}
         onNodesChange={onNodesChange}
         onNodeClick={onNodeClick}
+        onNodeDoubleClick={onNodeClick}
         edges={edges}
         onEdgesChange={onEdgesChange}
         onEdgesDelete={onEdgesDelete}
-        onEdgeClick={onEdgeClick}
+        onEdgeDoubleClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         onMove={handleMove}
+        onClick={(event) => {event.stopPropagation();}}
         zoomOnDoubleClick={false}
         zoomOnScroll={false}
         minZoom={0.2}
