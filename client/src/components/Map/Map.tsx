@@ -1,12 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import {
-  LayerGroup,
-  MapContainer,
-  Polygon,
-  TileLayer,
-  Tooltip,
-} from "react-leaflet";
+import { LayerGroup, MapContainer, Polygon, TileLayer } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -163,6 +157,7 @@ function Map({ docs }) {
                     stakeholders={doc.stakeholders}
                     position={L.latLng(doc.location[0])}
                     links={links}
+                    setHoveredDocument={setHoveredDocument}
                   />
                 );
               }
@@ -209,6 +204,7 @@ function Map({ docs }) {
                     stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
                     links={links}
+                    setHoveredDocument={setHoveredDocument}
                   />
                 );
               }
@@ -221,24 +217,33 @@ function Map({ docs }) {
         )}
         {!disabledInput &&
           links.map((link, index) => {
-            {
-              if (
-                docs.some((doc) => doc.id === link.id_doc1) &&
-                docs.some((doc) => doc.id === link.id_doc2)
-              ) {
+            if (
+              docs.some((doc) => doc.id === link.id_doc1) &&
+              docs.some((doc) => doc.id === link.id_doc2)
+            ) {
+              return link.connection_types.map((type, typeIndex) => {
+                const offset =
+                  typeIndex % 2 === 0 ? -typeIndex * 0.001 : typeIndex * 0.001; // Adjust offset for each type
+                const formattedType =
+                  type.split("_")[0].charAt(0).toUpperCase() +
+                  type.split("_")[0].slice(1);
                 return (
-                  layersVisibility.links &&
-                  zoom > 11 && (
+                  ((layersVisibility.links && zoom > 11) ||
+                    hoveredDocument == link.id_doc1 ||
+                    hoveredDocument == link.id_doc2) && (
                     <Link
-                      key={index}
-                      link={link}
+                      key={`${index}-${typeIndex}`}
+                      id_doc1={link.id_doc1}
+                      id_doc2={link.id_doc2}
+                      type={formattedType}
+                      offset={offset}
                       positions={{
                         doc1: getDocLocation(link.id_doc1),
                         doc2: getDocLocation(link.id_doc2),
                       }}></Link>
                   )
                 );
-              }
+              });
             }
           })}
         <Outlet />
