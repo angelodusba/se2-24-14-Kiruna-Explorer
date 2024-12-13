@@ -17,15 +17,6 @@ function DocumentMarker({
   const selectedDocId = Number(useParams().id);
 
   const handleClick = () => {
-    /* const currentZoom = map.getZoom();
-    const offsetLatLng = map.latLngToContainerPoint(position);
-    offsetLatLng.x -= 300;
-
-    const adjustedLatLng = map.containerPointToLatLng(offsetLatLng);
-    map.flyTo(adjustedLatLng, currentZoom, {
-      duration: 0.7,
-      easeLinearity: 0.3,
-    });*/
     navigate(`/map/${docId}`);
   };
 
@@ -33,7 +24,6 @@ function DocumentMarker({
     if (selectedDocId !== docId) {
       return;
     }
-
     const currentZoom = map.getZoom();
     const offsetLatLng = map.latLngToContainerPoint(position);
     offsetLatLng.x -= 300;
@@ -43,7 +33,7 @@ function DocumentMarker({
       duration: 0.7,
       easeLinearity: 0.3,
     });
-  }, [docId, map, position, selectedDocId]);
+  }, [selectedDocId]);
 
   return (
     <Marker
