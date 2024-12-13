@@ -113,9 +113,7 @@ function DocumentCard(props) {
   const [notOriginalAttachments, setNotOriginalAttachments] = useState([]);
   const [connections, setConnections] = useState([]);
 
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-    null
-  );
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleConnectionsOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -357,16 +355,19 @@ function DocumentCard(props) {
                             <Typography variant="caption">
                               {documentCard.conn_count}
                             </Typography>
-                            <IconButton
-                              size="small"
-                              onClick={(e) => handleConnectionsOpen(e)}>
-                              <ArrowDropDownOutlinedIcon></ArrowDropDownOutlinedIcon>
-                            </IconButton>
+
                             {connections.length > 0 && (
-                              <ConnectionChips
-                                connections={connections}
-                                anchorEl={anchorEl}
-                                setAnchorEl={setAnchorEl}></ConnectionChips>
+                              <>
+                                <IconButton
+                                  size="small"
+                                  onClick={handleConnectionsOpen}>
+                                  <ArrowDropDownOutlinedIcon></ArrowDropDownOutlinedIcon>
+                                </IconButton>
+                                <ConnectionChips
+                                  connections={connections}
+                                  anchorEl={anchorEl}
+                                  setAnchorEl={setAnchorEl}></ConnectionChips>
+                              </>
                             )}
                           </>
                         }
