@@ -242,7 +242,7 @@ class AuthRoutes {
           .login(req, res, next)
           .then((user: User) => res.status(200).json(user))
           .catch((err: any) => {
-            res.status(401).json(err);
+            res.status(401).json({ message: err.message });
           })
     );
 

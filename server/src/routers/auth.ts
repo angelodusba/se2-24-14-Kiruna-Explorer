@@ -53,19 +53,17 @@ class Authenticator {
           passwordField: "password",
         },
         (username: string, password: string, done: any) => {
-          copyThis.dao
-            .getIsUserAuthenticated(username, password)
-            .then((authenticated: boolean) => {
-              if (authenticated) {
-                copyThis.dao.getUserByEmail(username).then((user: User) => {
-                  return done(null, user);
-                });
-              } else {
-                return done(null, false, {
-                  message: "Incorrect username and/or password",
-                });
-              }
-            });
+          copyThis.dao.getIsUserAuthenticated(username, password).then((authenticated: boolean) => {
+            if (authenticated) {
+              copyThis.dao.getUserByEmail(username).then((user: User) => {
+                return done(null, user);
+              });
+            } else {
+              return done(null, false, {
+                message: "Incorrect username and/or password",
+              });
+            }
+          });
         }
       )
     );
@@ -110,11 +108,12 @@ class Authenticator {
   login(req: any, res: any, next: any): Promise<User> {
     return new Promise((resolve, reject) => {
       passport.authenticate("local", (err: any, user: any, info: any) => {
-        if (err) return reject(new Error(err));
-        if (!user) return reject(new Error(info));
-
+        if (err) return reject(new Error(err.message || "Authentication error"));
+        if (!user) {
+          return reject(new Error(info?.message || "Invalid credentials"));
+        }
         req.login(user, (err: any) => {
-          if (err) return reject(new Error(err));
+          if (err) return reject(new Error(err.message || "Login failed"));
           return resolve(req.user);
         });
       })(req, res, next);
@@ -156,11 +155,8 @@ class Authenticator {
    * If the user is authenticated and is a customer, it calls the next middleware function. Otherwise, it returns a 401 error response.
    */
   isUrbanPlanner(req: any, res: any, next: any) {
-    if (req.isAuthenticated() && req.user.role === Role.UrbanPlanner)
-      return next();
-    return res
-      .status(401)
-      .json({ error: "User is not a urban planner", status: 401 });
+    if (req.isAuthenticated() && req.user.role === Role.UrbanPlanner) return next();
+    return res.status(401).json({ error: "User is not a urban planner", status: 401 });
   }
 
   /**
@@ -172,11 +168,8 @@ class Authenticator {
    * If the user is authenticated and is a customer, it calls the next middleware function. Otherwise, it returns a 401 error response.
    */
   isUrbanDeveloper(req: any, res: any, next: any) {
-    if (req.isAuthenticated() && req.user.role === Role.UrbanDeveloper)
-      return next();
-    return res
-      .status(401)
-      .json({ error: "User is not a urban developer", status: 401 });
+    if (req.isAuthenticated() && req.user.role === Role.UrbanDeveloper) return next();
+    return res.status(401).json({ error: "User is not a urban developer", status: 401 });
   }
 
   /**
@@ -189,9 +182,7 @@ class Authenticator {
    */
   isResident(req: any, res: any, next: any) {
     if (req.isAuthenticated() && req.user.role === Role.Resident) return next();
-    return res
-      .status(401)
-      .json({ error: "User is not a resident", status: 401 });
+    return res.status(401).json({ error: "User is not a resident", status: 401 });
   }
 }
 

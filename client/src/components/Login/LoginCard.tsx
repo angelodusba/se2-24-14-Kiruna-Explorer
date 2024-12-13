@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Button,
   Box,
@@ -12,6 +11,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import MuiCard from "@mui/material/Card";
+import { useState } from "react";
 
 //Card Style
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -32,19 +32,18 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-function LoginCard(props) {
-  const [emailError, setEmailError] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState("");
-  const [password, setPassword] = React.useState("");
+function LoginCard({ login }) {
+  const [emailError, setEmailError] = useState("");
+  const [email, setEmail] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (emailError || passwordError) {
       return;
     }
-
-    props.login(email, password);
+    login(email, password);
   };
 
   const validateInputs = () => {
@@ -62,12 +61,8 @@ function LoginCard(props) {
   };
 
   return (
-    <Card variant="outlined">
-      <Typography
-        component="h1"
-        variant="h5"
-        fontSize="clamp(2rem, 10vw, 2.15rem)"
-        width="100%">
+    <Card variant="outlined" style={{ maxWidth: "70%" }}>
+      <Typography component="h1" variant="h5" fontSize="clamp(2rem, 10vw, 2.15rem)" width="100%">
         Login
       </Typography>
       <Box
@@ -77,7 +72,8 @@ function LoginCard(props) {
         display="flex"
         flexDirection="column"
         width="100%"
-        gap={2}>
+        gap={2}
+      >
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
@@ -124,18 +120,15 @@ function LoginCard(props) {
           type="submit"
           fullWidth
           sx={{ backgroundColor: "#003d8f", color: "white" }}
-          onClick={validateInputs}>
+          onClick={validateInputs}
+        >
           Login
         </Button>
       </Box>
       <Divider>or</Divider>
       <Typography textAlign="center">
         <span>
-          <Link
-            component={RouterLink}
-            variant="body2"
-            underline="hover"
-            to="/map">
+          <Link component={RouterLink} variant="body2" underline="hover" to="/map">
             Continue as a visitor
           </Link>
         </span>

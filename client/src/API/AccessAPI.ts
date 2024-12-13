@@ -1,7 +1,6 @@
 import User from "../models/User";
 
-const baseURL =
-  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Access APIs ------------------------ */
 
@@ -19,18 +18,19 @@ async function login(email: string, password: string) {
     return new User(user.username, user.email, user.role);
   } else {
     const errDetail = await response.json();
-    console.log(errDetail);
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.message || "Something went wrong, please reload the page");
   }
 }
 
 async function logOut() {
-  await fetch(baseURL + "sessions", {
+  const response = await fetch(baseURL + "sessions", {
     method: "DELETE",
     credentials: "include",
   });
+  if (!response.ok) {
+    const errDetail = await response.json();
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
+  }
 }
 
 async function getUserInfo() {
@@ -42,9 +42,7 @@ async function getUserInfo() {
     return new User(user.username, user.email, user.role);
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 

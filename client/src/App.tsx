@@ -123,9 +123,7 @@ function App() {
 
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider
-        value={{ disabledInput, setDisabledInput }}
-      >
+      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
         <ErrorContext.Provider value={{ error, setError }}>
           <Routes>
             <Route
@@ -134,9 +132,7 @@ function App() {
             />
             <Route
               path="/auth"
-              element={
-                user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
-              }
+              element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
             />
             <Route
               path="/"
@@ -233,20 +229,11 @@ function App() {
                   />
                 }
               />
-              <Route
-                path="/diagram"
-                element={<Diagram currentFilter={currentFilter} />}
-              >
-                <Route
-                  path=":id"
-                  element={<DocumentCard returnHere={"/diagram"} />}
-                ></Route>
+              <Route path="/diagram" element={<Diagram currentFilter={currentFilter} />}>
+                <Route path=":id" element={<DocumentCard returnHere={"/diagram"} />}></Route>
               </Route>
             </Route>
-            <Route
-              path="*"
-              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-            />
+            <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
           </Routes>
           <Snackbar
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
@@ -254,12 +241,7 @@ function App() {
             autoHideDuration={3500}
             onClose={() => setError("")}
           >
-            <Alert
-              onClose={() => setError("")}
-              severity="error"
-              variant="filled"
-              sx={{ width: "100%" }}
-            >
+            <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
               {error}
             </Alert>
           </Snackbar>
