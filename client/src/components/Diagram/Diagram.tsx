@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -27,6 +27,8 @@ import Legend from "../Legend";
 import FloatingEdge from "./FloatingEdge";
 import { ConnectionList } from "../../models/Connection";
 import Axis from "./Axis";
+import UserContext from "../../contexts/UserContext";
+import { Role } from "../../models/User";
 
 interface DocumentForDiagram {
   id: number;
@@ -65,6 +67,7 @@ const nodePerRows = 3;
 const nodePerColumns = 3;
 
 function Diagram({ currentFilter }: DiagramProps) {
+  const user = useContext(UserContext);
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
   const [gridNodes, setGridNodes] = useState<Node[]>([]);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -101,6 +104,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: connectionStyles["default"],
       data: {
         onDelete: () => deleteEdge(`${params.source}-${params.target}-${"default"}`),
+        user: user,
       },
     };
     const newEdges = edges.concat(newEdge);
@@ -113,30 +117,32 @@ function Diagram({ currentFilter }: DiagramProps) {
     []
   );
 
-  const [allEdges, setAllEdges] = useState(undefined)
-  const [allNodes, setAllNodes] = useState(undefined)
-  const [edgeIsClicked, setEdgeIsClicked] = useState(false)
+  const [allEdges, setAllEdges] = useState(undefined);
+  const [allNodes, setAllNodes] = useState(undefined);
+  const [edgeIsClicked, setEdgeIsClicked] = useState(false);
 
   //on edge click leave only the nodes connected to the edge
   const onEdgeClick = (event, edge) => {
     let pressTimer;
     const handlePressStart = () => {
       pressTimer = setTimeout(() => {
-      if(edgeIsClicked == false){
-        const edgesToKeep = edges.filter((e) => e.source == edge.source || e.target == edge.target);
-        const nodesToKeep = nodes.filter((node) => node.id === edge.source || node.id === edge.target || node.type === "group");
-        setAllEdges(edges);
-        setAllNodes(nodes);
-        setNodes(nodesToKeep);
-        setEdges(edgesToKeep);
-        setEdgeIsClicked(true)
-      }
-      else{
-        setNodes(allNodes);
-        setEdges(allEdges);
-        setEdgeIsClicked(false)
-      }
-
+        if (edgeIsClicked == false) {
+          const edgesToKeep = edges.filter(
+            (e) => e.source == edge.source || e.target == edge.target
+          );
+          const nodesToKeep = nodes.filter(
+            (node) => node.id === edge.source || node.id === edge.target || node.type === "group"
+          );
+          setAllEdges(edges);
+          setAllNodes(nodes);
+          setNodes(nodesToKeep);
+          setEdges(edgesToKeep);
+          setEdgeIsClicked(true);
+        } else {
+          setNodes(allNodes);
+          setEdges(allEdges);
+          setEdgeIsClicked(false);
+        }
       }, 500);
     };
 
@@ -144,9 +150,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       clearTimeout(pressTimer);
     };
 
-    event.target.addEventListener('mousedown', handlePressStart);
-    event.target.addEventListener('mouseup', handlePressEnd);
-    event.target.addEventListener('mouseleave', handlePressEnd);
+    event.target.addEventListener("mousedown", handlePressStart);
+    event.target.addEventListener("mouseup", handlePressEnd);
+    event.target.addEventListener("mouseleave", handlePressEnd);
   };
   //On edgeDoubleClick change edge type to the next one
   const onEdgeDoubleClick = (_, edge) => {
@@ -183,7 +189,6 @@ function Diagram({ currentFilter }: DiagramProps) {
         onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
         pointPosition: edge.data.pointPosition,
       },
-
     };
     const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
     setEdges(newEdges);
@@ -274,13 +279,14 @@ function Diagram({ currentFilter }: DiagramProps) {
       data: {
         onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
         index: index,
+        user: user,
       },
     };
   };
   const getHandlesForEdge = (sourcePosition, targetPosition) => {
     const distanceX = targetPosition.x - sourcePosition.x;
     const distanceY = targetPosition.y - sourcePosition.y;
-    
+
     let targetHandle = "tl";
     let sourceHandle = "sr";
     if (Math.abs(distanceX) >= Math.abs(distanceY)) {
@@ -310,19 +316,37 @@ function Diagram({ currentFilter }: DiagramProps) {
       const grid1 = nodes.find((node) => node.id === doc1.parentId);
       const grid2 = nodes.find((node) => node.id === doc2.parentId);
 
-      let sourcePosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
-      let targetPosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
-      
-      if (sourcePosition.x > targetPosition.x ) {
+      let sourcePosition = {
+        x: doc1.position.x + grid1.position.x,
+        y: doc1.position.y + grid1.position.y,
+      };
+      let targetPosition = {
+        x: doc2.position.x + grid2.position.x,
+        y: doc2.position.y + grid2.position.y,
+      };
+
+      if (sourcePosition.x > targetPosition.x) {
         id1 = conn.id_doc2.toString();
         id2 = conn.id_doc1.toString();
-        sourcePosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
-        targetPosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
+        sourcePosition = {
+          x: doc2.position.x + grid2.position.x,
+          y: doc2.position.y + grid2.position.y,
+        };
+        targetPosition = {
+          x: doc1.position.x + grid1.position.x,
+          y: doc1.position.y + grid1.position.y,
+        };
       } else if (sourcePosition.x === targetPosition.x && sourcePosition.y > targetPosition.y) {
         id1 = conn.id_doc2.toString();
         id2 = conn.id_doc1.toString();
-        sourcePosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
-        targetPosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
+        sourcePosition = {
+          x: doc2.position.x + grid2.position.x,
+          y: doc2.position.y + grid2.position.y,
+        };
+        targetPosition = {
+          x: doc1.position.x + grid1.position.x,
+          y: doc1.position.y + grid1.position.y,
+        };
       }
 
       const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
@@ -507,7 +531,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onEdgeDoubleClick={onEdgeDoubleClick}
-        onEdgeClick = {onEdgeClick}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
@@ -517,6 +541,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         valuesX={valuesX}
         valuesY={valuesY}
         onEdgesDelete={onEdgesDelete}
+        user={user}
       />
 
       <Outlet />
@@ -541,7 +566,10 @@ function Flow({
   valuesX,
   valuesY,
   onEdgesDelete,
+  user,
 }) {
+  const navigate = useNavigate();
+  const flow = useReactFlow();
   const defaultViewport: Viewport = { x: 0, y: 0, zoom: 0.2 };
   const [viewport, setViewport] = useState<Viewport>(defaultViewport);
   const bounds = {
@@ -550,13 +578,13 @@ function Flow({
     yMin: -1 * (valuesY.length - 2) * gridHeight * viewport.zoom,
     yMax: 0,
   };
-  const navigate = useNavigate();
-  const flow = useReactFlow();
+
   useOnViewportChange({
     onStart: setViewport,
     onChange: setViewport,
     onEnd: setViewport,
   });
+
   //Center viewport on first node, cover 2 years before
   const handleMove = (event, viewport: Viewport) => {
     if (!event) return; // Ex: resetting the view doesn't produce a move event
@@ -564,10 +592,6 @@ function Flow({
     // if x and y don't correspond to their limited version it means they are out of boundaries
     const limitedX = Math.max(bounds.xMin, Math.min(bounds.xMax, x));
     const limitedY = Math.max(bounds.yMin, Math.min(bounds.yMax, y));
-    // Prevent setting the viewport again if it hasn't changed
-    if (x === limitedX && y === limitedY && zoom === viewport.zoom) {
-      return;
-    }
     // Set the viewport only if clamping was necessary
     if (x !== limitedX || y !== limitedY) {
       event.preventDefault(); // Prevent uncontrolled panning
@@ -616,28 +640,17 @@ function Flow({
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         onMove={handleMove}
-        onClick={(event) => {event.stopPropagation();}}
+        onClick={(event) => {
+          event.stopPropagation();
+        }}
         zoomOnDoubleClick={false}
         zoomOnScroll={false}
         minZoom={0.2}
-        maxZoom={2}
+        maxZoom={0.8}
         defaultViewport={defaultViewport}
         panOnScroll
         panOnDrag
       >
-        <Button
-          onClick={() => saveNewConnections()}
-          style={{
-            position: "absolute",
-            bottom: 10,
-            right: 80 + 20,
-            zIndex: 10,
-            background: "pink",
-            color: "white",
-          }}
-        >
-          Save new connections
-        </Button>
         <Axis
           baseWidth={gridWidth}
           baseHeight={gridHeight / 2}
@@ -666,19 +679,21 @@ function Flow({
         <Background gap={gridWidth * 100} />
         <Legend />
       </ReactFlow>
-      <Button
-        onClick={() => saveNewConnections()}
-        style={{
-          position: "absolute",
-          bottom: 35,
-          right: 60,
-          zIndex: 200,
-          background: "#003d8f",
-          color: "white",
-        }}
-      >
-        Save new connections
-      </Button>
+      {user && user.role === Role.UrbanPlanner && (
+        <Button
+          onClick={() => saveNewConnections()}
+          style={{
+            position: "absolute",
+            bottom: 35,
+            right: 60,
+            zIndex: 200,
+            background: "#003d8f",
+            color: "white",
+          }}
+        >
+          Save new connections
+        </Button>
+      )}
     </div>
   );
 }
