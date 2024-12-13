@@ -86,7 +86,9 @@ class DocumentRoutes {
             const first = points[0];
             const last = points[points.length - 1];
             if (first.lat !== last.lat || first.lng !== last.lng) {
-              throw new Error("The polygon must be closed (first and last points must be identical)");
+              throw new Error(
+                "The polygon must be closed (first and last points must be identical)"
+              );
             }
           }
           return true; // Indicates the validation passed
@@ -192,7 +194,9 @@ class DocumentRoutes {
             const first = points[0];
             const last = points[points.length - 1];
             if (first.lat !== last.lat || first.lng !== last.lng) {
-              throw new Error("The polygon must be closed (first and last points must be identical)");
+              throw new Error(
+                "The polygon must be closed (first and last points must be identical)"
+              );
             }
           }
           return true; // Indicates the validation passed
@@ -265,7 +269,6 @@ class DocumentRoutes {
         ),
       // Body params validation
       body("title").optional().isString().withMessage("Title must be a string."),
-      body("description").optional().isString().withMessage("Description must be a string."),
       body("start_year")
         .optional()
         .isString()
@@ -311,6 +314,10 @@ class DocumentRoutes {
         .custom((array) => array.every((item: any) => Number.isInteger(item)))
         .withMessage("All elements in stakeholders must be integers."),
       body("municipality").optional().isBoolean().withMessage("Municipality must be a boolean."),
+      body("keywords")
+        .optional()
+        .isArray({ min: 1 })
+        .withMessage("Keywords must be an array of strings with at least one element."),
       this.errorHandler.validateRequest,
       (req: Request, res: Response, next: NextFunction) => {
         this.controller
@@ -319,14 +326,14 @@ class DocumentRoutes {
             req.query.size ? Number(req.query.size) : undefined,
             req.query.sort as string,
             req.body.title,
-            req.body.description,
             req.body.start_year,
             req.body.end_year,
             req.body.scales,
             req.body.types,
             req.body.languages,
             req.body.stakeholders,
-            req.body.municipality
+            req.body.municipality,
+            req.body.keywords
           )
           .then((documents) => res.status(200).json(documents))
           .catch((err: any) => {

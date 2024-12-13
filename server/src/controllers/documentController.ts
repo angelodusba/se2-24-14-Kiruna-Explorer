@@ -133,28 +133,28 @@ class DocumentController {
     size?: number,
     sort?: string,
     title?: string,
-    description?: string,
     start_year?: string,
     end_year?: string,
     scales?: string[],
     types?: number[],
     languages?: string[],
     stakeholders?: number[],
-    municipality?: boolean
+    municipality?: boolean,
+    keywords?: string[]
   ): Promise<FilteredDocumentsResponse> {
     return this.dao.getFilteredDocuments(
       page,
       size,
       sort,
       title,
-      description,
       start_year,
       end_year,
       scales,
       types,
       languages,
       stakeholders,
-      municipality
+      municipality,
+      keywords
     );
   }
 }

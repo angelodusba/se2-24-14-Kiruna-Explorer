@@ -201,14 +201,14 @@ function AdvancedSearchForm({
           <Grid size={12}>
             <TextField
               size="small"
-              placeholder="Separate keywords with a space"
+              placeholder="Press Enter to set keywords"
               label="Keywords"
               value={keywordValue}
               onChange={(e) => {
                 setKeywordValue(e.target.value);
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.code === "Space") {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   const trimmedKeyword = keywordValue.trim();
                   // Avoid empty and duplicate entries
