@@ -21,14 +21,14 @@ import { Snackbar, Alert } from "@mui/material";
 import DocumentsListPage from "./pages/DocumentsListPage";
 import Diagram from "./components/Diagram/Diagram";
 import MapPicker from "./components/Map/MapPicker";
-import { LandingPage } from "./pages/LandingPage";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | undefined>(undefined);
-  const [disabledInput, setDisabledInput] = useState(undefined);
   const [error, setError] = useState("");
   const [docsLocation, setDocsLocation] = useState([]);
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const [disabledInput, setDisabledInput] = useState(undefined);
   const [currentFilter, setCurrentFilter] = useState<SearchFilter>({});
   const [filterNumber, setFilterNumber] = useState<number>(0);
 
