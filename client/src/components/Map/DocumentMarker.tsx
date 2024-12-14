@@ -46,6 +46,7 @@ function DocumentMarker({
         links
       )}
       position={position}
+      zIndexOffset={selectedDocId === docId && 999}
       eventHandlers={{
         click: handleClick,
         mouseover: () => {
