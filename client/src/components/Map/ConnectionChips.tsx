@@ -1,13 +1,14 @@
-import { Box, Chip, Popover, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Popover, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import connectionStyles from "../Diagram/ConnectionStyles.tsx";
 import Grid from "@mui/material/Grid2";
+import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 
 function ConnectionChips({ connections, anchorEl, setAnchorEl }) {
   const navigate = useNavigate();
 
-  const handleChipClick = (id) => {
-    console.log(connections);
+  const handleConnectionClick = (id) => {
+    console.log(id);
     const currentPath = window.location.pathname;
     setAnchorEl(null);
     const newPath = currentPath.includes("diagram")
@@ -32,54 +33,61 @@ function ConnectionChips({ connections, anchorEl, setAnchorEl }) {
       <Grid
         container
         spacing={2}
-        sx={{ p: 2, minHeight: "200px", minWidth: "200px" }}>
-        <Grid size={6} sx={{ textAlign: "center" }}>
+        sx={{ p: 2, maxWidth: "400px", borderRadius: "50%", boxShadow: "2,2" }}>
+        <Grid size={12} sx={{ textAlign: "center" }}>
           <Typography
             sx={{ fontWeight: "bold", color: "#003d8f" }}
             variant="subtitle2">
-            Document
+            Connected documents
           </Typography>
         </Grid>
-        <Grid size={6} sx={{ textAlign: "center" }}>
-          <Typography
-            sx={{ fontWeight: "bold", color: "#003d8f" }}
-            variant="subtitle2">
-            Connection Types
-          </Typography>
-        </Grid>
+
         {connections.map((conn) => {
           return (
             <>
-              <Grid size={6} sx={{ textAlign: "center" }}>
-                <Tooltip title={conn.name}>
-                  <Chip
-                    size="small"
-                    label={conn.name}
-                    onClick={() => handleChipClick(conn.document_id)}></Chip>
-                </Tooltip>
-              </Grid>
-              <Grid>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "8px",
-                  }}>
-                  <div
+              <Grid
+                size={12}
+                sx={{
+                  textAlign: "center",
+                  justifyContent: "center",
+                  direction: "row",
+                }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
                     style={{
-                      width: "24px",
-                      height: "24px",
+                      width: "32px",
+                      height: "32px",
+                      // border: "1px solid #003d8f",
+                      borderRadius: "50%",
+                      padding: "4px",
                       marginRight: "8px",
+                      backgroundColor: "#f0f4f8",
                     }}>
                     <svg width="100%" height="100%">
-                      <path
-                        d="M0,12 L100,12"
-                        style={connectionStyles["direct_conn"]}
-                      />
+                      {conn.connection_types.map((type, index) => {
+                        const totalPaths = conn.connection_types.length;
+                        const startY = (32 - (totalPaths - 1) * 10) / 2;
+                        return (
+                          <path
+                            d={`M0,${startY + index * 10} L100,${
+                              startY + index * 10
+                            }`}
+                            style={
+                              connectionStyles[type.toLowerCase() + "_conn"]
+                            }
+                          />
+                        );
+                      })}
                     </svg>
-                  </div>
-                  <Typography>Direct</Typography>
-                </div>
+                  </Box>
+                  <Typography>{conn.name}</Typography>
+                  <IconButton
+                    size="small"
+                    sx={{ marginLeft: "auto" }}
+                    onClick={() => handleConnectionClick(conn.document_id)}>
+                    <ArrowCircleRightOutlinedIcon color="primary"></ArrowCircleRightOutlinedIcon>
+                  </IconButton>
+                </Box>
               </Grid>
             </>
           );

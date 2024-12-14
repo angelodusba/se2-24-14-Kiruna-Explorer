@@ -125,7 +125,6 @@ function DocumentCard(props) {
       setDocumentCard(card);
       //Connections
       const docNames = await DocumentAPI.getAllDocumentsNames();
-      console.log(docNames);
       const conns = await ConnectionAPI.getConnectionsByDocumentId(id);
       const connectionsWithNames = conns.map((conn) => {
         const name =
@@ -134,7 +133,6 @@ function DocumentCard(props) {
         return { ...conn, name };
       });
       setConnections(connectionsWithNames);
-      console.log(connectionsWithNames);
       //Attachments
       if (card.attachments.length === 0) {
         return;
@@ -164,8 +162,6 @@ function DocumentCard(props) {
       await fetchCardInfo(Number(docId.id));
     };
     fetchData();
-
-    //fetchCardInfo(Number(docId.id));
   }, [docId, disabledInput]);
 
   const isDiagramPage = window.location.pathname.includes("/diagram");
@@ -361,7 +357,7 @@ function DocumentCard(props) {
                                 <IconButton
                                   size="small"
                                   onClick={handleConnectionsOpen}>
-                                  <ArrowDropDownOutlinedIcon></ArrowDropDownOutlinedIcon>
+                                  <ArrowDropDownOutlinedIcon color="primary"></ArrowDropDownOutlinedIcon>
                                 </IconButton>
                                 <ConnectionChips
                                   connections={connections}
