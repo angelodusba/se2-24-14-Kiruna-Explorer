@@ -51,6 +51,7 @@ function Link({ id_doc1, id_doc2, positions, type, offset }) {
     linkRef.current = L.curve(createCurvePath(start, end, offset), {
       ...linkStyles[type],
       weight: 3,
+      className: "link",
     });
 
     //Add tooltip

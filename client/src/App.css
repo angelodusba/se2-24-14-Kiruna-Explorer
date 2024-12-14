@@ -59,3 +59,21 @@ body {
 .doc-not-connected {
   opacity: 0.5 !important;
 }
+
+.MuiToggleButton-root {
+  border: none !important;
+  border-radius: 12px !important;
+}
+
+.Mui-selected {
+  background-color: #003d8f !important;
+  color: white !important;
+}
+
+.Mui-selected:hover {
+  background-color: #002f6c !important;
+}
+
+.link:focus {
+  outline: none !important;
+}
