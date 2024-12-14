@@ -136,7 +136,17 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   };
 
   const handleSimpleSearch = () => {
-    setFilters({ title: searchValue });
+    setFilters({
+      title: searchValue || "",
+      types: [],
+      start_year: "",
+      end_year: "",
+      scales: [],
+      languages: [],
+      stakeholders: [],
+      keywords: [],
+      municipality: false,
+    });
     onSearch({ title: searchValue });
   };
 
