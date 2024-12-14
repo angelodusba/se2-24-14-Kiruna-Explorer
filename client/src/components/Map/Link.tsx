@@ -1,7 +1,7 @@
 import L from "leaflet";
 import "@elfalem/leaflet-curve";
 import { useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLeafletContext } from "@react-leaflet/core";
 import { CurvePathData } from "@elfalem/leaflet-curve";
 import { Point } from "../../models/Document";
@@ -40,7 +40,6 @@ function Link({ id_doc1, id_doc2, positions, type, offset }) {
   const navigate = useNavigate();
   const linkRef = useRef<L.Curve | null>(null);
   const propsRef = useRef({ positions, type, offset });
-  const selectedDocumentId = Number(useParams().id);
 
   useEffect(() => {
     const container = context.layerContainer || context.map;
@@ -64,9 +63,9 @@ function Link({ id_doc1, id_doc2, positions, type, offset }) {
 
     // Add click event for navigation
     linkRef.current.on("click", () => {
-      if (selectedDocumentId === id_doc1) {
+      if (window.location.pathname.includes(id_doc1)) {
         navigate(`/map/${id_doc2}`);
-      } else if (selectedDocumentId === id_doc2) {
+      } else if (window.location.pathname.includes(id_doc2)) {
         navigate(`/map/${id_doc1}`);
       }
     });

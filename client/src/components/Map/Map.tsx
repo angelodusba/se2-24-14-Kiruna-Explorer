@@ -10,7 +10,7 @@ import DocumentDial from "../DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
-import { Outlet } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import DocumentMarker from "./DocumentMarker";
 import MapLayersControl from "./MapLayersControl";
 import ConnectionAPI from "../../API/ConnectionApi";
@@ -47,6 +47,7 @@ function Map({ docs }) {
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
   const [hoveredDocument, setHoveredDocument] = useState(null);
   const [zoom, setZoom] = useState(13);
+  const selectedDocument = Number(useParams().id);
 
   const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
@@ -177,7 +178,9 @@ function Map({ docs }) {
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
                       links={links}
                       setHoveredDocument={setHoveredDocument}></DocumentMarker>
-                    {(layersVisibility.areas || hoveredDocument === doc.id) && (
+                    {(layersVisibility.areas ||
+                      hoveredDocument === doc.id ||
+                      selectedDocument === doc.id) && (
                       <Polygon
                         positions={pos}
                         pathOptions={{
@@ -230,7 +233,9 @@ function Map({ docs }) {
                 return (
                   ((layersVisibility.links && zoom > 11) ||
                     hoveredDocument == link.id_doc1 ||
-                    hoveredDocument == link.id_doc2) && (
+                    hoveredDocument == link.id_doc2 ||
+                    selectedDocument == link.id_doc1 ||
+                    selectedDocument == link.id_doc2) && (
                     <Link
                       key={`${index}-${typeIndex}`}
                       id_doc1={link.id_doc1}

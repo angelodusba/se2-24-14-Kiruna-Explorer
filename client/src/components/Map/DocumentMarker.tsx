@@ -48,14 +48,12 @@ function DocumentMarker({
       position={position}
       eventHandlers={{
         click: handleClick,
-        ...(setHoveredDocument && {
-          mouseover: () => {
-            setHoveredDocument(docId);
-          },
-          mouseout: () => {
-            setHoveredDocument(null);
-          },
-        }),
+        mouseover: () => {
+          setHoveredDocument(docId);
+        },
+        mouseout: () => {
+          setHoveredDocument(null);
+        },
       }}>
       {selectedDocId !== docId && (
         <Tooltip direction="top" offset={[3, -32]}>
