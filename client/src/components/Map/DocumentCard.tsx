@@ -9,11 +9,15 @@ import {
   ListItemText,
   Paper,
   Typography,
-  Button,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+
 import {
   ArticleOutlined,
+  Earbuds,
+  Map,
   AspectRatioOutlined,
   AutoStoriesOutlined,
   CloseOutlined,
@@ -40,7 +44,8 @@ import { ErrorContext } from "../../contexts/ErrorContext";
 import { createReactFlowIcon } from "./Icons";
 import ConnectionAPI from "../../API/ConnectionApi";
 import ConnectionChips from "./ConnectionChips";
-import React from "react";
+import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 
 const style = {
   position: "absolute",
@@ -112,8 +117,20 @@ function DocumentCard(props) {
   const [originalResources, setOriginalResources] = useState([]);
   const [notOriginalAttachments, setNotOriginalAttachments] = useState([]);
   const [connections, setConnections] = useState([]);
-
   const [anchorEl, setAnchorEl] = useState(null);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const maxLength = 250;
+  const isLongDescription = documentCard.description.length > maxLength;
+
+  const truncateDescription = (description, maxLength) => {
+    if (description.length <= maxLength) return description;
+    const truncated = description.substring(0, maxLength);
+    return truncated.substring(0, truncated.lastIndexOf(" ")) + "...";
+  };
+
+  const truncatedDescription = isLongDescription
+    ? truncateDescription(documentCard.description, maxLength)
+    : documentCard.description;
 
   const handleConnectionsOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -187,13 +204,7 @@ function DocumentCard(props) {
                   alignItems: "center",
                   mb: 1,
                 }}>
-                <Grid
-                  size={2}
-                  sx={
-                    {
-                      //marginLeft: "8px", paddingLeft: 2
-                    }
-                  }>
+                <Grid size={1}>
                   <Box
                     sx={{
                       height: 48,
@@ -212,6 +223,27 @@ function DocumentCard(props) {
                   <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                     {documentCard.title}
                   </Typography>
+                </Grid>
+                <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
+                  <ToggleButtonGroup
+                    size="small"
+                    exclusive
+                    value={isDiagramPage ? "diagram" : "map"}
+                    onChange={() =>
+                      navigate(
+                        isDiagramPage
+                          ? `/map/${docId.id}`
+                          : `/diagram/${docId.id}`
+                      )
+                    }
+                    aria-label="cardNavigator">
+                    <ToggleButton size="small" value="map" aria-label="map">
+                      <Map />
+                    </ToggleButton>
+                    <ToggleButton value="diagram" aria-label="diagram">
+                      <Earbuds />
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </Grid>
                 <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
                   <IconButton
@@ -481,7 +513,25 @@ function DocumentCard(props) {
                   <Typography color="#003d8f" fontWeight="bold">
                     Description
                   </Typography>
-                  <Typography>{documentCard.description}</Typography>
+                  <Box>
+                    <Typography>
+                      {showFullDescription || !isLongDescription
+                        ? documentCard.description
+                        : truncatedDescription}
+                      {isLongDescription && (
+                        <IconButton
+                          onClick={() =>
+                            setShowFullDescription(!showFullDescription)
+                          }>
+                          {showFullDescription ? (
+                            <ExpandLessOutlinedIcon color="primary"></ExpandLessOutlinedIcon>
+                          ) : (
+                            <ExpandMoreOutlinedIcon color="primary"></ExpandMoreOutlinedIcon>
+                          )}
+                        </IconButton>
+                      )}
+                    </Typography>
+                  </Box>{" "}
                   <Box
                     sx={{
                       display: "flex",
@@ -642,40 +692,6 @@ function DocumentCard(props) {
                       );
                     })
                   )}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "100%",
-                      marginTop: 2,
-                    }}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() =>
-                        navigate(
-                          isDiagramPage
-                            ? `/map/${docId.id}`
-                            : `/diagram/${docId.id}`
-                        )
-                      }
-                      sx={{
-                        textTransform: "none",
-                        padding: "12px 24px",
-                        fontSize: "16px",
-                        background:
-                          "linear-gradient(to bottom,  #002961, #3670BD)",
-                        "&:hover": {
-                          background:
-                            "linear-gradient(to bottom, #3670BD, #002961)",
-                        },
-                        width: 200,
-                        height: 40,
-                      }}>
-                      {isDiagramPage ? "Show in Map" : "View in Diagram"}
-                    </Button>
-                  </Box>
                 </Grid>
               </Grid>
             </Grid>

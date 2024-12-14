@@ -226,7 +226,7 @@ function Map({ docs }) {
             ) {
               return link.connection_types.map((type, typeIndex) => {
                 const offset =
-                  typeIndex % 2 === 0 ? -typeIndex * 0.001 : typeIndex * 0.001; // Adjust offset for each type
+                  typeIndex % 2 === 0 ? -typeIndex * 0.003 : typeIndex * 0.003; // Adjust offset for each type
                 const formattedType =
                   type.split("_")[0].charAt(0).toUpperCase() +
                   type.split("_")[0].slice(1);
