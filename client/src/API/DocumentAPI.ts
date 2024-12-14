@@ -42,7 +42,7 @@ async function sendDocument(document: Document): Promise<number> {
     const errDetail = await response.json();
     console.log(errDetail);
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -58,7 +58,7 @@ async function getDocumentsLocation() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -75,7 +75,7 @@ async function getMunicipalityArea() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -94,7 +94,7 @@ async function getAllAreas() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -118,7 +118,7 @@ async function saveArea(name: string, location) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -134,7 +134,7 @@ async function getAllDocumentsNames() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -150,7 +150,7 @@ async function getMunicipalityDocuments() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -174,7 +174,7 @@ async function changeDocumentLocation(id: number, location: Point[]) {
   if (!response.ok) {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -268,7 +268,7 @@ async function getFilteredDocuments(
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -289,7 +289,7 @@ async function uploadFile(id, file) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -304,7 +304,7 @@ async function deleteFile(id) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -322,7 +322,7 @@ async function addStakeholder(name) {
   if (!response.ok) {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -341,7 +341,7 @@ async function getStakeholders() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -361,7 +361,7 @@ async function addDocumentType(name) {
     const errDetail = await response.json();
     console.log(errDetail);
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -380,7 +380,7 @@ async function getTypes(): Promise<Type[]> {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }

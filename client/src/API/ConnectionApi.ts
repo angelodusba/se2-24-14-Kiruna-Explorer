@@ -29,7 +29,7 @@ async function sendConnections(connectionsList: ConnectionList) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -55,7 +55,7 @@ async function getConnections() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -80,7 +80,7 @@ async function getConnectionsByDocumentId(id) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -103,7 +103,7 @@ async function getTypeOfConnections() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -123,7 +123,7 @@ async function updateConnections(connectionsList: ConnectionList) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -142,7 +142,7 @@ async function updateConnectionsDiagram(connectionsList: ConnectionList) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -153,7 +153,7 @@ const ConnectionAPI = {
   getConnectionsByDocumentId,
   getTypeOfConnections,
   updateConnections,
-  updateConnectionsDiagram
+  updateConnectionsDiagram,
 };
 
 export default ConnectionAPI;
