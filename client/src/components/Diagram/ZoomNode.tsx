@@ -46,7 +46,7 @@ const ZoomNode = ({ data }: ZoomNodeProps) => {
           (link.id_doc1 === selectedDocId && link.id_doc2 === docId) ||
           (link.id_doc1 === docId && link.id_doc2 === selectedDocId)
       )
-      ? 0.1
+      ? 0.2
       : 1;
   }, [selectedDocId, docId, connections]);
 
@@ -79,8 +79,23 @@ const ZoomNode = ({ data }: ZoomNodeProps) => {
         style={{ ...styles.handle, ...styles.targetHandle }}
       />
       {/* Node tooltip and icon */}
-      <Tooltip title={title}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", opacity }}>
+      <Tooltip 
+        title={title}
+        placement="top"
+        arrow
+        slotProps={{
+          popper: {
+            modifiers: [
+              {
+                name: 'offset',
+                options: {
+                  offset: [0, 5],
+                },
+              },
+            ],
+          },
+        }}>
+        <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity }}>
           {IconComponent}
         </div>
       </Tooltip>
