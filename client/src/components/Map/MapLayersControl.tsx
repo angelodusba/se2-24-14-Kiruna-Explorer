@@ -1,4 +1,12 @@
-import { Box, Divider, Drawer, Fab, Tooltip, Typography } from "@mui/material";
+import {
+  Badge,
+  Box,
+  Divider,
+  Drawer,
+  Fab,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import Grid from "@mui/material/Grid2";
@@ -17,19 +25,40 @@ function MapLayersControl({
 
   return (
     <>
-      <div className="leaflet-control-container leaflet-top leaflet-left leaflet-right">
-        <Tooltip title="Layers" placement="left">
-          <Fab
-            className=" leaflet-control"
-            size="medium"
-            id="layersControl"
-            aria-haspopup="true"
-            onClick={() => {
-              setDrawerOpened(true);
+      <div
+        className="leaflet-control-container leaflet-top leaflet-left leaflet-right"
+        style={{ position: "relative" }}>
+        <div style={{ position: "absolute", right: 0 }}>
+          <Badge
+            badgeContent={
+              (layersVisibility.areas ? 1 : 0) +
+              (layersVisibility.links ? 1 : 0)
+            }
+            color="primary"
+            overlap="circular"
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            sx={{
+              position: "absolute",
+              "& .MuiBadge-badge": {
+                zIndex: 1200,
+              },
+              right: 0,
             }}>
-            <LayersOutlinedIcon></LayersOutlinedIcon>
-          </Fab>
-        </Tooltip>
+            <Tooltip title="Layers" placement="left">
+              <Fab
+                className="leaflet-control"
+                size="medium"
+                id="layersControl"
+                aria-haspopup="true"
+                onClick={() => setDrawerOpened(true)}>
+                <LayersOutlinedIcon />
+              </Fab>
+            </Tooltip>
+          </Badge>
+        </div>
       </div>
       <Drawer
         anchor={"bottom"}
@@ -183,7 +212,7 @@ function MapLayersControl({
                     src={Links}
                     alt="Links"
                   />
-                  <Typography>Links</Typography>
+                  <Typography>Connections</Typography>
                 </Box>
               </Grid>
               <Grid
