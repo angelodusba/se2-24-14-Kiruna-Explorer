@@ -12,6 +12,7 @@ import {
   Avatar,
   ListItemIcon,
   Popover,
+  Chip,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
@@ -133,6 +134,22 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
 
   const handleAccountMenuClose = () => {
     setAccountAnchorEl(null);
+  };
+
+  const handleRemoveFilter = (key: string, value: string) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters };
+
+      // Remove filter value from the array or reset the property
+      if (Array.isArray(updatedFilters[key])) {
+        updatedFilters[key] = updatedFilters[key].filter((item: string) => item !== value);
+      } else {
+        updatedFilters[key] = "";
+      }
+
+      return updatedFilters;
+    });
+    onSearch(filters); 
   };
 
   const handleSimpleSearch = () => {
@@ -321,6 +338,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
                   />
+
+
+
+
                   <Popover
                     id={advancedSearchId}
                     open={advancedSearchOpen}
@@ -346,6 +367,58 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     />
                   </Popover>
                 </Grid>
+
+                <Grid >
+                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                      {Object.entries(filters).flatMap(([key, value]) => {
+                      if (key === "types" && Array.isArray(value)) {
+                        // Map type IDs to their names for the "types" filter
+                        return value.map((typeId) => {
+                          const type = documentTypes.find((t) => t.id === typeId); // Find the corresponding type
+                          return (
+                            <Chip color="success"
+                              key={`${key}-${typeId}`}
+                              label={`${key}: ${type?.name || typeId}`} // Show name if available, fallback to ID
+                              onDelete={() => handleRemoveFilter(key, typeId)}
+                            />
+                          );
+                        });
+                      }
+                
+                      if (key === "stakeholders" && Array.isArray(value)) {
+                        // Map stakeholder IDs to their names for the "stakeholders" filter
+                        return value.map((stakeholderId) => {
+                          const stakeholder = stakeholders.find((s) => s.id === stakeholderId); // Find the corresponding stakeholder
+                          return (
+                            <Chip color="success"
+                              key={`${key}-${stakeholderId}`}
+                              label={`${key}: ${stakeholder?.name || stakeholderId}`} // Show name if available, fallback to ID
+                              onDelete={() => handleRemoveFilter(key, stakeholderId)}
+                            />
+                          );
+                        });
+                      }
+                
+
+                      return Array.isArray(value)
+                        ? value.map((item) => (
+                      <Chip color="success"
+                        key={`${key}-${item}`}
+                        label={`${key}: ${item}`}
+                        onDelete={() => handleRemoveFilter(key, item)}
+                      />
+                      ))
+                      : value && (
+                      <Chip color="success"
+                        key={key}
+                        label={`${key}: ${value}`}
+                        onDelete={() => handleRemoveFilter(key, value)}
+                      />
+                      );
+                    })}
+                   </Box>
+                </Grid>
+
                 <Grid
                   size="grow"
                   sx={{
