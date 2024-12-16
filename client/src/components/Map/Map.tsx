@@ -56,7 +56,9 @@ function Map({ docs }) {
     } else if (doc.location.length === 1) {
       return L.latLng(doc.location[0]);
     } else if (doc.location.length > 1) {
-      const pos: L.LatLngExpression[] = doc.location.slice(0, -1).map((point) => L.latLng(point));
+      const pos: L.LatLngExpression[] = doc.location
+        .slice(0, -1)
+        .map((point) => L.latLng(point));
       return L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857);
     }
   };
@@ -81,7 +83,10 @@ function Map({ docs }) {
 
   return (
     <>
-      {!disabledInput && user && user.role === Role.UrbanPlanner && <NavDial />}
+      {!disabledInput && user && user.role === Role.UrbanPlanner && (
+        <DocumentDial />
+      )}
+      {!disabledInput && user && <NavDial />}
 
       <MapContainer
         center={[67.85572, 20.22513]}
@@ -99,8 +104,7 @@ function Map({ docs }) {
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
-        }}
-      >
+        }}>
         {!disabledInput && (
           <>
             <Legend />
@@ -136,8 +140,7 @@ function Map({ docs }) {
         <MarkerClusterGroup
           spiderfyOnMaxZoom={false}
           disableClusteringAtZoom={11}
-          showCoverageOnHover={false}
-        >
+          showCoverageOnHover={false}>
           {!disabledInput &&
             docs.map((doc) => {
               if (!doc) return null;
@@ -171,8 +174,7 @@ function Map({ docs }) {
                       stakeholders={doc.stakeholders}
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
                       links={links}
-                      setHoveredDocument={setHoveredDocument}
-                    ></DocumentMarker>
+                      setHoveredDocument={setHoveredDocument}></DocumentMarker>
                     {(layersVisibility.areas ||
                       hoveredDocument === doc.id ||
                       selectedDocument === doc.id) && (
@@ -182,15 +184,17 @@ function Map({ docs }) {
                           color: "white",
                           weight: 1,
                           fillOpacity: 0.4,
-                        }}
-                      ></Polygon>
+                        }}></Polygon>
                     )}
                   </React.Fragment>
                 );
               }
             })}
         </MarkerClusterGroup>
-        <MarkerClusterGroup iconCreateFunction={municipalityClusterIcon}>
+        <MarkerClusterGroup
+          iconCreateFunction={municipalityClusterIcon}
+          spiderfyDistanceMultiplier={2}
+          showCoverageOnHover={false}>
           {!disabledInput &&
             docs.map((doc) => {
               if (doc.location.length === 0) {
@@ -212,8 +216,7 @@ function Map({ docs }) {
         {bounds !== null && (
           <Polygon
             pathOptions={{ color: "red", fill: false }}
-            positions={bounds.getLatLngs() as L.LatLngExpression[]}
-          ></Polygon>
+            positions={bounds.getLatLngs() as L.LatLngExpression[]}></Polygon>
         )}
         {!disabledInput &&
           links.map((link, index) => {
@@ -222,9 +225,11 @@ function Map({ docs }) {
               docs.some((doc) => doc.id === link.id_doc2)
             ) {
               return link.connection_types.map((type, typeIndex) => {
-                const offset = typeIndex % 2 === 0 ? -typeIndex * 0.003 : typeIndex * 0.003; // Adjust offset for each type
+                const offset =
+                  typeIndex % 2 === 0 ? -typeIndex * 0.003 : typeIndex * 0.003; // Adjust offset for each type
                 const formattedType =
-                  type.split("_")[0].charAt(0).toUpperCase() + type.split("_")[0].slice(1);
+                  type.split("_")[0].charAt(0).toUpperCase() +
+                  type.split("_")[0].slice(1);
                 return (
                   ((layersVisibility.links && zoom > 11) ||
                     hoveredDocument == link.id_doc1 ||
@@ -240,8 +245,7 @@ function Map({ docs }) {
                       positions={{
                         doc1: getDocLocation(link.id_doc1),
                         doc2: getDocLocation(link.id_doc2),
-                      }}
-                    ></Link>
+                      }}></Link>
                   )
                 );
               });

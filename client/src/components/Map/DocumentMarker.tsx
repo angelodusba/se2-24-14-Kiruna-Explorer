@@ -38,19 +38,26 @@ function DocumentMarker({
   return (
     <Marker
       riseOnHover
-      icon={createCustomIcon(typeName, docId, selectedDocId, stakeholders, links)}
+      icon={createCustomIcon(
+        typeName,
+        docId,
+        selectedDocId,
+        stakeholders,
+        links
+      )}
       position={position}
       zIndexOffset={selectedDocId === docId && 999}
       eventHandlers={{
         click: handleClick,
-        mouseover: () => {
+        mouseover: (event) => {
+          event.target.preventDefault();
           setHoveredDocument(docId);
         },
-        mouseout: () => {
+        mouseout: (event) => {
+          event.target.preventDefault();
           setHoveredDocument(null);
         },
-      }}
-    >
+      }}>
       {selectedDocId !== docId && (
         <Tooltip direction="top" offset={[3, -32]}>
           {docTitle}
