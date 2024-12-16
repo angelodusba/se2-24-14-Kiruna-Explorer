@@ -47,7 +47,7 @@ function AdvancedSearchForm({
         "&::-webkit-scrollbar": {
           display: "none", // Hide scrollbar for WebKit browsers
         },
-        "-ms-overflow-style": "none", // Hide scrollbar for IE and Edge
+        msOverflowStyle: "none", // Hide scrollbar for IE and Edge
       }}
     >
       <CardHeader title="Advanced Search" />
@@ -239,30 +239,28 @@ function AdvancedSearchForm({
               fullWidth
             />
             <Tooltip title={"Add keyword"}>
-              <IconButton
-                aria-label="add type"
-                disabled={!keywordValue.trim()}
-                onClick={() => {
-                  const trimmedKeyword = keywordValue.trim();
-                  // Avoid empty and duplicate entries
-                  if (trimmedKeyword && !filters.keywords.includes(trimmedKeyword)) {
-                    setFilters((prevFilters) => ({
-                      ...prevFilters,
-                      keywords: [...prevFilters.keywords, keywordValue.trim()],
-                    }));
-                  }
-                  setKeywordValue("");
-                }}
-                style={{ marginLeft: 3 }}
-              >
-                <PlaylistAdd />
-              </IconButton>
+              <span>
+                <IconButton
+                  aria-label="add type"
+                  disabled={!keywordValue.trim()}
+                  onClick={() => {
+                    const trimmedKeyword = keywordValue.trim();
+                    // Avoid empty and duplicate entries
+                    if (trimmedKeyword && !filters.keywords.includes(trimmedKeyword)) {
+                      setFilters((prevFilters) => ({
+                        ...prevFilters,
+                        keywords: [...prevFilters.keywords, keywordValue.trim()],
+                      }));
+                    }
+                    setKeywordValue("");
+                  }}
+                  style={{ marginLeft: 3 }}
+                >
+                  <PlaylistAdd />
+                </IconButton>
+              </span>
             </Tooltip>
           </Grid>
-          {/* <Grid size={1}>
-            
-          </Grid> */}
-          {/* Chips list */}
           <Grid size={12}>
             <Box
               sx={{
