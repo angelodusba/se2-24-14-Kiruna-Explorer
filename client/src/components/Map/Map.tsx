@@ -5,12 +5,12 @@ import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useContext, useEffect, useState } from "react";
-import Dial from "../Dial";
-import DocumentDial from "../DocumentDial";
+import NavDial from "../Nav/NavDial";
+import DocumentDial from "./DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
-import { Outlet } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import DocumentMarker from "./DocumentMarker";
 import MapLayersControl from "./MapLayersControl";
 import ConnectionAPI from "../../API/ConnectionApi";
@@ -19,7 +19,8 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import DocumentAPI from "../../API/DocumentAPI";
 import React from "react";
 import Link from "./Link";
-import Legend from "../Legend";
+import Legend from "../shared/Legend";
+import ZoomControl from "./ZoomControl";
 
 const municipalityClusterIcon = function () {
   return new L.Icon({
@@ -27,6 +28,11 @@ const municipalityClusterIcon = function () {
     iconSize: [26.4, 32],
   });
 };
+
+const KirunaBounds = L.latLngBounds(
+  [66.6082, 17.3998], // Southwest coordinates
+  [69.5526, 23.7867] // Northeast coordinates
+);
 
 function Map({ docs }) {
   const user = useContext(UserContext);
@@ -40,6 +46,8 @@ function Map({ docs }) {
   const [links, setLinks] = useState([]);
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
   const [hoveredDocument, setHoveredDocument] = useState(null);
+  const [zoom, setZoom] = useState(13);
+  const selectedDocument = Number(useParams().id);
 
   const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
@@ -76,42 +84,44 @@ function Map({ docs }) {
   return (
     <>
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
-        <>
-          <Dial /> {/* Add documents and links button */}
-          {/* TODO: remove */}
-          <DocumentDial /> {/* Municipality documents button */}
-          <Legend></Legend>
-        </>
+        <DocumentDial />
       )}
+      {!disabledInput && user && <NavDial />}
+
       <MapContainer
         center={[67.85572, 20.22513]}
         minZoom={8}
         zoom={13}
-        bounds={bounds?.getBounds()}
-        maxBounds={bounds?.getBounds()}
+        bounds={KirunaBounds}
+        maxBounds={KirunaBounds}
         maxBoundsViscosity={1.0}
         touchZoom
         doubleClickZoom
         attributionControl={true}
         zoomControl={false}
         scrollWheelZoom={false} // Needed to enable smooth zoom
+        markerZoomAnimation
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
         }}>
         {!disabledInput && (
-          <MapLayersControl
-            mapType={mapType}
-            setMapType={setMapType}
-            layersVisibility={layersVisibility}
-            setLayersVisibility={setLayersVisibility}
-          />
+          <>
+            <Legend />
+            <MapLayersControl
+              mapType={mapType}
+              setMapType={setMapType}
+              layersVisibility={layersVisibility}
+              setLayersVisibility={setLayersVisibility}
+            />
+          </>
         )}
+        <ZoomControl setZoom={setZoom}></ZoomControl>
         {/* Map Tiles */}
         {mapType == "satellite" ? (
           <LayerGroup>
             <TileLayer
-              keepBuffer={100}
+              keepBuffer={10}
               attribution='&copy; <a href="https://www.esri.com/en-us/home">Esri</a>'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
@@ -127,7 +137,10 @@ function Map({ docs }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         )}
-        <MarkerClusterGroup>
+        <MarkerClusterGroup
+          spiderfyOnMaxZoom={false}
+          disableClusteringAtZoom={11}
+          showCoverageOnHover={false}>
           {!disabledInput &&
             docs.map((doc) => {
               if (!doc) return null;
@@ -138,9 +151,11 @@ function Map({ docs }) {
                     key={doc.id}
                     docId={doc.id}
                     typeName={doc.type.name}
+                    docTitle={doc.title}
                     stakeholders={doc.stakeholders}
                     position={L.latLng(doc.location[0])}
                     links={links}
+                    setHoveredDocument={setHoveredDocument}
                   />
                 );
               }
@@ -155,11 +170,14 @@ function Map({ docs }) {
                       key={doc.id}
                       docId={doc.id}
                       typeName={doc.type.name}
+                      docTitle={doc.title}
                       stakeholders={doc.stakeholders}
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
                       links={links}
                       setHoveredDocument={setHoveredDocument}></DocumentMarker>
-                    {(layersVisibility.areas || hoveredDocument === doc.id) && (
+                    {(layersVisibility.areas ||
+                      hoveredDocument === doc.id ||
+                      selectedDocument === doc.id) && (
                       <Polygon
                         positions={pos}
                         pathOptions={{
@@ -173,7 +191,10 @@ function Map({ docs }) {
               }
             })}
         </MarkerClusterGroup>
-        <MarkerClusterGroup iconCreateFunction={municipalityClusterIcon}>
+        <MarkerClusterGroup
+          iconCreateFunction={municipalityClusterIcon}
+          spiderfyDistanceMultiplier={2}
+          showCoverageOnHover={false}>
           {!disabledInput &&
             docs.map((doc) => {
               if (doc.location.length === 0) {
@@ -182,9 +203,11 @@ function Map({ docs }) {
                     key={doc.id}
                     docId={doc.id}
                     typeName={doc.type.name}
+                    docTitle={doc.title}
                     stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
                     links={links}
+                    setHoveredDocument={setHoveredDocument}
                   />
                 );
               }
@@ -197,23 +220,35 @@ function Map({ docs }) {
         )}
         {!disabledInput &&
           links.map((link, index) => {
-            {
-              if (
-                docs.some((doc) => doc.id === link.id_doc1) &&
-                docs.some((doc) => doc.id === link.id_doc2)
-              ) {
+            if (
+              docs.some((doc) => doc.id === link.id_doc1) &&
+              docs.some((doc) => doc.id === link.id_doc2)
+            ) {
+              return link.connection_types.map((type, typeIndex) => {
+                const offset =
+                  typeIndex % 2 === 0 ? -typeIndex * 0.003 : typeIndex * 0.003; // Adjust offset for each type
+                const formattedType =
+                  type.split("_")[0].charAt(0).toUpperCase() +
+                  type.split("_")[0].slice(1);
                 return (
-                  layersVisibility.links && (
+                  ((layersVisibility.links && zoom > 11) ||
+                    hoveredDocument == link.id_doc1 ||
+                    hoveredDocument == link.id_doc2 ||
+                    selectedDocument == link.id_doc1 ||
+                    selectedDocument == link.id_doc2) && (
                     <Link
-                      key={index}
-                      link={link}
+                      key={`${index}-${typeIndex}`}
+                      id_doc1={link.id_doc1}
+                      id_doc2={link.id_doc2}
+                      type={formattedType}
+                      offset={offset}
                       positions={{
                         doc1: getDocLocation(link.id_doc1),
                         doc2: getDocLocation(link.id_doc2),
                       }}></Link>
                   )
                 );
-              }
+              });
             }
           })}
         <Outlet />

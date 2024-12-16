@@ -1,99 +1,96 @@
 import L from "leaflet";
 import "@elfalem/leaflet-curve";
 import { useRef, useEffect } from "react";
-import { useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
+import { useLeafletContext } from "@react-leaflet/core";
 import { CurvePathData } from "@elfalem/leaflet-curve";
 import { Point } from "../../models/Document";
 
 const linkStyles = {
-  Collateral: { color: "blue", dashArray: "10" },
+  Collateral: { color: "blue" },
   Direct: { color: "black" },
-  Update: { color: "green", dashArray: "8" },
-  Prevision: { color: "orange", dashArray: "10" },
+  Update: { color: "green" },
+  Prevision: { color: "orange" },
 };
 
-function Link({ link, positions }) {
-  const map = useMap();
-  const navigate = useNavigate(); // React Router's hook for navigation
-  const curvesRef = useRef([]); // Store curve layers
+// Helper to create unique curves
+const createCurvePath = (
+  start: Point,
+  end: Point,
+  offsetFactor: number
+): CurvePathData => {
+  return [
+    "M",
+    [start.lat, start.lng],
+    "C",
+    [
+      (start.lat + end.lat) / 2 + offsetFactor,
+      (start.lng + end.lng) / 2 + offsetFactor,
+    ],
+    [
+      (start.lat + end.lat) / 2 + offsetFactor,
+      (start.lng + end.lng) / 2 + offsetFactor,
+    ],
+    [end.lat, end.lng],
+  ];
+};
 
-  // Helper to create unique curves
-  const createCurvePath = (
-    start: Point,
-    end: Point,
-    offsetFactor: number
-  ): CurvePathData => {
-    return [
-      "M",
-      [start.lat, start.lng],
-      "C",
-      [
-        (start.lat + end.lat) / 2 + offsetFactor,
-        (start.lng + end.lng) / 2 + offsetFactor,
-      ],
-      [
-        (start.lat + end.lat) / 2 + offsetFactor,
-        (start.lng + end.lng) / 2 + offsetFactor,
-      ],
-      [end.lat, end.lng],
-    ];
-  };
+function Link({ id_doc1, id_doc2, positions, type, offset }) {
+  const context = useLeafletContext();
+  const navigate = useNavigate();
+  const linkRef = useRef<L.Curve | null>(null);
+  const propsRef = useRef({ positions, type, offset });
 
   useEffect(() => {
-    const clearCurves = () => {
-      curvesRef.current.forEach((curve) => {
-        map.removeLayer(curve); // Remove curve from map
-      });
-      curvesRef.current = []; // Clear reference array
-    };
-
-    const { id_doc1, id_doc2, connection_types } = link;
+    const container = context.layerContainer || context.map;
 
     const start = positions.doc1;
     const end = positions.doc2;
-
     if (!start || !end) return;
 
-    // Create distinct curves based on connection_name
-    connection_types.forEach((type, typeIndex) => {
-      const offsetFactor =
-        typeIndex % 2 === 0 ? -typeIndex * 0.001 : typeIndex * 0.001; // Adjust offset for each type
-      const formattedType =
-        type.split("_")[0].charAt(0).toUpperCase() +
-        type.split("_")[0].slice(1);
-      const curvePath = createCurvePath(start, end, offsetFactor);
-
-      const curve = L.curve(curvePath, {
-        ...linkStyles[formattedType],
-        weight: 3,
-      });
-
-      //Add tooltip
-      curve.bindTooltip(`${formattedType}`, {
-        permanent: false,
-        direction: "auto",
-        sticky: true,
-        offset: L.point(10, 0),
-      });
-
-      // Add click event for navigation
-      /* curve.on("click", () => {
-        if (window.location.pathname.includes(`${id_doc1}`)) {
-          navigate(`/map/${id_doc2}`);
-        } else {
-          navigate(`/map/${id_doc1}`);
-        }
-      });*/
-
-      curve.addTo(map);
-      curvesRef.current.push(curve); // Store reference for cleanup
+    linkRef.current = L.curve(createCurvePath(start, end, offset), {
+      ...linkStyles[type],
+      weight: 3,
+      className: "link",
     });
-    return () => {
-      clearCurves();
-    };
-  }, [map, link, navigate, positions.doc1, positions.doc2]);
 
+    //Add tooltip
+    linkRef.current.bindTooltip(`${type}`, {
+      permanent: false,
+      direction: "auto",
+      sticky: true,
+      offset: L.point(10, 0),
+    });
+
+    // Add click event for navigation
+    linkRef.current.on("click", () => {
+      if (window.location.pathname.includes(id_doc1)) {
+        navigate(`/map/${id_doc2}`);
+      } else if (window.location.pathname.includes(id_doc2)) {
+        navigate(`/map/${id_doc1}`);
+      }
+    });
+
+    container.addLayer(linkRef.current);
+    return () => {
+      container.removeLayer(linkRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      positions !== propsRef.current.positions ||
+      type !== propsRef.current.type ||
+      offset !== propsRef.current.offset
+    ) {
+      if (linkRef.current) {
+        linkRef.current.setPath(
+          createCurvePath(positions.doc1, positions.doc2, offset)
+        );
+      }
+    }
+    propsRef.current = { positions, type, offset };
+  }, [positions, type, offset]);
   return null;
 }
 

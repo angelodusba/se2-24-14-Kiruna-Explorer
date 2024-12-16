@@ -12,23 +12,24 @@ import {
   Avatar,
   ListItemIcon,
   Popover,
+  Chip,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
-import KirunaLogo from "../assets/KirunaLogo.svg";
+import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
-import UserContext from "../contexts/UserContext";
+import UserContext from "../../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
-import { DisabledInputContext } from "../contexts/DisabledInputContext";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import SearchBar from "./SearchBar";
-import { SearchFilter } from "../models/SearchFilter";
+import { SearchFilter } from "../../models/SearchFilter";
 import { useContext, useEffect, useState } from "react";
-import AdvancedSearchForm from "./Forms/AdvancedSearchForm";
-import { StakeHolder } from "../models/StakeHolders";
-import { Type } from "../models/Type";
-import DocumentAPI from "../API/DocumentAPI";
-import MenuDial from "./DocumentDial";
+import AdvancedSearchForm from "../Forms/AdvancedSearchForm";
+import { StakeHolder } from "../../models/StakeHolders";
+import { Type } from "../../models/Type";
+import DocumentAPI from "../../API/DocumentAPI";
+import NavDial from "./NavDial";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -122,6 +123,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     scales: [],
     languages: [],
     stakeholders: [],
+    keywords: [],
     municipality: false,
   });
   const [searchValue, setSearchValue] = useState<string>("");
@@ -134,8 +136,34 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     setAccountAnchorEl(null);
   };
 
+  const handleRemoveFilter = (key: string, value: string) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters };
+
+      // Remove filter value from the array or reset the property
+      if (Array.isArray(updatedFilters[key])) {
+        updatedFilters[key] = updatedFilters[key].filter((item: string) => item !== value);
+      } else {
+        updatedFilters[key] = "";
+      }
+
+      return updatedFilters;
+    });
+    onSearch(filters); 
+  };
+
   const handleSimpleSearch = () => {
-    setFilters({ title: searchValue });
+    setFilters({
+      title: searchValue || "",
+      types: [],
+      start_year: "",
+      end_year: "",
+      scales: [],
+      languages: [],
+      stakeholders: [],
+      keywords: [],
+      municipality: false,
+    });
     onSearch({ title: searchValue });
   };
 
@@ -148,6 +176,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
       scales: [],
       languages: [],
       stakeholders: [],
+      keywords: [],
       municipality: false,
     });
     setSearchValue("");
@@ -309,6 +338,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
                   />
+
+
+
+
                   <Popover
                     id={advancedSearchId}
                     open={advancedSearchOpen}
@@ -334,6 +367,58 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     />
                   </Popover>
                 </Grid>
+
+                <Grid >
+                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                      {Object.entries(filters).flatMap(([key, value]) => {
+                      if (key === "types" && Array.isArray(value)) {
+                        // Map type IDs to their names for the "types" filter
+                        return value.map((typeId) => {
+                          const type = documentTypes.find((t) => t.id === typeId); // Find the corresponding type
+                          return (
+                            <Chip color="success"
+                              key={`${key}-${typeId}`}
+                              label={`${key}: ${type?.name || typeId}`} // Show name if available, fallback to ID
+                              onDelete={() => handleRemoveFilter(key, typeId)}
+                            />
+                          );
+                        });
+                      }
+                
+                      if (key === "stakeholders" && Array.isArray(value)) {
+                        // Map stakeholder IDs to their names for the "stakeholders" filter
+                        return value.map((stakeholderId) => {
+                          const stakeholder = stakeholders.find((s) => s.id === stakeholderId); // Find the corresponding stakeholder
+                          return (
+                            <Chip color="success"
+                              key={`${key}-${stakeholderId}`}
+                              label={`${key}: ${stakeholder?.name || stakeholderId}`} // Show name if available, fallback to ID
+                              onDelete={() => handleRemoveFilter(key, stakeholderId)}
+                            />
+                          );
+                        });
+                      }
+                
+
+                      return Array.isArray(value)
+                        ? value.map((item) => (
+                      <Chip color="success"
+                        key={`${key}-${item}`}
+                        label={`${key}: ${item}`}
+                        onDelete={() => handleRemoveFilter(key, item)}
+                      />
+                      ))
+                      : value && (
+                      <Chip color="success"
+                        key={key}
+                        label={`${key}: ${value}`}
+                        onDelete={() => handleRemoveFilter(key, value)}
+                      />
+                      );
+                    })}
+                   </Box>
+                </Grid>
+
                 <Grid
                   size="grow"
                   sx={{
@@ -361,11 +446,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       aria-controls={accountOpen ? "accountMenu" : undefined}
                       aria-haspopup="true"
                       aria-expanded={accountOpen ? "true" : undefined}
-                      onClick={
-                        accountOpen
-                          ? handleAccountMenuClose
-                          : handleAccountMenuOpen
-                      }
+                      onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
                     >
                       <Avatar {...stringAvatar(user.username)} />
                     </Fab>
@@ -377,7 +458,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
         </AppBar>
         {user && renderAccountMenu}
       </Box>
-      <MenuDial />
+      <NavDial />
     </>
   );
 }

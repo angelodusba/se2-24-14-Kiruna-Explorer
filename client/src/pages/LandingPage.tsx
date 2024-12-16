@@ -1,10 +1,9 @@
-import React from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import LandingPhoto from "../assets/LandingPhoto.svg";
 
-export const LandingPage: React.FC = () => {
+function LandingPage() {
   const navigate = useNavigate();
 
   return (
@@ -49,7 +48,7 @@ export const LandingPage: React.FC = () => {
             width: "100%",
             height: "100%",
             backgroundImage: `url(${LandingPhoto})`,
-            backgroundSize: "contain",  
+            backgroundSize: "contain",
             backgroundPosition: "bottom",
             backgroundRepeat: "no-repeat",
           }}
@@ -96,17 +95,12 @@ export const LandingPage: React.FC = () => {
           Kiruna Explorer
         </Typography>
 
-        <Typography
-          variant="body1"
-          sx={{ color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}
-        >
-          Explore the rich history of Kiruna through our platform. We invite
-          visitors to engage with the fascinating narrative of the city, observe
-          its evolution, and access essential documents about its significant
-          landmarks. For urban planners, Kiruna Explorer offers a comprehensive
-          suite of tools designed to facilitate the addition, organization, and
-          connection of documents, thereby supporting the continued development
-          of the city's story.
+        <Typography variant="body1" sx={{ color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}>
+          Explore the rich history of Kiruna through our platform. We invite visitors to engage with
+          the fascinating narrative of the city, observe its evolution, and access essential
+          documents about its significant landmarks. For urban planners, Kiruna Explorer offers a
+          comprehensive suite of tools designed to facilitate the addition, organization, and
+          connection of documents, thereby supporting the continued development of the city's story.
         </Typography>
 
         <Box
@@ -155,4 +149,6 @@ export const LandingPage: React.FC = () => {
       </Box>
     </Box>
   );
-};
+}
+
+export default LandingPage;

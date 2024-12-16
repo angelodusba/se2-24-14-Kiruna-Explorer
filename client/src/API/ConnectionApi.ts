@@ -29,7 +29,7 @@ async function sendConnections(connectionsList: ConnectionList) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -55,7 +55,7 @@ async function getConnections() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -80,7 +80,7 @@ async function getConnectionsByDocumentId(id) {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -103,7 +103,46 @@ async function getTypeOfConnections() {
   } else {
     const errDetail = await response.json();
     throw new Error(
-      errDetail.message || "Something went wrong, please reload the page"
+      errDetail.error || "Something went wrong, please reload the page"
+    );
+  }
+}
+
+// Put connections, modify a connectionList
+async function updateConnections(connectionsList: ConnectionList) {
+  const response = await fetch(baseURL + "connections", {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(connectionsList),
+  });
+  if (response.ok) {
+    return;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.error || "Something went wrong, please reload the page"
+    );
+  }
+}
+
+async function updateConnectionsDiagram(connectionsList: ConnectionList) {
+  const response = await fetch(baseURL + "connections/diagram", {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(connectionsList),
+  });
+  if (response.ok) {
+    return;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.error || "Something went wrong, please reload the page"
     );
   }
 }
@@ -113,6 +152,8 @@ const ConnectionAPI = {
   getConnections,
   getConnectionsByDocumentId,
   getTypeOfConnections,
+  updateConnections,
+  updateConnectionsDiagram,
 };
 
 export default ConnectionAPI;

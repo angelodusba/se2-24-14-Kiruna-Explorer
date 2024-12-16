@@ -422,14 +422,14 @@ class DocumentDAO {
     size?: number,
     sort: string = "title:asc",
     title?: string,
-    description?: string,
     start_year?: string,
     end_year?: string,
     scales?: string[],
     types?: number[],
     languages?: string[],
     stakeholders?: number[],
-    municipality?: boolean
+    municipality?: boolean,
+    keywords?: string[]
   ): Promise<FilteredDocumentsResponse> {
     try {
       let params: any[] = [];
@@ -454,10 +454,6 @@ class DocumentDAO {
       if (title) {
         params.push(title);
         sql += ` AND D.title ILIKE '%' || $${params.length} || '%'`; // Case-insensitive partial match
-      }
-      if (description) {
-        params.push(description);
-        sql += ` AND D.description ILIKE '%' || $${params.length} || '%'`; // Case-insensitive partial match
       }
       // Extract the first 4 characters of the issue_date for year-based comparison
       if (start_year) {
@@ -486,6 +482,13 @@ class DocumentDAO {
       }
       if (municipality === true) {
         sql += ` AND D.location IS NULL`;
+      }
+      if (keywords && keywords.length > 0) {
+        const keywordConditions = keywords.map((_, index) => {
+          params.push(`%${keywords[index]}%`);
+          return `(D.title ILIKE $${params.length} OR D.description ILIKE $${params.length})`;
+        });
+        sql += ` AND (${keywordConditions.join(" AND ")})`; // Combine all conditions with AND
       }
       // Add group by clause
       sql += ` GROUP BY D.id, D.title, D.description, D.type_id, T.name, D.issue_date, 

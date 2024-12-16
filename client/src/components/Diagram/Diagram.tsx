@@ -1,17 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ReactFlow, {
   ReactFlowProvider,
-  addEdge,
   Controls,
   Background,
-  NodeChange,
-  applyNodeChanges,
   Node,
-  BackgroundVariant,
-  EdgeChange,
-  applyEdgeChanges,
   reconnectEdge,
   useReactFlow,
+  useNodesState,
+  useEdgesState,
+  useOnViewportChange,
+  Viewport,
 } from "reactflow";
 import { Edge, Connection } from "reactflow";
 import "reactflow/dist/style.css";
@@ -21,14 +19,15 @@ import ZoomNode from "./ZoomNode";
 import ConnectionAPI from "../../API/ConnectionApi";
 import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
-import connectionStyles from "./ConnectionStyles";
-import SideBar from "./SideBar";
-import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
-import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
-import { IconButton } from "@mui/material";
+import connectionStyles from "../shared/ConnectionStyles";
+import { Button } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
-import ViewportPortal from "reactflow";
-import Legend from "../Legend";
+import Legend from "../shared/Legend";
+import FloatingEdge from "./FloatingEdge";
+import { ConnectionList } from "../../models/Connection";
+import Axis from "./Axis";
+import UserContext from "../../contexts/UserContext";
+import { Role } from "../../models/User";
 
 interface DocumentForDiagram {
   id: number;
@@ -43,6 +42,18 @@ const nodeTypes = {
   zoom: ZoomNode,
 };
 
+const edgeTypes = {
+  floating: FloatingEdge,
+};
+
+// Create an edge type name for each key of connectionStyles
+const edgeTypeName = Object.keys(connectionStyles).reduce((acc, key) => {
+  if (key !== "default") {
+    acc[key] = key;
+  }
+  return acc;
+}, {});
+
 interface DiagramProps {
   currentFilter: SearchFilter;
 }
@@ -53,37 +64,168 @@ const nodeWidth = gridWidth / 4;
 const nodeHeight = nodeWidth;
 const nodePerRows = 3;
 const nodePerColumns = 3;
-const initialEdges: Edge[] = [];
 
 function Diagram({ currentFilter }: DiagramProps) {
+  const user = useContext(UserContext);
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
   const [gridNodes, setGridNodes] = useState<Node[]>([]);
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  const [yearToShowFirst, setYearToShowFirst] = useState<string>("Year_2020");
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [refreshViewport, setRefreshViewport] = useState<boolean>(false);
+  const [valuesX, setValuesX] = useState<{ id: number; label: string }[]>([]);
+  const [valuesY, setValuesY] = useState<{ id: number; label: string }[]>([]);
 
-  const onNodesChange = (changes: NodeChange[]) =>
-    setNodes((nds) => applyNodeChanges(changes, nds));
-  const onEdgesChange = (changes: EdgeChange[]) =>
-    setEdges((eds) => applyEdgeChanges(changes, eds));
-  const onConnect = (params: Connection) =>
-    setEdges((eds) => addEdge(params, eds));
+  const deleteEdge = (id) => {
+    setEdges((els) => els.filter((el) => el.id !== id));
+  };
+
+  const onEdgesDelete = (edgesToDelete) => {
+    // Update the state by filtering out the deleted edges
+    setEdges((eds) => eds.filter((edge) => !edgesToDelete.includes(edge)));
+  };
+
+  const onConnect = (params: Connection) => {
+    //If a default edge is already present, return
+    if (
+      edges.find(
+        (edge) =>
+          edge.source === params.source &&
+          edge.target === params.target &&
+          edge.label === "default"
+      )
+    ) {
+      console.log("Default edge already present");
+      return;
+    }
+    const newEdge = {
+      id: `${params.source}-${params.target}-${"default"}`,
+      ...params,
+      label: "default",
+      type: "floating",
+      style: connectionStyles["default"],
+      data: {
+        onDelete: () =>
+          deleteEdge(`${params.source}-${params.target}-${"default"}`),
+        user: user,
+      },
+    };
+    const newEdges = edges.concat(newEdge);
+    setEdges(newEdges);
+  };
+
   const onEdgeUpdate = useCallback(
     (oldEdge: Edge, newConnection: Connection) =>
       setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
     []
   );
+
+  const [allEdges, setAllEdges] = useState(undefined);
+  const [allNodes, setAllNodes] = useState(undefined);
+  const [edgeIsClicked, setEdgeIsClicked] = useState(false);
+
+  //on edge click leave only the nodes connected to the edge
+  const onEdgeClick = (event, edge) => {
+    let pressTimer;
+    const handlePressStart = () => {
+      pressTimer = setTimeout(() => {
+        if (edgeIsClicked == false) {
+          const edgesToKeep = edges.filter(
+            (e) => e.source == edge.source || e.target == edge.target
+          );
+          const nodesToKeep = nodes.filter(
+            (node) =>
+              node.id === edge.source ||
+              node.id === edge.target ||
+              node.type === "group"
+          );
+          setAllEdges(edges);
+          setAllNodes(nodes);
+          setNodes(nodesToKeep);
+          setEdges(edgesToKeep);
+          setEdgeIsClicked(true);
+        } else {
+          setNodes(allNodes);
+          setEdges(allEdges);
+          setEdgeIsClicked(false);
+        }
+      }, 500);
+    };
+
+    const handlePressEnd = () => {
+      clearTimeout(pressTimer);
+    };
+
+    event.target.addEventListener("mousedown", handlePressStart);
+    event.target.addEventListener("mouseup", handlePressEnd);
+    event.target.addEventListener("mouseleave", handlePressEnd);
+  };
+  //On edgeDoubleClick change edge type to the next one
+  const onEdgeDoubleClick = (_, edge) => {
+    const myEdgeType = edgeTypeName[edge.label];
+    const edgeTypeNames = Object.keys(edgeTypeName).filter(
+      (key) => key !== "default"
+    );
+    let currentEdgeType = myEdgeType;
+
+    // Remove all edgeTypeNames that are already in use, except the myEdgeType
+    const notUsedEdgeTypeNames = edgeTypeNames.filter(
+      (key) =>
+        !edges.find((e) => e.id === `${edge.source}-${edge.target}-${key}`) &&
+        !edges.find((e) => e.id === `${edge.target}-${edge.source}-${key}`)
+    );
+    notUsedEdgeTypeNames.push(myEdgeType);
+    //Filter so each time i click i get the next edge type
+    const sortedEdgeTypes = notUsedEdgeTypeNames.sort((a, b) =>
+      a.localeCompare(b)
+    );
+    if (sortedEdgeTypes.length > 0) {
+      const index = sortedEdgeTypes.findIndex((key) => key === myEdgeType);
+      currentEdgeType = sortedEdgeTypes[(index + 1) % sortedEdgeTypes.length];
+    } else {
+      return;
+    }
+
+    const newEdge = {
+      id: `${edge.source}-${edge.target}-${currentEdgeType}`,
+      label: currentEdgeType,
+      type: edge.type,
+      source: edge.source,
+      target: edge.target,
+      sourceHandle: edge.sourceHandle,
+      targetHandle: edge.targetHandle,
+      style: connectionStyles[currentEdgeType],
+      data: {
+        onDelete: () =>
+          deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
+        pointPosition: edge.data.pointPosition,
+      },
+    };
+    const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
+    setEdges(newEdges);
+  };
+
   const assignX_toYear = (year: number, filteredYears: number[]) => {
     //find the index year in filteredYears
     const index = filteredYears.findIndex((f_year) => f_year === year);
     return index;
   };
-  const createNode = (doc: DocumentForDiagram, offsetY, offsetX, docYear) => {
+  const createNode = (
+    doc: DocumentForDiagram,
+    offsetY,
+    offsetX,
+    docYear,
+    connections
+  ) => {
     return {
       id: doc.id.toString(),
       type: "zoom",
-      data: { type: doc.typeName, id: doc.id, stakeholders: doc.stakeholders },
+      data: {
+        type: doc.typeName,
+        id: doc.id,
+        title: doc.title,
+        stakeholders: doc.stakeholders,
+        connections: connections,
+      },
       draggable: true,
       connectable: true,
       style: {
@@ -91,7 +233,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         height: nodeHeight,
         borderRadius: "50%",
         backgroundColor: "#fff",
-        border: "1px solid #000",
+        border: "2px solid #000",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -101,10 +243,11 @@ function Diagram({ currentFilter }: DiagramProps) {
       extent: "parent",
     };
   };
-  const createNodesForDocument = (
+  const createNodesForDocument = async (
     fiteredDocsPerYear: DocumentForDiagram[][]
   ) => {
     let newNodes = [];
+    const connections = await ConnectionAPI.getConnections();
     for (const docsPerYear of fiteredDocsPerYear) {
       //Group docs by scale, object with key scale and value array of docs
       const arrayDocsPerScale = docsPerYear.reduce((acc, doc) => {
@@ -121,10 +264,10 @@ function Diagram({ currentFilter }: DiagramProps) {
         let nDoc = 0;
         let offsetY = 0;
         let offsetX = 0;
-        let nodesToAdd = [];
+        const nodesToAdd = [];
         for (const doc of sortedDocs) {
-          let index_x = nDoc % nodePerRows;
-          let index_y = Math.floor(nDoc / nodePerRows);
+          const index_x = nDoc % nodePerRows;
+          const index_y = Math.floor(nDoc / nodePerRows);
           offsetX = index_x * nodeWidth;
           offsetY = index_y * nodeHeight;
           const horizontalPadding =
@@ -137,7 +280,9 @@ function Diagram({ currentFilter }: DiagramProps) {
             return;
           }
           const docYear = dayjs(doc.date).year();
-          nodesToAdd.push(createNode(doc, offsetY, offsetX, docYear));
+          nodesToAdd.push(
+            createNode(doc, offsetY, offsetX, docYear, connections)
+          );
           nDoc++;
         }
         newNodes = [...newNodes, ...nodesToAdd];
@@ -145,64 +290,170 @@ function Diagram({ currentFilter }: DiagramProps) {
     }
     return newNodes;
   };
-  const createEdges = (connections: any, passed_nodes) => {
-    return connections.flatMap((conn: any) => {
+  const createEdge = (id1, id2, sourceHandle, targetHandle, type, index) => {
+    return {
+      id: `${id1}-${id2}-${type}`,
+      source: id1,
+      sourceHandle: sourceHandle,
+      target: id2,
+      targetHandle: targetHandle,
+      type: edgeTypes ? "floating" : "default",
+      label: type,
+      style: connectionStyles[type]
+        ? connectionStyles[type]
+        : connectionStyles["default"],
+      data: {
+        onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
+        index: index,
+        user: user,
+      },
+    };
+  };
+  const getHandlesForEdge = (sourcePosition, targetPosition) => {
+    const distanceX = targetPosition.x - sourcePosition.x;
+    const distanceY = targetPosition.y - sourcePosition.y;
+
+    let targetHandle = "tl";
+    let sourceHandle = "sr";
+    if (Math.abs(distanceX) >= Math.abs(distanceY)) {
+      // Horizontal connection
+      targetHandle = "tl"; // Connect to the left side
+      sourceHandle = "sr"; // Connect from the right side
+    } else {
+      // Vertical connection
+      targetHandle = "tt"; // Connect to the top side
+      sourceHandle = "sb"; // Connect from the bottom side
+    }
+    return { sourceHandle, targetHandle };
+  };
+  const createEdges = (connectionsList: any, passed_nodes) => {
+    return connectionsList.flatMap((conn: any) => {
       //compare x and y of the nodes, start from the doc with smallest x, if x is the same,
       // start from the one with smallest y
       let id1 = conn.id_doc1.toString();
       let id2 = conn.id_doc2.toString();
-      let doc1 = passed_nodes.find((doc) => doc.id == id1);
-      let doc2 = passed_nodes.find((doc) => doc.id == id2);
+      const doc1 = passed_nodes.find((doc) => doc.id == id1);
+      const doc2 = passed_nodes.find((doc) => doc.id == id2);
       if (doc1 == null || doc2 == null) {
         return [];
       }
 
-      const sourcePosition = doc1.position;
-      const targetPosition = doc2.position;
-      const distanceX = targetPosition.x - sourcePosition.x;
-      const distanceY = targetPosition.y - sourcePosition.y;
+      //Get grid position of node 1 and 2
+      const grid1 = nodes.find((node) => node.id === doc1.parentId);
+      const grid2 = nodes.find((node) => node.id === doc2.parentId);
 
-      let targetHandle = "tb";
-      let sourceHandle = "st";
-      if (Math.abs(distanceX) > Math.abs(distanceY)) {
-        // Horizontal connection
-        if (distanceX > 0) {
-          targetHandle = "tl"; // Connect to the left side
-          sourceHandle = "sr"; // Connect from the right side
-        } else {
-          targetHandle = "tr"; // Connect to the right side
-          sourceHandle = "sl"; // Connect from the left side
-        }
-      } else {
-        // Vertical connection
-        if (distanceY > 0) {
-          targetHandle = "tt"; // Connect to the top side
-          sourceHandle = "sb"; // Connect from the bottom side
-        } else {
-          targetHandle = "tb"; // Connect to the bottom side
-          sourceHandle = "st"; // Connect from the top side
-        }
+      let sourcePosition = {
+        x: doc1.position.x + grid1.position.x,
+        y: doc1.position.y + grid1.position.y,
+      };
+      let targetPosition = {
+        x: doc2.position.x + grid2.position.x,
+        y: doc2.position.y + grid2.position.y,
+      };
+
+      if (sourcePosition.x > targetPosition.x) {
+        id1 = conn.id_doc2.toString();
+        id2 = conn.id_doc1.toString();
+        sourcePosition = {
+          x: doc2.position.x + grid2.position.x,
+          y: doc2.position.y + grid2.position.y,
+        };
+        targetPosition = {
+          x: doc1.position.x + grid1.position.x,
+          y: doc1.position.y + grid1.position.y,
+        };
+      } else if (
+        sourcePosition.x === targetPosition.x &&
+        sourcePosition.y > targetPosition.y
+      ) {
+        id1 = conn.id_doc2.toString();
+        id2 = conn.id_doc1.toString();
+        sourcePosition = {
+          x: doc2.position.x + grid2.position.x,
+          y: doc2.position.y + grid2.position.y,
+        };
+        targetPosition = {
+          x: doc1.position.x + grid1.position.x,
+          y: doc1.position.y + grid1.position.y,
+        };
       }
 
-      return conn.connection_types.map((type: string) => {
-        return {
-          id: `${id1}-${id2}-${type}`,
-          source: id1,
-          target: id2,
-          type: "default",
-          sourceHandle: sourceHandle,
-          targetHandle: targetHandle,
-          style: connectionStyles[type]
-            ? connectionStyles[type]
-            : connectionStyles["default"],
-        };
+      const { sourceHandle, targetHandle } = getHandlesForEdge(
+        sourcePosition,
+        targetPosition
+      );
+
+      return conn.connection_types.map((type: string, index) => {
+        return createEdge(id1, id2, sourceHandle, targetHandle, type, index);
       });
     });
+  };
+  const saveNewConnections = async () => {
+    const connections = edges
+      .filter((edge) => edge.type === "floating" && edge.label !== "default")
+      .map((edge) => {
+        const parts = edge.id.split("-");
+        //Re order the ids
+        if (parseInt(parts[0]) > parseInt(parts[1])) {
+          return {
+            id_doc1: parseInt(parts[1]),
+            id_doc2: parseInt(parts[0]),
+            connection_types: [edge.label],
+          };
+        } else
+          return {
+            id_doc1: parseInt(parts[0]),
+            id_doc2: parseInt(parts[1]),
+            connection_types: [edge.label],
+          };
+      })
+      .reduce((acc, edge) => {
+        const existing = acc.find(
+          (e) =>
+            (e.id_doc1 === edge.id_doc1 && e.id_doc2 === edge.id_doc2) ||
+            (e.id_doc1 === edge.id_doc2 && e.id_doc2 === edge.id_doc1)
+        );
+
+        if (existing) {
+          existing.connection_types = [
+            ...new Set([
+              ...existing.connection_types,
+              ...edge.connection_types,
+            ]),
+          ];
+        } else {
+          acc.push(edge);
+        }
+        return acc;
+      }, []);
+    const uniqueNodes = [
+      ...new Set(connections.flatMap((conn) => [conn.id_doc1, conn.id_doc2])),
+    ];
+    const sortedNodes = uniqueNodes.sort((a, b) => b - a);
+    //Now create connectionLists one for each uniqueNode
+    const connectionLists: ConnectionList[] = sortedNodes.map((node) => {
+      return {
+        starting_document_id: node,
+        connections: connections
+          .filter((conn) => conn.id_doc1 === node)
+          .map((conn) => {
+            return {
+              document_id: conn.id_doc2,
+              connection_types: conn.connection_types,
+            };
+          }),
+      };
+    });
+    for (const connectionList of connectionLists) {
+      if (connectionList.connections.length > 0) {
+        await ConnectionAPI.updateConnectionsDiagram(connectionList);
+      }
+    }
   };
   // Fetch docs and create nodes
   useEffect(() => {
     // Fetch Documents
-    const fetchDocumentsAndConnections = async () => {
+    const fetchDocuments = async () => {
       const response = await DocumentAPI.getFilteredDocuments(currentFilter);
       const list = response.docs.map((doc: any) => {
         return {
@@ -263,14 +514,16 @@ function Diagram({ currentFilter }: DiagramProps) {
             id: year.toString() + "_&_" + scale.name,
             data: { label: year.toString() + scale.name },
             position: {
-              x: assignX_toYear(year, filteredYears) * gridWidth + gridWidth,
-              y: offsetYPerScale[scale.name],
+              x:
+                assignX_toYear(year, filteredYears) * gridWidth +
+                gridWidth +
+                gridWidth / 100,
+              y: offsetYPerScale[scale.name] + gridHeight / 100,
             },
             style: {
-              width: gridWidth,
-              height: gridHeight,
-              backgroundColor: "transparent",
-              border: "none",
+              width: gridWidth - gridWidth / 50,
+              height: gridHeight - gridHeight / 50,
+              background: "transparent",
             },
             draggable: false,
             connectable: false,
@@ -285,74 +538,35 @@ function Diagram({ currentFilter }: DiagramProps) {
       const groupNodesArray = Object.values(groupNodes) as Node[];
       setGridNodes(groupNodesArray);
       //sort for date
-      const documentsNodes = createNodesForDocument(fiteredDocsPerYear);
+      const documentsNodes = await createNodesForDocument(fiteredDocsPerYear);
       setDocsNodes(documentsNodes);
-      // Create nodes for years (COLUMNS)
-      const yearNodes: Node[] = filteredYears.map((year, index) => ({
-        id: "Year_" + year.toString(),
-        data: { label: year.toString() },
-        position: { x: index * gridWidth + gridWidth, y: 0 },
-        style: {
-          width: gridWidth,
-          height: gridHeight,
-          backgroundColor: "#eeeeee",
-          borderRadius: 10,
-          border: "2px solid #000",
-          color: "#003d8f",
-          fontSize: gridWidth / 10,
-          fontWeight: "bold",
-          textAlign: "center" as const,
-          cursor: "default",
-        },
-        draggable: false,
-        connectable: false,
-      }));
-      //Start year
-      setYearToShowFirst(yearNodes[0].id);
-
-      // Create nodes for documents scales, (ROWS)
-      const scalesNodes = scales.map((scale, index) => {
+      // Set values for x / y axes
+      const valuesY = scales.map((scale, index) => {
+        return { id: index, label: scale.name };
+      });
+      const valuesX = filteredYears.map((year, index) => {
         return {
-          id: scale.name + index.toString(),
-          data: {
-            label: scale.name.charAt(0).toUpperCase() + scale.name.slice(1),
-          },
-          position: { x: 0, y: offsetYPerScale[scale.name] },
-          style: {
-            width: gridWidth,
-            height: gridHeight,
-            backgroundColor: "#eeeeee",
-            border: "2px solid #000",
-            color: "#003d8f",
-            borderRadius: 10,
-            fontWeight: "bold",
-            fontSize: gridWidth / 10,
-            textAlign: "center" as const,
-            cursor: "default",
-          },
-          draggable: false,
-          connectable: false,
-          HideSource: true,
-          HideTarget: true,
+          id: index,
+          label: year.toString(),
         };
       });
-      //merge years and document Nodes
-      const merge = [...yearNodes, ...scalesNodes, ...groupNodesArray];
-      setNodes(merge);
+      setValuesX(valuesX);
+      setValuesY(valuesY);
+      setNodes(groupNodesArray);
     };
-    fetchDocumentsAndConnections();
+    fetchDocuments();
   }, [currentFilter]);
 
   useEffect(() => {
     const setDocsNodesAndFetchConnections = async () => {
       if (gridNodes.length > 0 && docsNodes.length > 0) {
         setNodes((nds) => [...nds, ...docsNodes]);
-        //Now fetch connections
+        // Fetch connections
         const connections = await ConnectionAPI.getConnections();
-        //create Edges
+        // Create Edges
         const edges = createEdges(connections, docsNodes);
         setEdges(edges);
-        //refresh viewport via state change
+        // Refresh viewport via state change
         setRefreshViewport(!refreshViewport);
       }
     };
@@ -367,13 +581,18 @@ function Diagram({ currentFilter }: DiagramProps) {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onEdgeDoubleClick={onEdgeDoubleClick}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
-        yearToShowFirst={yearToShowFirst}
-        currentFilter={currentFilter}
-        resetViewport={refreshViewport}
+        edgeTypes={edgeTypes ? edgeTypes : undefined}
         gridNodes={gridNodes}
+        saveNewConnections={saveNewConnections}
+        valuesX={valuesX}
+        valuesY={valuesY}
+        onEdgesDelete={onEdgesDelete}
+        user={user}
       />
 
       <Outlet />
@@ -387,52 +606,53 @@ function Flow({
   edges,
   onNodesChange,
   onEdgesChange,
-  resetViewport,
+  onEdgeDoubleClick,
+  onEdgeClick,
   onConnect,
   onEdgeUpdate,
   nodeTypes,
-  yearToShowFirst,
-  currentFilter,
+  edgeTypes,
   gridNodes,
+  saveNewConnections,
+  valuesX,
+  valuesY,
+  onEdgesDelete,
+  user,
 }) {
-  const { setViewport, getViewport } = useReactFlow(); // Get viewport control methods
+  const navigate = useNavigate();
+  const flow = useReactFlow();
+  const defaultViewport: Viewport = { x: 0, y: 0, zoom: 0.2 };
+  const [viewport, setViewport] = useState<Viewport>(defaultViewport);
+  const bounds = {
+    xMin: -1 * (valuesX.length - 3) * gridWidth * viewport.zoom,
+    xMax: 0,
+    yMin: -1 * (valuesY.length - 2) * gridHeight * viewport.zoom,
+    yMax: 0,
+  };
 
-  const handlePan = (direction) => {
-    const { x, y, zoom } = getViewport(); // Get current viewport position
-    const keypanStep = (gridWidth * 5) / zoom; // Amount to pan
-    switch (direction) {
-      case "left":
-        setViewport({ x: x + keypanStep, y, zoom });
-        break;
-      case "right":
-        setViewport({ x: x - keypanStep, y, zoom });
-        break;
-      default:
-        break;
+  useOnViewportChange({
+    onStart: setViewport,
+    onChange: setViewport,
+    onEnd: setViewport,
+  });
+
+  //Center viewport on first node, cover 2 years before
+  const handleMove = (event, viewport: Viewport) => {
+    if (!event) return; // Ex: resetting the view doesn't produce a move event
+    const { x, y, zoom } = viewport;
+    // if x and y don't correspond to their limited version it means they are out of boundaries
+    const limitedX = Math.max(bounds.xMin, Math.min(bounds.xMax, x));
+    const limitedY = Math.max(bounds.yMin, Math.min(bounds.yMax, y));
+    // Set the viewport only if clamping was necessary
+    if (x !== limitedX || y !== limitedY) {
+      event.preventDefault(); // Prevent uncontrolled panning
+      flow.setViewport({ x: limitedX, y: limitedY, zoom }); // Update viewport state
     }
   };
 
-  //Center viewport on first node, cover 2 years before
-  useEffect(() => {
-    if (gridNodes.length > 0) {
-      const minX = Math.min(...gridNodes.map((node) => node.position.x));
-      const minY = Math.min(...gridNodes.map((node) => node.position.y));
-      const maxY = Math.max(...gridNodes.map((node) => node.position.y));
-      const zoom = window.innerHeight / (maxY - minY + gridHeight * 2);
-      const newViewport = {
-        x: -minX * zoom + gridWidth * zoom,
-        y: -minY * zoom + gridHeight * zoom,
-        zoom: zoom,
-      };
-      setViewport(newViewport);
-    }
-  }, [currentFilter, yearToShowFirst, resetViewport]);
-
-  const navigate = useNavigate();
-
   const onNodeClick = (_, node) => {
     if (docsNodes.some((doc) => doc.id == node.id)) {
-      const { zoom } = getViewport();
+      const { zoom } = flow.getViewport();
       const offsetX = -gridNodes.find(
         (gridNode) => gridNode.id === node.parentId
       ).position.x;
@@ -448,50 +668,86 @@ function Flow({
         y: viewportY,
         zoom,
       };
-      setViewport(newViewport, { duration: 800 });
+      flow.setViewport(newViewport, { duration: 800 });
       navigate(`/diagram/${node.id}`);
     }
   };
 
   return (
-    <div style={{ height: "100vh", width: "100vw", overflow: "auto" }}>
-      <Legend></Legend>
+    <div
+      style={{
+        height: "100vh",
+        width: "100vw",
+        overflow: "auto",
+        paddingTop: "72px",
+      }}>
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes ? edgeTypes : undefined}
         onNodesChange={onNodesChange}
         onNodeClick={onNodeClick}
+        onNodeDoubleClick={onNodeClick}
         edges={edges}
         onEdgesChange={onEdgesChange}
+        onEdgesDelete={onEdgesDelete}
+        onEdgeDoubleClick={onEdgeDoubleClick}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
+        onMove={handleMove}
+        onClick={(event) => {
+          event.stopPropagation();
+        }}
+        zoomOnDoubleClick={false}
         zoomOnScroll={false}
-        minZoom={0.1}
-        maxZoom={3}
+        minZoom={0.2}
+        maxZoom={0.8}
+        defaultViewport={defaultViewport}
         panOnScroll
-        panOnDrag
-        fitView>
-        <div
-          style={{ position: "absolute", bottom: 10, right: 80, zIndex: 10 }}>
-          <IconButton
-            onClick={() => handlePan("left")}
-            sx={{ background: "pink" }}>
-            <ArrowCircleLeftOutlinedIcon sx={{ color: "white" }} />
-          </IconButton>
-          <IconButton
-            onClick={() => handlePan("right")}
-            sx={{ background: "pink" }}>
-            <ArrowCircleRightOutlinedIcon sx={{ color: "white" }} />
-          </IconButton>
-        </div>
-        <Controls position="bottom-right" />
-        <Background
-          gap={gridWidth}
-          variant={BackgroundVariant.Dots}
-          color="#aaa"
+        panOnDrag>
+        <Axis
+          baseWidth={gridWidth}
+          baseHeight={gridHeight / 2}
+          type={"x"}
+          data={valuesX}
+          offset={gridWidth}
+          viewport={viewport}
         />
-        <SideBar />
+        <Axis
+          baseWidth={gridWidth / 2}
+          baseHeight={gridHeight}
+          type={"y"}
+          data={valuesY}
+          offset={gridHeight}
+          viewport={viewport}
+        />
+        <Controls
+          position="bottom-right"
+          showInteractive={false}
+          style={{ position: "fixed" }}
+          onFitView={() => {
+            flow.setViewport({ x: 0, y: 0, zoom: 0.2 });
+            setViewport({ x: 0, y: 0, zoom: 0.2 });
+          }}
+        />
+        <Background gap={gridWidth * 100} />
+        <Legend />
       </ReactFlow>
+      {user && user.role === Role.UrbanPlanner && (
+        <Button
+          onClick={() => saveNewConnections()}
+          style={{
+            position: "absolute",
+            bottom: 35,
+            right: 60,
+            zIndex: 200,
+            background: "#003d8f",
+            color: "white",
+          }}>
+          Save new connections
+        </Button>
+      )}
     </div>
   );
 }
