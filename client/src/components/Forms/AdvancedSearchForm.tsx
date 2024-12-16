@@ -1,3 +1,4 @@
+import { PlaylistAdd } from "@mui/icons-material";
 import {
   TextField,
   Autocomplete,
@@ -10,6 +11,8 @@ import {
   FormControlLabel,
   Checkbox,
   Chip,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { useState } from "react";
@@ -34,7 +37,19 @@ function AdvancedSearchForm({
   const [keywordValue, setKeywordValue] = useState<string>("");
 
   return (
-    <Card sx={{ padding: 1, maxWidth: "600px" }}>
+    <Card
+      sx={{
+        padding: 1,
+        maxWidth: "600px",
+        maxHeight: "520px",
+        overflowY: "auto", // Allow vertical scrolling
+        scrollbarWidth: "none", // For Firefox
+        "&::-webkit-scrollbar": {
+          display: "none", // Hide scrollbar for WebKit browsers
+        },
+        "-ms-overflow-style": "none", // Hide scrollbar for IE and Edge
+      }}
+    >
       <CardHeader title="Advanced Search" />
       <CardContent>
         <Grid container spacing={2}>
@@ -198,10 +213,10 @@ function AdvancedSearchForm({
             />
           </Grid>
           {/* Keywords */}
-          <Grid size={12}>
+          <Grid size={12} style={{ display: "flex" }}>
             <TextField
               size="small"
-              placeholder="Press Enter to set keywords"
+              placeholder="Press Enter to add keywords"
               label="Keywords"
               value={keywordValue}
               onChange={(e) => {
@@ -223,7 +238,30 @@ function AdvancedSearchForm({
               }}
               fullWidth
             />
+            <Tooltip title={"Add keyword"}>
+              <IconButton
+                aria-label="add type"
+                disabled={!keywordValue.trim()}
+                onClick={() => {
+                  const trimmedKeyword = keywordValue.trim();
+                  // Avoid empty and duplicate entries
+                  if (trimmedKeyword && !filters.keywords.includes(trimmedKeyword)) {
+                    setFilters((prevFilters) => ({
+                      ...prevFilters,
+                      keywords: [...prevFilters.keywords, keywordValue.trim()],
+                    }));
+                  }
+                  setKeywordValue("");
+                }}
+                style={{ marginLeft: 3 }}
+              >
+                <PlaylistAdd />
+              </IconButton>
+            </Tooltip>
           </Grid>
+          {/* <Grid size={1}>
+            
+          </Grid> */}
           {/* Chips list */}
           <Grid size={12}>
             <Box
