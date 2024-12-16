@@ -100,21 +100,24 @@ function AttachmentsForm({
   const handleFileDelete = (id, original: boolean) => {
     DocumentAPI.deleteFile(id)
       .then(() => {
-        if (original) {
-          setOriginalResources((prevResources) =>
-            prevResources.filter((resource) => resource.id !== id)
-          );
-        } else {
-          setNotOriginalAttachments((prevResources) =>
-            prevResources.filter((resource) => resource.id !== id)
-          );
-        }
+        updateResources(id, original);
       })
       .catch((err) => {
         setError(err.message);
       });
   };
 
+  const updateResources = (id, original: boolean) => {
+    if (original) {
+      setOriginalResources((prevResources) =>
+        prevResources.filter((resource) => resource.id !== id)
+      );
+    } else {
+      setNotOriginalAttachments((prevResources) =>
+        prevResources.filter((resource) => resource.id !== id)
+      );
+    }
+  };
   return (
     <Grid
       container
