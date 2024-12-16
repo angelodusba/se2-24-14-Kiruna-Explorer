@@ -9,8 +9,6 @@ import {
   ListItemText,
   Paper,
   Typography,
-  ToggleButtonGroup,
-  ToggleButton,
   Tooltip,
   Fab,
 } from "@mui/material";
@@ -18,8 +16,6 @@ import Grid from "@mui/material/Grid2";
 
 import {
   ArticleOutlined,
-  Earbuds,
-  Map,
   AspectRatioOutlined,
   AutoStoriesOutlined,
   CloseOutlined,
@@ -291,15 +287,19 @@ function DocumentCard(props) {
                     }}
                   />
                   {/* Minimize / Close card buttons */}
-                  <IconButton size="small" onClick={() => setIsCardMinimized(true)}>
-                    {<Minimize fontSize="small" />}
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => navigate(props.returnHere ? props.returnHere : "/map")}
-                  >
-                    {<CloseOutlined fontSize="small" />}
-                  </IconButton>
+                  <Tooltip title={"Minimize card"}>
+                    <IconButton size="small" onClick={() => setIsCardMinimized(true)}>
+                      {<Minimize fontSize="small" />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={"Close card"}>
+                    <IconButton
+                      size="small"
+                      onClick={() => navigate(props.returnHere ? props.returnHere : "/map")}
+                    >
+                      {<CloseOutlined fontSize="small" />}
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
               <Divider />

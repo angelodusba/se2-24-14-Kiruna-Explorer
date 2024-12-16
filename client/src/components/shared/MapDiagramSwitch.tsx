@@ -1,6 +1,6 @@
 import { styled } from "@mui/material/styles";
 import Switch from "@mui/material/Switch";
-import { Box } from "@mui/material";
+import { Tooltip } from "@mui/material";
 
 const MaterialUISwitch = styled(Switch)(() => ({
   width: 62,
@@ -53,9 +53,9 @@ const MaterialUISwitch = styled(Switch)(() => ({
 
 function MapDiagramSwitch({ checked, handleChange }) {
   return (
-    <Box>
+    <Tooltip title={`Switch to ${checked ? "map view" : "diagram view"}`}>
       <MaterialUISwitch checked={checked} onChange={handleChange} />
-    </Box>
+    </Tooltip>
   );
 }
 
