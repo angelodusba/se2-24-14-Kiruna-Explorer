@@ -11,9 +11,7 @@ function ConnectionChips({ connections, anchorEl, setAnchorEl }) {
     console.log(id);
     const currentPath = window.location.pathname;
     setAnchorEl(null);
-    const newPath = currentPath.includes("diagram")
-      ? `/diagram/${id}`
-      : `/map/${id}`;
+    const newPath = currentPath.includes("diagram") ? `/diagram/${id}` : `/map/${id}`;
     navigate(newPath);
   };
 
@@ -29,67 +27,66 @@ function ConnectionChips({ connections, anchorEl, setAnchorEl }) {
         vertical: "top",
         horizontal: "left",
       }}
-      onClose={() => setAnchorEl(null)}>
+      onClose={() => setAnchorEl(null)}
+    >
       <Grid
         container
         spacing={2}
-        sx={{ p: 2, maxWidth: "400px", borderRadius: "50%", boxShadow: "2,2" }}>
+        sx={{ p: 2, maxWidth: "400px", borderRadius: "50%", boxShadow: "2,2" }}
+      >
         <Grid size={12} sx={{ textAlign: "center" }}>
-          <Typography
-            sx={{ fontWeight: "bold", color: "#003d8f" }}
-            variant="subtitle2">
+          <Typography sx={{ fontWeight: "bold", color: "#003d8f" }} variant="subtitle2">
             Connected documents
           </Typography>
         </Grid>
 
-        {connections.map((conn) => {
+        {connections.map((conn, index) => {
           return (
-            <>
-              <Grid
-                size={12}
-                sx={{
-                  textAlign: "center",
-                  justifyContent: "center",
-                  direction: "row",
-                }}>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Box
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      // border: "1px solid #003d8f",
-                      borderRadius: "50%",
-                      padding: "4px",
-                      marginRight: "8px",
-                      backgroundColor: "#f0f4f8",
-                    }}>
-                    <svg width="100%" height="100%">
-                      {conn.connection_types.map((type, index) => {
-                        const totalPaths = conn.connection_types.length;
-                        const startY = (32 - (totalPaths - 1) * 10) / 2;
-                        return (
-                          <path
-                            d={`M0,${startY + index * 10} L100,${
-                              startY + index * 10
-                            }`}
-                            style={
-                              connectionStyles[type.toLowerCase() + "_conn"]
-                            }
-                          />
-                        );
-                      })}
-                    </svg>
-                  </Box>
-                  <Typography>{conn.name}</Typography>
-                  <IconButton
-                    size="small"
-                    sx={{ marginLeft: "auto" }}
-                    onClick={() => handleConnectionClick(conn.document_id)}>
-                    <ArrowCircleRightOutlinedIcon color="primary"></ArrowCircleRightOutlinedIcon>
-                  </IconButton>
+            <Grid
+              key={index}
+              size={12}
+              sx={{
+                textAlign: "center",
+                justifyContent: "center",
+                direction: "row",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    // border: "1px solid #003d8f",
+                    borderRadius: "50%",
+                    padding: "4px",
+                    marginRight: "8px",
+                    backgroundColor: "#f0f4f8",
+                  }}
+                >
+                  <svg width="100%" height="100%">
+                    {conn.connection_types.map((type, idx) => {
+                      const totalPaths = conn.connection_types.length;
+                      const startY = (32 - (totalPaths - 1) * 10) / 2;
+                      return (
+                        <path
+                          key={idx}
+                          d={`M0,${startY + index * 10} L100,${startY + index * 10}`}
+                          style={connectionStyles[type.toLowerCase() + "_conn"]}
+                        />
+                      );
+                    })}
+                  </svg>
                 </Box>
-              </Grid>
-            </>
+                <Typography>{conn.name}</Typography>
+                <IconButton
+                  size="small"
+                  sx={{ marginLeft: "auto" }}
+                  onClick={() => handleConnectionClick(conn.document_id)}
+                >
+                  <ArrowCircleRightOutlinedIcon color="primary" />
+                </IconButton>
+              </Box>
+            </Grid>
           );
         })}
       </Grid>
