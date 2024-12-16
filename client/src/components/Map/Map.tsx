@@ -5,8 +5,8 @@ import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useContext, useEffect, useState } from "react";
-import Dial from "../Dial";
-import DocumentDial from "../DocumentDial";
+import NavDial from "../Nav/NavDial";
+import DocumentDial from "./DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
@@ -19,7 +19,7 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import DocumentAPI from "../../API/DocumentAPI";
 import React from "react";
 import Link from "./Link";
-import Legend from "../Legend";
+import Legend from "../shared/Legend";
 import ZoomControl from "./ZoomControl";
 
 const municipalityClusterIcon = function () {
@@ -56,9 +56,7 @@ function Map({ docs }) {
     } else if (doc.location.length === 1) {
       return L.latLng(doc.location[0]);
     } else if (doc.location.length > 1) {
-      const pos: L.LatLngExpression[] = doc.location
-        .slice(0, -1)
-        .map((point) => L.latLng(point));
+      const pos: L.LatLngExpression[] = doc.location.slice(0, -1).map((point) => L.latLng(point));
       return L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857);
     }
   };
@@ -83,13 +81,7 @@ function Map({ docs }) {
 
   return (
     <>
-      {!disabledInput && user && user.role === Role.UrbanPlanner && (
-        <>
-          <Dial /> {/* Add documents and links button */}
-          {/*TODO: remove */}
-          <DocumentDial /> {/* Municipality documents button */}
-        </>
-      )}
+      {!disabledInput && user && user.role === Role.UrbanPlanner && <NavDial />}
 
       <MapContainer
         center={[67.85572, 20.22513]}
@@ -107,10 +99,11 @@ function Map({ docs }) {
         style={{
           height: "100vh",
           cursor: disabledInput ? "crosshair" : "auto",
-        }}>
+        }}
+      >
         {!disabledInput && (
           <>
-            <Legend></Legend>
+            <Legend />
             <MapLayersControl
               mapType={mapType}
               setMapType={setMapType}
@@ -143,7 +136,8 @@ function Map({ docs }) {
         <MarkerClusterGroup
           spiderfyOnMaxZoom={false}
           disableClusteringAtZoom={11}
-          showCoverageOnHover={false}>
+          showCoverageOnHover={false}
+        >
           {!disabledInput &&
             docs.map((doc) => {
               if (!doc) return null;
@@ -177,7 +171,8 @@ function Map({ docs }) {
                       stakeholders={doc.stakeholders}
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
                       links={links}
-                      setHoveredDocument={setHoveredDocument}></DocumentMarker>
+                      setHoveredDocument={setHoveredDocument}
+                    ></DocumentMarker>
                     {(layersVisibility.areas ||
                       hoveredDocument === doc.id ||
                       selectedDocument === doc.id) && (
@@ -187,7 +182,8 @@ function Map({ docs }) {
                           color: "white",
                           weight: 1,
                           fillOpacity: 0.4,
-                        }}></Polygon>
+                        }}
+                      ></Polygon>
                     )}
                   </React.Fragment>
                 );
@@ -216,7 +212,8 @@ function Map({ docs }) {
         {bounds !== null && (
           <Polygon
             pathOptions={{ color: "red", fill: false }}
-            positions={bounds.getLatLngs() as L.LatLngExpression[]}></Polygon>
+            positions={bounds.getLatLngs() as L.LatLngExpression[]}
+          ></Polygon>
         )}
         {!disabledInput &&
           links.map((link, index) => {
@@ -225,11 +222,9 @@ function Map({ docs }) {
               docs.some((doc) => doc.id === link.id_doc2)
             ) {
               return link.connection_types.map((type, typeIndex) => {
-                const offset =
-                  typeIndex % 2 === 0 ? -typeIndex * 0.003 : typeIndex * 0.003; // Adjust offset for each type
+                const offset = typeIndex % 2 === 0 ? -typeIndex * 0.003 : typeIndex * 0.003; // Adjust offset for each type
                 const formattedType =
-                  type.split("_")[0].charAt(0).toUpperCase() +
-                  type.split("_")[0].slice(1);
+                  type.split("_")[0].charAt(0).toUpperCase() + type.split("_")[0].slice(1);
                 return (
                   ((layersVisibility.links && zoom > 11) ||
                     hoveredDocument == link.id_doc1 ||
@@ -245,7 +240,8 @@ function Map({ docs }) {
                       positions={{
                         doc1: getDocLocation(link.id_doc1),
                         doc2: getDocLocation(link.id_doc2),
-                      }}></Link>
+                      }}
+                    ></Link>
                   )
                 );
               });

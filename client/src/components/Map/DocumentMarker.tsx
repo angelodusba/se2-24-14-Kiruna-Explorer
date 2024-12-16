@@ -1,6 +1,6 @@
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import { useNavigate, useParams } from "react-router-dom";
-import { createCustomIcon } from "./Icons";
+import { createCustomIcon } from "../shared/Icons";
 import { useEffect } from "react";
 
 function DocumentMarker({
@@ -38,13 +38,7 @@ function DocumentMarker({
   return (
     <Marker
       riseOnHover
-      icon={createCustomIcon(
-        typeName,
-        docId,
-        selectedDocId,
-        stakeholders,
-        links
-      )}
+      icon={createCustomIcon(typeName, docId, selectedDocId, stakeholders, links)}
       position={position}
       zIndexOffset={selectedDocId === docId && 999}
       eventHandlers={{
@@ -55,7 +49,8 @@ function DocumentMarker({
         mouseout: () => {
           setHoveredDocument(null);
         },
-      }}>
+      }}
+    >
       {selectedDocId !== docId && (
         <Tooltip direction="top" offset={[3, -32]}>
           {docTitle}

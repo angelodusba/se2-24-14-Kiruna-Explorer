@@ -16,20 +16,20 @@ import {
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
-import KirunaLogo from "../assets/KirunaLogo.svg";
+import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
-import UserContext from "../contexts/UserContext";
+import UserContext from "../../contexts/UserContext";
 import { styled, alpha } from "@mui/material/styles";
 import { Logout, MailOutline } from "@mui/icons-material";
-import { DisabledInputContext } from "../contexts/DisabledInputContext";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import SearchBar from "./SearchBar";
-import { SearchFilter } from "../models/SearchFilter";
+import { SearchFilter } from "../../models/SearchFilter";
 import { useContext, useEffect, useState } from "react";
-import AdvancedSearchForm from "./Forms/AdvancedSearchForm";
-import { StakeHolder } from "../models/StakeHolders";
-import { Type } from "../models/Type";
-import DocumentAPI from "../API/DocumentAPI";
-import MenuDial from "./DocumentDial";
+import AdvancedSearchForm from "../Forms/AdvancedSearchForm";
+import { StakeHolder } from "../../models/StakeHolders";
+import { Type } from "../../models/Type";
+import DocumentAPI from "../../API/DocumentAPI";
+import NavDial from "./NavDial";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -458,7 +458,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
         </AppBar>
         {user && renderAccountMenu}
       </Box>
-      <MenuDial />
+      <NavDial />
     </>
   );
 }

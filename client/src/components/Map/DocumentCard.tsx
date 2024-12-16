@@ -9,15 +9,13 @@ import {
   ListItemText,
   Paper,
   Typography,
-  ToggleButtonGroup,
-  ToggleButton,
+  Tooltip,
+  Fab,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import {
   ArticleOutlined,
-  Earbuds,
-  Map,
   AspectRatioOutlined,
   AutoStoriesOutlined,
   CloseOutlined,
@@ -31,6 +29,7 @@ import {
   TodayOutlined,
   TranslateOutlined,
   TypeSpecimenOutlined,
+  Minimize,
 } from "@mui/icons-material";
 import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
@@ -41,11 +40,12 @@ import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import UserContext from "../../contexts/UserContext";
 import L from "leaflet";
 import { ErrorContext } from "../../contexts/ErrorContext";
-import { createReactFlowIcon } from "./Icons";
+import { createReactFlowIcon } from "../shared/Icons";
 import ConnectionAPI from "../../API/ConnectionApi";
 import ConnectionChips from "./ConnectionChips";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
+import MapDiagramSwitch from "../shared/MapDiagramSwitch";
 
 const style = {
   position: "absolute",
@@ -76,9 +76,7 @@ function CoordstoDMS(coordinate: number, isLat: boolean): string {
   const minutesNotTruncated = (absolute - degrees) * 60;
   const minutes = Math.floor(minutesNotTruncated);
   const seconds = Math.floor((minutesNotTruncated - minutes) * 60);
-
   const direction = coordinate >= 0 ? (isLat ? "N" : "E") : isLat ? "S" : "W";
-
   return `${degrees}°${minutes}'${seconds}" ${direction}`;
 }
 
@@ -99,6 +97,8 @@ function DocumentCard(props) {
   const { disabledInput } = useContext(DisabledInputContext);
   const { setError } = useContext(ErrorContext);
   const cardRef = useRef(null);
+  // Maximize button visible when card is minimized
+  const [isCardMinimized, setIsCardMinimized] = useState<boolean>(false);
 
   const [documentCard, setDocumentCard] = useState<DocumentCard | null>({
     id: 0,
@@ -144,9 +144,7 @@ function DocumentCard(props) {
       const docNames = await DocumentAPI.getAllDocumentsNames();
       const conns = await ConnectionAPI.getConnectionsByDocumentId(id);
       const connectionsWithNames = conns.map((conn) => {
-        const name =
-          docNames.find((name) => name.id === conn.document_id)?.title ||
-          "Unknown";
+        const name = docNames.find((name) => name.id === conn.document_id)?.title || "Unknown";
         return { ...conn, name };
       });
       setConnections(connectionsWithNames);
@@ -179,6 +177,7 @@ function DocumentCard(props) {
       await fetchCardInfo(Number(docId.id));
     };
     fetchData();
+    setIsCardMinimized(false);
   }, [docId, disabledInput]);
 
   const isDiagramPage = window.location.pathname.includes("/diagram");
@@ -187,7 +186,36 @@ function DocumentCard(props) {
     <>
       {!disabledInput && (
         <Paper variant="outlined" ref={cardRef}>
-          <Box sx={style}>
+          {isCardMinimized && (
+            <Tooltip title="Restore card" placement="right">
+              <Fab
+                sx={{
+                  borderRadius: "0 50% 50% 0",
+                  border: "none",
+                  position: "fixed",
+                  backgroundColor: "white",
+                  top: "50%",
+                  left: 0,
+                }}
+                className="legend"
+                size="medium"
+                id="layersControl"
+                aria-haspopup="true"
+                onClick={() => {
+                  setIsCardMinimized(false);
+                }}
+              >
+                <div style={{ width: "80%", height: "90%", marginRight: 5 }}>
+                  {createReactFlowIcon(
+                    documentCard.type.name,
+                    documentCard.id,
+                    documentCard.stakeholders
+                  )}
+                </div>
+              </Fab>
+            </Tooltip>
+          )}
+          <Box sx={style} hidden={isCardMinimized}>
             <Grid
               container
               width={"100%"}
@@ -195,21 +223,32 @@ function DocumentCard(props) {
                 display: "flex",
                 flexDirection: "column",
                 padding: "10px",
-              }}>
+              }}
+            >
               <Grid
                 size={12}
                 sx={{
                   display: "flex",
-                  flexDirection: "row",
                   alignItems: "center",
                   mb: 1,
-                }}>
-                <Grid size={1}>
+                }}
+              >
+                {/* Card icon */}
+                <Grid size={1} style={{ marginRight: "15px" }}>
                   <Box
                     sx={{
-                      height: 48,
-                      maxWidth: 48,
-                    }}>
+                      height: {
+                        xs: 32,
+                        sm: 40,
+                        md: 48,
+                      },
+                      width: {
+                        xs: 32,
+                        sm: 40,
+                        md: 48,
+                      },
+                    }}
+                  >
                     {createReactFlowIcon(
                       documentCard.type.name,
                       documentCard.id,
@@ -217,42 +256,50 @@ function DocumentCard(props) {
                     )}
                   </Box>
                 </Grid>
-                <Grid
-                  size={9}
-                  sx={{ display: "flex", justifyContent: "start" }}>
-                  <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                {/* Card title */}
+                <Grid size={7} sx={{ display: "flex", justifyContent: "start" }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: {
+                        xs: "18px",
+                        sm: "20px",
+                        md: "24px",
+                      },
+                    }}
+                    style={{
+                      width: "92%",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     {documentCard.title}
                   </Typography>
                 </Grid>
-                <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
-                  <ToggleButtonGroup
-                    size="small"
-                    exclusive
-                    value={isDiagramPage ? "diagram" : "map"}
-                    onChange={() =>
-                      navigate(
-                        isDiagramPage
-                          ? `/map/${docId.id}`
-                          : `/diagram/${docId.id}`
-                      )
-                    }
-                    aria-label="cardNavigator">
-                    <ToggleButton size="small" value="map" aria-label="map">
-                      <Map />
-                    </ToggleButton>
-                    <ToggleButton value="diagram" aria-label="diagram">
-                      <Earbuds />
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </Grid>
-                <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
-                  <IconButton
-                    size="small"
-                    onClick={() =>
-                      navigate(props.returnHere ? props.returnHere : "/map")
-                    }>
-                    {<CloseOutlined fontSize="small" />}
-                  </IconButton>
+                <Grid size={4} sx={{ display: "flex", justifyContent: "end" }}>
+                  {/* Map / Diagram visualization switch */}
+                  <MapDiagramSwitch
+                    checked={isDiagramPage}
+                    handleChange={() => {
+                      navigate(isDiagramPage ? `/map/${docId.id}` : `/diagram/${docId.id}`);
+                    }}
+                  />
+                  {/* Minimize / Close card buttons */}
+                  <Tooltip title={"Minimize card"}>
+                    <IconButton size="small" onClick={() => setIsCardMinimized(true)}>
+                      {<Minimize fontSize="small" />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={"Close card"}>
+                    <IconButton
+                      size="small"
+                      onClick={() => navigate(props.returnHere ? props.returnHere : "/map")}
+                    >
+                      {<CloseOutlined fontSize="small" />}
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
               <Divider />
@@ -265,14 +312,16 @@ function DocumentCard(props) {
                     alignItems: "start",
                     pl: 1,
                     mt: 2,
-                  }}>
+                  }}
+                >
                   <List
                     sx={{
                       width: "100%",
                       bgcolor: "background.paper",
                       display: "grid",
                       gridTemplateColumns: "repeat(2, 1fr)",
-                    }}>
+                    }}
+                  >
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
@@ -296,8 +345,7 @@ function DocumentCard(props) {
                         }}
                       />
                     </ListItem>
-                    <ListItem
-                      sx={{ alignItems: "start", maxWidth: "50%", pr: 0 }}>
+                    <ListItem sx={{ alignItems: "start", maxWidth: "50%", pr: 0 }}>
                       <ListItemAvatar>
                         <Avatar>
                           <AspectRatioOutlined></AspectRatioOutlined>
@@ -342,7 +390,7 @@ function DocumentCard(props) {
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
-                          <TypeSpecimenOutlined></TypeSpecimenOutlined>
+                          <TypeSpecimenOutlined />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
@@ -363,7 +411,7 @@ function DocumentCard(props) {
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
-                          <LinkOutlined></LinkOutlined>
+                          <LinkOutlined />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
@@ -374,27 +422,25 @@ function DocumentCard(props) {
                               fontWeight: "bold",
                               color: "#003d8f",
                             }}
-                            variant="subtitle2">
+                            variant="subtitle2"
+                          >
                             Connections
                           </Typography>
                         }
                         secondary={
                           <>
-                            <Typography variant="caption">
-                              {documentCard.conn_count}
-                            </Typography>
-
+                            <Typography variant="caption">{documentCard.conn_count}</Typography>
+                            {/* Connections links */}
                             {connections.length > 0 && (
                               <>
-                                <IconButton
-                                  size="small"
-                                  onClick={handleConnectionsOpen}>
+                                <IconButton size="small" onClick={handleConnectionsOpen}>
                                   <ArrowDropDownOutlinedIcon color="primary"></ArrowDropDownOutlinedIcon>
                                 </IconButton>
                                 <ConnectionChips
                                   connections={connections}
                                   anchorEl={anchorEl}
-                                  setAnchorEl={setAnchorEl}></ConnectionChips>
+                                  setAnchorEl={setAnchorEl}
+                                />
                               </>
                             )}
                           </>
@@ -404,7 +450,7 @@ function DocumentCard(props) {
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
-                          <TranslateOutlined></TranslateOutlined>
+                          <TranslateOutlined />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
@@ -426,7 +472,7 @@ function DocumentCard(props) {
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
-                          <AutoStoriesOutlined></AutoStoriesOutlined>
+                          <AutoStoriesOutlined />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
@@ -447,7 +493,7 @@ function DocumentCard(props) {
                     <ListItem sx={{ alignItems: "start" }}>
                       <ListItemAvatar>
                         <Avatar>
-                          <LocationOnOutlined></LocationOnOutlined>
+                          <LocationOnOutlined />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
@@ -455,7 +501,8 @@ function DocumentCard(props) {
                           <Box sx={{ display: "flex", alignItems: "center" }}>
                             <Typography
                               sx={{ fontWeight: "bold", color: "#003d8f" }}
-                              variant="subtitle2">
+                              variant="subtitle2"
+                            >
                               Location
                             </Typography>
                             {user && (
@@ -464,7 +511,8 @@ function DocumentCard(props) {
                                 size="small"
                                 onClick={() => {
                                   navigate(`/map/${docId.id}/georeference`);
-                                }}>
+                                }}
+                              >
                                 <EditOutlined fontSize="inherit" />
                               </IconButton>
                             )}
@@ -482,10 +530,7 @@ function DocumentCard(props) {
                           documentCard.location.length === 0
                             ? "Entire municipality"
                             : documentCard.location.length === 1
-                            ? `${CoordstoDMS(
-                                documentCard.location[0].lat,
-                                true
-                              )}\n${CoordstoDMS(
+                            ? `${CoordstoDMS(documentCard.location[0].lat, true)}\n${CoordstoDMS(
                                 documentCard.location[0].lng,
                                 false
                               )}`
@@ -509,7 +554,8 @@ function DocumentCard(props) {
                     mt: 2,
                     gap: 1,
                     pl: 2,
-                  }}>
+                  }}
+                >
                   <Typography color="#003d8f" fontWeight="bold">
                     Description
                   </Typography>
@@ -519,14 +565,11 @@ function DocumentCard(props) {
                         ? documentCard.description
                         : truncatedDescription}
                       {isLongDescription && (
-                        <IconButton
-                          onClick={() =>
-                            setShowFullDescription(!showFullDescription)
-                          }>
+                        <IconButton onClick={() => setShowFullDescription(!showFullDescription)}>
                           {showFullDescription ? (
-                            <ExpandLessOutlinedIcon color="primary"></ExpandLessOutlinedIcon>
+                            <ExpandLessOutlinedIcon color="primary" />
                           ) : (
-                            <ExpandMoreOutlinedIcon color="primary"></ExpandMoreOutlinedIcon>
+                            <ExpandMoreOutlinedIcon color="primary" />
                           )}
                         </IconButton>
                       )}
@@ -538,7 +581,8 @@ function DocumentCard(props) {
                       alignItems: "center",
                       justifyContent: "center",
                       width: "100%",
-                    }}>
+                    }}
+                  >
                     <Typography color="#003d8f" fontWeight="bold">
                       Original resources
                     </Typography>
@@ -546,7 +590,8 @@ function DocumentCard(props) {
                       <IconButton
                         aria-label="delete"
                         size="small"
-                        onClick={() => navigate(`/map/${docId.id}/resources`)}>
+                        onClick={() => navigate(`/map/${docId.id}/resources`)}
+                      >
                         <EditOutlined fontSize="inherit" />
                       </IconButton>
                     )}
@@ -560,7 +605,8 @@ function DocumentCard(props) {
                         overflow: "hidden",
                         whiteSpace: "nowrap",
                         minWidth: 0,
-                      }}>
+                      }}
+                    >
                       No original resources available
                     </Typography>
                   ) : (
@@ -575,7 +621,8 @@ function DocumentCard(props) {
                               alignItems: "center",
                               justifyContent: "space-between",
                               width: "100%",
-                            }}>
+                            }}
+                          >
                             <Box
                               sx={{
                                 display: "flex",
@@ -583,7 +630,8 @@ function DocumentCard(props) {
                                 gap: 1,
                                 flex: 1,
                                 minWidth: 0,
-                              }}>
+                              }}
+                            >
                               {icon}
                               <Typography
                                 variant="body2"
@@ -593,18 +641,18 @@ function DocumentCard(props) {
                                   whiteSpace: "nowrap",
                                   flex: 1,
                                   minWidth: 0,
-                                }}>
+                                }}
+                              >
                                 {attachment.path.split("/").pop()}
                               </Typography>
                             </Box>
                             <IconButton
                               download={attachment.path.split("/").pop()}
-                              href={`${DocumentAPI.getResourcesBaseURL()}${
-                                attachment.path
-                              }`}
+                              href={`${DocumentAPI.getResourcesBaseURL()}${attachment.path}`}
                               target="_blank"
                               aria-label="download"
-                              size="small">
+                              size="small"
+                            >
                               <FileDownload fontSize="inherit" />
                             </IconButton>
                           </Box>
@@ -618,7 +666,8 @@ function DocumentCard(props) {
                       alignItems: "center",
                       justifyContent: "center",
                       width: "100%",
-                    }}>
+                    }}
+                  >
                     <Typography color="#003d8f" fontWeight="bold">
                       Attachments
                     </Typography>
@@ -626,7 +675,8 @@ function DocumentCard(props) {
                       <IconButton
                         aria-label="delete"
                         size="small"
-                        onClick={() => navigate(`/map/${docId.id}/resources`)}>
+                        onClick={() => navigate(`/map/${docId.id}/resources`)}
+                      >
                         <EditOutlined fontSize="inherit" />
                       </IconButton>
                     )}
@@ -641,13 +691,13 @@ function DocumentCard(props) {
                         whiteSpace: "nowrap",
                         flex: 1,
                         minWidth: 0,
-                      }}>
+                      }}
+                    >
                       No attachments available
                     </Typography>
                   ) : (
                     notOriginalAttachments.map((attachment) => {
                       const icon = getAttachmentIcon(attachment.type);
-
                       return (
                         <Box
                           key={attachment.id}
@@ -656,7 +706,8 @@ function DocumentCard(props) {
                             alignItems: "center",
                             justifyContent: "space-between",
                             width: "100%",
-                          }}>
+                          }}
+                        >
                           <Box
                             sx={{
                               display: "flex",
@@ -664,7 +715,8 @@ function DocumentCard(props) {
                               gap: 1,
                               flex: 1,
                               minWidth: 0,
-                            }}>
+                            }}
+                          >
                             {icon}
                             <Typography
                               variant="body2"
@@ -674,18 +726,18 @@ function DocumentCard(props) {
                                 whiteSpace: "nowrap",
                                 flex: 1,
                                 minWidth: 0,
-                              }}>
+                              }}
+                            >
                               {attachment.path.split("/").pop()}
                             </Typography>
                           </Box>
                           <IconButton
                             download={attachment.path.split("/").pop()}
-                            href={`${DocumentAPI.getResourcesBaseURL()}${
-                              attachment.path
-                            }`}
+                            href={`${DocumentAPI.getResourcesBaseURL()}${attachment.path}`}
                             target="_blank"
                             aria-label="download"
-                            size="small">
+                            size="small"
+                          >
                             <FileDownload fontSize="inherit" />
                           </IconButton>
                         </Box>

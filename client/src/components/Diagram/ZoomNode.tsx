@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { Handle, Position } from "reactflow";
-import { createReactFlowIcon } from "../Map/Icons";
+import { createReactFlowIcon } from "../shared/Icons";
 import { useParams } from "react-router-dom";
 import { Box, Tooltip } from "@mui/material";
 
@@ -79,7 +79,7 @@ const ZoomNode = ({ data }: ZoomNodeProps) => {
         style={{ ...styles.handle, ...styles.targetHandle }}
       />
       {/* Node tooltip and icon */}
-      <Tooltip 
+      <Tooltip
         title={title}
         placement="top"
         arrow
@@ -87,15 +87,24 @@ const ZoomNode = ({ data }: ZoomNodeProps) => {
           popper: {
             modifiers: [
               {
-                name: 'offset',
+                name: "offset",
                 options: {
                   offset: [0, 5],
                 },
               },
             ],
           },
-        }}>
-        <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity }}>
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity,
+          }}
+        >
           {IconComponent}
         </div>
       </Tooltip>
