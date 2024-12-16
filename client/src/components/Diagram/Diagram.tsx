@@ -89,7 +89,9 @@ function Diagram({ currentFilter }: DiagramProps) {
     if (
       edges.find(
         (edge) =>
-          edge.source === params.source && edge.target === params.target && edge.label === "default"
+          edge.source === params.source &&
+          edge.target === params.target &&
+          edge.label === "default"
       )
     ) {
       console.log("Default edge already present");
@@ -102,7 +104,8 @@ function Diagram({ currentFilter }: DiagramProps) {
       type: "floating",
       style: connectionStyles["default"],
       data: {
-        onDelete: () => deleteEdge(`${params.source}-${params.target}-${"default"}`),
+        onDelete: () =>
+          deleteEdge(`${params.source}-${params.target}-${"default"}`),
         user: user,
       },
     };
@@ -130,7 +133,10 @@ function Diagram({ currentFilter }: DiagramProps) {
             (e) => e.source == edge.source || e.target == edge.target
           );
           const nodesToKeep = nodes.filter(
-            (node) => node.id === edge.source || node.id === edge.target || node.type === "group"
+            (node) =>
+              node.id === edge.source ||
+              node.id === edge.target ||
+              node.type === "group"
           );
           setAllEdges(edges);
           setAllNodes(nodes);
@@ -156,7 +162,9 @@ function Diagram({ currentFilter }: DiagramProps) {
   //On edgeDoubleClick change edge type to the next one
   const onEdgeDoubleClick = (_, edge) => {
     const myEdgeType = edgeTypeName[edge.label];
-    const edgeTypeNames = Object.keys(edgeTypeName).filter((key) => key !== "default");
+    const edgeTypeNames = Object.keys(edgeTypeName).filter(
+      (key) => key !== "default"
+    );
     let currentEdgeType = myEdgeType;
 
     // Remove all edgeTypeNames that are already in use, except the myEdgeType
@@ -167,7 +175,9 @@ function Diagram({ currentFilter }: DiagramProps) {
     );
     notUsedEdgeTypeNames.push(myEdgeType);
     //Filter so each time i click i get the next edge type
-    const sortedEdgeTypes = notUsedEdgeTypeNames.sort();
+    const sortedEdgeTypes = notUsedEdgeTypeNames.sort((a, b) =>
+      a.localeCompare(b)
+    );
     if (sortedEdgeTypes.length > 0) {
       const index = sortedEdgeTypes.findIndex((key) => key === myEdgeType);
       currentEdgeType = sortedEdgeTypes[(index + 1) % sortedEdgeTypes.length];
@@ -185,7 +195,8 @@ function Diagram({ currentFilter }: DiagramProps) {
       targetHandle: edge.targetHandle,
       style: connectionStyles[currentEdgeType],
       data: {
-        onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
+        onDelete: () =>
+          deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
         pointPosition: edge.data.pointPosition,
       },
     };
@@ -198,7 +209,13 @@ function Diagram({ currentFilter }: DiagramProps) {
     const index = filteredYears.findIndex((f_year) => f_year === year);
     return index;
   };
-  const createNode = (doc: DocumentForDiagram, offsetY, offsetX, docYear, connections) => {
+  const createNode = (
+    doc: DocumentForDiagram,
+    offsetY,
+    offsetX,
+    docYear,
+    connections
+  ) => {
     return {
       id: doc.id.toString(),
       type: "zoom",
@@ -226,7 +243,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       extent: "parent",
     };
   };
-  const createNodesForDocument = async (fiteredDocsPerYear: DocumentForDiagram[][]) => {
+  const createNodesForDocument = async (
+    fiteredDocsPerYear: DocumentForDiagram[][]
+  ) => {
     let newNodes = [];
     const connections = await ConnectionAPI.getConnections();
     for (const docsPerYear of fiteredDocsPerYear) {
@@ -239,7 +258,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       for (const scale in arrayDocsPerScale) {
         //sort docs by month
         const docsPerYearPerScale = arrayDocsPerScale[scale];
-        const sortedDocs = docsPerYearPerScale.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+        const sortedDocs = docsPerYearPerScale.sort((a, b) =>
+          dayjs(a.date).diff(dayjs(b.date))
+        );
         let nDoc = 0;
         let offsetY = 0;
         let offsetX = 0;
@@ -249,15 +270,19 @@ function Diagram({ currentFilter }: DiagramProps) {
           const index_y = Math.floor(nDoc / nodePerRows);
           offsetX = index_x * nodeWidth;
           offsetY = index_y * nodeHeight;
-          const horizontalPadding = (gridWidth - nodeWidth * nodePerRows) / (nodePerRows + 1);
-          const verticalPadding = (gridHeight - nodeHeight * nodePerColumns) / (nodePerColumns + 1);
+          const horizontalPadding =
+            (gridWidth - nodeWidth * nodePerRows) / (nodePerRows + 1);
+          const verticalPadding =
+            (gridHeight - nodeHeight * nodePerColumns) / (nodePerColumns + 1);
           offsetX += (index_x + 1) * horizontalPadding;
           offsetY += (index_y + 1) * verticalPadding;
           if (index_y > nodePerColumns) {
             return;
           }
           const docYear = dayjs(doc.date).year();
-          nodesToAdd.push(createNode(doc, offsetY, offsetX, docYear, connections));
+          nodesToAdd.push(
+            createNode(doc, offsetY, offsetX, docYear, connections)
+          );
           nDoc++;
         }
         newNodes = [...newNodes, ...nodesToAdd];
@@ -274,7 +299,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       targetHandle: targetHandle,
       type: edgeTypes ? "floating" : "default",
       label: type,
-      style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
+      style: connectionStyles[type]
+        ? connectionStyles[type]
+        : connectionStyles["default"],
       data: {
         onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
         index: index,
@@ -335,7 +362,10 @@ function Diagram({ currentFilter }: DiagramProps) {
           x: doc1.position.x + grid1.position.x,
           y: doc1.position.y + grid1.position.y,
         };
-      } else if (sourcePosition.x === targetPosition.x && sourcePosition.y > targetPosition.y) {
+      } else if (
+        sourcePosition.x === targetPosition.x &&
+        sourcePosition.y > targetPosition.y
+      ) {
         id1 = conn.id_doc2.toString();
         id2 = conn.id_doc1.toString();
         sourcePosition = {
@@ -348,7 +378,10 @@ function Diagram({ currentFilter }: DiagramProps) {
         };
       }
 
-      const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
+      const { sourceHandle, targetHandle } = getHandlesForEdge(
+        sourcePosition,
+        targetPosition
+      );
 
       return conn.connection_types.map((type: string, index) => {
         return createEdge(id1, id2, sourceHandle, targetHandle, type, index);
@@ -383,14 +416,19 @@ function Diagram({ currentFilter }: DiagramProps) {
 
         if (existing) {
           existing.connection_types = [
-            ...new Set([...existing.connection_types, ...edge.connection_types]),
+            ...new Set([
+              ...existing.connection_types,
+              ...edge.connection_types,
+            ]),
           ];
         } else {
           acc.push(edge);
         }
         return acc;
       }, []);
-    const uniqueNodes = [...new Set(connections.flatMap((conn) => [conn.id_doc1, conn.id_doc2]))];
+    const uniqueNodes = [
+      ...new Set(connections.flatMap((conn) => [conn.id_doc1, conn.id_doc2])),
+    ];
     const sortedNodes = uniqueNodes.sort((a, b) => b - a);
     //Now create connectionLists one for each uniqueNode
     const connectionLists: ConnectionList[] = sortedNodes.map((node) => {
@@ -427,9 +465,16 @@ function Diagram({ currentFilter }: DiagramProps) {
           typeName: doc.type.name,
         };
       });
-      const minYear = Math.floor(Math.min(...list.map((doc) => dayjs(doc.date).year())));
-      const maxYear = Math.ceil(Math.max(...list.map((doc) => dayjs(doc.date).year())));
-      const years = Array.from({ length: maxYear - minYear + 1 }, (_, k) => k + minYear);
+      const minYear = Math.floor(
+        Math.min(...list.map((doc) => dayjs(doc.date).year()))
+      );
+      const maxYear = Math.ceil(
+        Math.max(...list.map((doc) => dayjs(doc.date).year()))
+      );
+      const years = Array.from(
+        { length: maxYear - minYear + 1 },
+        (_, k) => k + minYear
+      );
       //Need to calculate the offset for each scale, to position the nodes correctly
       const numberOfDocumentsPerScale = response.docs.reduce((acc, doc) => {
         const scale = doc.scale.toLowerCase();
@@ -445,7 +490,9 @@ function Diagram({ currentFilter }: DiagramProps) {
         list.filter((doc) => dayjs(doc.date).year() === year)
       );
       // Keep only years with documents
-      const fiteredDocsPerYear = arrayDocsPerYear.filter((docs) => docs.length > 0);
+      const fiteredDocsPerYear = arrayDocsPerYear.filter(
+        (docs) => docs.length > 0
+      );
       const offsetYPerScale = {};
       let offset = gridHeight;
       // Calculate offset for each grid cell
@@ -455,7 +502,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       });
       //Keep nodes with no documents, used to position docs and years
       const filteredYears = years.filter((year) => {
-        return fiteredDocsPerYear.find((docs) => docs[0].date.includes(year.toString()));
+        return fiteredDocsPerYear.find((docs) =>
+          docs[0].date.includes(year.toString())
+        );
       });
       //Create a group node for each year-scale tuple
       const groupNodes = {};
@@ -465,7 +514,10 @@ function Diagram({ currentFilter }: DiagramProps) {
             id: year.toString() + "_&_" + scale.name,
             data: { label: year.toString() + scale.name },
             position: {
-              x: assignX_toYear(year, filteredYears) * gridWidth + gridWidth + gridWidth / 100,
+              x:
+                assignX_toYear(year, filteredYears) * gridWidth +
+                gridWidth +
+                gridWidth / 100,
               y: offsetYPerScale[scale.name] + gridHeight / 100,
             },
             style: {
@@ -601,10 +653,16 @@ function Flow({
   const onNodeClick = (_, node) => {
     if (docsNodes.some((doc) => doc.id == node.id)) {
       const { zoom } = flow.getViewport();
-      const offsetX = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.x;
-      const offsetY = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.y;
-      const viewportX = offsetX * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
-      const viewportY = offsetY * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
+      const offsetX = -gridNodes.find(
+        (gridNode) => gridNode.id === node.parentId
+      ).position.x;
+      const offsetY = -gridNodes.find(
+        (gridNode) => gridNode.id === node.parentId
+      ).position.y;
+      const viewportX =
+        offsetX * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
+      const viewportY =
+        offsetY * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
       const newViewport = {
         x: viewportX + nodeWidth * zoom,
         y: viewportY,
@@ -622,8 +680,7 @@ function Flow({
         width: "100vw",
         overflow: "auto",
         paddingTop: "72px",
-      }}
-    >
+      }}>
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
@@ -648,8 +705,7 @@ function Flow({
         maxZoom={0.8}
         defaultViewport={defaultViewport}
         panOnScroll
-        panOnDrag
-      >
+        panOnDrag>
         <Axis
           baseWidth={gridWidth}
           baseHeight={gridHeight / 2}
@@ -688,8 +744,7 @@ function Flow({
             zIndex: 200,
             background: "#003d8f",
             color: "white",
-          }}
-        >
+          }}>
           Save new connections
         </Button>
       )}
