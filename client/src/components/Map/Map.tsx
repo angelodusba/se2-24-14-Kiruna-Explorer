@@ -5,8 +5,8 @@ import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useContext, useEffect, useState } from "react";
-import NavDial from "../NavDial";
-import DocumentDial from "../DocumentDial";
+import NavDial from "../Nav/NavDial";
+import DocumentDial from "./DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
@@ -19,7 +19,7 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import DocumentAPI from "../../API/DocumentAPI";
 import React from "react";
 import Link from "./Link";
-import Legend from "../Legend";
+import Legend from "../shared/Legend";
 import ZoomControl from "./ZoomControl";
 
 const municipalityClusterIcon = function () {
@@ -103,7 +103,7 @@ function Map({ docs }) {
       >
         {!disabledInput && (
           <>
-            <Legend></Legend>
+            <Legend />
             <MapLayersControl
               mapType={mapType}
               setMapType={setMapType}

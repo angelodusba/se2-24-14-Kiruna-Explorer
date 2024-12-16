@@ -1,6 +1,6 @@
 import { Box, IconButton, Popover, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import connectionStyles from "../Diagram/ConnectionStyles.tsx";
+import connectionStyles from "../shared/ConnectionStyles.tsx";
 import Grid from "@mui/material/Grid2";
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 

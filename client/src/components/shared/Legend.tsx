@@ -1,8 +1,8 @@
 import { Box, Drawer, Fab, Tooltip, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import typeIconsData from "./../assets/typeIconsData.ts";
-import stakeholdersColorsData from "./../assets/stakeholdersColorsData.ts";
-import connectionStyles from "./Diagram/ConnectionStyles.tsx";
+import typeIconsData from "../../assets/typeIconsData.ts";
+import stakeholdersColorsData from "../../assets/stakeholdersColorsData.ts";
+import connectionStyles from "./ConnectionStyles.tsx";
 import LegendToggleOutlinedIcon from "@mui/icons-material/LegendToggleOutlined";
 import L from "leaflet";
 

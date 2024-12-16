@@ -1,7 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import ReactFlow, {
   ReactFlowProvider,
-  addEdge,
   Controls,
   Background,
   Node,
@@ -20,10 +19,10 @@ import ZoomNode from "./ZoomNode";
 import ConnectionAPI from "../../API/ConnectionApi";
 import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
-import connectionStyles from "./ConnectionStyles";
+import connectionStyles from "../shared/ConnectionStyles";
 import { Button } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
-import Legend from "../Legend";
+import Legend from "../shared/Legend";
 import FloatingEdge from "./FloatingEdge";
 import { ConnectionList } from "../../models/Connection";
 import Axis from "./Axis";

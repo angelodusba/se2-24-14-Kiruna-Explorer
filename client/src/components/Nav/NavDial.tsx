@@ -3,7 +3,7 @@ import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function MenuDial() {
+function NavDial() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -78,4 +78,4 @@ function MenuDial() {
   );
 }
 
-export default MenuDial;
+export default NavDial;

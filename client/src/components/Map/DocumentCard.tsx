@@ -45,7 +45,7 @@ import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import UserContext from "../../contexts/UserContext";
 import L from "leaflet";
 import { ErrorContext } from "../../contexts/ErrorContext";
-import { createReactFlowIcon } from "./Icons";
+import { createReactFlowIcon } from "../shared/Icons";
 import ConnectionAPI from "../../API/ConnectionApi";
 import ConnectionChips from "./ConnectionChips";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";

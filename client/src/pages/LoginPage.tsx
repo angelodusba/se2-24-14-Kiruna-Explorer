@@ -1,7 +1,7 @@
 import Grid from "@mui/material/Grid2";
-import LoginCard from "./LoginCard";
-import KirunaImage from "../../assets/Kiruna.webp";
-import KirunaLogo from "../../assets/KirunaLogo.svg";
+import LoginCard from "../components/Login/LoginCard";
+import KirunaImage from "../assets/Kiruna.webp";
+import KirunaLogo from "../assets/KirunaLogo.svg";
 import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 

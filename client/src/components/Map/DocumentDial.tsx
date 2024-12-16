@@ -3,9 +3,9 @@ import AddLocationAltOutlinedIcon from "@mui/icons-material/AddLocationAltOutlin
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DisabledInputContext } from "../contexts/DisabledInputContext";
+import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 
-function NavDial() {
+function DocumentDial() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -79,4 +79,4 @@ function NavDial() {
   );
 }
 
-export default NavDial;
+export default DocumentDial;

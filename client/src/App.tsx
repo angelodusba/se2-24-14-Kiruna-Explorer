@@ -1,8 +1,8 @@
 import "./App.css";
 import Map from "./components/Map/Map";
 import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import LoginPage from "./components/Login/LoginPage";
+import Navbar from "./components/Nav/Navbar";
+import LoginPage from "./pages/LoginPage";
 import { useEffect, useState } from "react";
 import User, { Role } from "./models/User";
 import UserContext from "./contexts/UserContext";
