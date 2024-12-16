@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DisabledInputContext } from "../contexts/DisabledInputContext";
 
-function Dial() {
+function NavDial() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -50,7 +50,8 @@ function Dial() {
       icon={<SpeedDialIcon />}
       onClose={handleClose}
       onOpen={handleOpen}
-      open={open}>
+      open={open}
+    >
       {actions.map((action) => (
         <SpeedDialAction
           key={action.id}
@@ -78,4 +79,4 @@ function Dial() {
   );
 }
 
-export default Dial;
+export default NavDial;
