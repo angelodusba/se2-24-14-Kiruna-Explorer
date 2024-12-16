@@ -11,7 +11,6 @@ import {
   Typography,
   ToggleButtonGroup,
   ToggleButton,
-  Drawer,
   Tooltip,
   Fab,
 } from "@mui/material";
@@ -50,6 +49,7 @@ import ConnectionAPI from "../../API/ConnectionApi";
 import ConnectionChips from "./ConnectionChips";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
+import MapDiagramSwitch from "../shared/MapDiagramSwitch";
 
 const style = {
   position: "absolute",
@@ -233,16 +233,24 @@ function DocumentCard(props) {
                 size={12}
                 sx={{
                   display: "flex",
-                  flexDirection: "row",
                   alignItems: "center",
                   mb: 1,
                 }}
               >
-                <Grid size={1}>
+                {/* Card icon */}
+                <Grid size={1} style={{ marginRight: "15px" }}>
                   <Box
                     sx={{
-                      height: 48,
-                      maxWidth: 48,
+                      height: {
+                        xs: 32,
+                        sm: 40,
+                        md: 48,
+                      },
+                      width: {
+                        xs: 32,
+                        sm: 40,
+                        md: 48,
+                      },
                     }}
                   >
                     {createReactFlowIcon(
@@ -252,30 +260,37 @@ function DocumentCard(props) {
                     )}
                   </Box>
                 </Grid>
-                <Grid size={9} sx={{ display: "flex", justifyContent: "start" }}>
-                  <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                {/* Card title */}
+                <Grid size={7} sx={{ display: "flex", justifyContent: "start" }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: {
+                        xs: "18px",
+                        sm: "20px",
+                        md: "24px",
+                      },
+                    }}
+                    style={{
+                      width: "92%",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     {documentCard.title}
                   </Typography>
                 </Grid>
-                <Grid size={1} sx={{ display: "flex", justifyContent: "end" }}>
-                  <ToggleButtonGroup
-                    size="small"
-                    exclusive
-                    value={isDiagramPage ? "diagram" : "map"}
-                    onChange={() =>
-                      navigate(isDiagramPage ? `/map/${docId.id}` : `/diagram/${docId.id}`)
-                    }
-                    aria-label="cardNavigator"
-                  >
-                    <ToggleButton size="small" value="map" aria-label="map">
-                      <Map />
-                    </ToggleButton>
-                    <ToggleButton value="diagram" aria-label="diagram">
-                      <Earbuds />
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </Grid>
-                <Grid size={1} sx={{ display: "flex", justifyContent: "end", marginLeft: 2 }}>
+                <Grid size={4} sx={{ display: "flex", justifyContent: "end" }}>
+                  {/* Map / Diagram visualization switch */}
+                  <MapDiagramSwitch
+                    checked={isDiagramPage}
+                    handleChange={() => {
+                      navigate(isDiagramPage ? `/map/${docId.id}` : `/diagram/${docId.id}`);
+                    }}
+                  />
+                  {/* Minimize / Close card buttons */}
                   <IconButton size="small" onClick={() => setIsCardMinimized(true)}>
                     {<Minimize fontSize="small" />}
                   </IconButton>
