@@ -687,19 +687,19 @@ function Flow({
   useEffect(() => {
     if (selectedDocId && docsNodes.some((doc) => doc.id == selectedDocId)) {
       const node = docsNodes.find((node) => node.id == selectedDocId);
-      const { zoom } = flow.getViewport();
+      const zoom = defaultViewport.zoom * 3;
       const offsetX = -gridNodes.find(
         (gridNode) => gridNode.id === node.parentId
-      ).position.x;
+      ).position.x - node.position.x;
       const offsetY = -gridNodes.find(
         (gridNode) => gridNode.id === node.parentId
-      ).position.y;
+      ).position.y - node.position.y;
       const viewportX =
         offsetX * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
       const viewportY =
         offsetY * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
       const newViewport = {
-        x: viewportX + nodeWidth * zoom,
+        x: viewportX + 300,
         y: viewportY,
         zoom,
       };
