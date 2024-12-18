@@ -176,6 +176,13 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
   };
   //On edgeDoubleClick change edge type to the next one
   const onEdgeDoubleClick = (_, edge) => {
+
+    if(!(user && user.role === Role.UrbanPlanner)){
+      //Display an alert
+      alert("Only Urban Planners can change the edge type");
+      return;
+    }
+
     const myEdgeType = edgeTypeName[edge.label];
     const edgeTypeNames = Object.keys(edgeTypeName).filter(
       (key) => key !== "default"
@@ -740,11 +747,10 @@ function Flow({
           event.stopPropagation();
         }}
         zoomOnDoubleClick={false}
-        zoomOnScroll={false}
+        zoomOnScroll={true}
         minZoom={0.2}
         maxZoom={0.8}
         defaultViewport={defaultViewport}
-        panOnScroll
         panOnDrag>
         <Axis
           baseWidth={gridWidth}
