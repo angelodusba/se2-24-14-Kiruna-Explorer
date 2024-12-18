@@ -741,14 +741,14 @@ function Flow({
         panOnDrag>
         <Axis
           baseWidth={gridWidth}
-          baseHeight={gridHeight / 2}
+          baseHeight={gridHeight}
           type={"x"}
           data={valuesX}
           offset={gridWidth}
           viewport={viewport}
         />
         <Axis
-          baseWidth={gridWidth / 2}
+          baseWidth={gridWidth}
           baseHeight={gridHeight}
           type={"y"}
           data={valuesY}
