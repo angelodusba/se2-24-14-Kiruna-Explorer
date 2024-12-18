@@ -131,6 +131,24 @@ class ConnectionController {
       throw err;
     }
   }
+
+  //delete connections
+  async deleteConnections(
+    starting_document_id: number,
+    connections: { document_id: number; connection_types: string[] }[]
+  ): Promise<boolean> {
+    try {
+      // Delete previous connections of starting document
+      await Promise.all(
+        connections.map(async (connection) => {
+          await this.dao.deleteSpecificConnection(starting_document_id, connection.document_id, connection.connection_types[0])
+        })
+      )
+      return true; // Return true if all connections are successfully created
+    } catch (err: any) {
+      throw err;
+    }
+  }
 }
 
 export default ConnectionController;

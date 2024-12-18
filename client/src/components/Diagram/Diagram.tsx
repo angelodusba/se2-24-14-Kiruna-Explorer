@@ -74,14 +74,17 @@ function Diagram({ currentFilter }: DiagramProps) {
   const [refreshViewport, setRefreshViewport] = useState<boolean>(false);
   const [valuesX, setValuesX] = useState<{ id: number; label: string }[]>([]);
   const [valuesY, setValuesY] = useState<{ id: number; label: string }[]>([]);
+  const [deletedConnections, setDeletedConnections] = useState([]);
+
 
   const deleteEdge = (id) => {
+    //get edge
+    const edge = edges.find((el) => el.id === id);
+    //If edge is not default, add it to deletedConnections
+    if (edge.label !== "default") {
+      setDeletedConnections((els) => [...els, edge]);
+    }
     setEdges((els) => els.filter((el) => el.id !== id));
-  };
-
-  const onEdgesDelete = (edgesToDelete) => {
-    // Update the state by filtering out the deleted edges
-    setEdges((eds) => eds.filter((edge) => !edgesToDelete.includes(edge)));
   };
 
   const onConnect = (params: Connection) => {
@@ -144,8 +147,13 @@ function Diagram({ currentFilter }: DiagramProps) {
           setEdges(edgesToKeep);
           setEdgeIsClicked(true);
         } else {
+          // Remove deletedConnections from allEdges
+          const newEdges = allEdges.filter(
+            (edge) =>
+              !deletedConnections.find((deletedEdge) => deletedEdge.id === edge.id)
+          );
           setNodes(allNodes);
-          setEdges(allEdges);
+          setEdges(newEdges);
           setEdgeIsClicked(false);
         }
       }, 500);
@@ -389,6 +397,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     });
   };
   const saveNewConnections = async () => {
+
     const connections = edges
       .filter((edge) => edge.type === "floating" && edge.label !== "default")
       .map((edge) => {
@@ -444,6 +453,26 @@ function Diagram({ currentFilter }: DiagramProps) {
           }),
       };
     });
+    
+    //Before saving delete connections from deletedConnections
+    //Create one connectionList from each deleted connections
+    const deletedConnectionLists = deletedConnections.map((edge) => {
+      const parts = edge.id.split("-");
+      return {
+        starting_document_id: parseInt(parts[0]),
+        connections: [
+          {
+            document_id: parseInt(parts[1]),
+            connection_types: [edge.label],
+          },
+        ],
+      };
+    });
+    for (const connectionList of deletedConnectionLists) {
+      await ConnectionAPI.deleteConnections(connectionList);
+    }
+    setDeletedConnections([]);
+
     for (const connectionList of connectionLists) {
       if (connectionList.connections.length > 0) {
         await ConnectionAPI.updateConnectionsDiagram(connectionList);
@@ -591,7 +620,6 @@ function Diagram({ currentFilter }: DiagramProps) {
         saveNewConnections={saveNewConnections}
         valuesX={valuesX}
         valuesY={valuesY}
-        onEdgesDelete={onEdgesDelete}
         user={user}
       />
 
@@ -616,7 +644,6 @@ function Flow({
   saveNewConnections,
   valuesX,
   valuesY,
-  onEdgesDelete,
   user,
 }) {
   const navigate = useNavigate();
@@ -652,6 +679,8 @@ function Flow({
   };
 
   const onNodeClick = (_, node) => {
+    if(node.type === "group") return;
+    if(!node.id) return;
     navigate(`/diagram/${node.id}`);    
   };
 
@@ -695,7 +724,6 @@ function Flow({
         onNodeDoubleClick={onNodeClick}
         edges={edges}
         onEdgesChange={onEdgesChange}
-        onEdgesDelete={onEdgesDelete}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onEdgeClick={onEdgeClick}
         onConnect={onConnect}
