@@ -30,7 +30,11 @@ import { StakeHolder } from "../../models/StakeHolders";
 import { Type } from "../../models/Type";
 import DocumentAPI from "../../API/DocumentAPI";
 import NavDial from "./NavDial";
+<<<<<<< HEAD
 import { useLocation } from "react-router-dom";
+=======
+import FilterChips from "./FilterChips";
+>>>>>>> 63091388868347ba0e7b3d89ba8761c61f7c92d9
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -133,6 +137,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     municipality: false,
   });
   const [searchValue, setSearchValue] = useState<string>("");
+  const [filterNames, setFilterNames] = useState<string[]>([]);
 
   const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAccountAnchorEl(event.currentTarget);
@@ -142,20 +147,18 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     setAccountAnchorEl(null);
   };
 
-  const handleRemoveFilter = (key: string, value: string) => {
+  const handleRemoveFilter = (key: string) => {
     setFilters((prevFilters) => {
-      const updatedFilters = { ...prevFilters };
-
-      // Remove filter value from the array or reset the property
-      if (Array.isArray(updatedFilters[key])) {
-        updatedFilters[key] = updatedFilters[key].filter((item: string) => item !== value);
-      } else {
-        updatedFilters[key] = "";
-      }
-
+      const defaultValue = Array.isArray(prevFilters[key])
+        ? []
+        : typeof prevFilters[key] === "boolean"
+        ? false
+        : "";
+      const updatedFilters = { ...prevFilters, [key]: defaultValue };
+      setFilters(updatedFilters);
+      onSearch(updatedFilters);
       return updatedFilters;
     });
-    onSearch(filters); 
   };
 
   const handleSimpleSearch = () => {
@@ -171,6 +174,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
       municipality: false,
     });
     onSearch({ title: searchValue });
+    setFilterNames(searchValue !== "" ? ["title"] : []);
   };
 
   const handleReset = () => {
@@ -190,22 +194,11 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   };
 
   const handleAdvancedSearch = () => {
-    // Filter out empty or default values
-    const nonEmptyFilters = Object.fromEntries(
-      Object.entries(filters).filter(([, value]) => {
-        if (Array.isArray(value)) {
-          // Keep arrays only if they have at least one element
-          return value.length > 0;
-        } else if (typeof value === "boolean") {
-          // Include boolean values unless they are undefined
-          return value !== undefined;
-        } else {
-          // Keep strings only if they are not empty
-          return value !== "";
-        }
-      })
-    );
+    const nonEmptyFilters = getNonEmptyFilters();
     setSearchValue(nonEmptyFilters.title || "");
+    // Set non empty filters names
+    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
+    setFilterNames(names);
     onSearch(nonEmptyFilters);
   };
 
@@ -215,6 +208,39 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
 
   const handleAdvacedSearchPanelClose = () => {
     setAdvancedSearchAnchorEl(null);
+  };
+
+  const getNonEmptyFilters = () => {
+    // Filter out empty or default values
+    return Object.fromEntries(
+      Object.entries(filters).filter(([, value]) => {
+        if (Array.isArray(value)) {
+          // Keep arrays only if they have at least one element
+          return value.length > 0;
+        } else if (typeof value === "boolean") {
+          // Include boolean values unless they are undefined
+          return value !== undefined && value !== false;
+        } else {
+          // Keep strings only if they are not empty
+          return value !== "";
+        }
+      })
+    );
+  };
+
+  const getNonEmptyFiltersLength = () => {
+    return Object.entries(filters).filter(([, value]) => {
+      if (Array.isArray(value)) {
+        // Keep arrays only if they have at least one element
+        return value.length > 0;
+      } else if (typeof value === "boolean") {
+        // Include boolean values unless they are undefined
+        return value !== undefined && value !== false;
+      } else {
+        // Keep strings only if they are not empty
+        return value !== "";
+      }
+    }).length;
   };
 
   const renderAccountMenu = (
@@ -273,6 +299,13 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     // Reset App filters
     handleResetFilters();
   }, []);
+
+  useEffect(() => {
+    const nonEmptyFilters = getNonEmptyFilters();
+    // Set non empty filters names
+    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
+    setFilterNames(names);
+  }, [filters]);
 
   return (
     <>
@@ -375,6 +408,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     />
                   </Popover>
                 </Grid>
+<<<<<<< HEAD
 
                 <Grid>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -438,6 +472,9 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   </Box>
                 </Grid>
 
+=======
+                {/* Login / account button */}
+>>>>>>> 63091388868347ba0e7b3d89ba8761c61f7c92d9
                 <Grid
                   size="grow"
                   sx={{
@@ -493,6 +530,9 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
         </AppBar>
         {user && renderAccountMenu}
       </Box>
+      {(getNonEmptyFiltersLength() > 1 || !filters.title) && (
+        <FilterChips filterNames={filterNames} handleRemoveFilter={handleRemoveFilter} />
+      )}
       <NavDial />
     </>
   );
