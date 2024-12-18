@@ -50,14 +50,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
         ? false
         : "";
       const updatedFilters = { ...prevFilters, [key]: defaultValue };
-      setFilters(updatedFilters);
-      // Set non empty filters names
-      const nonEmptyFilters = getNonEmptyFilters();
-      const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
-      setFilterNames(names);
       onSearch(updatedFilters);
       return updatedFilters;
     });
+    setFilterNames((prevNames) => prevNames.filter((filterName) => filterName !== key));
   };
 
   const handleSimpleSearch = () => {

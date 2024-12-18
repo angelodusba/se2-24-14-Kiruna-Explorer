@@ -13,9 +13,7 @@ import {
   CardHeader,
   CardContent,
   CardActions,
-  Box,
   TableSortLabel,
-  TablePagination,
 } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +23,7 @@ import { useNavigate } from "react-router-dom";
 type HeadTypes = {
   title: string;
   description: string;
-  type: string;
+  type_name: string;
   issue_date: string;
   scale: string;
   language: string;
@@ -42,7 +40,7 @@ const headCells: { id: keyof HeadTypes; label: string }[] = [
     label: "Description",
   },
   {
-    id: "type",
+    id: "type_name",
     label: "Type",
   },
   {
@@ -70,7 +68,6 @@ function DocumentsList({
   totalRows,
   totalPages,
   handleChangePage,
-  handleChangeRowsNum,
   handleSort,
   order,
   orderBy,
@@ -89,16 +86,16 @@ function DocumentsList({
   return (
     <Card
       sx={{
-        paddingTop: "65px",
+        paddingTop: "100px",
         width: "100%",
         height: "100%",
-        maxHeight: "calc(100vh - 65px)",
+        maxHeight: "calc(100vh - 100px)",
         display: "flex",
         flexDirection: "column",
       }}
     >
       {/* Page title */}
-      <CardHeader title="Document List" style={{ paddingBlock: 5 }} />
+      <CardHeader title="Documents List" style={{ paddingBlock: 5 }} />
       {/* Table */}
       <CardContent sx={{ overflowY: "auto", display: "flex", flexGrow: 0, marginBottom: "auto" }}>
         <TableContainer component={Paper}>

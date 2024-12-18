@@ -94,7 +94,6 @@ function DocumentsListPage({ currentFilter }) {
         totalRows={totalRows}
         totalPages={totalPages}
         handleChangePage={handleChangePage}
-        handleChangeRowsNum={setRowsPerPage}
         order={sortOrder}
         orderBy={sortField}
       />
