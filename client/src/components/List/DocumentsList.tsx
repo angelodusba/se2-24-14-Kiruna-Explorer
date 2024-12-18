@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,34 +9,73 @@ import {
   Paper,
   Typography,
   Button,
-  IconButton,
-  Menu,
   Card,
   CardHeader,
   CardContent,
   CardActions,
+  Box,
+  TableSortLabel,
 } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { MenuItem } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
+import { useNavigate } from "react-router-dom";
+
+// type Order = "asc" | "desc";
+
+type HeadTypes = {
+  title: string;
+  description: string;
+  type: string;
+  issue_date: string;
+  scale: string;
+  language: string;
+  pages: string;
+};
+
+const headCells: { id: keyof HeadTypes; label: string }[] = [
+  {
+    id: "title",
+    label: "Title",
+  },
+  {
+    id: "description",
+    label: "Description",
+  },
+  {
+    id: "type",
+    label: "Type",
+  },
+  {
+    id: "issue_date",
+    label: "Issue date",
+  },
+  {
+    id: "scale",
+    label: "Scale",
+  },
+  {
+    id: "language",
+    label: "Language",
+  },
+  {
+    id: "pages",
+    label: "Pages",
+  },
+];
 
 function DocumentsList({
-  handleFilterClick,
-  anchorEl,
-  handleFilterClose,
-  handleSort,
-  sortOrder,
-  error,
   documents,
-  handleCardShow,
   rowsPerPage,
   page,
   totalRows,
   handleChangePage,
+  handleSort,
+  order,
+  orderBy,
 }) {
   const [expandedDescriptions, setExpandedDescriptions] = useState<{
     [key: number]: boolean;
   }>({});
+  const navigate = useNavigate();
 
   const handleViewMoreClick = (id: number) => {
     setExpandedDescriptions((prev) => ({
@@ -47,106 +86,86 @@ function DocumentsList({
   return (
     <Card
       sx={{
+        paddingTop: "65px",
         width: "100%",
-        maxHeight: "92vh",
+        height: "100%",
+        maxHeight: "calc(100vh - 65px)",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <CardHeader title="Document List" />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginRight: 10,
-        }}
-      >
-        <IconButton aria-label="filter list" onClick={handleFilterClick} sx={{ float: "right" }}>
-          <FilterListIcon />
-        </IconButton>
-      </div>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleFilterClose}>
-        <MenuItem onClick={() => handleSort({ field: "title" })}>
-          Sort by Title ({sortOrder === "asc" ? "Ascending" : "Descending"})
-        </MenuItem>
-        <MenuItem onClick={() => handleSort({ field: "pages" })}>
-          Sort by page number ({sortOrder === "asc" ? "Ascending" : "Descending"})
-        </MenuItem>
-        <MenuItem onClick={() => handleSort({ field: "type_name" })}>
-          Sort by type ({sortOrder === "asc" ? "asc" : "desc"})
-        </MenuItem>
-        <MenuItem onClick={() => handleSort({ field: "issue_date" })}>
-          Sort by issue date ({sortOrder === "asc" ? "Ascending" : "Descending"})
-        </MenuItem>
-        <MenuItem onClick={() => handleSort({ field: "language" })}>
-          Sort by language ({sortOrder === "asc" ? "Ascending" : "Descending"})
-        </MenuItem>
-        <MenuItem onClick={() => handleSort({ field: "scale" })}>
-          Sort by scale ({sortOrder === "asc" ? "Ascending" : "Descending"})
-        </MenuItem>
-        <MenuItem onClick={() => handleSort({ field: "description" })}>
-          Sort by description ({sortOrder === "asc" ? "Ascending" : "Descending"})
-        </MenuItem>
-      </Menu>
-      <CardContent sx={{ overflowY: "auto", display: "flex", flexGrow: 0 }}>
-        {error ? (
-          <Typography color="error" align="center">
-            {error}
-          </Typography>
-        ) : (
-          <TableContainer component={Paper}>
-            <Table aria-label="document table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Issue Date</TableCell>
-                  <TableCell>Scale</TableCell>
-                  <TableCell>Language</TableCell>
-                  <TableCell>Pages</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {documents.map((document) => (
-                  <TableRow key={document.id}>
-                    <TableCell>{document.title}</TableCell>
-                    <TableCell>
-                      {expandedDescriptions[document.id]
-                        ? document.description
-                        : `${document.description.substring(0, 50)}...`}
-                      {document.description.length > 50 && (
-                        <Button size="small" onClick={() => handleViewMoreClick(document.id)}>
-                          {expandedDescriptions[document.id] ? "View Less" : "View More"}
-                        </Button>
-                      )}
-                    </TableCell>
-                    <TableCell>{document.type_name}</TableCell>
-                    <TableCell>{document.issue_date}</TableCell>
-                    <TableCell>{document.scale}</TableCell>
-                    <TableCell>{document.language}</TableCell>
-                    <TableCell>{document.pages}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => {
-                          handleCardShow(document.id);
-                          // onClose();
-                        }}
-                      >
-                        View
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+      <CardHeader title="Document List" style={{ paddingBlock: 5 }} />
+
+      <CardContent sx={{ overflowY: "auto", display: "flex", flexGrow: 0, marginBottom: "auto" }}>
+        <TableContainer component={Paper}>
+          <Table stickyHeader aria-label="document table">
+            <TableHead>
+              <TableRow>
+                {headCells.map((headCell) => (
+                  <TableCell
+                    key={headCell.id}
+                    align={"left"}
+                    sortDirection={orderBy.field === headCell.id ? order : false}
+                    style={{
+                      minWidth:
+                        headCell.id === "title" || headCell.id === "description"
+                          ? "120px"
+                          : headCell.id === "issue_date"
+                          ? "95px"
+                          : "auto",
+                    }}
+                  >
+                    <TableSortLabel
+                      active={orderBy === headCell.id}
+                      direction={orderBy === headCell.id ? order : "asc"}
+                      onClick={() => {
+                        handleSort(headCell.id);
+                      }}
+                    >
+                      {headCell.label}
+                    </TableSortLabel>
+                  </TableCell>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {documents.map((document) => (
+                <TableRow key={document.id}>
+                  <TableCell style={{ maxWidth: "200px" }}>{document.title}</TableCell>
+                  <TableCell style={{ maxWidth: "350px" }}>
+                    {expandedDescriptions[document.id]
+                      ? document.description
+                      : `${document.description.substring(0, 50)}...`}
+                    {document.description.length > 50 && (
+                      <Button size="small" onClick={() => handleViewMoreClick(document.id)}>
+                        {expandedDescriptions[document.id] ? "View Less" : "View More"}
+                      </Button>
+                    )}
+                  </TableCell>
+                  <TableCell>{document.type_name}</TableCell>
+                  <TableCell>{document.issue_date}</TableCell>
+                  <TableCell>{document.scale}</TableCell>
+                  <TableCell>{document.language}</TableCell>
+                  <TableCell>{document.pages}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => {
+                        navigate(`/map/${document.id}`);
+                      }}
+                    >
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </CardContent>
-      <CardActions sx={{ marginBottom: 2, display: "flex", justifyContent: "flex-end" }}>
+      <CardActions sx={{ marginBottom: 1, display: "flex", justifyContent: "flex-end" }}>
         <Typography variant="body2" color="textSecondary">
           Documents {documents.length + rowsPerPage * (page - 1)} / {totalRows}
         </Typography>

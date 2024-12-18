@@ -506,7 +506,7 @@ class DocumentDAO {
       }
       // Retrieve results
       const res = await db.query(sql, params);
-      const totalRows: number = res.rows.length > 0 ? res.rows[0].total_rows : 0;
+      const totalRows: number = res.rows.length > 0 ? Number(res.rows[0].total_rows) : 0;
       const totalPages: number = size ? Math.ceil(totalRows / size) : 1;
       const docs: Document[] = res.rows.map(
         (doc) =>
