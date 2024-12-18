@@ -92,6 +92,7 @@ function Map({ docs }) {
         center={[67.85572, 20.22513]}
         minZoom={8}
         zoom={13}
+        maxZoom={15}
         bounds={KirunaBounds}
         maxBounds={KirunaBounds}
         maxBoundsViscosity={1.0}
@@ -192,6 +193,8 @@ function Map({ docs }) {
             })}
         </MarkerClusterGroup>
         <MarkerClusterGroup
+          spiderfyOnEveryZoom={true}
+          spiderfyOnMaxZoom={true}
           iconCreateFunction={municipalityClusterIcon}
           spiderfyDistanceMultiplier={2}
           showCoverageOnHover={false}>
@@ -207,7 +210,6 @@ function Map({ docs }) {
                     stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
                     links={links}
-                    setHoveredDocument={setHoveredDocument}
                   />
                 );
               }
@@ -231,7 +233,8 @@ function Map({ docs }) {
                   type.split("_")[0].charAt(0).toUpperCase() +
                   type.split("_")[0].slice(1);
                 return (
-                  ((layersVisibility.links && zoom > 11) ||
+                  zoom > 11 &&
+                  (layersVisibility.links ||
                     hoveredDocument == link.id_doc1 ||
                     hoveredDocument == link.id_doc2 ||
                     selectedDocument == link.id_doc1 ||

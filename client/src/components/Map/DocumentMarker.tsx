@@ -2,6 +2,7 @@ import { Marker, Tooltip, useMap } from "react-leaflet";
 import { useNavigate, useParams } from "react-router-dom";
 import { createCustomIcon } from "../shared/Icons";
 import { useEffect } from "react";
+import "leaflet.markercluster";
 
 function DocumentMarker({
   position,
@@ -49,13 +50,15 @@ function DocumentMarker({
       zIndexOffset={selectedDocId === docId && 999}
       eventHandlers={{
         click: handleClick,
-        mouseover: (event) => {
-          event.target.preventDefault();
-          setHoveredDocument(docId);
+        mouseover: () => {
+          if (setHoveredDocument) {
+            setHoveredDocument(docId);
+          }
         },
-        mouseout: (event) => {
-          event.target.preventDefault();
-          setHoveredDocument(null);
+        mouseout: () => {
+          if (setHoveredDocument) {
+            setHoveredDocument(null);
+          }
         },
       }}>
       {selectedDocId !== docId && (

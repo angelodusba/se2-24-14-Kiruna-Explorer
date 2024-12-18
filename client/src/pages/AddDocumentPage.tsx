@@ -72,6 +72,7 @@ function AddDocumentPage({ fetchDocuments }) {
         });
       } catch (err) {
         setError(err.message);
+        return;
       }
     }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

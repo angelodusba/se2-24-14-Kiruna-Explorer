@@ -40,7 +40,13 @@ async function sendDocument(document: Document): Promise<number> {
     return res.id;
   } else {
     const errDetail = await response.json();
-    console.log(errDetail);
+    if (Array.isArray(errDetail.errors)) {
+      console.log("cco");
+      throw new Error(
+        errDetail.errors[0].msg ||
+          "Something went wrong, please reload the page"
+      );
+    }
     throw new Error(
       errDetail.error || "Something went wrong, please reload the page"
     );

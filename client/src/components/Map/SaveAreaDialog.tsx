@@ -25,8 +25,8 @@ function SaveAreaDialog({ polygon, open }) {
         }
         setDisabledInput(undefined);
       })
-      .catch(() => {
-        setNameError("Already existing name");
+      .catch((err) => {
+        setNameError(err.message);
       });
   };
 
@@ -47,8 +47,7 @@ function SaveAreaDialog({ polygon, open }) {
           event.preventDefault();
           handleAreaSave();
         },
-      }}
-    >
+      }}>
       <DialogTitle>Do you want to save the area?</DialogTitle>
       <DialogContent>
         <TextField
