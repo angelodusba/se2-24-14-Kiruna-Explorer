@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Toolbar, Typography, AppBar, Popover } from "@mui/material";
+import { Box, Toolbar, AppBar, Popover } from "@mui/material";
 import { Link } from "react-router-dom";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
@@ -14,11 +14,11 @@ import NavDial from "./NavDial";
 import { useLocation } from "react-router-dom";
 import FilterChips from "./FilterChips";
 import LoginButton from "./LoginButton";
+import TextLogo from "../shared/TextLogo";
 
 function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const location = useLocation();
-  const isMapPage = location.pathname === "/map";
-  const isDiagramPage = location.pathname === "/diagram";
+  const isMapPage = location.pathname.includes("/map");
   /* Advanced search panel */
   const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
     null
@@ -51,6 +51,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
         : "";
       const updatedFilters = { ...prevFilters, [key]: defaultValue };
       setFilters(updatedFilters);
+      // Set non empty filters names
+      const nonEmptyFilters = getNonEmptyFilters();
+      const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
+      setFilterNames(names);
       onSearch(updatedFilters);
       return updatedFilters;
     });
@@ -159,13 +163,6 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     handleResetFilters();
   }, []);
 
-  useEffect(() => {
-    const nonEmptyFilters = getNonEmptyFilters();
-    // Set non empty filters names
-    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
-    setFilterNames(names);
-  }, [filters]);
-
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
@@ -203,21 +200,22 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       src={KirunaLogo}
                       width="40px"
                       height="48px"
-                      alt="Kiruna Explorer"
+                      alt="Kiruna Logo"
                       style={{ marginRight: "8px" }}
                     />
-                    <Typography
-                      variant="h5"
-                      component="div"
+                    {/* Text logo */}
+                    <Box
                       sx={{
-                        display: { sm: "block", xs: "none" },
-                        fontWeight: 500,
-                        letterSpacing: "0.5px", // Slight spacing
-                        color: isMapPage ? "white" : isDiagramPage ? "#003d8f" : "inherit", // Conditional color
+                        width: "280px",
+                        display: {
+                          xs: "none",
+                          lg: "block",
+                        },
+                        marginLeft: 1,
                       }}
                     >
-                      Kiruna Explorer
-                    </Typography>
+                      <TextLogo fillColor={isMapPage ? "white" : "#003d8f"} />
+                    </Box>
                   </Link>
                 </Grid>
                 <Grid
@@ -267,10 +265,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   sx={{
                     justifyContent: "end",
                     alignItems: "center",
-                    display: { xs: "flex", sm: "flex" },
+                    display: { xs: "flex" },
                   }}
                 >
-                  <LoginButton handleLogout={handleLogout}></LoginButton>
+                  <LoginButton handleLogout={handleLogout} />
                 </Grid>
               </Grid>
             </Box>

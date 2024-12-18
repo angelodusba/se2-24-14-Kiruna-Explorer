@@ -7,8 +7,7 @@ import { DocumentCard } from "../models/DocumentCard";
 import { Attachment } from "../models/Attachment";
 import { Area } from "../models/Area";
 
-const baseURL =
-  import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001/kirunaexplorer/";
 
 /** ------------------- Documents APIs ------------------------ */
 
@@ -42,14 +41,9 @@ async function sendDocument(document: Document): Promise<number> {
     const errDetail = await response.json();
     if (Array.isArray(errDetail.errors)) {
       console.log("cco");
-      throw new Error(
-        errDetail.errors[0].msg ||
-          "Something went wrong, please reload the page"
-      );
+      throw new Error(errDetail.errors[0].msg || "Something went wrong, please reload the page");
     }
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -63,9 +57,7 @@ async function getDocumentsLocation() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -80,9 +72,7 @@ async function getMunicipalityArea() {
     return area;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -99,9 +89,7 @@ async function getAllAreas() {
     });
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -123,9 +111,7 @@ async function saveArea(name: string, location) {
     return res;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -139,9 +125,7 @@ async function getAllDocumentsNames() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -155,9 +139,7 @@ async function getMunicipalityDocuments() {
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -179,9 +161,7 @@ async function changeDocumentLocation(id: number, location: Point[]) {
   });
   if (!response.ok) {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -198,9 +178,7 @@ async function getDocumentCard(id: number) {
     return documentCard;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -241,17 +219,15 @@ async function getFilteredDocuments(
     sort: sort ? sort : undefined,
   };
   // Remove undefined values
-  Object.keys(params).forEach(
-    (key) => params[key] === undefined && delete params[key]
-  );
+  Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
   const nonEmptyFilters = Object.fromEntries(
     Object.entries(filters).filter(([, value]) => {
       if (Array.isArray(value)) {
         // Keep arrays only if they have at least one element
         return value.length > 0;
       } else if (typeof value === "boolean") {
-        // Include boolean values unless they are undefined
-        return value !== undefined;
+        // Include boolean values unless they are undefined or false
+        return value !== undefined && value !== false;
       } else {
         // Keep strings only if they are not empty
         return value !== "";
@@ -273,9 +249,7 @@ async function getFilteredDocuments(
     return documents;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -294,9 +268,7 @@ async function uploadFile(id, file) {
     return attachment;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -309,9 +281,7 @@ async function deleteFile(id) {
     return;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -327,9 +297,7 @@ async function addStakeholder(name) {
   });
   if (!response.ok) {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -346,9 +314,7 @@ async function getStakeholders() {
     return stakeholders;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -366,9 +332,7 @@ async function addDocumentType(name) {
   if (!response.ok) {
     const errDetail = await response.json();
     console.log(errDetail);
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
@@ -385,9 +349,7 @@ async function getTypes(): Promise<Type[]> {
     return types;
   } else {
     const errDetail = await response.json();
-    throw new Error(
-      errDetail.error || "Something went wrong, please reload the page"
-    );
+    throw new Error(errDetail.error || "Something went wrong, please reload the page");
   }
 }
 
