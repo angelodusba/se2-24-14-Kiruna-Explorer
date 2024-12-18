@@ -2,6 +2,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import LandingPhoto from "../assets/LandingPhoto.svg";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -79,10 +80,14 @@ function LandingPage() {
             "&:hover": {
               background: "linear-gradient(to bottom, #3670BD, #002961)",
             },
-            width: 100,
+            width: 104,
+            height:40,
+            borderRadius: "5px",
+            color: "#FFFFFF",
           }}
         >
-          Log In
+          <AccountCircleIcon sx={{ mr: 1 }} />
+          LogIn
         </Button>
         <Typography
           variant="h3"
@@ -95,12 +100,17 @@ function LandingPage() {
           Kiruna Explorer
         </Typography>
 
-        <Typography variant="body1" sx={{ color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}>
-          Explore the rich history of Kiruna through our platform. We invite visitors to engage with
-          the fascinating narrative of the city, observe its evolution, and access essential
-          documents about its significant landmarks. For urban planners, Kiruna Explorer offers a
-          comprehensive suite of tools designed to facilitate the addition, organization, and
-          connection of documents, thereby supporting the continued development of the city's story.
+        <Typography
+          variant="body1"
+          sx={{ color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}
+        >
+          Explore the rich history of Kiruna through our platform. We invite
+          visitors to engage with the fascinating narrative of the city, observe
+          its evolution, and access essential documents about its significant
+          landmarks. For urban planners, Kiruna Explorer offers a comprehensive
+          suite of tools designed to facilitate the addition, organization, and
+          connection of documents, thereby supporting the continued development
+          of the city's story.
         </Typography>
 
         <Box

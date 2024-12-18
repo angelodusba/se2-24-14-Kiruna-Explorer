@@ -30,6 +30,7 @@ import { StakeHolder } from "../../models/StakeHolders";
 import { Type } from "../../models/Type";
 import DocumentAPI from "../../API/DocumentAPI";
 import NavDial from "./NavDial";
+import { useLocation } from "react-router-dom";
 import FilterChips from "./FilterChips";
 
 function stringToColor(string: string) {
@@ -101,6 +102,11 @@ const AccountMenu = styled((props: MenuProps) => (
 }));
 
 function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
+
+  const location = useLocation();
+  const isMapPage = location.pathname === "/map";
+  const isDiagramPage = location.pathname === "/diagram";
+
   const navigate = useNavigate();
   const user = useContext(UserContext);
   const { disabledInput } = useContext(DisabledInputContext);
@@ -345,7 +351,11 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                         display: { sm: "block", xs: "none" },
                         fontWeight: 500,
                         letterSpacing: "0.5px", // Slight spacing
-                        textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
+                        color: isMapPage
+                          ? "white"
+                          : isDiagramPage 
+                          ? "#003d8f"
+                          : "inherit", // Conditional color
                       }}
                     >
                       Kiruna Explorer
@@ -394,7 +404,69 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     />
                   </Popover>
                 </Grid>
-                {/* Login / account button */}
+
+                <Grid>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {Object.entries(filters).flatMap(([key, value]) => {
+                      if (key === "types" && Array.isArray(value)) {
+                        // Map type IDs to their names for the "types" filter
+                        return value.map((typeId) => {
+                          const type = documentTypes.find(
+                            (t) => t.id === typeId
+                          ); // Find the corresponding type
+                          return (
+                            <Chip
+                              color="success"
+                              key={`${key}-${typeId}`}
+                              label={`${key}: ${type?.name || typeId}`} // Show name if available, fallback to ID
+                              onDelete={() => handleRemoveFilter(key, typeId)}
+                            />
+                          );
+                        });
+                      }
+
+                      if (key === "stakeholders" && Array.isArray(value)) {
+                        // Map stakeholder IDs to their names for the "stakeholders" filter
+                        return value.map((stakeholderId) => {
+                          const stakeholder = stakeholders.find(
+                            (s) => s.id === stakeholderId
+                          ); // Find the corresponding stakeholder
+                          return (
+                            <Chip
+                              color="success"
+                              key={`${key}-${stakeholderId}`}
+                              label={`${key}: ${
+                                stakeholder?.name || stakeholderId
+                              }`} // Show name if available, fallback to ID
+                              onDelete={() =>
+                                handleRemoveFilter(key, stakeholderId)
+                              }
+                            />
+                          );
+                        });
+                      }
+
+                      return Array.isArray(value)
+                        ? value.map((item) => (
+                            <Chip
+                              color="success"
+                              key={`${key}-${item}`}
+                              label={`${key}: ${item}`}
+                              onDelete={() => handleRemoveFilter(key, item)}
+                            />
+                          ))
+                        : value && (
+                            <Chip
+                              color="success"
+                              key={key}
+                              label={`${key}: ${value}`}
+                              onDelete={() => handleRemoveFilter(key, value)}
+                            />
+                          );
+                    })}
+                  </Box>
+                </Grid>
+
                 <Grid
                   size="grow"
                   sx={{
@@ -405,14 +477,26 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                 >
                   {!user ? (
                     <Fab
-                      disabled={disabledInput}
                       variant="extended"
-                      size="medium"
-                      className="customButton"
-                      onClick={() => navigate("/auth")}
+                      onClick={() => navigate("/login")}
+                      sx={{
+                        position: "absolute",
+                        top: 16,
+                        right: 16,
+                        background:
+                          "linear-gradient(to bottom,  #002961, #3670BD)",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(to bottom, #3670BD, #002961)",
+                        },
+                        width: 104,
+                        height: 40,
+                        borderRadius: "5px",
+                        color: "#FFFFFF",
+                      }}
                     >
                       <AccountCircleOutlined sx={{ mr: 1 }} />
-                      Login
+                      LogIn
                     </Fab>
                   ) : (
                     <Fab
@@ -422,7 +506,11 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       aria-controls={accountOpen ? "accountMenu" : undefined}
                       aria-haspopup="true"
                       aria-expanded={accountOpen ? "true" : undefined}
-                      onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
+                      onClick={
+                        accountOpen
+                          ? handleAccountMenuClose
+                          : handleAccountMenuOpen
+                      }
                     >
                       <Avatar {...stringAvatar(user.username)} />
                     </Fab>
