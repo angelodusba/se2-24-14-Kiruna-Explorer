@@ -18,7 +18,7 @@ import TextLogo from "../shared/TextLogo";
 
 function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const location = useLocation();
-  const isMapPage = location.pathname === "/map";
+  const isMapPage = location.pathname.includes("/map");
   /* Advanced search panel */
   const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
     null
