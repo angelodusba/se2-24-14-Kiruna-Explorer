@@ -1,9 +1,11 @@
-import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Fab, Toolbar, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import LandingPhoto from "../assets/LandingPhoto.svg";
 import LoginButton from "../components/Nav/LoginButton";
 import Grid from "@mui/material/Grid2";
+import { Earbuds, Map } from "@mui/icons-material";
+import KirunaExplorerBlue from "../assets/KirunaExplorerBlue.svg";
 
 function LandingPage({ handleLogout }) {
   const navigate = useNavigate();
@@ -45,17 +47,6 @@ function LandingPage({ handleLogout }) {
                       alt="Kiruna Explorer"
                       style={{ marginRight: "8px" }}
                     />
-                    <Typography
-                      variant="h5"
-                      component="div"
-                      sx={{
-                        display: { sm: "block", xs: "none" },
-                        fontWeight: 500,
-                        letterSpacing: "0.5px", // Slight spacing
-                        textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
-                      }}>
-                      Kiruna Explorer
-                    </Typography>
                   </Link>
                 </Grid>
 
@@ -118,19 +109,16 @@ function LandingPage({ handleLogout }) {
             color: "white",
             backgroundColor: "transparent",
           }}>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: "bold",
-              color: "#021E44",
-              marginBottom: 2,
-            }}>
-            Kiruna Explorer
-          </Typography>
+          <img
+            src={KirunaExplorerBlue}
+            alt="Kiruna Explorer"
+            height="32px"
+            width="auto"
+          />
 
           <Typography
             variant="body1"
-            sx={{ color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}>
+            sx={{ mt: 3, color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}>
             Explore the rich history of Kiruna through our platform. We invite
             visitors to engage with the fascinating narrative of the city,
             observe its evolution, and access essential documents about its
@@ -147,38 +135,42 @@ function LandingPage({ handleLogout }) {
               justifyContent: "center",
               width: "100%",
             }}>
-            <Button
-              variant="contained"
-              color="primary"
+            <Fab
+              size="large"
+              variant="extended"
               onClick={() => navigate("/map")}
               sx={{
                 textTransform: "none",
                 padding: "12px 24px",
                 fontSize: "16px",
                 background: "linear-gradient(to bottom,  #002961, #3670BD)",
+                color: "white",
                 "&:hover": {
                   background: "linear-gradient(to bottom, #3670BD, #002961)",
                 },
-                width: 150,
+                minWidth: "130px",
               }}>
+              <Map sx={{ mr: 1 }} />
               Map
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
+            </Fab>
+            <Fab
+              size="large"
+              variant="extended"
               onClick={() => navigate("/diagram")}
               sx={{
                 textTransform: "none",
                 padding: "12px 24px",
                 fontSize: "16px",
                 background: "linear-gradient(to bottom,  #002961, #3670BD)",
+                color: "white",
                 "&:hover": {
                   background: "linear-gradient(to bottom, #3670BD, #002961)",
                 },
-                width: 150,
+                minWidth: "130px",
               }}>
+              <Earbuds sx={{ mr: 1 }} />
               Diagram
-            </Button>
+            </Fab>
           </Box>
         </Box>
       </Box>

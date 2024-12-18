@@ -1,7 +1,9 @@
 import * as React from "react";
-import { Box, Toolbar, Typography, AppBar, Popover } from "@mui/material";
+import { Box, Toolbar, AppBar, Popover } from "@mui/material";
 import { Link } from "react-router-dom";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
+import KirunaExplorerBlue from "../../assets/KirunaExplorerBlue.svg";
+import KirunaExplorerWhite from "../../assets/KirunaExplorerWhite.svg";
 import Grid from "@mui/material/Grid2";
 import SearchBar from "./SearchBar";
 import { SearchFilter } from "../../models/SearchFilter";
@@ -18,11 +20,9 @@ import LoginButton from "./LoginButton";
 function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const location = useLocation();
   const isMapPage = location.pathname === "/map";
-  const isDiagramPage = location.pathname === "/diagram";
   /* Advanced search panel */
-  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
-    null
-  );
+  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] =
+    useState<HTMLButtonElement | null>(null);
   const advancedSearchOpen = Boolean(advancedSearchAnchorEl);
   const advancedSearchId = advancedSearchOpen ? "advancedSearch" : undefined;
   /* Filters */
@@ -92,12 +92,16 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     const nonEmptyFilters = getNonEmptyFilters();
     setSearchValue(nonEmptyFilters.title || "");
     // Set non empty filters names
-    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
+    const names = Object.entries(nonEmptyFilters).map(
+      ([filterName]) => filterName
+    );
     setFilterNames(names);
     onSearch(nonEmptyFilters);
   };
 
-  const handleAdvacedSearchPanelOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAdvacedSearchPanelOpen = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     setAdvancedSearchAnchorEl(event.currentTarget);
   };
 
@@ -162,7 +166,9 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   useEffect(() => {
     const nonEmptyFilters = getNonEmptyFilters();
     // Set non empty filters names
-    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
+    const names = Object.entries(nonEmptyFilters).map(
+      ([filterName]) => filterName
+    );
     setFilterNames(names);
   }, [filters]);
 
@@ -177,8 +183,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
             border: "none",
             zIndex: 1000,
             color: "white",
-          }}
-        >
+          }}>
           <Toolbar sx={{ flexGrow: 1 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid container>
@@ -186,8 +191,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   size="grow"
                   sx={{
                     marginTop: "8px",
-                  }}
-                >
+                  }}>
                   <Link
                     to={"/"}
                     style={{
@@ -197,27 +201,20 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
-                    }}
-                  >
+                    }}>
                     <img
                       src={KirunaLogo}
                       width="40px"
                       height="48px"
-                      alt="Kiruna Explorer"
+                      alt="Kiruna Logo"
                       style={{ marginRight: "8px" }}
                     />
-                    <Typography
-                      variant="h5"
-                      component="div"
-                      sx={{
-                        display: { sm: "block", xs: "none" },
-                        fontWeight: 500,
-                        letterSpacing: "0.5px", // Slight spacing
-                        color: isMapPage ? "white" : isDiagramPage ? "#003d8f" : "inherit", // Conditional color
-                      }}
-                    >
-                      Kiruna Explorer
-                    </Typography>
+                    <img
+                      src={isMapPage ? KirunaExplorerWhite : KirunaExplorerBlue}
+                      alt="Kiruna Explorer"
+                      height="18px"
+                      width="auto"
+                    />
                   </Link>
                 </Grid>
                 <Grid
@@ -226,8 +223,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     justifyContent: "center",
                     alignItems: "center",
                     display: "flex",
-                  }}
-                >
+                  }}>
                   <SearchBar
                     aria-describedby={advancedSearchId}
                     onSearch={handleSimpleSearch}
@@ -249,8 +245,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     transformOrigin={{
                       vertical: "top",
                       horizontal: "center",
-                    }}
-                  >
+                    }}>
                     <AdvancedSearchForm
                       handleClose={handleAdvacedSearchPanelClose}
                       handleSubmit={handleAdvancedSearch}
@@ -268,8 +263,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     justifyContent: "end",
                     alignItems: "center",
                     display: { xs: "flex", sm: "flex" },
-                  }}
-                >
+                  }}>
                   <LoginButton handleLogout={handleLogout}></LoginButton>
                 </Grid>
               </Grid>
@@ -278,7 +272,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
         </AppBar>
       </Box>
       {(getNonEmptyFiltersLength() > 1 || !filters.title) && (
-        <FilterChips filterNames={filterNames} handleRemoveFilter={handleRemoveFilter} />
+        <FilterChips
+          filterNames={filterNames}
+          handleRemoveFilter={handleRemoveFilter}
+        />
       )}
       <NavDial />
     </>
