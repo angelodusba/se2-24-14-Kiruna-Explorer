@@ -15,6 +15,7 @@ import {
   CardActions,
   Box,
   TableSortLabel,
+  TablePagination,
 } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
 import { useNavigate } from "react-router-dom";
@@ -67,7 +68,9 @@ function DocumentsList({
   rowsPerPage,
   page,
   totalRows,
+  totalPages,
   handleChangePage,
+  handleChangeRowsNum,
   handleSort,
   order,
   orderBy,
@@ -94,8 +97,9 @@ function DocumentsList({
         flexDirection: "column",
       }}
     >
+      {/* Page title */}
       <CardHeader title="Document List" style={{ paddingBlock: 5 }} />
-
+      {/* Table */}
       <CardContent sx={{ overflowY: "auto", display: "flex", flexGrow: 0, marginBottom: "auto" }}>
         <TableContainer component={Paper}>
           <Table stickyHeader aria-label="document table">
@@ -169,11 +173,7 @@ function DocumentsList({
         <Typography variant="body2" color="textSecondary">
           Documents {documents.length + rowsPerPage * (page - 1)} / {totalRows}
         </Typography>
-        <Pagination
-          count={Math.ceil(totalRows / rowsPerPage)}
-          page={page}
-          onChange={handleChangePage}
-        />
+        <Pagination count={totalPages} page={page} onChange={handleChangePage} />
       </CardActions>
     </Card>
   );

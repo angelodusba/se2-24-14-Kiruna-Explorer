@@ -19,7 +19,6 @@ function DocumentsListPage({ currentFilter }) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [totalRows, setTotalRows] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [error, setError] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(1);
   //this is for filtering options
@@ -63,14 +62,13 @@ function DocumentsListPage({ currentFilter }) {
       });
       setDocuments(formatted);
     } catch (err) {
-      setError("Error fetching documents");
       console.error("Error:", err);
     }
   };
 
   useEffect(() => {
     fetchDocuments(sortField, sortOrder);
-  }, [currentFilter]);
+  }, [currentFilter, rowsPerPage]);
 
   const handleSort = (field: SortField) => {
     setSortField((oldField) => {
@@ -94,7 +92,9 @@ function DocumentsListPage({ currentFilter }) {
         rowsPerPage={rowsPerPage}
         page={page}
         totalRows={totalRows}
+        totalPages={totalPages}
         handleChangePage={handleChangePage}
+        handleChangeRowsNum={setRowsPerPage}
         order={sortOrder}
         orderBy={sortField}
       />
