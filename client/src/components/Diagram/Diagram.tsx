@@ -21,7 +21,7 @@ import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
 import connectionStyles from "../shared/ConnectionStyles";
 import { Button } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import Legend from "../shared/Legend";
 import FloatingEdge from "./FloatingEdge";
 import { ConnectionList } from "../../models/Connection";
@@ -620,6 +620,7 @@ function Flow({
   user,
 }) {
   const navigate = useNavigate();
+  const selectedDocId = Number(useParams().id);
   const flow = useReactFlow();
   const defaultViewport: Viewport = { x: 0, y: 0, zoom: 0.2 };
   const [viewport, setViewport] = useState<Viewport>(defaultViewport);
@@ -651,7 +652,12 @@ function Flow({
   };
 
   const onNodeClick = (_, node) => {
-    if (docsNodes.some((doc) => doc.id == node.id)) {
+    navigate(`/diagram/${node.id}`);    
+  };
+
+  useEffect(() => {
+    if (selectedDocId && docsNodes.some((doc) => doc.id == selectedDocId)) {
+      const node = docsNodes.find((node) => node.id == selectedDocId);
       const { zoom } = flow.getViewport();
       const offsetX = -gridNodes.find(
         (gridNode) => gridNode.id === node.parentId
@@ -669,9 +675,8 @@ function Flow({
         zoom,
       };
       flow.setViewport(newViewport, { duration: 800 });
-      navigate(`/diagram/${node.id}`);
     }
-  };
+  }, [docsNodes, selectedDocId]);
 
   return (
     <div
