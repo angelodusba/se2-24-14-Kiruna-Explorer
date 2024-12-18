@@ -13,21 +13,18 @@ interface Document {
   pages: number;
 }
 
-interface SortField {
-  field: keyof Document;
-}
+type SortField = keyof Document;
 
-function DocumentsListPage({ currentFilter, handleCardShow }) {
+function DocumentsListPage({ currentFilter }) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [totalRows, setTotalRows] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(1);
   //this is for filtering options
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [sortField, setSortField] = useState<SortField>({ field: "title" });
+  const [sortField, setSortField] = useState<SortField>("title");
 
   const handleChangePage = async (_event: React.ChangeEvent<unknown>, value: number) => {
     if (totalRows >= (value - 1) * rowsPerPage) {
@@ -36,9 +33,9 @@ function DocumentsListPage({ currentFilter, handleCardShow }) {
     }
   };
 
-  const fetchDocuments = async (sortField, sortOrder, pageImmediate = null) => {
+  const fetchDocuments = async (sortField: SortField, sortOrder, pageImmediate = null) => {
     try {
-      const sort = sortField.field + ":" + sortOrder;
+      const sort = sortField + ":" + sortOrder;
       let filter = currentFilter;
       if (!currentFilter) {
         filter = { title: "" };
@@ -75,44 +72,31 @@ function DocumentsListPage({ currentFilter, handleCardShow }) {
     fetchDocuments(sortField, sortOrder);
   }, [currentFilter]);
 
-  //this is for sorting the table
   const handleSort = (field: SortField) => {
-    setSortField(field);
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    fetchDocuments(field, sortOrder === "asc" ? "desc" : "asc");
-    setAnchorEl(null);
-  };
-
-  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleFilterClose = () => {
-    setAnchorEl(null);
+    setSortField((oldField) => {
+      let order;
+      if (oldField !== field) {
+        order = "asc";
+      } else {
+        order = sortOrder === "asc" ? "desc" : "asc";
+      }
+      setSortOrder(order);
+      fetchDocuments(field, order);
+      return field;
+    });
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: "lightblue",
-        display: "flex",
-        flexGrow: 1,
-        height: "100vh",
-        paddingTop: "65px",
-      }}
-    >
+    <div style={{ height: "100vh" }}>
       <DocumentsList
-        handleFilterClick={handleFilterClick}
-        anchorEl={anchorEl}
-        handleFilterClose={handleFilterClose}
         handleSort={handleSort}
-        sortOrder={sortOrder}
-        error={error}
         documents={documents}
-        handleCardShow={handleCardShow}
         rowsPerPage={rowsPerPage}
         page={page}
         totalRows={totalRows}
         handleChangePage={handleChangePage}
+        order={sortOrder}
+        orderBy={sortField}
       />
     </div>
   );
