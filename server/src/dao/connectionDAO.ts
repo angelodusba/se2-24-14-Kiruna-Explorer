@@ -156,7 +156,7 @@ class ConnectionDAO {
       const result = await db.query(sqlCheck, [doc_id1, doc_id2]);
 
       if (result.rows.length === 0) {
-      throw new Error("Connection not found");
+        return
       }
 
       const connection = result.rows[0];
@@ -174,7 +174,6 @@ class ConnectionDAO {
 
       return true;
     } catch (err: any) {
-      console.log(err);
       throw err;
     }
   }

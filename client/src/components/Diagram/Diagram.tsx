@@ -78,13 +78,14 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
 
 
   const deleteEdge = async (id) => {
-
-    const edge = edges.find((el) => el.id === id);
+    const edgeId = Array.isArray(id) ? id[0].id : id;
+    console.log("deleteEdge", edgeId);
+    const edge = edges.find((el) => el.id === edgeId);
     //If edge is not default, add it to deletedConnections
     if (edge.label !== "default") {
       setDeletedConnections((els) => [...els, edge]);
     }
-    setEdges((els) => els.filter((el) => el.id !== id));
+    setEdges((els) => els.filter((el) => el.id !== edgeId));
   };
 
   const onConnect = (params: Connection) => {
@@ -114,7 +115,6 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
       data: {
         onDelete: () =>
           deleteEdge(`${params.source}-${params.target}-${"default"}`),
-        user: user,
       },
     };
     const newEdges = edges.concat(newEdge);
@@ -220,7 +220,6 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
         onDelete: () =>
           deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
         pointPosition: edge.data.pointPosition,
-        user: user,
       },
     };
     setEdges((els) => els.map((el) => (el.id === edge.id ? newEdge : el)));
@@ -483,7 +482,12 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
       };
     });
     for (const connectionList of deletedConnectionLists) {
-      await ConnectionAPI.deleteConnections(connectionList);
+      try{
+        await ConnectionAPI.deleteConnections(connectionList);
+      }catch(error){
+        //stop propagation
+        
+      }
     }
     setDeletedConnections([]);
 
@@ -635,6 +639,7 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
         valuesX={valuesX}
         valuesY={valuesY}
         user={user}
+        deleteEdge={deleteEdge}
       />
 
       <Outlet />
@@ -659,6 +664,7 @@ function Flow({
   valuesX,
   valuesY,
   user,
+  deleteEdge,
 }) {
   const navigate = useNavigate();
   const selectedDocId = Number(useParams().id);
@@ -740,6 +746,7 @@ function Flow({
         onEdgesChange={onEdgesChange}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onEdgeClick={onEdgeClick}
+        onEdgesDelete={deleteEdge}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         onMove={handleMove}
