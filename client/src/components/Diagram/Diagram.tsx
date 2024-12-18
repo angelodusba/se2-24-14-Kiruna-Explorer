@@ -137,7 +137,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         setEdgeIsClicked(false)
       }
 
-      }, 500);
+      }, 200);
     };
 
     const handlePressEnd = () => {
