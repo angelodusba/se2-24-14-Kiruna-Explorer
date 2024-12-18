@@ -7,10 +7,10 @@ import { CurvePathData } from "@elfalem/leaflet-curve";
 import { Point } from "../../models/Document";
 
 const linkStyles = {
-  Collateral: { color: "blue" },
+  Collateral: { color: "blue", dashArray: "5, 5" },
   Direct: { color: "black" },
-  Update: { color: "green" },
-  Prevision: { color: "orange" },
+  Update: { color: "green", dashArray: "10, 10" },
+  Prevision: { color: "orange", dashArray: "15, 10" },
 };
 
 // Helper to create unique curves
