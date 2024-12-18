@@ -65,7 +65,7 @@ const nodeHeight = nodeWidth;
 const nodePerRows = 3;
 const nodePerColumns = 3;
 
-function Diagram({ currentFilter }: DiagramProps) {
+function Diagram({ currentFilter }: Readonly<DiagramProps>) {
   const user = useContext(UserContext);
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
   const [gridNodes, setGridNodes] = useState<Node[]>([]);
@@ -77,8 +77,8 @@ function Diagram({ currentFilter }: DiagramProps) {
   const [deletedConnections, setDeletedConnections] = useState([]);
 
 
-  const deleteEdge = (id) => {
-    //get edge
+  const deleteEdge = async (id) => {
+
     const edge = edges.find((el) => el.id === id);
     //If edge is not default, add it to deletedConnections
     if (edge.label !== "default") {
@@ -88,6 +88,11 @@ function Diagram({ currentFilter }: DiagramProps) {
   };
 
   const onConnect = (params: Connection) => {
+    if(!(user && user.role === Role.UrbanPlanner)){
+      //Display an alert
+      alert("Only Urban Planners can create new connections");
+      return;
+    }
     //If a default edge is already present, return
     if (
       edges.find(
@@ -97,7 +102,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           edge.label === "default"
       )
     ) {
-      console.log("Default edge already present");
+      alert("Default edge already present");
       return;
     }
     const newEdge = {
@@ -131,7 +136,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     let pressTimer;
     const handlePressStart = () => {
       pressTimer = setTimeout(() => {
-        if (edgeIsClicked == false) {
+        if (!edgeIsClicked) {
           const edgesToKeep = edges.filter(
             (e) => e.source == edge.source || e.target == edge.target
           );
@@ -151,9 +156,11 @@ function Diagram({ currentFilter }: DiagramProps) {
           const newEdges = allEdges.filter(
             (edge) =>
               !deletedConnections.find((deletedEdge) => deletedEdge.id === edge.id)
+              && !edges.find((el) => el.source === edge.source && el.target === edge.target)
           );
+          const concatEdges = newEdges.concat(edges);
           setNodes(allNodes);
-          setEdges(newEdges);
+          setEdges(concatEdges);
           setEdgeIsClicked(false);
         }
       }, 500);
@@ -206,10 +213,10 @@ function Diagram({ currentFilter }: DiagramProps) {
         onDelete: () =>
           deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
         pointPosition: edge.data.pointPosition,
+        user: user,
       },
     };
-    const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
-    setEdges(newEdges);
+    setEdges((els) => els.map((el) => (el.id === edge.id ? newEdge : el)));
   };
 
   const assignX_toYear = (year: number, filteredYears: number[]) => {
@@ -311,7 +318,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         ? connectionStyles[type]
         : connectionStyles["default"],
       data: {
-        onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
+        onDelete: async () => deleteEdge(`${id1}-${id2}-${type}`),
         index: index,
         user: user,
       },
@@ -615,7 +622,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes ? edgeTypes : undefined}
+        edgeTypes={edgeTypes}
         gridNodes={gridNodes}
         saveNewConnections={saveNewConnections}
         valuesX={valuesX}
@@ -715,10 +722,10 @@ function Flow({
         overflow: "auto",
         paddingTop: "72px",
       }}>
-      <ReactFlow
+      <ReactFlow 
         nodes={nodes}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes ? edgeTypes : undefined}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeClick}
