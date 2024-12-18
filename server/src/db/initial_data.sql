@@ -110,79 +110,123 @@ INSERT INTO "stakeholders" (name) VALUES ('Others');
 
 -- 1. Documents with a single point location
 INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
-    'Construction of Block 1 begins', 
-    'Simultaneously with the start of construction on 
-    the Aurora Center, work also began on Block 1, 
-    another mixed-use building overlooking the main 
-    square and the road leading to old Kiruna. These are 
-    the first residential buildings in the new town.', 
+    'Kiruna Church closes (102)', 
+    'On June 2, the Kiruna Church was closed to begin
+    the necessary preparations for its relocation,
+    following a solemn ceremony. The relocation is
+    scheduled for the summer of 2025 and will take two
+    days. Both the new site and the route for the move
+    have already been determined. A significant period
+    will pass between the relocation and the reopening
+    of the church, voted "Sweden''s most beautiful
+    building constructed before 1950."', 
     9, -- type_id
-    '2019-06', 
-    'Blueprints/Material effects', 
+    '2024-06-02', 
+    'Blueprints/material effects', 
     '', 
     '', 
-    ST_SetSRID(ST_GeometryFromText('POINT(20.300333 67.848556)'), 4326)
+    ST_SetSRID(ST_GeometryFromText('POINT(20.232367 67.852097)'), 4326)
 );
 
 INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
-    'Construction of Aurora Center begins', 
-    'Shortly after the construction of the Scandic hotel 
-    began, work on the Aurora Center also started, a 
-    multifunctional complex that includes the munici
-    pal library of Kiruna. The two buildings are close to 
-    each other and connected by a skywalk, just like in 
-    the old town center.', 
-    9, -- type_id
-    '2019-05', 
-    'Blueprints/Material effects', 
+    'Compilation of responses “So what the people of Kiruna think?” (15)', 
+    'This document is a compilation of the responses to
+    the survey ''What is your impression of Kiruna?''
+    From the citizens'' responses to this last part of the
+    survey, it is evident that certain buildings, such as
+    the Kiruna Church, the Hjalmar Lundbohmsgården,
+    and the Town Hall, are considered of significant
+    value to the population. The municipality views the
+    experience of this survey positively, to the extent
+    that over the years it will propose various consultation opportunities.', 
+    2, -- type_id
+    '2007', 
+    'Text', 
+    'Swedish', 
     '', 
-    '', 
-    ST_SetSRID(ST_GeometryFromText('POINT(20.304389 67.849167)'), 4326)
+    NULL
 );
 
 INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
-    'Town Hall demolition', 
-    'After the construction of the new town hall was 
-    completed, the old building, nicknamed "The Igloo," 
-    was demolished. The only elements preserved were 
-    the door handles, a masterpiece of Sami art made of 
-    wood and bone, and the clock tower, which once 
-    stood on the roof of the old town hall. The clock 
-    tower was relocated to the central square of New 
-    Kiruna, in front of the new building.', 
-    9, -- type_id
-    '2019-04', 
-    'Blueprints/Material effects', 
-    '', 
-    '', 
-    ST_SetSRID(ST_GeometryFromText('POINT(20.222444 67.8525)'), 4326)
-);
-
-INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
-    'Construction of Scandic Hotel begins', 
-    'After two extensions of the land acquisition agree
-    ment, necessary because this document in Sweden 
-    is valid for only two years, construction of the hotel 
-    finally began in 2019.', 
-    9, -- type_id
-    '2019-04', 
-    'Blueprints/Material effects', 
-    '', 
-    '', 
-    ST_SetSRID(ST_GeometryFromText('POINT(20.304778 67.848528)'), 4326)
-);
-
-INSERT INTO documents (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
-    'Kiruna Mining History',
-    'A look at the iron ore mining activities and their economic impact.',
-    2,
-    '1925',
-    'Text',
+    'Detail plan for Bolagsomradet Gruvstadspark (18)', 
+    'This is the first of 8 detailed plans located in the old
+    center of Kiruna, aimed at transforming the
+    residential areas into mining industry zones to allow
+    the demolition of buildings. The area includes the
+    town hall, the Ullspiran district, and the A10
+    highway, and it will be the first to be dismantled.
+    The plan consists, like all detailed plans, of two
+    documents: the area map that regulates it, and a
+    text explaining the reasons that led to the drafting
+    of the plan with these characteristics. The plan
+    gained legal validity in 2012.',
+        3, -- type_id
+    '2010-10-20',
+    '1:8000',
     'Swedish',
-    '25',
-    ST_SetSRID(ST_GeometryFromText('POINT(20.19987814645499 67.87772277791264)'), 4326)
+    '1,32',
+    ST_GeomFromText(
+        'POLYGON((
+            20.230427547832846 67.84731740353055, 20.22532976951055 67.85005579076713,
+            20.224421945973518 67.85350464796929, 20.211991746775823 67.85708460137926,
+            20.217159357677872 67.85116158679148, 20.221279479884174 67.84244543928833,
+            20.21855600927293 67.84215572288082, 20.217997348635123 67.84012760729988,
+            20.22791357496118 67.84033832881298, 20.229589556875624 67.84394663942041,
+            20.230427547832846 67.84731740353055
+        ))', 4326)
 );
 
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
+    'Mail to Kiruna kommun (2)', 
+    'This document is considered the act that initiates
+    the process of relocating Kiruna. The company communicates
+    its intention to construct a new mining
+    level at a depth of 1,365 meters. Along with this,
+    LKAB urges the municipality to begin the necessary
+    planning to relocate the city, referring to a series of
+    meetings held in previous months between the two
+    stakeholders.', 
+    3, -- type_id
+    '2004-03-19', 
+    'Text', 
+    'Swedish', 
+    '1', 
+    NULL
+);
+
+INSERT INTO "documents" (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
+    'Development Plan (41)',
+    'The development plan shapes the form of the new
+    city. The document, unlike previous competition
+    documents, is written entirely in Swedish, which
+    reflects the target audience: the citizens of Kiruna.
+    The plan obviously contains many elements of the
+    winning masterplan from the competition, some
+    recommended by the jury, and others that were
+    deemed appropriate to integrate later. The document is divided into four parts, with the third part,
+    spanning 80 pages, describing the shape the new
+    city will take and the strategies to be implemented
+    for its relocation through plans, sections, images,
+    diagrams, and texts. The document also includes
+    numerous studies aimed at demonstrating the
+    future success of the project.',
+    1,
+    '2014-03-17',
+    '1:7500',
+    'Swedish',
+    '111',
+    ST_GeomFromText(
+        'POLYGON((
+            20.2974782621896 67.8555012805461, 20.29474888013496 67.85229587942976,
+            20.28782044876681 67.85558042067882, 20.285301019178178 67.8525333316598,
+            20.281101969864636 67.85645094441145, 20.27312377616815 67.85708403216708,
+            20.277952682879572 67.85102942670301, 20.28593087657606 67.85095027112399,
+            20.286665710205483 67.84817965660642, 20.274068562263523 67.84437942148443,
+            20.317003841499684 67.84802132583613, 20.2974782621896 67.8555012805461
+        ))', 4326)
+);
+
+/*
 INSERT INTO documents (title, description, type_id, issue_date, scale, language, pages, location) VALUES (
     'Sami Cultural Integration',
     'Text documenting Sami culture in Kiruna and its influence on the city.',
@@ -385,16 +429,16 @@ INSERT INTO documents (title, description, type_id, issue_date, scale, language,
     NULL
 );
 
-
+*/
 -----------------------
 -- Connections table --
 -----------------------
 
 -- possible values: direct_conn, collateral_conn, prevision_conn, update_conn
 -- at least one connection type must be set to TRUE
-INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 2, TRUE); 
+/* INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 2, TRUE); 
 INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (1, 3, TRUE);
-INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (3, 4, TRUE);
+INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES (3, 4, TRUE); */
 
 
 ----------------------------------
@@ -402,21 +446,21 @@ INSERT INTO "connections" (document_id_1, document_id_2, collateral_conn) VALUES
 ----------------------------------
 -- Document 1
 INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (1, 1);
-INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (1, 3);
 
 -- Document 2
 INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (2, 2);
+INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (2, 5);
 
 -- Document 3
-INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (3, 1);
-INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (3, 4);
+INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (3, 2);
 
 -- Document 4
-INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (4, 2);
-INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (4, 5);
+INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (4, 1);
 
 -- Document 5
-INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (5, 6);
+INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (5, 2);
+INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (5, 4);
+/*
 
 -- Document 6
 INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (6, 3);
@@ -482,3 +526,4 @@ INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (22, 3);
 -- Document 23
 INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (23, 2);
 INSERT INTO documents_stakeholders (document_id, stakeholder_id) VALUES (23, 4);
+*/
