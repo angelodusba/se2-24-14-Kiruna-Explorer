@@ -5,7 +5,7 @@ import LandingPhoto from "../assets/LandingPhoto.svg";
 import LoginButton from "../components/Nav/LoginButton";
 import Grid from "@mui/material/Grid2";
 import { Earbuds, Map } from "@mui/icons-material";
-import KirunaExplorerBlue from "../assets/KirunaExplorerBlue.svg";
+import TextLogo from "../components/shared/TextLogo";
 
 function LandingPage({ handleLogout }) {
   const navigate = useNavigate();
@@ -21,7 +21,8 @@ function LandingPage({ handleLogout }) {
             border: "none",
             zIndex: 1000,
             color: "white",
-          }}>
+          }}
+        >
           <Toolbar sx={{ flexGrow: 1 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid container>
@@ -29,7 +30,8 @@ function LandingPage({ handleLogout }) {
                   size="grow"
                   sx={{
                     marginTop: "8px",
-                  }}>
+                  }}
+                >
                   <Link
                     to={"/"}
                     style={{
@@ -39,7 +41,8 @@ function LandingPage({ handleLogout }) {
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
-                    }}>
+                    }}
+                  >
                     <img
                       src={KirunaLogo}
                       width="40px"
@@ -57,7 +60,8 @@ function LandingPage({ handleLogout }) {
                     justifyContent: "end",
                     alignItems: "center",
                     display: { xs: "flex", sm: "flex" },
-                  }}>
+                  }}
+                >
                   <LoginButton handleLogout={handleLogout}></LoginButton>
                 </Grid>
               </Grid>
@@ -73,7 +77,8 @@ function LandingPage({ handleLogout }) {
           flexDirection: "row",
           position: "relative",
           overflow: "hidden",
-        }}>
+        }}
+      >
         {/* Left Section - Image */}
 
         <Box
@@ -84,7 +89,8 @@ function LandingPage({ handleLogout }) {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-          }}>
+          }}
+        >
           <Box
             sx={{
               width: "100%",
@@ -108,24 +114,21 @@ function LandingPage({ handleLogout }) {
             padding: 4,
             color: "white",
             backgroundColor: "transparent",
-          }}>
-          <img
-            src={KirunaExplorerBlue}
-            alt="Kiruna Explorer"
-            height="32px"
-            width="auto"
-          />
-
+          }}
+        >
+          <Box style={{ width: "500px" }}>
+            <TextLogo fillColor={"#003d8f"} />
+          </Box>
           <Typography
             variant="body1"
-            sx={{ mt: 3, color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}>
-            Explore the rich history of Kiruna through our platform. We invite
-            visitors to engage with the fascinating narrative of the city,
-            observe its evolution, and access essential documents about its
-            significant landmarks. For urban planners, Kiruna Explorer offers a
-            comprehensive suite of tools designed to facilitate the addition,
-            organization, and connection of documents, thereby supporting the
-            continued development of the city's story.
+            sx={{ mt: 3, color: "#021E44", lineHeight: 2.2, marginBottom: 4 }}
+          >
+            Explore the rich history of Kiruna through our platform. We invite visitors to engage
+            with the fascinating narrative of the city, observe its evolution, and access essential
+            documents about its significant landmarks. For urban planners, Kiruna Explorer offers a
+            comprehensive suite of tools designed to facilitate the addition, organization, and
+            connection of documents, thereby supporting the continued development of the city's
+            story.
           </Typography>
 
           <Box
@@ -134,7 +137,8 @@ function LandingPage({ handleLogout }) {
               gap: 5,
               justifyContent: "center",
               width: "100%",
-            }}>
+            }}
+          >
             <Fab
               size="large"
               variant="extended"
@@ -149,7 +153,8 @@ function LandingPage({ handleLogout }) {
                   background: "linear-gradient(to bottom, #3670BD, #002961)",
                 },
                 minWidth: "130px",
-              }}>
+              }}
+            >
               <Map sx={{ mr: 1 }} />
               Map
             </Fab>
@@ -167,7 +172,8 @@ function LandingPage({ handleLogout }) {
                   background: "linear-gradient(to bottom, #3670BD, #002961)",
                 },
                 minWidth: "130px",
-              }}>
+              }}
+            >
               <Earbuds sx={{ mr: 1 }} />
               Diagram
             </Fab>
