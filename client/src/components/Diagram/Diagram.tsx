@@ -222,6 +222,7 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
         pointPosition: edge.data.pointPosition,
       },
     };
+    setDeletedConnections((els) => [...els, edge]);
     setEdges((els) => els.map((el) => (el.id === edge.id ? newEdge : el)));
   };
 
@@ -480,12 +481,7 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
       };
     });
     for (const connectionList of deletedConnectionLists) {
-      try{
         await ConnectionAPI.deleteConnections(connectionList);
-      }catch(error){
-        //stop propagation
-        
-      }
     }
     setDeletedConnections([]);
 
