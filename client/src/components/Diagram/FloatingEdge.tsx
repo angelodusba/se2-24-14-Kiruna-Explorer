@@ -3,6 +3,7 @@ import { EdgeProps, getBezierPath } from "reactflow";
 import { drag } from "d3-drag";
 import { select } from "d3-selection";
 import { BaseEdge, EdgeLabelRenderer, useStore } from "reactflow";
+import { Role } from "../../models/User";
 
 let zoom = 1;
 const storeCirclePosX = {};
@@ -28,10 +29,14 @@ const FloatingEdge: React.FC<EdgeProps> = ({
     targetY,
     targetPosition,
   });
-  const [circlePos, setCirclePos] = useState(data.pointPosition ||{
-    x: storeCirclePosX[id] || labelX ,
-    y: storeCirclePosY[id] || labelY + Math.ceil((data.index || 0)/2) * (100) * ((data.index || 0) % 2 === 0 ? 1 : -1),
-  });
+  const [circlePos, setCirclePos] = useState(
+    data.pointPosition || {
+      x: storeCirclePosX[id] || labelX,
+      y:
+        storeCirclePosY[id] ||
+        labelY + Math.ceil((data.index || 0) / 2) * 100 * ((data.index || 0) % 2 === 0 ? 1 : -1),
+    }
+  );
   data.pointPosition = circlePos;
   const [refresh, setRefresh] = useState(0);
 
@@ -110,31 +115,33 @@ const FloatingEdge: React.FC<EdgeProps> = ({
           }}
           aria-label="Drag handle"
         ></button>
-        <button 
-          onClick={handleDelete}
-          style={{
-            position: "absolute",
-            left: `${removeX}px`,
-            top: `${removeY}px`,
-            zIndex: 10,
-            opacity: 1,
-            width: "20px",
-            height: "20px",
-            pointerEvents: "all",
-            borderRadius: "50%",
-            background: "red",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "black",
-            fontSize: "12px",
-            border: "none",
+        {data.user && data.user.role === Role.UrbanPlanner && (
+          <button 
+            onClick={handleDelete}
+            style={{
+              position: "absolute",
+              left: `${removeX}px`,
+              top: `${removeY}px`,
+              zIndex: 10,
+              opacity: 1,
+              width: "20px",
+              height: "20px",
+              pointerEvents: "all",
+              borderRadius: "50%",
+              background: "red",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "black",
+              fontSize: "12px",
+              border: "none",
           }}
-          aria-label="Delete edge"
+            aria-label="Delete edge"
         >
-          x
-        </button>
+            x
+          </button>
+        )}
       </EdgeLabelRenderer>
     </>
   );

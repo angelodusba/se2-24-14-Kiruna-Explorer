@@ -1,3 +1,4 @@
+import { PlaylistAdd } from "@mui/icons-material";
 import {
   TextField,
   Autocomplete,
@@ -9,8 +10,20 @@ import {
   CardActions,
   FormControlLabel,
   Checkbox,
+  Chip,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import { useState } from "react";
+
+const languages = [
+  { code: "GB", label: "English" },
+  {
+    code: "SE",
+    label: "Swedish",
+  },
+];
 
 function AdvancedSearchForm({
   handleClose,
@@ -21,16 +34,22 @@ function AdvancedSearchForm({
   stakeholders,
   documentTypes,
 }) {
-  const languages = [
-    { code: "GB", label: "English" },
-    {
-      code: "SE",
-      label: "Swedish",
-    },
-  ];
+  const [keywordValue, setKeywordValue] = useState<string>("");
 
   return (
-    <Card sx={{ padding: 1, maxWidth: "600px" }}>
+    <Card
+      sx={{
+        padding: 1,
+        maxWidth: "600px",
+        maxHeight: "520px",
+        overflowY: "auto", // Allow vertical scrolling
+        scrollbarWidth: "none", // For Firefox
+        "&::-webkit-scrollbar": {
+          display: "none", // Hide scrollbar for WebKit browsers
+        },
+        msOverflowStyle: "none", // Hide scrollbar for IE and Edge
+      }}
+    >
       <CardHeader title="Advanced Search" />
       <CardContent>
         <Grid container spacing={2}>
@@ -193,6 +212,84 @@ function AdvancedSearchForm({
               renderInput={(params) => <TextField {...params} label="Stakeholders" />}
             />
           </Grid>
+          {/* Keywords */}
+          <Grid size={12} style={{ display: "flex" }}>
+            <TextField
+              size="small"
+              placeholder="Press Enter to add keywords"
+              label="Keywords"
+              value={keywordValue}
+              onChange={(e) => {
+                setKeywordValue(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const trimmedKeyword = keywordValue.trim();
+                  // Avoid empty and duplicate entries
+                  if (trimmedKeyword && !filters.keywords.includes(trimmedKeyword)) {
+                    setFilters((prevFilters) => ({
+                      ...prevFilters,
+                      keywords: [...prevFilters.keywords, keywordValue.trim()],
+                    }));
+                  }
+                  setKeywordValue("");
+                }
+              }}
+              fullWidth
+            />
+            <Tooltip title={"Add keyword"}>
+              <span>
+                <IconButton
+                  aria-label="add type"
+                  disabled={!keywordValue.trim()}
+                  onClick={() => {
+                    const trimmedKeyword = keywordValue.trim();
+                    // Avoid empty and duplicate entries
+                    if (trimmedKeyword && !filters.keywords.includes(trimmedKeyword)) {
+                      setFilters((prevFilters) => ({
+                        ...prevFilters,
+                        keywords: [...prevFilters.keywords, keywordValue.trim()],
+                      }));
+                    }
+                    setKeywordValue("");
+                  }}
+                  style={{ marginLeft: 3 }}
+                >
+                  <PlaylistAdd />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Grid>
+          <Grid size={12}>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                listStyle: "none",
+                maxHeight: "80px",
+                overflowY: "auto",
+                gap: 1,
+                p: 0,
+                m: 0,
+              }}
+              component="ul"
+            >
+              {filters.keywords.map((label, index) => (
+                <Chip
+                  key={index}
+                  label={label}
+                  onDelete={() => {
+                    setFilters({
+                      ...filters,
+                      keywords: filters.keywords.filter((keyword) => keyword !== label),
+                    });
+                  }}
+                />
+              ))}
+            </Box>
+          </Grid>
+          {/* Municipality documents */}
           <Grid size={12}>
             <FormControlLabel
               control={

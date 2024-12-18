@@ -1,10 +1,10 @@
-import React from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import KirunaLogo from "../assets/KirunaLogo.svg";
 import LandingPhoto from "../assets/LandingPhoto.svg";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-export const LandingPage: React.FC = () => {
+function LandingPage() {
   const navigate = useNavigate();
 
   return (
@@ -49,7 +49,7 @@ export const LandingPage: React.FC = () => {
             width: "100%",
             height: "100%",
             backgroundImage: `url(${LandingPhoto})`,
-            backgroundSize: "contain",  
+            backgroundSize: "contain",
             backgroundPosition: "bottom",
             backgroundRepeat: "no-repeat",
           }}
@@ -80,10 +80,14 @@ export const LandingPage: React.FC = () => {
             "&:hover": {
               background: "linear-gradient(to bottom, #3670BD, #002961)",
             },
-            width: 100,
+            width: 104,
+            height:40,
+            borderRadius: "5px",
+            color: "#FFFFFF",
           }}
         >
-          Log In
+          <AccountCircleIcon sx={{ mr: 1 }} />
+          LogIn
         </Button>
         <Typography
           variant="h3"
@@ -155,4 +159,6 @@ export const LandingPage: React.FC = () => {
       </Box>
     </Box>
   );
-};
+}
+
+export default LandingPage;

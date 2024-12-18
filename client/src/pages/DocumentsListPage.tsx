@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { SearchFilter } from "../models/SearchFilter";
 import DocumentAPI from "../API/DocumentAPI";
-import DocumentsList from "../components/listDocument/DocumentsList";
+import DocumentsList from "../components/List/DocumentsList";
 
 interface Document {
   id: number;

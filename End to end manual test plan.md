@@ -15,7 +15,13 @@
 11. [KX10-Visualize all documents on the diagram](#Visualize-all-documents-on-the-diagram)
 12. [KX11-Visualize the area](#Visualize-the-area)
 13. [KX14-Click on the documents on diagram](#Click-on-the-documents-on-diagram)
-14. [JX20-Single cluster](#Single-cluster)
+14. [KX20-Single cluster](#Single-cluster)
+15. [KX17-See the selected document from the map in the diagram](#See-the-selected-document-from-the-map-in-the-diagram)
+16. [KX12-Addjust the position of the documents on the diagram](#Addjust-the-documents-on-the-diagram)
+17. [KX13-Adjust the connections on diagram](#Adjust-the-connections-on-diagram)
+18. [KX15-Filter documents on the diagram](#Filter-documents-on-the-diagram)
+19. [KX16-See the selected document from the diagram in the map](#See-the-selected-document-from-the-diagram-in-the-map)
+20. [KX18-Add attachments](#Add-attachments)
 
 
 ---
@@ -418,9 +424,7 @@ I want to visualize the area associated with the different documents so that I c
 #### Test Case 1: Visualize the area 
 
 - **Preconditions:** User is logged in and is resident
-- **Expected Result:** Residents can visulize the area associated with the different documnets  
-
-#### Test Case 2: 
+- **Expected Result:**Residents can review documents within a defined area specified by themselves or by other residents by using the button that shows the areas.
 
 
 13. [KX14-Click on the documents on diagram](#Click-on-the-documents-on-diagram)
@@ -434,9 +438,11 @@ I want to click on the documents shown on the diagram so that I can access to th
 
 - Resident/ visitor/ urban planner can access to the document by clicking on the documents
 
-#### Test Case 1:  
+#### Test Case 1: Visualize the area 
 
-#### Test Case 2: 
+- **Preconditions:** User is logged in and is resident
+- **Expected Result:**Residents / visitor/ UP can access the diagram by the button and access the documents card by clicking on them.
+
 
 
 14. [JX20-Single cluster](#Single-cluster)
@@ -456,6 +462,99 @@ I want to see points and areas too close represented as a single cluster so that
 
 
 
+15. [KX17-See the selected document from the map in the diagram](#See-the-selected-document-from-the-map-in-the-diagram)
 
+### Description
+
+_ As a visitor/UP/Citizen
+I want to see on the diagram the documetns selected in the map
+
+### Acceptance Criteria
+
+- Visitor/UP/Citizen can see on the diagram the documets that are selected on the map
+
+#### Test Case 1: view selected documents on the diagram
+- **Preconditions:** User is logged in and is visitor/UP/citizen
+- **Expected Result:** User can access the diagram using the plus button, and when we select a document on the map, it will also appear on the diagram
+
+
+
+16. [KX12-Addjust the position of the documents on the diagram](#Addjust-the-documents-on-the-diagram)
+
+### Description
+
+_ As an urnban planner
+I want to adjust the position of docements on the diagram so that I can assess their impact
+
+### Acceptance Criteria
+
+- Urban planner can adjust the position of documents on the diagram and they can assess their impact
+
+#### Test Case 1: adjust the position of the documents
+- **Preconditions:** User is logged in and is urban planner
+- **Expected Result:** Users can adjust the position of documents by clicking the edit button next to the location on the document card
+
+
+17. [KX13-Adjust the connections on diagram](#Adjust-the-connections-on-diagram)
+
+### Description
+
+_ As an urnban planner
+I want to adjust the connections of documents on the diagram
+So that I can update it
+
+### Acceptance Criteria
+
+- Urban planner can adjust the connections of documents on the diagram and they can update it
+
+#### Test Case 1: adjust the connections of the documents
+- **Preconditions:** User is logged in and is urban planner
+- **Expected Result:** Users can adjust the connections of documents on the diagram by clicking on one document and dragging the link to the next document. They can save the links by clicking the "Save new connections" button
+
+18. [KX15-Filter documents on the diagram](#Filter-documents-on-the-diagram)
+
+### Description
+
+_ As a resident/visitor/urban planner
+I want to filter the documents shown on the diagram
+So that I can focus on what is relevant
+
+### Acceptance Criteria
+
+- Urban planner can filter the documents shown on the diagram so they can focuse on what is relevant
+
+#### Test Case 1: filter documents on the diagram
+- **Preconditions:** User is logged in and is resident/visitor/urban planner
+- **Expected Result:** User can filter documents by using the filter button in the navbar
+
+19. [KX16-See the selected document from the diagram in the map](#See-the-selected-document-from-the-diagram-in-the-map)
+
+### Description
+
+_ As a visitor/UP/Citizen
+I want to see on the diagram the documetns selected in the diagram
+
+### Acceptance Criteria
+
+- Visitor/UP/Citizen can see on the diagram the documets that are selected on the diagram
+
+#### Test Case 1: view selected documents on the diagram
+- **Preconditions:** User is logged in and is visitor/UP/citizen
+- **Expected Result:** User can access the diagram using the plus button, and when we select a document on the diagram, it will also appear on the map
+
+20. [KX18-Add attachments](#Add-attachments)
+
+### Description
+
+_ As an Urban Planner
+I want to add one or more attachments for a document
+
+### Acceptance Criteria
+
+- Urban planner can add more attachments to a document
+
+#### Test Case 1: view selected documents on the diagram
+- **Preconditions:** User is logged in and is urban planner
+- **Expected Result:** User can add multiple attachments to a document using the edit button next to attachment in the document card
 
 ---

@@ -36,10 +36,23 @@ function DocumentIcon({ id, d, inputWidth, inputHeight, colors }) {
   );
 }
 
-function createCustomIcon(typeName: string, docId: number, selectedDocId: any, stakeholders: string[], links: any) {
-  const classes = selectedDocId && selectedDocId !== docId && !links.some((link) => (link.id_doc1 === selectedDocId && link.id_doc2 === docId) || (link.id_doc1 === docId && link.id_doc2 === selectedDocId))
-    ? "leaflet-div-icon doc-not-connected"
-    : "leaflet-div-icon";
+function createCustomIcon(
+  typeName: string,
+  docId: number,
+  selectedDocId: any,
+  stakeholders: string[],
+  links: any
+) {
+  const classes =
+    selectedDocId &&
+    selectedDocId !== docId &&
+    !links.some(
+      (link) =>
+        (link.id_doc1 === selectedDocId && link.id_doc2 === docId) ||
+        (link.id_doc1 === docId && link.id_doc2 === selectedDocId)
+    )
+      ? "leaflet-div-icon doc-not-connected"
+      : "leaflet-div-icon";
   const enlargement = selectedDocId === docId ? 2 : 1;
   return typeIconsData[typeName]
     ? L.divIcon({
@@ -49,7 +62,13 @@ function createCustomIcon(typeName: string, docId: number, selectedDocId: any, s
             d={typeIconsData[typeName].d}
             inputWidth={typeIconsData[typeName].width}
             inputHeight={typeIconsData[typeName].height}
-            colors={stakeholders.length ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f") : ["#003d8f"]}
+            colors={
+              stakeholders.length
+                ? stakeholders.map(
+                    (stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f"
+                  )
+                : ["#003d8f"]
+            }
           />
         ),
         iconSize: [26 * enlargement, 32 * enlargement],
@@ -62,34 +81,32 @@ function createCustomIcon(typeName: string, docId: number, selectedDocId: any, s
         iconSize: [26 * enlargement, 32 * enlargement],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
-        className: classes
+        className: classes,
       });
 }
 
 function createReactFlowIcon(typeName: string, id: number, stakeholders: string[]) {
-  return typeIconsData[typeName]
-    ? (
-      <DocumentIcon
-        id={id}
-        d={typeIconsData[typeName].d}
-        inputWidth={typeIconsData[typeName].width}
-        inputHeight={typeIconsData[typeName].height}
-        colors={
-          stakeholders.length
-            ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f")
-            : ["#003d8f"]
-        }
-      />
-    )
-    : (
-      <img
-        src={KirunaLogo}
-        alt="Fallback Icon"
-        width="75%"
-        height="75%"
-        style={{ display: 'block' }}
-      />
-    );
+  return typeIconsData[typeName] ? (
+    <DocumentIcon
+      id={id}
+      d={typeIconsData[typeName].d}
+      inputWidth={typeIconsData[typeName].width}
+      inputHeight={typeIconsData[typeName].height}
+      colors={
+        stakeholders.length
+          ? stakeholders.map((stakeholder) => stakeholdersColorsData[stakeholder] ?? "#003d8f")
+          : ["#003d8f"]
+      }
+    />
+  ) : (
+    <img
+      src={KirunaLogo}
+      alt="Fallback Icon"
+      width="75%"
+      height="75%"
+      style={{ display: "block" }}
+    />
+  );
 }
 
 export { createCustomIcon, createReactFlowIcon };

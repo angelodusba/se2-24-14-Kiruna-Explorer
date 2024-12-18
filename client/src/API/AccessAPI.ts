@@ -26,10 +26,16 @@ async function login(email: string, password: string) {
 }
 
 async function logOut() {
-  await fetch(baseURL + "sessions", {
+  const response = await fetch(baseURL + "sessions", {
     method: "DELETE",
     credentials: "include",
   });
+  if (!response.ok) {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.message || "Something went wrong, please reload the page"
+    );
+  }
 }
 
 async function getUserInfo() {

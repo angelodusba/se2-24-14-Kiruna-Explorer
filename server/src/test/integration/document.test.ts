@@ -964,7 +964,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        description: "description2",
+        keywords: ["description2", "title2"],
         languages: ["Swedish"],
         stakeholders: [test_obj.stakeholder2],
         start_year: "2022",
@@ -976,6 +976,31 @@ describe("POST kirunaexplorer/documents/filtered", () => {
         expect(Number(res.body.totalPages)).toBe(1);
         expect(res.body.docs).toHaveLength(1);
         expect(res.body.docs).toContainEqual(doc2.body);
+      });
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        keywords: ["description", "title"]
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(Number(res.body.totalRows)).toBe(2);
+        expect(Number(res.body.totalPages)).toBe(1);
+        expect(res.body.docs).toHaveLength(2);
+        expect(res.body.docs).toContainEqual(doc1.body);
+        expect(res.body.docs).toContainEqual(doc2.body);
+      });
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        keywords: ["description1"]
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(Number(res.body.totalRows)).toBe(1);
+        expect(Number(res.body.totalPages)).toBe(1);
+        expect(res.body.docs).toHaveLength(1);
+        expect(res.body.docs).toContainEqual(doc1.body);
       });
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
@@ -1081,6 +1106,24 @@ describe("POST kirunaexplorer/documents/filtered", () => {
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
         municipality: "invalid",
+      })
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - invalid keywords", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        keywords: "invalid"
+      })
+      .expect(422);
+  });
+
+  test("POST /kirunaexplorer/documents/filtered - empty keywords", async () => {
+    await request(app)
+      .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
+      .send({
+        keywords: []
       })
       .expect(422);
   });

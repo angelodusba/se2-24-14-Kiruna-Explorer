@@ -1,8 +1,8 @@
 import "./App.css";
 import Map from "./components/Map/Map";
 import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import LoginPage from "./components/Login/LoginPage";
+import Navbar from "./components/Nav/Navbar";
+import LoginPage from "./pages/LoginPage";
 import { useEffect, useState } from "react";
 import User, { Role } from "./models/User";
 import UserContext from "./contexts/UserContext";
@@ -21,14 +21,14 @@ import { Snackbar, Alert } from "@mui/material";
 import DocumentsListPage from "./pages/DocumentsListPage";
 import Diagram from "./components/Diagram/Diagram";
 import MapPicker from "./components/Map/MapPicker";
-import { LandingPage } from "./pages/LandingPage";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | undefined>(undefined);
-  const [disabledInput, setDisabledInput] = useState(undefined);
   const [error, setError] = useState("");
   const [docsLocation, setDocsLocation] = useState([]);
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const [disabledInput, setDisabledInput] = useState(undefined);
   const [currentFilter, setCurrentFilter] = useState<SearchFilter>({});
   const [filterNumber, setFilterNumber] = useState<number>(0);
 
@@ -123,9 +123,7 @@ function App() {
 
   return (
     <UserContext.Provider value={user}>
-      <DisabledInputContext.Provider
-        value={{ disabledInput, setDisabledInput }}
-      >
+      <DisabledInputContext.Provider value={{ disabledInput, setDisabledInput }}>
         <ErrorContext.Provider value={{ error, setError }}>
           <Routes>
             <Route
@@ -134,9 +132,7 @@ function App() {
             />
             <Route
               path="/auth"
-              element={
-                user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />
-              }
+              element={user ? <Navigate to={"/map"} /> : <LoginPage login={doLogin} />}
             />
             <Route
               path="/"
@@ -233,20 +229,11 @@ function App() {
                   />
                 }
               />
-              <Route
-                path="/diagram"
-                element={<Diagram currentFilter={currentFilter} />}
-              >
-                <Route
-                  path=":id"
-                  element={<DocumentCard returnHere={"/diagram"} />}
-                ></Route>
+              <Route path="/diagram" element={<Diagram currentFilter={currentFilter} />}>
+                <Route path=":id" element={<DocumentCard returnHere={"/diagram"} />}></Route>
               </Route>
             </Route>
-            <Route
-              path="*"
-              element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />}
-            />
+            <Route path="*" element={user ? <Navigate to="/map" /> : <Navigate to="/auth" />} />
           </Routes>
           <Snackbar
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
@@ -254,12 +241,7 @@ function App() {
             autoHideDuration={3500}
             onClose={() => setError("")}
           >
-            <Alert
-              onClose={() => setError("")}
-              severity="error"
-              variant="filled"
-              sx={{ width: "100%" }}
-            >
+            <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
               {error}
             </Alert>
           </Snackbar>

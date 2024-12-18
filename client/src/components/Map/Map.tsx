@@ -1,22 +1,16 @@
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import {
-  LayerGroup,
-  MapContainer,
-  Polygon,
-  TileLayer,
-  Tooltip,
-} from "react-leaflet";
+import { LayerGroup, MapContainer, Polygon, TileLayer } from "react-leaflet";
 import "projektpro-leaflet-smoothwheelzoom";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useContext, useEffect, useState } from "react";
-import Dial from "../Dial";
-import DocumentDial from "../DocumentDial";
+import NavDial from "../Nav/NavDial";
+import DocumentDial from "./DocumentDial";
 import UserContext from "../../contexts/UserContext";
 import { Role } from "../../models/User";
 import { DisabledInputContext } from "../../contexts/DisabledInputContext";
-import { Outlet } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import DocumentMarker from "./DocumentMarker";
 import MapLayersControl from "./MapLayersControl";
 import ConnectionAPI from "../../API/ConnectionApi";
@@ -25,7 +19,7 @@ import KirunaLogo from "../../assets/KirunaLogo.svg";
 import DocumentAPI from "../../API/DocumentAPI";
 import React from "react";
 import Link from "./Link";
-import Legend from "../Legend";
+import Legend from "../shared/Legend";
 import ZoomControl from "./ZoomControl";
 
 const municipalityClusterIcon = function () {
@@ -53,6 +47,7 @@ function Map({ docs }) {
   const [bounds, setBounds] = useState<L.Polyline | null>(null);
   const [hoveredDocument, setHoveredDocument] = useState(null);
   const [zoom, setZoom] = useState(13);
+  const selectedDocument = Number(useParams().id);
 
   const getDocLocation = (id) => {
     const doc = docs.find((d) => d.id === id);
@@ -89,12 +84,9 @@ function Map({ docs }) {
   return (
     <>
       {!disabledInput && user && user.role === Role.UrbanPlanner && (
-        <>
-          <Dial /> {/* Add documents and links button */}
-          {/*TODO: remove */}
-          <DocumentDial /> {/* Municipality documents button */}
-        </>
+        <DocumentDial />
       )}
+      {!disabledInput && user && <NavDial />}
 
       <MapContainer
         center={[67.85572, 20.22513]}
@@ -115,7 +107,7 @@ function Map({ docs }) {
         }}>
         {!disabledInput && (
           <>
-            <Legend></Legend>
+            <Legend />
             <MapLayersControl
               mapType={mapType}
               setMapType={setMapType}
@@ -163,6 +155,7 @@ function Map({ docs }) {
                     stakeholders={doc.stakeholders}
                     position={L.latLng(doc.location[0])}
                     links={links}
+                    setHoveredDocument={setHoveredDocument}
                   />
                 );
               }
@@ -182,7 +175,9 @@ function Map({ docs }) {
                       position={L.PolyUtil.polygonCenter(pos, L.CRS.EPSG3857)}
                       links={links}
                       setHoveredDocument={setHoveredDocument}></DocumentMarker>
-                    {(layersVisibility.areas || hoveredDocument === doc.id) && (
+                    {(layersVisibility.areas ||
+                      hoveredDocument === doc.id ||
+                      selectedDocument === doc.id) && (
                       <Polygon
                         positions={pos}
                         pathOptions={{
@@ -196,7 +191,10 @@ function Map({ docs }) {
               }
             })}
         </MarkerClusterGroup>
-        <MarkerClusterGroup iconCreateFunction={municipalityClusterIcon}>
+        <MarkerClusterGroup
+          iconCreateFunction={municipalityClusterIcon}
+          spiderfyDistanceMultiplier={2}
+          showCoverageOnHover={false}>
           {!disabledInput &&
             docs.map((doc) => {
               if (doc.location.length === 0) {
@@ -209,6 +207,7 @@ function Map({ docs }) {
                     stakeholders={doc.stakeholders}
                     position={[67.85572, 20.22513]}
                     links={links}
+                    setHoveredDocument={setHoveredDocument}
                   />
                 );
               }
@@ -221,24 +220,35 @@ function Map({ docs }) {
         )}
         {!disabledInput &&
           links.map((link, index) => {
-            {
-              if (
-                docs.some((doc) => doc.id === link.id_doc1) &&
-                docs.some((doc) => doc.id === link.id_doc2)
-              ) {
+            if (
+              docs.some((doc) => doc.id === link.id_doc1) &&
+              docs.some((doc) => doc.id === link.id_doc2)
+            ) {
+              return link.connection_types.map((type, typeIndex) => {
+                const offset =
+                  typeIndex % 2 === 0 ? -typeIndex * 0.003 : typeIndex * 0.003; // Adjust offset for each type
+                const formattedType =
+                  type.split("_")[0].charAt(0).toUpperCase() +
+                  type.split("_")[0].slice(1);
                 return (
-                  layersVisibility.links &&
-                  zoom > 11 && (
+                  ((layersVisibility.links && zoom > 11) ||
+                    hoveredDocument == link.id_doc1 ||
+                    hoveredDocument == link.id_doc2 ||
+                    selectedDocument == link.id_doc1 ||
+                    selectedDocument == link.id_doc2) && (
                     <Link
-                      key={index}
-                      link={link}
+                      key={`${index}-${typeIndex}`}
+                      id_doc1={link.id_doc1}
+                      id_doc2={link.id_doc2}
+                      type={formattedType}
+                      offset={offset}
                       positions={{
                         doc1: getDocLocation(link.id_doc1),
                         doc2: getDocLocation(link.id_doc2),
                       }}></Link>
                   )
                 );
-              }
+              });
             }
           })}
         <Outlet />

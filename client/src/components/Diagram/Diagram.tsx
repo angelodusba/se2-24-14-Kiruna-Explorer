@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ReactFlow, {
   ReactFlowProvider,
-  addEdge,
   Controls,
   Background,
   Node,
@@ -20,13 +19,15 @@ import ZoomNode from "./ZoomNode";
 import ConnectionAPI from "../../API/ConnectionApi";
 import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
-import connectionStyles from "./ConnectionStyles";
+import connectionStyles from "../shared/ConnectionStyles";
 import { Button } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
-import Legend from "../Legend";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
+import Legend from "../shared/Legend";
 import FloatingEdge from "./FloatingEdge";
 import { ConnectionList } from "../../models/Connection";
 import Axis from "./Axis";
+import UserContext from "../../contexts/UserContext";
+import { Role } from "../../models/User";
 
 interface DocumentForDiagram {
   id: number;
@@ -65,6 +66,7 @@ const nodePerRows = 3;
 const nodePerColumns = 3;
 
 function Diagram({ currentFilter }: DiagramProps) {
+  const user = useContext(UserContext);
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
   const [gridNodes, setGridNodes] = useState<Node[]>([]);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -87,7 +89,9 @@ function Diagram({ currentFilter }: DiagramProps) {
     if (
       edges.find(
         (edge) =>
-          edge.source === params.source && edge.target === params.target && edge.label === "default"
+          edge.source === params.source &&
+          edge.target === params.target &&
+          edge.label === "default"
       )
     ) {
       console.log("Default edge already present");
@@ -100,7 +104,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       type: "floating",
       style: connectionStyles["default"],
       data: {
-        onDelete: () => deleteEdge(`${params.source}-${params.target}-${"default"}`),
+        onDelete: () =>
+          deleteEdge(`${params.source}-${params.target}-${"default"}`),
+        user: user,
       },
     };
     const newEdges = edges.concat(newEdge);
@@ -113,45 +119,52 @@ function Diagram({ currentFilter }: DiagramProps) {
     []
   );
 
-  const [allEdges, setAllEdges] = useState(undefined)
-  const [allNodes, setAllNodes] = useState(undefined)
-  const [edgeIsClicked, setEdgeIsClicked] = useState(false)
+  const [allEdges, setAllEdges] = useState(undefined);
+  const [allNodes, setAllNodes] = useState(undefined);
+  const [edgeIsClicked, setEdgeIsClicked] = useState(false);
 
   //on edge click leave only the nodes connected to the edge
   const onEdgeClick = (event, edge) => {
     let pressTimer;
     const handlePressStart = () => {
       pressTimer = setTimeout(() => {
-      if(edgeIsClicked == false){
-        const edgesToKeep = edges.filter((e) => e.source == edge.source || e.target == edge.target);
-        const nodesToKeep = nodes.filter((node) => node.id === edge.source || node.id === edge.target || node.type === "group");
-        setAllEdges(edges);
-        setAllNodes(nodes);
-        setNodes(nodesToKeep);
-        setEdges(edgesToKeep);
-        setEdgeIsClicked(true)
-      }
-      else{
-        setNodes(allNodes);
-        setEdges(allEdges);
-        setEdgeIsClicked(false)
-      }
-
-      }, 200);
+        if (edgeIsClicked == false) {
+          const edgesToKeep = edges.filter(
+            (e) => e.source == edge.source || e.target == edge.target
+          );
+          const nodesToKeep = nodes.filter(
+            (node) =>
+              node.id === edge.source ||
+              node.id === edge.target ||
+              node.type === "group"
+          );
+          setAllEdges(edges);
+          setAllNodes(nodes);
+          setNodes(nodesToKeep);
+          setEdges(edgesToKeep);
+          setEdgeIsClicked(true);
+        } else {
+          setNodes(allNodes);
+          setEdges(allEdges);
+          setEdgeIsClicked(false);
+        }
+      }, 500);
     };
 
     const handlePressEnd = () => {
       clearTimeout(pressTimer);
     };
 
-    event.target.addEventListener('mousedown', handlePressStart);
-    event.target.addEventListener('mouseup', handlePressEnd);
-    event.target.addEventListener('mouseleave', handlePressEnd);
+    event.target.addEventListener("mousedown", handlePressStart);
+    event.target.addEventListener("mouseup", handlePressEnd);
+    event.target.addEventListener("mouseleave", handlePressEnd);
   };
   //On edgeDoubleClick change edge type to the next one
   const onEdgeDoubleClick = (_, edge) => {
     const myEdgeType = edgeTypeName[edge.label];
-    const edgeTypeNames = Object.keys(edgeTypeName).filter((key) => key !== "default");
+    const edgeTypeNames = Object.keys(edgeTypeName).filter(
+      (key) => key !== "default"
+    );
     let currentEdgeType = myEdgeType;
 
     // Remove all edgeTypeNames that are already in use, except the myEdgeType
@@ -162,7 +175,9 @@ function Diagram({ currentFilter }: DiagramProps) {
     );
     notUsedEdgeTypeNames.push(myEdgeType);
     //Filter so each time i click i get the next edge type
-    const sortedEdgeTypes = notUsedEdgeTypeNames.sort();
+    const sortedEdgeTypes = notUsedEdgeTypeNames.sort((a, b) =>
+      a.localeCompare(b)
+    );
     if (sortedEdgeTypes.length > 0) {
       const index = sortedEdgeTypes.findIndex((key) => key === myEdgeType);
       currentEdgeType = sortedEdgeTypes[(index + 1) % sortedEdgeTypes.length];
@@ -180,10 +195,10 @@ function Diagram({ currentFilter }: DiagramProps) {
       targetHandle: edge.targetHandle,
       style: connectionStyles[currentEdgeType],
       data: {
-        onDelete: () => deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
+        onDelete: () =>
+          deleteEdge(`${edge.source}-${edge.target}-${currentEdgeType}`),
         pointPosition: edge.data.pointPosition,
       },
-
     };
     const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
     setEdges(newEdges);
@@ -194,7 +209,13 @@ function Diagram({ currentFilter }: DiagramProps) {
     const index = filteredYears.findIndex((f_year) => f_year === year);
     return index;
   };
-  const createNode = (doc: DocumentForDiagram, offsetY, offsetX, docYear, connections) => {
+  const createNode = (
+    doc: DocumentForDiagram,
+    offsetY,
+    offsetX,
+    docYear,
+    connections
+  ) => {
     return {
       id: doc.id.toString(),
       type: "zoom",
@@ -222,7 +243,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       extent: "parent",
     };
   };
-  const createNodesForDocument = async (fiteredDocsPerYear: DocumentForDiagram[][]) => {
+  const createNodesForDocument = async (
+    fiteredDocsPerYear: DocumentForDiagram[][]
+  ) => {
     let newNodes = [];
     const connections = await ConnectionAPI.getConnections();
     for (const docsPerYear of fiteredDocsPerYear) {
@@ -235,7 +258,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       for (const scale in arrayDocsPerScale) {
         //sort docs by month
         const docsPerYearPerScale = arrayDocsPerScale[scale];
-        const sortedDocs = docsPerYearPerScale.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+        const sortedDocs = docsPerYearPerScale.sort((a, b) =>
+          dayjs(a.date).diff(dayjs(b.date))
+        );
         let nDoc = 0;
         let offsetY = 0;
         let offsetX = 0;
@@ -245,15 +270,19 @@ function Diagram({ currentFilter }: DiagramProps) {
           const index_y = Math.floor(nDoc / nodePerRows);
           offsetX = index_x * nodeWidth;
           offsetY = index_y * nodeHeight;
-          const horizontalPadding = (gridWidth - nodeWidth * nodePerRows) / (nodePerRows + 1);
-          const verticalPadding = (gridHeight - nodeHeight * nodePerColumns) / (nodePerColumns + 1);
+          const horizontalPadding =
+            (gridWidth - nodeWidth * nodePerRows) / (nodePerRows + 1);
+          const verticalPadding =
+            (gridHeight - nodeHeight * nodePerColumns) / (nodePerColumns + 1);
           offsetX += (index_x + 1) * horizontalPadding;
           offsetY += (index_y + 1) * verticalPadding;
           if (index_y > nodePerColumns) {
             return;
           }
           const docYear = dayjs(doc.date).year();
-          nodesToAdd.push(createNode(doc, offsetY, offsetX, docYear, connections));
+          nodesToAdd.push(
+            createNode(doc, offsetY, offsetX, docYear, connections)
+          );
           nDoc++;
         }
         newNodes = [...newNodes, ...nodesToAdd];
@@ -270,17 +299,20 @@ function Diagram({ currentFilter }: DiagramProps) {
       targetHandle: targetHandle,
       type: edgeTypes ? "floating" : "default",
       label: type,
-      style: connectionStyles[type] ? connectionStyles[type] : connectionStyles["default"],
+      style: connectionStyles[type]
+        ? connectionStyles[type]
+        : connectionStyles["default"],
       data: {
         onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
         index: index,
+        user: user,
       },
     };
   };
   const getHandlesForEdge = (sourcePosition, targetPosition) => {
     const distanceX = targetPosition.x - sourcePosition.x;
     const distanceY = targetPosition.y - sourcePosition.y;
-    
+
     let targetHandle = "tl";
     let sourceHandle = "sr";
     if (Math.abs(distanceX) >= Math.abs(distanceY)) {
@@ -310,22 +342,46 @@ function Diagram({ currentFilter }: DiagramProps) {
       const grid1 = nodes.find((node) => node.id === doc1.parentId);
       const grid2 = nodes.find((node) => node.id === doc2.parentId);
 
-      let sourcePosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
-      let targetPosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
-      
-      if (sourcePosition.x > targetPosition.x ) {
+      let sourcePosition = {
+        x: doc1.position.x + grid1.position.x,
+        y: doc1.position.y + grid1.position.y,
+      };
+      let targetPosition = {
+        x: doc2.position.x + grid2.position.x,
+        y: doc2.position.y + grid2.position.y,
+      };
+
+      if (sourcePosition.x > targetPosition.x) {
         id1 = conn.id_doc2.toString();
         id2 = conn.id_doc1.toString();
-        sourcePosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
-        targetPosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
-      } else if (sourcePosition.x === targetPosition.x && sourcePosition.y > targetPosition.y) {
+        sourcePosition = {
+          x: doc2.position.x + grid2.position.x,
+          y: doc2.position.y + grid2.position.y,
+        };
+        targetPosition = {
+          x: doc1.position.x + grid1.position.x,
+          y: doc1.position.y + grid1.position.y,
+        };
+      } else if (
+        sourcePosition.x === targetPosition.x &&
+        sourcePosition.y > targetPosition.y
+      ) {
         id1 = conn.id_doc2.toString();
         id2 = conn.id_doc1.toString();
-        sourcePosition = {x: doc2.position.x + grid2.position.x, y: doc2.position.y + grid2.position.y}
-        targetPosition = {x: doc1.position.x + grid1.position.x, y: doc1.position.y + grid1.position.y}
+        sourcePosition = {
+          x: doc2.position.x + grid2.position.x,
+          y: doc2.position.y + grid2.position.y,
+        };
+        targetPosition = {
+          x: doc1.position.x + grid1.position.x,
+          y: doc1.position.y + grid1.position.y,
+        };
       }
 
-      const { sourceHandle, targetHandle } = getHandlesForEdge(sourcePosition, targetPosition);
+      const { sourceHandle, targetHandle } = getHandlesForEdge(
+        sourcePosition,
+        targetPosition
+      );
 
       return conn.connection_types.map((type: string, index) => {
         return createEdge(id1, id2, sourceHandle, targetHandle, type, index);
@@ -360,14 +416,19 @@ function Diagram({ currentFilter }: DiagramProps) {
 
         if (existing) {
           existing.connection_types = [
-            ...new Set([...existing.connection_types, ...edge.connection_types]),
+            ...new Set([
+              ...existing.connection_types,
+              ...edge.connection_types,
+            ]),
           ];
         } else {
           acc.push(edge);
         }
         return acc;
       }, []);
-    const uniqueNodes = [...new Set(connections.flatMap((conn) => [conn.id_doc1, conn.id_doc2]))];
+    const uniqueNodes = [
+      ...new Set(connections.flatMap((conn) => [conn.id_doc1, conn.id_doc2])),
+    ];
     const sortedNodes = uniqueNodes.sort((a, b) => b - a);
     //Now create connectionLists one for each uniqueNode
     const connectionLists: ConnectionList[] = sortedNodes.map((node) => {
@@ -404,9 +465,16 @@ function Diagram({ currentFilter }: DiagramProps) {
           typeName: doc.type.name,
         };
       });
-      const minYear = Math.floor(Math.min(...list.map((doc) => dayjs(doc.date).year())));
-      const maxYear = Math.ceil(Math.max(...list.map((doc) => dayjs(doc.date).year())));
-      const years = Array.from({ length: maxYear - minYear + 1 }, (_, k) => k + minYear);
+      const minYear = Math.floor(
+        Math.min(...list.map((doc) => dayjs(doc.date).year()))
+      );
+      const maxYear = Math.ceil(
+        Math.max(...list.map((doc) => dayjs(doc.date).year()))
+      );
+      const years = Array.from(
+        { length: maxYear - minYear + 1 },
+        (_, k) => k + minYear
+      );
       //Need to calculate the offset for each scale, to position the nodes correctly
       const numberOfDocumentsPerScale = response.docs.reduce((acc, doc) => {
         const scale = doc.scale.toLowerCase();
@@ -422,7 +490,9 @@ function Diagram({ currentFilter }: DiagramProps) {
         list.filter((doc) => dayjs(doc.date).year() === year)
       );
       // Keep only years with documents
-      const fiteredDocsPerYear = arrayDocsPerYear.filter((docs) => docs.length > 0);
+      const fiteredDocsPerYear = arrayDocsPerYear.filter(
+        (docs) => docs.length > 0
+      );
       const offsetYPerScale = {};
       let offset = gridHeight;
       // Calculate offset for each grid cell
@@ -432,7 +502,9 @@ function Diagram({ currentFilter }: DiagramProps) {
       });
       //Keep nodes with no documents, used to position docs and years
       const filteredYears = years.filter((year) => {
-        return fiteredDocsPerYear.find((docs) => docs[0].date.includes(year.toString()));
+        return fiteredDocsPerYear.find((docs) =>
+          docs[0].date.includes(year.toString())
+        );
       });
       //Create a group node for each year-scale tuple
       const groupNodes = {};
@@ -442,7 +514,10 @@ function Diagram({ currentFilter }: DiagramProps) {
             id: year.toString() + "_&_" + scale.name,
             data: { label: year.toString() + scale.name },
             position: {
-              x: assignX_toYear(year, filteredYears) * gridWidth + gridWidth + gridWidth / 100,
+              x:
+                assignX_toYear(year, filteredYears) * gridWidth +
+                gridWidth +
+                gridWidth / 100,
               y: offsetYPerScale[scale.name] + gridHeight / 100,
             },
             style: {
@@ -507,7 +582,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onEdgeDoubleClick={onEdgeDoubleClick}
-        onEdgeClick = {onEdgeClick}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
@@ -517,6 +592,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         valuesX={valuesX}
         valuesY={valuesY}
         onEdgesDelete={onEdgesDelete}
+        user={user}
       />
 
       <Outlet />
@@ -541,7 +617,11 @@ function Flow({
   valuesX,
   valuesY,
   onEdgesDelete,
+  user,
 }) {
+  const navigate = useNavigate();
+  const selectedDocId = Number(useParams().id);
+  const flow = useReactFlow();
   const defaultViewport: Viewport = { x: 0, y: 0, zoom: 0.2 };
   const [viewport, setViewport] = useState<Viewport>(defaultViewport);
   const bounds = {
@@ -550,13 +630,13 @@ function Flow({
     yMin: -1 * (valuesY.length - 2) * gridHeight * viewport.zoom,
     yMax: 0,
   };
-  const navigate = useNavigate();
-  const flow = useReactFlow();
+
   useOnViewportChange({
     onStart: setViewport,
     onChange: setViewport,
     onEnd: setViewport,
   });
+
   //Center viewport on first node, cover 2 years before
   const handleMove = (event, viewport: Viewport) => {
     if (!event) return; // Ex: resetting the view doesn't produce a move event
@@ -564,10 +644,6 @@ function Flow({
     // if x and y don't correspond to their limited version it means they are out of boundaries
     const limitedX = Math.max(bounds.xMin, Math.min(bounds.xMax, x));
     const limitedY = Math.max(bounds.yMin, Math.min(bounds.yMax, y));
-    // Prevent setting the viewport again if it hasn't changed
-    if (x === limitedX && y === limitedY && zoom === viewport.zoom) {
-      return;
-    }
     // Set the viewport only if clamping was necessary
     if (x !== limitedX || y !== limitedY) {
       event.preventDefault(); // Prevent uncontrolled panning
@@ -576,21 +652,31 @@ function Flow({
   };
 
   const onNodeClick = (_, node) => {
-    if (docsNodes.some((doc) => doc.id == node.id)) {
+    navigate(`/diagram/${node.id}`);    
+  };
+
+  useEffect(() => {
+    if (selectedDocId && docsNodes.some((doc) => doc.id == selectedDocId)) {
+      const node = docsNodes.find((node) => node.id == selectedDocId);
       const { zoom } = flow.getViewport();
-      const offsetX = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.x;
-      const offsetY = -gridNodes.find((gridNode) => gridNode.id === node.parentId).position.y;
-      const viewportX = offsetX * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
-      const viewportY = offsetY * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
+      const offsetX = -gridNodes.find(
+        (gridNode) => gridNode.id === node.parentId
+      ).position.x;
+      const offsetY = -gridNodes.find(
+        (gridNode) => gridNode.id === node.parentId
+      ).position.y;
+      const viewportX =
+        offsetX * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
+      const viewportY =
+        offsetY * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
       const newViewport = {
         x: viewportX + nodeWidth * zoom,
         y: viewportY,
         zoom,
       };
       flow.setViewport(newViewport, { duration: 800 });
-      navigate(`/diagram/${node.id}`);
     }
-  };
+  }, [docsNodes, selectedDocId]);
 
   return (
     <div
@@ -599,8 +685,7 @@ function Flow({
         width: "100vw",
         overflow: "auto",
         paddingTop: "72px",
-      }}
-    >
+      }}>
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
@@ -616,28 +701,16 @@ function Flow({
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         onMove={handleMove}
-        onClick={(event) => {event.stopPropagation();}}
+        onClick={(event) => {
+          event.stopPropagation();
+        }}
         zoomOnDoubleClick={false}
         zoomOnScroll={false}
         minZoom={0.2}
-        maxZoom={2}
+        maxZoom={0.8}
         defaultViewport={defaultViewport}
         panOnScroll
-        panOnDrag
-      >
-        <Button
-          onClick={() => saveNewConnections()}
-          style={{
-            position: "absolute",
-            bottom: 10,
-            right: 80 + 20,
-            zIndex: 10,
-            background: "pink",
-            color: "white",
-          }}
-        >
-          Save new connections
-        </Button>
+        panOnDrag>
         <Axis
           baseWidth={gridWidth}
           baseHeight={gridHeight / 2}
@@ -666,19 +739,20 @@ function Flow({
         <Background gap={gridWidth * 100} />
         <Legend />
       </ReactFlow>
-      <Button
-        onClick={() => saveNewConnections()}
-        style={{
-          position: "absolute",
-          bottom: 35,
-          right: 60,
-          zIndex: 200,
-          background: "#003d8f",
-          color: "white",
-        }}
-      >
-        Save new connections
-      </Button>
+      {user && user.role === Role.UrbanPlanner && (
+        <Button
+          onClick={() => saveNewConnections()}
+          style={{
+            position: "absolute",
+            bottom: 35,
+            right: 60,
+            zIndex: 200,
+            background: "#003d8f",
+            color: "white",
+          }}>
+          Save new connections
+        </Button>
+      )}
     </div>
   );
 }
