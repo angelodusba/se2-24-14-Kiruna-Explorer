@@ -19,18 +19,10 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   const location = useLocation();
   const isMapPage = location.pathname === "/map";
   const isDiagramPage = location.pathname === "/diagram";
-
-  const navigate = useNavigate();
-  const user = useContext(UserContext);
-  const { disabledInput } = useContext(DisabledInputContext);
-  /* User account panel */
-  const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(
+  /* Advanced search panel */
+  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
     null
   );
-  const accountOpen = Boolean(accountAnchorEl);
-  /* Advanced search panel */
-  const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
   const advancedSearchOpen = Boolean(advancedSearchAnchorEl);
   const advancedSearchId = advancedSearchOpen ? "advancedSearch" : undefined;
   /* Filters */
@@ -100,16 +92,12 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     const nonEmptyFilters = getNonEmptyFilters();
     setSearchValue(nonEmptyFilters.title || "");
     // Set non empty filters names
-    const names = Object.entries(nonEmptyFilters).map(
-      ([filterName]) => filterName
-    );
+    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
     setFilterNames(names);
     onSearch(nonEmptyFilters);
   };
 
-  const handleAdvacedSearchPanelOpen = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleAdvacedSearchPanelOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAdvancedSearchAnchorEl(event.currentTarget);
   };
 
@@ -174,9 +162,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   useEffect(() => {
     const nonEmptyFilters = getNonEmptyFilters();
     // Set non empty filters names
-    const names = Object.entries(nonEmptyFilters).map(
-      ([filterName]) => filterName
-    );
+    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
     setFilterNames(names);
   }, [filters]);
 
@@ -191,7 +177,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
             border: "none",
             zIndex: 1000,
             color: "white",
-          }}>
+          }}
+        >
           <Toolbar sx={{ flexGrow: 1 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid container>
@@ -199,7 +186,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   size="grow"
                   sx={{
                     marginTop: "8px",
-                  }}>
+                  }}
+                >
                   <Link
                     to={"/"}
                     style={{
@@ -209,7 +197,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
-                    }}>
+                    }}
+                  >
                     <img
                       src={KirunaLogo}
                       width="40px"
@@ -224,12 +213,9 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                         display: { sm: "block", xs: "none" },
                         fontWeight: 500,
                         letterSpacing: "0.5px", // Slight spacing
-                        color: isMapPage
-                          ? "white"
-                          : isDiagramPage
-                          ? "#003d8f"
-                          : "inherit", // Conditional color
-                      }}>
+                        color: isMapPage ? "white" : isDiagramPage ? "#003d8f" : "inherit", // Conditional color
+                      }}
+                    >
                       Kiruna Explorer
                     </Typography>
                   </Link>
@@ -240,7 +226,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     justifyContent: "center",
                     alignItems: "center",
                     display: "flex",
-                  }}>
+                  }}
+                >
                   <SearchBar
                     aria-describedby={advancedSearchId}
                     onSearch={handleSimpleSearch}
@@ -262,7 +249,8 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     transformOrigin={{
                       vertical: "top",
                       horizontal: "center",
-                    }}>
+                    }}
+                  >
                     <AdvancedSearchForm
                       handleClose={handleAdvacedSearchPanelClose}
                       handleSubmit={handleAdvancedSearch}
@@ -274,76 +262,14 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     />
                   </Popover>
                 </Grid>
-
-                <Grid>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                    {Object.entries(filters).flatMap(([key, value]) => {
-                      if (key === "types" && Array.isArray(value)) {
-                        // Map type IDs to their names for the "types" filter
-                        return value.map((typeId) => {
-                          const type = documentTypes.find(
-                            (t) => t.id === typeId
-                          ); // Find the corresponding type
-                          return (
-                            <Chip
-                              color="success"
-                              key={`${key}-${typeId}`}
-                              label={`${key}: ${type?.name || typeId}`} // Show name if available, fallback to ID
-                              onDelete={() => handleRemoveFilter(key, typeId)}
-                            />
-                          );
-                        });
-                      }
-
-                      if (key === "stakeholders" && Array.isArray(value)) {
-                        // Map stakeholder IDs to their names for the "stakeholders" filter
-                        return value.map((stakeholderId) => {
-                          const stakeholder = stakeholders.find(
-                            (s) => s.id === stakeholderId
-                          ); // Find the corresponding stakeholder
-                          return (
-                            <Chip
-                              color="success"
-                              key={`${key}-${stakeholderId}`}
-                              label={`${key}: ${
-                                stakeholder?.name || stakeholderId
-                              }`} // Show name if available, fallback to ID
-                              onDelete={() =>
-                                handleRemoveFilter(key, stakeholderId)
-                              }
-                            />
-                          );
-                        });
-                      }
-
-                      return Array.isArray(value)
-                        ? value.map((item) => (
-                            <Chip
-                              color="success"
-                              key={`${key}-${item}`}
-                              label={`${key}: ${item}`}
-                              onDelete={() => handleRemoveFilter(key, item)}
-                            />
-                          ))
-                        : value && (
-                            <Chip
-                              color="success"
-                              key={key}
-                              label={`${key}: ${value}`}
-                              onDelete={() => handleRemoveFilter(key, value)}
-                            />
-                          );
-                    })}
-                  </Box>
-                </Grid>
-
                 <Grid
                   size="grow"
                   sx={{
                     justifyContent: "end",
                     alignItems: "center",
                     display: { xs: "flex", sm: "flex" },
-                  }}>
+                  }}
+                >
                   <LoginButton handleLogout={handleLogout}></LoginButton>
                 </Grid>
               </Grid>
@@ -352,10 +278,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
         </AppBar>
       </Box>
       {(getNonEmptyFiltersLength() > 1 || !filters.title) && (
-        <FilterChips
-          filterNames={filterNames}
-          handleRemoveFilter={handleRemoveFilter}
-        />
+        <FilterChips filterNames={filterNames} handleRemoveFilter={handleRemoveFilter} />
       )}
       <NavDial />
     </>
