@@ -58,9 +58,7 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
       .catch(() => {});
     if (disabledInput === "point") {
       map.on("click", (event) => {
-        if (alertError) {
-          setAlertError("");
-        }
+        setAlertError("");
         if (
           mapBoundsRef.current &&
           !isPointInPolygon(event.latlng, mapBoundsRef.current)
