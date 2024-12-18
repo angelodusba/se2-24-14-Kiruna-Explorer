@@ -59,7 +59,7 @@ const ZoomNode = ({ data }: ZoomNodeProps) => {
         width: "100%",
         height: "100%",
         padding: "10px",
-        border: selectedDocId === docId ? "5px solid #003d8f" : "none",
+        border: selectedDocId === docId ? "5px solid #003d8f" : "3px solid #003d8f",
         borderRadius: "50%",
         boxShadow: selectedDocId === docId ? "0px 0px 8px 6px #003d8f" : "none",
         position: "relative",
