@@ -385,7 +385,7 @@ function DocumentCard(props) {
                         secondaryTypographyProps={{
                           variant: "caption",
                         }}
-                        secondary={documentCard.issue_date}
+                        secondary={documentCard.issue_date.replace(/-/g, "/")}
                       />
                     </ListItem>
                     <ListItem sx={{ alignItems: "start" }}>
