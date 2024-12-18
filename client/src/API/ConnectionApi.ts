@@ -147,6 +147,25 @@ async function updateConnectionsDiagram(connectionsList: ConnectionList) {
   }
 }
 
+async function deleteConnections(connectionList: ConnectionList){
+  const response = await fetch(baseURL + "connections", {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(connectionList),
+  });
+  if (response.ok) {
+    return;
+  } else {
+    const errDetail = await response.json();
+    throw new Error(
+      errDetail.error || "Something went wrong, please reload the page"
+    );
+  }
+}
+
 const ConnectionAPI = {
   sendConnections,
   getConnections,
@@ -154,6 +173,7 @@ const ConnectionAPI = {
   getTypeOfConnections,
   updateConnections,
   updateConnectionsDiagram,
+  deleteConnections,
 };
 
 export default ConnectionAPI;

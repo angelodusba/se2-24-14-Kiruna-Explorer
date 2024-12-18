@@ -178,6 +178,27 @@ class ConnectionRoutes {
       }
     );
 
+    // Delete connections
+    this.router.delete(
+      "/",
+      this.authService.isLoggedIn,
+      this.authService.isUrbanPlanner,
+      [
+        body("starting_document_id").isInt(),
+        body("connections").isArray(),
+        body("connections.*.document_id").isInt(),
+      ],
+      this.errorHandler.validateRequest,
+      (req: any, res: any, next: any) => {
+        this.controller
+          .deleteConnections(req.body.starting_document_id, req.body.connections)
+          .then(() => res.status(200).end())
+          .catch((err: any) => {
+            next(err);
+          });
+      }
+    );
+
   }
 }
 

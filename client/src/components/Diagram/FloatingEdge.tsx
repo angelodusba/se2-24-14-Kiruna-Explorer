@@ -92,7 +92,7 @@ const FloatingEdge: React.FC<EdgeProps> = ({
       <BaseEdge id={`${id}-1`} path={path1} style={style} />
       <BaseEdge id={`${id}-2`} path={path2} style={style} />
       <EdgeLabelRenderer>
-        <div
+        <button
           ref={edgeRef}
           style={{
             position: "absolute",
@@ -111,11 +111,13 @@ const FloatingEdge: React.FC<EdgeProps> = ({
             justifyContent: "center",
             color: "white",
             fontSize: "12px",
+            border: "none",
           }}
-        ></div>
+          aria-label="Drag handle"
+        ></button>
         {data.user && data.user.role === Role.UrbanPlanner && (
-          <div
-            onMouseDown={handleDelete}
+          <button 
+            onClick={handleDelete}
             style={{
               position: "absolute",
               left: `${removeX}px`,
@@ -133,10 +135,12 @@ const FloatingEdge: React.FC<EdgeProps> = ({
               justifyContent: "center",
               color: "black",
               fontSize: "12px",
-            }}
-          >
+              border: "none",
+          }}
+            aria-label="Delete edge"
+        >
             x
-          </div>
+          </button>
         )}
       </EdgeLabelRenderer>
     </>
