@@ -50,7 +50,7 @@ function Axis({ baseWidth, baseHeight, offset = 0, type, data, viewport }: AxisP
             width: dim.width,
             height: dim.height,
             maxWidth: type === "y" ? "min(40vw, 150px)" : "auto",
-            maxHeight: `${type === "x" ? "70px" : "auto"}`,
+            maxHeight: type === "x" ? "70px" : "auto",
             cursor: "default",
             wordWrap: "break-word", // Ensures wrapping of long words
             overflowWrap: "break-word", // Additional property for long words

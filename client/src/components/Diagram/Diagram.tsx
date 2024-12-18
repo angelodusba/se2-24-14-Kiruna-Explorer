@@ -252,9 +252,7 @@ function Diagram({ currentFilter }: Readonly<DiagramProps>) {
       style: {
         width: nodeWidth,
         height: nodeHeight,
-        borderRadius: "50%",
         backgroundColor: "#fff",
-        border: "2px solid #000",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
