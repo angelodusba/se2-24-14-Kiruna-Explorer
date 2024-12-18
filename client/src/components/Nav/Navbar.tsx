@@ -30,11 +30,8 @@ import { StakeHolder } from "../../models/StakeHolders";
 import { Type } from "../../models/Type";
 import DocumentAPI from "../../API/DocumentAPI";
 import NavDial from "./NavDial";
-<<<<<<< HEAD
 import { useLocation } from "react-router-dom";
-=======
 import FilterChips from "./FilterChips";
->>>>>>> 63091388868347ba0e7b3d89ba8761c61f7c92d9
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -380,7 +377,6 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     filterNumber={filterNumber}
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
-                    isDiagramPage={isDiagramPage}
                   />
 
                   <Popover
@@ -408,7 +404,6 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     />
                   </Popover>
                 </Grid>
-<<<<<<< HEAD
 
                 <Grid>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -472,9 +467,6 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                   </Box>
                 </Grid>
 
-=======
-                {/* Login / account button */}
->>>>>>> 63091388868347ba0e7b3d89ba8761c61f7c92d9
                 <Grid
                   size="grow"
                   sx={{
