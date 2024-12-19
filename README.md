@@ -9,15 +9,19 @@ Repository for the main project of the Software Engineering 2 (2024) course at P
 [![Express](https://img.shields.io/badge/Express-4.19.2-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-17--3.5-008000?style=flat&logo=postgresql&logoColor=white)](https://postgis.net/)
 
-[![Static Badge](https://img.shields.io/badge/View_on_DockerHub-white?style=for-the-badge&logo=docker&logoSize=auto)]([https://hub.docker.com/](https://hub.docker.com/repository/docker/fpalazz/se2-24-14-kiruna-explorer/general))
+[![Static Badge](https://img.shields.io/badge/View_on_DockerHub-white?style=for-the-badge&logo=docker&logoSize=auto)](<[https://hub.docker.com/](https://hub.docker.com/repository/docker/fpalazz/se2-24-14-kiruna-explorer/general)>)
 
-<img src="Screenshots/screen_map.png" alt="screen_map" style="zoom: 50%;" />
+<img src="Screenshots/homepage.png" alt="screen_homepage" style="zoom:50%;" />
 
-<img src="Screenshots/screen_links.png" alt="screen_links" style="zoom:50%;" />
+<img src="Screenshots/map.png" alt="screen_map" style="zoom: 50%;" />
 
-<img src="Screenshots/screen_card.png" alt="screen_card" style="zoom:50%;" />
+<img src="Screenshots/links.png" alt="screen_links" style="zoom:50%;" />
 
-<img src="Screenshots/screen_doc_list.png" alt="screen_doc_list" style="zoom:50%;" />
+<img src="Screenshots/card.png" alt="screen_card" style="zoom:50%;" />
+
+<img src="Screenshots/list.png" alt="screen_doc_list" style="zoom:50%;" />
+
+<img src="Screenshots/diagram.png" alt="screen_diagram" style="zoom:50%;" />
 
 ## Getting started
 
@@ -55,7 +59,9 @@ If you want to both stop the services and erase all data, append the `-v` flag:
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env.prod down -v
 ```
+
 ### Default users
+
 There are two default users:
 
 - John, a `Urban Planner` (email: `john@kiruna.com`, password: `12345`)
