@@ -99,7 +99,6 @@ function DocumentCard(props) {
   const cardRef = useRef(null);
   // Maximize button visible when card is minimized
   const [isCardMinimized, setIsCardMinimized] = useState<boolean>(false);
-
   const [documentCard, setDocumentCard] = useState<DocumentCard | null>({
     id: 0,
     title: "",
@@ -258,25 +257,27 @@ function DocumentCard(props) {
                 </Grid>
                 {/* Card title */}
                 <Grid size={7} sx={{ display: "flex", justifyContent: "start" }}>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: {
-                        xs: "18px",
-                        sm: "20px",
-                        md: "24px",
-                      },
-                    }}
-                    style={{
-                      width: "92%",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {documentCard.title}
-                  </Typography>
+                  <Tooltip title={documentCard.title}>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        fontWeight: "bold",
+                        fontSize: {
+                          xs: "18px",
+                          sm: "20px",
+                          md: "24px",
+                        },
+                      }}
+                      style={{
+                        width: "92%",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {documentCard.title}
+                    </Typography>
+                  </Tooltip>
                 </Grid>
                 <Grid size={4} sx={{ display: "flex", justifyContent: "end" }}>
                   {/* Map / Diagram visualization switch */}
@@ -384,7 +385,7 @@ function DocumentCard(props) {
                         secondaryTypographyProps={{
                           variant: "caption",
                         }}
-                        secondary={documentCard.issue_date}
+                        secondary={documentCard.issue_date.replace(/-/g, "/")}
                       />
                     </ListItem>
                     <ListItem sx={{ alignItems: "start" }}>

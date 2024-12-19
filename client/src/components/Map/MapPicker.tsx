@@ -11,6 +11,7 @@ import { EditControl } from "react-leaflet-draw";
 import SaveAreaDialog from "./SaveAreaDialog";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import { useNavigate } from "react-router-dom";
+import DocumentAPI from "../../API/DocumentAPI";
 
 function MapPicker({ areas = undefined, setDocument = undefined }) {
   const [pointMarker, setPointMarker] = useState<L.Marker | null>(null);
@@ -19,14 +20,52 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
   const [saveDialog, setSaveDialog] = useState(false);
   const featureGroupRef = useRef<L.FeatureGroup>(null);
   const { disabledInput, setDisabledInput } = useContext(DisabledInputContext);
+  const [alertError, setAlertError] = useState("");
+  const mapBoundsRef = useRef<L.LatLngLiteral[] | null>(null);
   const navigate = useNavigate();
   const alertRef = useRef(null);
   const map = useMap();
 
+  function isPointInPolygon(
+    point: L.LatLngLiteral,
+    polygon: L.LatLngLiteral[]
+  ): boolean {
+    let inside = false;
+    const x = point.lat;
+    const y = point.lng;
+
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i].lat,
+        yi = polygon[i].lng;
+      const xj = polygon[j].lat,
+        yj = polygon[j].lng;
+
+      const intersect =
+        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
+  }
+
   useEffect(() => {
     L.DomEvent.disableClickPropagation(alertRef.current);
+
+    DocumentAPI.getMunicipalityArea()
+      .then((area) => {
+        mapBoundsRef.current = area.location;
+      })
+      .catch(() => {});
     if (disabledInput === "point") {
       map.on("click", (event) => {
+        setAlertError("");
+        if (
+          mapBoundsRef.current &&
+          !isPointInPolygon(event.latlng, mapBoundsRef.current)
+        ) {
+          setAlertError("Selected point is outside the allowed area.");
+          return;
+        }
         if (pointMarker) {
           map.removeLayer(pointMarker);
         }
@@ -45,6 +84,8 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
   }, [disabledInput, map, pointMarker, setDocument]);
 
   const handlePolygonCreate = (event) => {
+    setAlertError("");
+
     featureGroupRef.current?.clearLayers();
     setPredefinedAreaId(null);
 
@@ -56,6 +97,8 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
   };
 
   const handlePolygonEdited = (event) => {
+    setAlertError("");
+
     featureGroupRef.current?.clearLayers();
     const area = L.polygon(event.layers.getLayers()[0].getLatLngs()[0]);
     setCustomPolygon(area);
@@ -63,6 +106,8 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
   };
 
   const handlePolygonDelete = () => {
+    setAlertError("");
+
     featureGroupRef.current?.clearLayers();
     setCustomPolygon(null);
   };
@@ -97,8 +142,20 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
       setPointMarker(null);
       setDisabledInput(undefined);
     } else if (disabledInput.includes("area")) {
+      if (alertError) {
+        setAlertError("");
+      }
+      if (mapBoundsRef.current && customPolygon) {
+        const polygonPoints = customPolygon.getLatLngs()[0] as L.LatLng[];
+        for (const point of polygonPoints) {
+          if (!isPointInPolygon(point, mapBoundsRef.current)) {
+            customPolygon.setStyle({ color: "red" });
+            setAlertError("All vertexes must be in the allowed area");
+            return;
+          }
+        }
+      }
       if (!disabledInput.includes("save")) {
-        console.log(customPolygon.getLatLngs()[0]);
         setDocument((prevDocument) => ({
           ...prevDocument,
           coordinates: customPolygon.getLatLngs()[0],
@@ -115,10 +172,9 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
 
   return (
     <>
-      {customPolygon && (
+      {(customPolygon || alertError) && (
         <Alert
-          icon={false}
-          severity="warning"
+          severity={alertError ? "error" : "warning"}
           sx={{
             top: 78,
             left: "50%",
@@ -127,8 +183,11 @@ function MapPicker({ areas = undefined, setDocument = undefined }) {
             position: "absolute",
             zIndex: 403,
           }}>
-          Drawing {!disabledInput.includes("save") && " or selecting"} a new
-          area will overwrite the previous one.
+          {alertError
+            ? alertError
+            : `Drawing ${
+                !disabledInput.includes("save") ? "or selecting" : ""
+              } a new area will overwrite the previous one.`}
         </Alert>
       )}
       {disabledInput === "area" && (

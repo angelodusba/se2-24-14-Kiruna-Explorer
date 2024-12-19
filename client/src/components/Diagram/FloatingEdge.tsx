@@ -92,52 +92,56 @@ const FloatingEdge: React.FC<EdgeProps> = ({
       <BaseEdge id={`${id}-1`} path={path1} style={style} />
       <BaseEdge id={`${id}-2`} path={path2} style={style} />
       <EdgeLabelRenderer>
-        <div
-          ref={edgeRef}
-          style={{
-            position: "absolute",
-            left: `${circlePos.x}px`,
-            top: `${circlePos.y}px`,
-            zIndex: 10,
-            opacity: 1,
-            width: "20px",
-            height: "20px",
-            pointerEvents: "all",
-            borderRadius: "50%",
-            background: style.stroke,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "12px",
-          }}
-        ></div>
-        {data.user && data.user.role === Role.UrbanPlanner && (
-          <div
-            onMouseDown={handleDelete}
-            style={{
-              position: "absolute",
-              left: `${removeX}px`,
-              top: `${removeY}px`,
-              zIndex: 10,
-              opacity: 1,
-              width: "20px",
-              height: "20px",
-              pointerEvents: "all",
-              borderRadius: "50%",
-              background: "red",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "black",
-              fontSize: "12px",
-            }}
-          >
-            x
-          </div>
-        )}
+      <button
+        ref={edgeRef}
+        style={{
+        position: "absolute",
+        left: `${circlePos.x}px`,
+        top: `${circlePos.y}px`,
+        zIndex: 10,
+        opacity: 1,
+        width: "20px",
+        height: "20px",
+        pointerEvents: "all",
+        borderRadius: "50%",
+        background: style.stroke,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: "12px",
+        border: "none",
+        }}
+        aria-label="Drag handle"
+      ></button>
+      {data.user && data.user.role === Role.UrbanPlanner && (
+        <button 
+        onClick={handleDelete}
+        style={{
+          position: "absolute",
+          left: `${removeX}px`,
+          top: `${removeY}px`,
+          zIndex: 10,
+          opacity: 1,
+          width: "20px",
+          height: "20px",
+          pointerEvents: "all",
+          borderRadius: "50%",
+          background: "red",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "black",
+          fontSize: "12px",
+          border: "none",
+        }}
+        aria-label="Delete edge"
+      >
+        x
+        </button>
+      )}
       </EdgeLabelRenderer>
     </>
   );

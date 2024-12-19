@@ -84,10 +84,6 @@ function App() {
     filterDocuments({});
   };
 
-  const handleCardShow = (id) => {
-    navigate(`/map/${id}`);
-  };
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -128,7 +124,7 @@ function App() {
           <Routes>
             <Route
               path="/"
-              element={<LandingPage />} // Show LandingPage as the default route
+              element={<LandingPage handleLogout={doLogout} />} // Show LandingPage as the default route
             />
             <Route
               path="/auth"
@@ -203,7 +199,7 @@ function App() {
                     }
                   />
                 </Route>
-                <Route
+                {/* <Route
                   path="municipality"
                   element={
                     user ? (
@@ -212,23 +208,14 @@ function App() {
                         onClose={() => navigate("/map")}
                         currentFilter={currentFilter}
                         docs={docsLocation}
-                        handleCardShow={handleCardShow}
                       />
                     ) : (
                       <Navigate to="/auth" />
                     )
                   }
-                />
+                /> */}
               </Route>
-              <Route
-                path="/list"
-                element={
-                  <DocumentsListPage
-                    currentFilter={currentFilter}
-                    handleCardShow={handleCardShow}
-                  />
-                }
-              />
+              <Route path="/list" element={<DocumentsListPage currentFilter={currentFilter} />} />
               <Route path="/diagram" element={<Diagram currentFilter={currentFilter} />}>
                 <Route path=":id" element={<DocumentCard returnHere={"/diagram"} />}></Route>
               </Route>

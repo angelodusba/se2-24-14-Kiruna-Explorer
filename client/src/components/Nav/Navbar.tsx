@@ -1,111 +1,24 @@
 import * as React from "react";
-import {
-  Box,
-  Toolbar,
-  Typography,
-  MenuItem,
-  Menu,
-  AppBar,
-  Divider,
-  MenuProps,
-  Fab,
-  Avatar,
-  ListItemIcon,
-  Popover,
-  Chip,
-} from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import AccountCircleOutlined from "@mui/icons-material/AccountCircle";
+import { Box, Toolbar, AppBar, Popover } from "@mui/material";
+import { Link } from "react-router-dom";
 import KirunaLogo from "../../assets/KirunaLogo.svg";
 import Grid from "@mui/material/Grid2";
-import UserContext from "../../contexts/UserContext";
-import { styled, alpha } from "@mui/material/styles";
-import { Logout, MailOutline } from "@mui/icons-material";
-import { DisabledInputContext } from "../../contexts/DisabledInputContext";
 import SearchBar from "./SearchBar";
 import { SearchFilter } from "../../models/SearchFilter";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AdvancedSearchForm from "../Forms/AdvancedSearchForm";
 import { StakeHolder } from "../../models/StakeHolders";
 import { Type } from "../../models/Type";
 import DocumentAPI from "../../API/DocumentAPI";
 import NavDial from "./NavDial";
-
-function stringToColor(string: string) {
-  let hash = 0;
-  for (let i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  let color = "#";
-  for (let i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-  return color;
-}
-
-function stringAvatar(name: string) {
-  const initials = name
-    .split(" ")
-    .map((word) => word[0])
-    .join("");
-
-  return {
-    sx: {
-      height: "100%",
-      width: "100%",
-      bgcolor: stringToColor(name),
-    },
-    children: initials || name[0],
-  };
-}
-
-const AccountMenu = styled((props: MenuProps) => (
-  <Menu
-    elevation={0}
-    anchorOrigin={{
-      vertical: "bottom",
-      horizontal: "right",
-    }}
-    transformOrigin={{
-      vertical: "top",
-      horizontal: "right",
-    }}
-    {...props}
-  />
-))(({ theme }) => ({
-  "& .MuiPaper-root": {
-    borderRadius: 6,
-    marginTop: theme.spacing(1),
-    minWidth: 180,
-    color: "rgb(55, 65, 81)",
-    boxShadow:
-      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-    "& .MuiMenu-list": {
-      padding: "4px 0",
-    },
-    "& .MuiMenuItem-root": {
-      "& .MuiSvgIcon-root": {
-        fontSize: 18,
-        marginRight: theme.spacing(1.5),
-      },
-      "&:active": {
-        backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
-      },
-    },
-    ...theme.applyStyles("dark", {
-      color: theme.palette.grey[300],
-    }),
-  },
-}));
+import { useLocation } from "react-router-dom";
+import FilterChips from "./FilterChips";
+import LoginButton from "./LoginButton";
+import TextLogo from "../shared/TextLogo";
 
 function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
-  const navigate = useNavigate();
-  const user = useContext(UserContext);
-  const { disabledInput } = useContext(DisabledInputContext);
-  /* User account panel */
-  const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(null);
-  const accountOpen = Boolean(accountAnchorEl);
+  const location = useLocation();
+  const isMapPage = location.pathname.includes("/map");
   /* Advanced search panel */
   const [advancedSearchAnchorEl, setAdvancedSearchAnchorEl] = useState<HTMLButtonElement | null>(
     null
@@ -127,29 +40,20 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     municipality: false,
   });
   const [searchValue, setSearchValue] = useState<string>("");
+  const [filterNames, setFilterNames] = useState<string[]>([]);
 
-  const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAccountAnchorEl(event.currentTarget);
-  };
-
-  const handleAccountMenuClose = () => {
-    setAccountAnchorEl(null);
-  };
-
-  const handleRemoveFilter = (key: string, value: string) => {
+  const handleRemoveFilter = (key: string) => {
     setFilters((prevFilters) => {
-      const updatedFilters = { ...prevFilters };
-
-      // Remove filter value from the array or reset the property
-      if (Array.isArray(updatedFilters[key])) {
-        updatedFilters[key] = updatedFilters[key].filter((item: string) => item !== value);
-      } else {
-        updatedFilters[key] = "";
-      }
-
+      const defaultValue = Array.isArray(prevFilters[key])
+        ? []
+        : typeof prevFilters[key] === "boolean"
+        ? false
+        : "";
+      const updatedFilters = { ...prevFilters, [key]: defaultValue };
+      onSearch(updatedFilters);
       return updatedFilters;
     });
-    onSearch(filters); 
+    setFilterNames((prevNames) => prevNames.filter((filterName) => filterName !== key));
   };
 
   const handleSimpleSearch = () => {
@@ -165,6 +69,7 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
       municipality: false,
     });
     onSearch({ title: searchValue });
+    setFilterNames(searchValue !== "" ? ["title"] : []);
   };
 
   const handleReset = () => {
@@ -184,22 +89,11 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
   };
 
   const handleAdvancedSearch = () => {
-    // Filter out empty or default values
-    const nonEmptyFilters = Object.fromEntries(
-      Object.entries(filters).filter(([, value]) => {
-        if (Array.isArray(value)) {
-          // Keep arrays only if they have at least one element
-          return value.length > 0;
-        } else if (typeof value === "boolean") {
-          // Include boolean values unless they are undefined
-          return value !== undefined;
-        } else {
-          // Keep strings only if they are not empty
-          return value !== "";
-        }
-      })
-    );
+    const nonEmptyFilters = getNonEmptyFilters();
     setSearchValue(nonEmptyFilters.title || "");
+    // Set non empty filters names
+    const names = Object.entries(nonEmptyFilters).map(([filterName]) => filterName);
+    setFilterNames(names);
     onSearch(nonEmptyFilters);
   };
 
@@ -211,41 +105,38 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
     setAdvancedSearchAnchorEl(null);
   };
 
-  const renderAccountMenu = (
-    <AccountMenu
-      id="accountMenu"
-      MenuListProps={{
-        "aria-labelledby": "accountMenu",
-      }}
-      anchorEl={accountAnchorEl}
-      open={accountOpen}
-      onClose={handleAccountMenuClose}
-    >
-      <Typography variant="h5" fontWeight="bold" align="center">
-        Hi {user?.username}
-      </Typography>
-      <MenuItem disableRipple>
-        <ListItemIcon sx={{ color: "#003d8f" }}>
-          <MailOutline fontSize="small" color="inherit" />
-        </ListItemIcon>
-        {user?.email}
-      </MenuItem>
-      <Divider sx={{ my: 0.5 }} />
-      <MenuItem
-        onClick={() => {
-          handleAccountMenuClose();
-          handleLogout();
-        }}
-        disableRipple
-        sx={{ color: "error.main" }}
-      >
-        <ListItemIcon>
-          <Logout fontSize="small" color="error" />
-        </ListItemIcon>
-        Logout
-      </MenuItem>
-    </AccountMenu>
-  );
+  const getNonEmptyFilters = () => {
+    // Filter out empty or default values
+    return Object.fromEntries(
+      Object.entries(filters).filter(([, value]) => {
+        if (Array.isArray(value)) {
+          // Keep arrays only if they have at least one element
+          return value.length > 0;
+        } else if (typeof value === "boolean") {
+          // Include boolean values unless they are undefined
+          return value !== undefined && value !== false;
+        } else {
+          // Keep strings only if they are not empty
+          return value !== "";
+        }
+      })
+    );
+  };
+
+  const getNonEmptyFiltersLength = () => {
+    return Object.entries(filters).filter(([, value]) => {
+      if (Array.isArray(value)) {
+        // Keep arrays only if they have at least one element
+        return value.length > 0;
+      } else if (typeof value === "boolean") {
+        // Include boolean values unless they are undefined
+        return value !== undefined && value !== false;
+      } else {
+        // Keep strings only if they are not empty
+        return value !== "";
+      }
+    }).length;
+  };
 
   useEffect(() => {
     // Fetch document types
@@ -305,21 +196,22 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                       src={KirunaLogo}
                       width="40px"
                       height="48px"
-                      alt="Kiruna Explorer"
+                      alt="Kiruna Logo"
                       style={{ marginRight: "8px" }}
                     />
-                    <Typography
-                      variant="h5"
-                      component="div"
+                    {/* Text logo */}
+                    <Box
                       sx={{
-                        display: { sm: "block", xs: "none" },
-                        fontWeight: 500,
-                        letterSpacing: "0.5px", // Slight spacing
-                        textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)", // Text shadow for contrast
+                        width: "280px",
+                        display: {
+                          xs: "none",
+                          lg: "block",
+                        },
+                        marginLeft: 1,
                       }}
                     >
-                      Kiruna Explorer
-                    </Typography>
+                      <TextLogo fillColor={isMapPage ? "white" : "#003d8f"} />
+                    </Box>
                   </Link>
                 </Grid>
                 <Grid
@@ -338,9 +230,6 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     searchValue={searchValue}
                     setSearchValue={setSearchValue}
                   />
-
-
-
 
                   <Popover
                     id={advancedSearchId}
@@ -367,97 +256,24 @@ function Navbar({ onSearch, handleLogout, filterNumber, handleResetFilters }) {
                     />
                   </Popover>
                 </Grid>
-
-                <Grid >
-                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                      {Object.entries(filters).flatMap(([key, value]) => {
-                      if (key === "types" && Array.isArray(value)) {
-                        // Map type IDs to their names for the "types" filter
-                        return value.map((typeId) => {
-                          const type = documentTypes.find((t) => t.id === typeId); // Find the corresponding type
-                          return (
-                            <Chip color="success"
-                              key={`${key}-${typeId}`}
-                              label={`${key}: ${type?.name || typeId}`} // Show name if available, fallback to ID
-                              onDelete={() => handleRemoveFilter(key, typeId)}
-                            />
-                          );
-                        });
-                      }
-                
-                      if (key === "stakeholders" && Array.isArray(value)) {
-                        // Map stakeholder IDs to their names for the "stakeholders" filter
-                        return value.map((stakeholderId) => {
-                          const stakeholder = stakeholders.find((s) => s.id === stakeholderId); // Find the corresponding stakeholder
-                          return (
-                            <Chip color="success"
-                              key={`${key}-${stakeholderId}`}
-                              label={`${key}: ${stakeholder?.name || stakeholderId}`} // Show name if available, fallback to ID
-                              onDelete={() => handleRemoveFilter(key, stakeholderId)}
-                            />
-                          );
-                        });
-                      }
-                
-
-                      return Array.isArray(value)
-                        ? value.map((item) => (
-                      <Chip color="success"
-                        key={`${key}-${item}`}
-                        label={`${key}: ${item}`}
-                        onDelete={() => handleRemoveFilter(key, item)}
-                      />
-                      ))
-                      : value && (
-                      <Chip color="success"
-                        key={key}
-                        label={`${key}: ${value}`}
-                        onDelete={() => handleRemoveFilter(key, value)}
-                      />
-                      );
-                    })}
-                   </Box>
-                </Grid>
-
                 <Grid
                   size="grow"
                   sx={{
                     justifyContent: "end",
                     alignItems: "center",
-                    display: { xs: "flex", sm: "flex" },
+                    display: { xs: "flex" },
                   }}
                 >
-                  {!user ? (
-                    <Fab
-                      disabled={disabledInput}
-                      variant="extended"
-                      size="medium"
-                      className="customButton"
-                      onClick={() => navigate("/auth")}
-                    >
-                      <AccountCircleOutlined sx={{ mr: 1 }} />
-                      Login
-                    </Fab>
-                  ) : (
-                    <Fab
-                      disabled={disabledInput}
-                      size="medium"
-                      id="accountMenu"
-                      aria-controls={accountOpen ? "accountMenu" : undefined}
-                      aria-haspopup="true"
-                      aria-expanded={accountOpen ? "true" : undefined}
-                      onClick={accountOpen ? handleAccountMenuClose : handleAccountMenuOpen}
-                    >
-                      <Avatar {...stringAvatar(user.username)} />
-                    </Fab>
-                  )}
+                  <LoginButton handleLogout={handleLogout} />
                 </Grid>
               </Grid>
             </Box>
           </Toolbar>
         </AppBar>
-        {user && renderAccountMenu}
       </Box>
+      {(getNonEmptyFiltersLength() > 1 || !filters.title) && (
+        <FilterChips filterNames={filterNames} handleRemoveFilter={handleRemoveFilter} />
+      )}
       <NavDial />
     </>
   );

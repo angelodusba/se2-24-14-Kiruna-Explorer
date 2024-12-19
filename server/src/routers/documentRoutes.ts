@@ -37,18 +37,32 @@ class DocumentRoutes {
       body("description").notEmpty().withMessage("Description must not be empty."),
       body("type_id").isInt().withMessage("Type ID must be an integer."),
       body("issue_date")
-        .notEmpty()
-        .withMessage("Issue date must not be empty.")
-        .matches(
-          /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$|^(0[1-9]|1[0-2])\/(\d{4})$|^\d{4}$/
-        )
-        .withMessage("Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY.")
-        .bail()
-        .custom((value) => {
-          if (value.split("/").length < 3) return true;
-          const [day, month, year] = value.split("/").map(Number);
+      .notEmpty()
+      .withMessage("Issue date must not be empty.")
+      .matches(
+        /^(\d{4})$|^(\d{4})\/(0[1-9]|1[0-2])$|^(\d{4})\/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])$/
+      )
+      .withMessage("Issue date must be in the format YYYY, YYYY/MM, or YYYY/MM/DD.")
+      .bail()
+      .custom((value) => {
+        const parts = value.split("/");
+        const year = parseInt(parts[0], 10);
+        if (parts.length === 1) {
+          // Format: YYYY
+          if (isNaN(year) || year < 1) {
+            throw new Error("Issue date must be a valid year.");
+          }
+        } else if (parts.length === 2) {
+          // Format: YYYY/MM
+          const month = parseInt(parts[1], 10);
+          if (isNaN(year) || isNaN(month) || year < 1 || month < 1 || month > 12) {
+            throw new Error("Issue date must be a valid year and month.");
+          }
+        } else if (parts.length === 3) {
+          // Format: YYYY/MM/DD
+          const month = parseInt(parts[1], 10);
+          const day = parseInt(parts[2], 10);
           const date = new Date(year, month - 1, day);
-          // Check if the date is valid
           if (
             date.getFullYear() !== year ||
             date.getMonth() !== month - 1 ||
@@ -56,8 +70,11 @@ class DocumentRoutes {
           ) {
             throw new Error("Issue date must be a valid date.");
           }
-          return true; // Indicates the validation passed
-        }),
+        } else {
+          throw new Error("Invalid issue date format.");
+        }
+        return true; // Indicates the validation passed
+      }),
       body("scale").notEmpty().withMessage("Scale must not be empty."),
       body("location")
         .isArray()

@@ -21,7 +21,7 @@ import DocumentAPI from "../../API/DocumentAPI";
 import "./Diagram.css";
 import connectionStyles from "../shared/ConnectionStyles";
 import { Button } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import Legend from "../shared/Legend";
 import FloatingEdge from "./FloatingEdge";
 import { ConnectionList } from "../../models/Connection";
@@ -65,7 +65,7 @@ const nodeHeight = nodeWidth;
 const nodePerRows = 3;
 const nodePerColumns = 3;
 
-function Diagram({ currentFilter }: DiagramProps) {
+function Diagram({ currentFilter }: Readonly<DiagramProps>) {
   const user = useContext(UserContext);
   const [docsNodes, setDocsNodes] = useState<Node[]>([]);
   const [gridNodes, setGridNodes] = useState<Node[]>([]);
@@ -74,17 +74,26 @@ function Diagram({ currentFilter }: DiagramProps) {
   const [refreshViewport, setRefreshViewport] = useState<boolean>(false);
   const [valuesX, setValuesX] = useState<{ id: number; label: string }[]>([]);
   const [valuesY, setValuesY] = useState<{ id: number; label: string }[]>([]);
+  const [deletedConnections, setDeletedConnections] = useState([]);
 
-  const deleteEdge = (id) => {
-    setEdges((els) => els.filter((el) => el.id !== id));
-  };
 
-  const onEdgesDelete = (edgesToDelete) => {
-    // Update the state by filtering out the deleted edges
-    setEdges((eds) => eds.filter((edge) => !edgesToDelete.includes(edge)));
+  const deleteEdge = async (id) => {
+    const edgeId = Array.isArray(id) ? id[0].id : id;
+    console.log("deleteEdge", edgeId);
+    const edge = edges.find((el) => el.id === edgeId);
+    //If edge is not default, add it to deletedConnections
+    if (edge.label !== "default") {
+      setDeletedConnections((els) => [...els, edge]);
+    }
+    setEdges((els) => els.filter((el) => el.id !== edgeId));
   };
 
   const onConnect = (params: Connection) => {
+    if(!(user && user.role === Role.UrbanPlanner)){
+      //Display an alert
+      alert("Only Urban Planners can create new connections");
+      return;
+    }
     //If a default edge is already present, return
     if (
       edges.find(
@@ -94,7 +103,7 @@ function Diagram({ currentFilter }: DiagramProps) {
           edge.label === "default"
       )
     ) {
-      console.log("Default edge already present");
+      alert("Default edge already present");
       return;
     }
     const newEdge = {
@@ -106,7 +115,6 @@ function Diagram({ currentFilter }: DiagramProps) {
       data: {
         onDelete: () =>
           deleteEdge(`${params.source}-${params.target}-${"default"}`),
-        user: user,
       },
     };
     const newEdges = edges.concat(newEdge);
@@ -128,7 +136,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     let pressTimer;
     const handlePressStart = () => {
       pressTimer = setTimeout(() => {
-        if (edgeIsClicked == false) {
+        if (!edgeIsClicked) {
           const edgesToKeep = edges.filter(
             (e) => e.source == edge.source || e.target == edge.target
           );
@@ -144,8 +152,15 @@ function Diagram({ currentFilter }: DiagramProps) {
           setEdges(edgesToKeep);
           setEdgeIsClicked(true);
         } else {
+          // Remove deletedConnections from allEdges
+          const newEdges = allEdges.filter(
+            (edge) =>
+              !deletedConnections.find((deletedEdge) => deletedEdge.id === edge.id)
+              && !edges.find((el) => el.source === edge.source && el.target === edge.target)
+          );
+          const concatEdges = newEdges.concat(edges);
           setNodes(allNodes);
-          setEdges(allEdges);
+          setEdges(concatEdges);
           setEdgeIsClicked(false);
         }
       }, 500);
@@ -161,6 +176,13 @@ function Diagram({ currentFilter }: DiagramProps) {
   };
   //On edgeDoubleClick change edge type to the next one
   const onEdgeDoubleClick = (_, edge) => {
+
+    if(!(user && user.role === Role.UrbanPlanner)){
+      //Display an alert
+      alert("Only Urban Planners can change the edge type");
+      return;
+    }
+
     const myEdgeType = edgeTypeName[edge.label];
     const edgeTypeNames = Object.keys(edgeTypeName).filter(
       (key) => key !== "default"
@@ -200,8 +222,8 @@ function Diagram({ currentFilter }: DiagramProps) {
         pointPosition: edge.data.pointPosition,
       },
     };
-    const newEdges = edges.map((e) => (e.id === edge.id ? newEdge : e));
-    setEdges(newEdges);
+    setDeletedConnections((els) => [...els, edge]);
+    setEdges((els) => els.map((el) => (el.id === edge.id ? newEdge : el)));
   };
 
   const assignX_toYear = (year: number, filteredYears: number[]) => {
@@ -231,9 +253,7 @@ function Diagram({ currentFilter }: DiagramProps) {
       style: {
         width: nodeWidth,
         height: nodeHeight,
-        borderRadius: "50%",
         backgroundColor: "#fff",
-        border: "2px solid #000",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -303,7 +323,7 @@ function Diagram({ currentFilter }: DiagramProps) {
         ? connectionStyles[type]
         : connectionStyles["default"],
       data: {
-        onDelete: () => deleteEdge(`${id1}-${id2}-${type}`),
+        onDelete: async () => deleteEdge(`${id1}-${id2}-${type}`),
         index: index,
         user: user,
       },
@@ -389,6 +409,7 @@ function Diagram({ currentFilter }: DiagramProps) {
     });
   };
   const saveNewConnections = async () => {
+
     const connections = edges
       .filter((edge) => edge.type === "floating" && edge.label !== "default")
       .map((edge) => {
@@ -444,6 +465,26 @@ function Diagram({ currentFilter }: DiagramProps) {
           }),
       };
     });
+    
+    //Before saving delete connections from deletedConnections
+    //Create one connectionList from each deleted connections
+    const deletedConnectionLists = deletedConnections.map((edge) => {
+      const parts = edge.id.split("-");
+      return {
+        starting_document_id: parseInt(parts[0]),
+        connections: [
+          {
+            document_id: parseInt(parts[1]),
+            connection_types: [edge.label],
+          },
+        ],
+      };
+    });
+    for (const connectionList of deletedConnectionLists) {
+        await ConnectionAPI.deleteConnections(connectionList);
+    }
+    setDeletedConnections([]);
+
     for (const connectionList of connectionLists) {
       if (connectionList.connections.length > 0) {
         await ConnectionAPI.updateConnectionsDiagram(connectionList);
@@ -586,13 +627,13 @@ function Diagram({ currentFilter }: DiagramProps) {
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes ? edgeTypes : undefined}
+        edgeTypes={edgeTypes}
         gridNodes={gridNodes}
         saveNewConnections={saveNewConnections}
         valuesX={valuesX}
         valuesY={valuesY}
-        onEdgesDelete={onEdgesDelete}
         user={user}
+        deleteEdge={deleteEdge}
       />
 
       <Outlet />
@@ -616,10 +657,11 @@ function Flow({
   saveNewConnections,
   valuesX,
   valuesY,
-  onEdgesDelete,
   user,
+  deleteEdge,
 }) {
   const navigate = useNavigate();
+  const selectedDocId = Number(useParams().id);
   const flow = useReactFlow();
   const defaultViewport: Viewport = { x: 0, y: 0, zoom: 0.2 };
   const [viewport, setViewport] = useState<Viewport>(defaultViewport);
@@ -651,27 +693,33 @@ function Flow({
   };
 
   const onNodeClick = (_, node) => {
-    if (docsNodes.some((doc) => doc.id == node.id)) {
-      const { zoom } = flow.getViewport();
+    if(node.type === "group") return;
+    if(!node.id) return;
+    navigate(`/diagram/${node.id}`);    
+  };
+
+  useEffect(() => {
+    if (selectedDocId && docsNodes.some((doc) => doc.id == selectedDocId)) {
+      const node = docsNodes.find((node) => node.id == selectedDocId);
+      const zoom = defaultViewport.zoom * 3;
       const offsetX = -gridNodes.find(
         (gridNode) => gridNode.id === node.parentId
-      ).position.x;
+      ).position.x - node.position.x;
       const offsetY = -gridNodes.find(
         (gridNode) => gridNode.id === node.parentId
-      ).position.y;
+      ).position.y - node.position.y;
       const viewportX =
         offsetX * zoom + window.innerWidth / 2 - (nodeWidth * zoom) / 2;
       const viewportY =
         offsetY * zoom + window.innerHeight / 2 - (gridHeight * zoom) / 2;
       const newViewport = {
-        x: viewportX + nodeWidth * zoom,
+        x: viewportX + 300,
         y: viewportY,
         zoom,
       };
       flow.setViewport(newViewport, { duration: 800 });
-      navigate(`/diagram/${node.id}`);
     }
-  };
+  }, [docsNodes, selectedDocId]);
 
   return (
     <div
@@ -681,18 +729,18 @@ function Flow({
         overflow: "auto",
         paddingTop: "72px",
       }}>
-      <ReactFlow
+      <ReactFlow 
         nodes={nodes}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes ? edgeTypes : undefined}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeClick}
         edges={edges}
         onEdgesChange={onEdgesChange}
-        onEdgesDelete={onEdgesDelete}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onEdgeClick={onEdgeClick}
+        onEdgesDelete={deleteEdge}
         onConnect={onConnect}
         onEdgeUpdate={onEdgeUpdate}
         onMove={handleMove}
@@ -700,22 +748,21 @@ function Flow({
           event.stopPropagation();
         }}
         zoomOnDoubleClick={false}
-        zoomOnScroll={false}
+        zoomOnScroll={true}
         minZoom={0.2}
         maxZoom={0.8}
         defaultViewport={defaultViewport}
-        panOnScroll
         panOnDrag>
         <Axis
           baseWidth={gridWidth}
-          baseHeight={gridHeight / 2}
+          baseHeight={gridHeight}
           type={"x"}
           data={valuesX}
           offset={gridWidth}
           viewport={viewport}
         />
         <Axis
-          baseWidth={gridWidth / 2}
+          baseWidth={gridWidth}
           baseHeight={gridHeight}
           type={"y"}
           data={valuesY}

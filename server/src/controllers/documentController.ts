@@ -49,11 +49,13 @@ class DocumentController {
     }
     // Convert object array into a comma separated string of coordinates
     const locationStr = location.map((coord) => `${coord.lng} ${coord.lat}`).join(", ");
+    // Replace the / with - in the issue_date
+    const transformedDate = issue_date.replace(/\//g, "-"); 
     return this.dao.createDocument(
       title,
       description,
       type_id,
-      issue_date,
+      transformedDate,
       scale,
       locationStr,
       language,
