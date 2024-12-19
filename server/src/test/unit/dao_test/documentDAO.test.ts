@@ -81,7 +81,9 @@ beforeAll(async () => {
   urbanPlannerCookie = await login(urbanPlanner);
 
   await db.query("INSERT INTO types (name) VALUES ($1)", ["type1"]);
-  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder1"]);
+  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", [
+    "stakeholder1",
+  ]);
 });
 
 afterAll(async () => {
@@ -99,7 +101,7 @@ describe("POST /kirunaexplorer/documents", () => {
         title: "Point Document",
         description: "Point location document",
         type_id: testData.type1,
-        issue_date: "01/01/2023",
+        issue_date: "2023/01/01",
         scale: "1:500",
         location: [{ lat: 68.1817, lng: 20.4573 }], // Single point location
         language: "English",
@@ -117,9 +119,9 @@ describe("POST /kirunaexplorer/documents", () => {
       .set("Cookie", urbanPlannerCookie)
       .send({
         title: "Polygon Document",
-        description: "Polygon location document",
+        description: "Point location document",
         type_id: testData.type1,
-        issue_date: "01/01/2023",
+        issue_date: "2023/01/01",
         scale: "1:500",
         location: [
           { lat: 68.1817, lng: 20.4573 },
@@ -141,7 +143,7 @@ describe("POST /kirunaexplorer/documents", () => {
       .set("Cookie", urbanPlannerCookie)
       .send({
         title: "Document with Invalid Date",
-        description: "Invalid date document",
+        keywords: ["Point location document"],
         type_id: testData.type1,
         issue_date: "invalid-date",
         scale: "1:500",

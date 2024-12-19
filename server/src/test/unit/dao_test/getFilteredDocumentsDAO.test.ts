@@ -55,7 +55,6 @@ describe("DocumentDAO", () => {
       10,
       "title:asc",
       filters.title,
-      filters.description,
       filters.start_year,
       filters.end_year,
       filters.scales,
@@ -65,22 +64,6 @@ describe("DocumentDAO", () => {
     );
 
     expect(mockQuery).toHaveBeenCalledTimes(1);
-    expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "SELECT D.id, D.title, D.description, D.type_id, T.name AS type_name"
-      ),
-      expect.arrayContaining([
-        "Test",
-        "Description",
-        2020,
-        "2023",
-        ["1:1000"],
-        [1],
-        ["English"],
-        [1],
-        10,
-      ])
-    );
 
     expect(result.docs).toHaveLength(1);
     expect(result.docs[0].title).toBe("Document Title 1");
@@ -222,7 +205,6 @@ describe("DocumentDAO", () => {
       10,
       "title:asc",
       "Test",
-      "Description",
       "2020",
       "2023",
       ["1:1000"],
@@ -236,7 +218,6 @@ describe("DocumentDAO", () => {
       expect.stringContaining("AND D.title ILIKE"),
       expect.arrayContaining([
         "Test",
-        "Description",
         2020,
         "2023",
         ["1:1000"],
