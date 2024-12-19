@@ -48,7 +48,7 @@ describe("DocumentController", () => {
       size: 10,
       sort: "title:asc",
       title: "Test",
-      description: "Description",
+      keywords: ["Description"],
       start_year: "2020",
       end_year: "2023",
       scales: ["1:1000"],
@@ -62,13 +62,14 @@ describe("DocumentController", () => {
       filters.size,
       filters.sort,
       filters.title,
-      filters.description,
       filters.start_year,
       filters.end_year,
       filters.scales,
       filters.types,
       filters.languages,
-      filters.stakeholders
+      filters.stakeholders,
+      undefined,
+      filters.keywords
     );
 
     expect(mockGetFilteredDocuments).toHaveBeenCalledTimes(1);

@@ -123,8 +123,12 @@ beforeAll(async () => {
   await db.query("INSERT INTO types (name) VALUES ($1)", ["type2"]);
   await db.query("INSERT INTO types (name) VALUES ($1)", ["type3"]);
   // Insert two stakeholders
-  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder1"]);
-  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder2"]);
+  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", [
+    "stakeholder1",
+  ]);
+  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", [
+    "stakeholder2",
+  ]);
   // Populate DB with municipality area if it doesn't exist yet
   const res = await db.query(`SELECT id, name FROM areas WHERE id = 1`);
   if (res.rows.length === 0) {
@@ -205,7 +209,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: [{ lat: 68.4, lng: 21.3 }],
         language: "",
@@ -353,7 +357,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: [{ lat: 1.0, lng: 3.0 }],
         language: "",
@@ -393,7 +397,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: testLocation,
         language: "",
@@ -428,7 +432,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: testLocation,
         language: "",
@@ -469,7 +473,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: testLocation,
         language: "",
@@ -509,7 +513,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: testLocation,
         language: "",
@@ -548,7 +552,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: testLocation,
         language: "",
@@ -567,7 +571,9 @@ describe("POST kirunaexplorer/documents", () => {
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("Location must be an array with at least 3 points.");
+        expect(res.body.errors[0].msg).toBe(
+          "Location must be an array with at least 3 points."
+        );
       });
   });
 
@@ -587,7 +593,7 @@ describe("POST kirunaexplorer/documents", () => {
         title: "this is a title",
         description: "This is a description",
         type_id: test_obj.type1,
-        issue_date: "01/01/2020",
+        issue_date: "2023/01/01",
         scale: "blueprints/effects",
         location: testLocation,
         language: "",
@@ -883,7 +889,9 @@ describe("PUT /kirunaexplorer/documents/location", () => {
       })
       .expect(422)
       .expect((res) => {
-        expect(res.body.errors[0].msg).toBe("Location must be an array with at least 3 points.");
+        expect(res.body.errors[0].msg).toBe(
+          "Location must be an array with at least 3 points."
+        );
       });
   });
 
@@ -980,7 +988,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        keywords: ["description", "title"]
+        keywords: ["description", "title"],
       })
       .expect(200)
       .expect((res) => {
@@ -993,7 +1001,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        keywords: ["description1"]
+        keywords: ["description1"],
       })
       .expect(200)
       .expect((res) => {
@@ -1022,7 +1030,9 @@ describe("POST kirunaexplorer/documents/filtered", () => {
 
   test("POST /kirunaexplorer/documents/filtered - invalid page", async () => {
     await request(app)
-      .post(`${routePath}/documents/filtered?page=invalid&size=5&sort=title%3Aasc`)
+      .post(
+        `${routePath}/documents/filtered?page=invalid&size=5&sort=title%3Aasc`
+      )
       .send({})
       .expect(422);
   });
@@ -1036,7 +1046,9 @@ describe("POST kirunaexplorer/documents/filtered", () => {
 
   test("POST /kirunaexplorer/documents/filtered - invalid size", async () => {
     await request(app)
-      .post(`${routePath}/documents/filtered?page=1&size=invalid&sort=title%3Aasc`)
+      .post(
+        `${routePath}/documents/filtered?page=1&size=invalid&sort=title%3Aasc`
+      )
       .send({})
       .expect(422);
   });
@@ -1114,7 +1126,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        keywords: "invalid"
+        keywords: "invalid",
       })
       .expect(422);
   });
@@ -1123,7 +1135,7 @@ describe("POST kirunaexplorer/documents/filtered", () => {
     await request(app)
       .post(`${routePath}/documents/filtered?page=1&size=5&sort=title%3Aasc`)
       .send({
-        keywords: []
+        keywords: [],
       })
       .expect(422);
   });

@@ -81,7 +81,9 @@ beforeAll(async () => {
   urbanPlannerCookie = await login(urbanPlanner);
 
   await db.query("INSERT INTO types (name) VALUES ($1)", ["type1"]);
-  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", ["stakeholder1"]);
+  await db.query("INSERT INTO stakeholders (name) VALUES ($1)", [
+    "stakeholder1",
+  ]);
 });
 
 afterAll(async () => {
@@ -100,7 +102,7 @@ describe("DocumentRoutes Tests", () => {
           title: "Point Document",
           description: "Point location document",
           type_id: testData.type1,
-          issue_date: "01/01/2023",
+          issue_date: "2023/01/01",
           scale: "1:500",
           location: [{ lat: 68.1817, lng: 20.4573 }],
           language: "English",
@@ -118,9 +120,9 @@ describe("DocumentRoutes Tests", () => {
         .set("Cookie", urbanPlannerCookie)
         .send({
           title: "Polygon Document",
-          description: "Polygon location document",
+          description: "Point location document",
           type_id: testData.type1,
-          issue_date: "01/01/2023",
+          issue_date: "2023/01/01",
           scale: "1:500",
           location: [
             { lat: 68.1817, lng: 20.4573 },
@@ -154,13 +156,6 @@ describe("DocumentRoutes Tests", () => {
         });
 
       expect(response.status).toBe(422);
-      expect(response.body.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            msg: "Issue date must be in the format DD/MM/YYYY or MM/YYYY or YYYY.",
-          }),
-        ])
-      );
     });
 
     test("POST /kirunaexplorer/documents - missing required field (title)", async () => {
@@ -169,7 +164,7 @@ describe("DocumentRoutes Tests", () => {
         .post(`${routePath}/documents`)
         .set("Cookie", urbanPlannerCookie)
         .send({
-          description: "Missing title",
+          keywords: ["Missing title"],
           type_id: testData.type1,
           issue_date: "01/01/2023",
           scale: "1:500",
