@@ -9,7 +9,8 @@ Repository for the main project of the Software Engineering 2 (2024) course at P
 [![Express](https://img.shields.io/badge/Express-4.19.2-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-17--3.5-008000?style=flat&logo=postgresql&logoColor=white)](https://postgis.net/)
 
-[![Static Badge](https://img.shields.io/badge/View_on_DockerHub-white?style=for-the-badge&logo=docker&logoSize=auto)](<[https://hub.docker.com/](https://hub.docker.com/repository/docker/fpalazz/se2-24-14-kiruna-explorer/general)>)
+[![Static Badge](https://img.shields.io/badge/View_on_DockerHub-white?style=for-the-badge&logo=docker&logoSize=auto)](https://hub.docker.com/repository/docker/fpalazz/se2-24-14-kiruna-explorer/general)
+
 
 <img src="Screenshots/homepage.png" alt="screen_homepage" style="zoom:50%;" />
 
