@@ -16,13 +16,6 @@ CREATE TABLE IF NOT EXISTS public."types"
     name VARCHAR(50) UNIQUE NOT NULL
 );
 
--- Scales table
-CREATE TABLE IF NOT EXISTS public."scales"
-(
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL
-);
-
 -- Areas table
 CREATE TABLE IF NOT EXISTS public."areas"
 (
@@ -39,7 +32,7 @@ CREATE TABLE IF NOT EXISTS public."documents"
     description TEXT NOT NULL,
     type_id INT NOT NULL REFERENCES public."types"(id),
     issue_date VARCHAR(10) NOT NULL,  -- handle different date formats
-    scale VARCHAR(50) NOT NULL, -- FIXME: scale_id INT NOT NULL REFERENCES public."scales"(id),
+    scale VARCHAR(50) NOT NULL,
     language VARCHAR(50),
     pages VARCHAR(50),
     location GEOMETRY(Geometry, 4326)  -- Geometry type for point or polygon
